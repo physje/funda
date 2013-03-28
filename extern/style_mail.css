@@ -1,0 +1,42 @@
+body	{
+	background-color: #ECE6D4;
+	font-family: Arial, Verdana;
+	font-size: 13px; 
+	color: #2D476D;
+	margin-top: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+}
+
+td	{
+	font-family: Verdana, Arial;
+	font-size: 13px;
+	color: #2D476D;
+}
+	
+td a	{
+	color: #A80000;
+	text-decoration: none;
+}
+	
+td a:hover	{
+	text-decoration: underline;
+}
+
+h1 {
+	display: inline;
+}
+
+.offline {
+	color: #B9B9B9;
+}
+
+.offlineVerkocht {
+	color: #B9B9B9;
+	text-decoration:line-through;
+}
+
+.onlineVerkocht {
+	text-decoration:line-through;
+}
