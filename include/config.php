@@ -1,8 +1,8 @@
 <?
 
-$ScriptURL				= "http://www.draijer.org/extern/funda/";
+$ScriptURL				= "";
 $ScriptTitle			= "Funda webchecker";
-$ScriptMailAdress = 'funda@draijer.org';
+$ScriptMailAdress = '';
 $Version					= '2.1';
 $SubjectPrefix		= "[funda] ";
 
@@ -66,9 +66,5 @@ $LogType					= "type";
 $LogOpdracht			= "opdracht";
 $LogHuis					= "huis";
 $LogMessage				= "message";
-
-//$toLogFile[] = 'error';
-//$toLogFile[] = 'info';
-//$toLogFile[] = 'debug';
 
 ?>
