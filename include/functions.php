@@ -1,4 +1,4 @@
-<?
+<?php
 
 function getZoekOpdrachten($active) {
 	global $TableZoeken, $ZoekenKey, $ZoekenActive;

@@ -1,4 +1,4 @@
-<?
+<?php
 
 $HTMLHeader	 = "<!--     Deze pagina is onderdeel van $ScriptTitle $Version gemaakt door Matthijs Draijer     -->\n\n";
 $HTMLHeader	.= "<html>\n";
