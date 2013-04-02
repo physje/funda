@@ -59,8 +59,9 @@ if(!isset($_REQUEST['keuze']) AND !isset($_REQUEST['regio']) AND !isset($_REQUES
 	$result	= mysql_query($sql);
 	if($row = mysql_fetch_array($result)) {
 		do {
+			// Alles weer opnieuw initialiseren.
 			unset($prijs, $naam);
-			unset($Aanmelddatum, $Verkoopdatum, $AangebodenSinds);
+			unset($Aanmelddatum, $Verkoopdatum, $AangebodenSinds, $startdata);
 			unset($OorspronkelijkeVraagprijs, $LaatsteVraagprijs, $Vraagprijs);
 			$verkocht = false;
 			
@@ -70,8 +71,8 @@ if(!isset($_REQUEST['keuze']) AND !isset($_REQUEST['regio']) AND !isset($_REQUES
 	
 			// Via de kenmerkenpagina		
 			$data			= extractDetailedFundaData($url);
-					
-			// Data gevonden in de kenmerken-pagina
+		
+			// Als de array 'data' groter is dan 3 is er data gevonden in de kenmerken-pagina
 			if(count($data) > 3) {
 				// Reeds verkochte huizen
 				if($data['Aanmelddatum'] != '') {
@@ -85,6 +86,11 @@ if(!isset($_REQUEST['keuze']) AND !isset($_REQUEST['regio']) AND !isset($_REQUES
 					$verkoopDatum	= explode("-", $guessVerkoopDatum);
 					$Verkoopdatum = mktime(23, 59, 59, $verkoopDatum[1], $verkoopDatum[0], $verkoopDatum[2]);
 				}			
+
+				if($data['Laatste vraagprijs'] != '') {
+					$prijzen		= explode(" ", $data['Laatste vraagprijs']);				
+					$LaatsteVraagprijs	= str_ireplace('.', '' , substr($prijzen[0], 5));
+				}
 									
 				// Huizen die nog niet verkocht zijn
 				if($data['Aangeboden sinds'] != '') {
@@ -111,59 +117,23 @@ if(!isset($_REQUEST['keuze']) AND !isset($_REQUEST['regio']) AND !isset($_REQUES
 					} elseif($data['Aangeboden sinds'] == '2 weken') {
 						$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m'), date('d')-14, date('Y'));
 					} elseif($data['Aangeboden sinds'] == '6+ maanden') {
-						//$tijd_temp = array();
-						//$tijd_temp[] = time() - 7*$maand;
-						//$tijd_temp[] = $start_tijd-$dag;
-						//$tijd = min($tijd_temp);
 						$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m')-7, date('d'), date('Y'));
 					} else {
 						$guessDatum = guessDate($data['Aangeboden sinds']);
 						$AangebodenDatum	= explode("-", $guessDatum);
 						$AangebodenSinds = mktime(0, 0, 1, $AangebodenDatum[1], $AangebodenDatum[0], $AangebodenDatum[2]);
-						//toLog('error', '', $fundaID, "Aangebode sinds ". $AangebodenSinds ." onbekend");
-						//echo 'ERROR : '. $data['Aangeboden sinds'] .'|'. $AangebodenDatum[0].'|'. $AangebodenDatum[1].'|'. $AangebodenDatum[2];					
 					}
 				}
 							
-				if($data['Oorspronkelijke vraagprijs'] != '' AND $data['Aanmelddatum'] != '') {
-					$tijdstip		= $Aanmelddatum;				
+				if($data['Oorspronkelijke vraagprijs'] != '') {
 					$prijzen		= explode(" ", $data['Oorspronkelijke vraagprijs']);
 					$OorspronkelijkeVraagprijs = str_ireplace('.', '' , substr($prijzen[0], 5));
-					$prijs[$tijdstip]	= $OorspronkelijkeVraagprijs;
-					$naam[$tijdstip]	= 'Oorspronkelijke vraagprijs';
 				}
 							
-				if($data['Oorspronkelijke vraagprijs'] != '' AND $AangebodenSinds != '') {
-					$tijdstip					= $AangebodenSinds;
-					$prijzen					= explode(" ", $data['Oorspronkelijke vraagprijs']);
-					$OorspronkelijkeVraagprijs = str_ireplace('.', '' , substr($prijzen[0], 5));
-					$prijs[$tijdstip]	= $OorspronkelijkeVraagprijs;
-					$naam[$tijdstip]	= 'Oorspronkelijke vraagprijs';
-				}
-							
-				if($data['Laatste vraagprijs'] != '' AND $data['Verkoopdatum'] != '') {
-					$tijdstip		= $Verkoopdatum;
-					$prijzen		= explode(" ", $data['Laatste vraagprijs']);				
-					$LaatsteVraagprijs	= str_ireplace('.', '' , substr($prijzen[0], 5));
-					$prijs[$tijdstip]		= $LaatsteVraagprijs;
-					$naam[$tijdstip]		= 'Laatste vraagprijs';
-				}
-								
-				if($data['Vraagprijs'] != '' AND $AangebodenSinds != '') {
-					$tijdstip					= $AangebodenSinds;
-					$prijzen					= explode(" ", $data['Vraagprijs']);				
-					$Vraagprijs	= str_ireplace('.', '' , substr($prijzen[0], 5));
-					$prijs[$tijdstip]		= $Vraagprijs;
-					$naam[$tijdstip]		= 'Vraagprijs';
-				}				
-							
-				if($data['Vraagprijs'] != ''  AND $AangebodenSinds == '') {
-					$tijdstip						= time();
+				if($data['Vraagprijs'] != '') {
 					$prijzen						= explode(" ", $data['Vraagprijs']);				
 					$Vraagprijs	= str_ireplace('.', '' , substr($prijzen[0], 5));
-					$prijs[$tijdstip]		= $Vraagprijs;
-					$naam[$tijdstip]		= 'Vraagprijs';
-				}
+				}			
 			} else {
 				// De "standaard"-pagina... maar daar staat niet alles op.
 				// Aan de andere kant, de kenmerken-pagina werkt niet overal
@@ -181,20 +151,59 @@ if(!isset($_REQUEST['keuze']) AND !isset($_REQUEST['regio']) AND !isset($_REQUES
 					$transaction_price	= getString('<span class="transaction-price">', '', $prop_transaction[0], 0);
 					$tempLaatstevraagprijs			= getString('<span class="price-wrapper">', '</span>', $transaction_price[0], 0);
 	    		
-					$startDatum		= explode("-", $tempAanmelddatum[0]);
-					$Aanmelddatum = mktime(0, 0, 1, $startDatum[1], $startDatum[0], $startDatum[2]);
+					$sDatum				= explode("-", $tempAanmelddatum[0]);
+					$Aanmelddatum = mktime(0, 0, 1, $sDatum[1], $sDatum[0], $sDatum[2]);
 	    		
-					$eindDatum		= explode("-", $tempVerkoopdatum[0]);
-					$Verkoopdatum = mktime(23, 59, 59, $eindDatum[1], $eindDatum[0], $eindDatum[2]);
+					$eDatum				= explode("-", $tempVerkoopdatum[0]);
+					$Verkoopdatum = mktime(23, 59, 59, $eDatum[1], $eDatum[0], $eDatum[2]);
 	    		
-					$tijdstip						= $Verkoopdatum;
 					$prijzen						= explode(" ", strip_tags($tempLaatstevraagprijs[0]));
-					$LaatsteVraagprijs	= str_ireplace('.', '' , substr($prijzen[0], 12));
-					$prijs[$tijdstip]		= $LaatsteVraagprijs;
-					$naam[$tijdstip]		= 'Laatste vraagprijs';
+					$LaatsteVraagprijs	= str_ireplace('.', '' , substr($prijzen[0], 12));					
 				}
 			}
 			
+			// Van de 3 bekende data de laagste opzoeken
+			if($Aanmelddatum > 10)		{ $startdata[] = $Aanmelddatum;	}
+			if($AangebodenSinds > 10)	{ $startdata[] = $AangebodenSinds; }						
+																	$startdata[] = $row[$HuizenStart];
+			$startDatum = min($startdata);
+			
+			// Soms wordt een huis erafgehaald en dan paar dagen later er weer opgezet.
+			// Om te zorgen dat de 'valse' informatie op de site de data in de dB niet overschrijft wordt de check gedaan.
+			if($OorspronkelijkeVraagprijs > 0 AND $Aanmelddatum  == $startDatum) {
+				//echo date('d-m-Y', $Aanmelddatum ) .' : '. $OorspronkelijkeVraagprijs ."<br>\n";
+				$tijdstip = $Aanmelddatum;
+				$prijs[$tijdstip]	= $OorspronkelijkeVraagprijs;
+				$naam[$tijdstip]	= 'Oorspronkelijke vraagprijs';
+			}
+
+			// Bij aangeboden sinds gaat men niet verder dan 6 maanden.
+			// Om te zorgen dat bij een huis wat al twee jaar te koop staat en 9 maanden geleden in prijs is gedaald,
+			// niet de oorspronkelijke vraagprijs wordt ingevoerd even de check.
+			if($OorspronkelijkeVraagprijs > 0 AND $AangebodenSinds  == $startDatum) {
+				//echo date('d-m-Y', $AangebodenSinds ) .' : '. $OorspronkelijkeVraagprijs ."<br>\n";
+				$tijdstip = $AangebodenSinds;
+				$prijs[$tijdstip]	= $OorspronkelijkeVraagprijs;
+				$naam[$tijdstip]	= 'Oorspronkelijke vraagprijs';
+			}
+			
+			// We gaan er vanuit dat de laatste vraagprijs ook de verkoopdatum is
+			if($LaatsteVraagprijs > 0 AND $Verkoopdatum > 10) {
+				//echo date('d-m-Y', $Verkoopdatum) .' : '. $LaatsteVraagprijs ."<br>\n";
+				$tijdstip = $Verkoopdatum;
+				$prijs[$tijdstip]	= $LaatsteVraagprijs;
+				$naam[$tijdstip]	= 'Laatste vraagprijs';				
+			}			
+			
+			// Sommige huizen verdwijnen van de radar, als ze nog wel online zijn het prijsverloop monitoren.
+			if($Vraagprijs > 0) {
+				//echo date('d-m-Y') .' : '. $Vraagprijs ."<br>\n";
+				$tijdstip = time();
+				$prijs[$tijdstip]	= $Vraagprijs;
+				$naam[$tijdstip]	= 'Vraagprijs';	
+			}
+
+			// Alle gevonden prijzen incl. tijdstippen invoeren			
 			foreach($prijs as $key => $value) {				
 				if(updatePrice($fundaID, $value, $key)) {
 					$HTML[] = " -> ". $naam[$key] ." toegevoegd ($value / ". date("d-m-y", $key) .")<br>";
@@ -204,35 +213,41 @@ if(!isset($_REQUEST['keuze']) AND !isset($_REQUEST['regio']) AND !isset($_REQUES
 				}
 			}
 			
-			if(($Aanmelddatum > 1000 AND $Verkoopdatum > $Aanmelddatum) OR ($AangebodenSinds > 1000 AND $Verkoopdatum > $AangebodenSinds)) {
-				if($Aanmelddatum > 1000) {
-					$startDatum = $Aanmelddatum;				
+			// Als er een startdatum gevonden is die verder terugligt dan die bekend was => invoegen
+			if($startDatum != $row[$HuizenStart]) {
+				$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $startDatum WHERE $HuizenID like $fundaID";
+				
+				if(mysql_query($sql_update)) {
+					$HTML[] = " -> begintijd aangepast<br>";
 				} else {
-					$startDatum = $AangebodenSinds;
-				}
+					toLog('error', '', $fundaID, "Error met verwerken begintijd");
+				}				
+			}
+			
+			// Als er geen verkoopdatum bekend is, is hij niet verkocht en dus nog online
+			if($Verkoopdatum == '') {
+				$sql_update = "UPDATE $TableHuizen SET $HuizenEind = ". time() ." WHERE $HuizenID like $fundaID";
+				
+				if(mysql_query($sql_update)) {
+					$HTML[] = " -> eindtijd aangepast<br>";
+				} else {
+					toLog('error', '', $fundaID, "Error met verwerken begintijd");
+				}				
+			}			
+			
+			// Als er een verkoopdatum bekend is => die datum als eindtijd invoeren
+			if($Verkoopdatum > 10) {
 				$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $startDatum, $HuizenEind = $Verkoopdatum, $HuizenVerkocht = '1' WHERE $HuizenID like $fundaID";
-							
+				
 				if(mysql_query($sql_update)) {
 					$HTML[] = " -> begin- en eindtijd aangepast<br>";
 					toLog('info', '', $fundaID, "Huis is verkocht");
 					$verkocht = true;
 				} else {
 					toLog('error', '', $fundaID, "Error met verwerken verkocht huis");
-				}
-			} elseif($AangebodenSinds > 1000 AND $AangebodenSinds < $row[$HuizenStart]) {
-				$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $AangebodenSinds WHERE $HuizenID like $fundaID";
-				
-				if(mysql_query($sql_update)) {
-					$HTML[] = " -> begintijd aangepast<br>";
-				} else {
-					toLog('error', '', $fundaID, "Error met verwerken begintijd");
-				}
-			}
-			
-			$HTML[] = "\n<br>\n";
-					
-			//$Debug[] = urldecode($row[$HuizenAdres]) .' -> '. $data['Aanmelddatum'] .'='. date("d-m-y", $begin_tijd) .'|'. $HuisPrijs .'|'. $data['Verkoopdatum'] .'='. date("d-m-y", $eind_tijd) .'|'. $url ."<br>\n";
-			
+				}			
+			}			
+						
 			if($verkocht) {
 				$data = getFundaData($fundaID);
 				$Item  = "<table width='100%'>";
@@ -246,8 +261,9 @@ if(!isset($_REQUEST['keuze']) AND !isset($_REQUEST['regio']) AND !isset($_REQUES
 				$Item .= "</table>";
 				
 				$HTMLMessage[] = showBlock($Item);
-			}
-					
+			}			
+			
+			$HTML[] = "\n<br>\n";					
 		} while($row = mysql_fetch_array($result));
 	}
 }
@@ -262,8 +278,6 @@ echo showBlock(implode("\n", $Debug));
 echo "</td>";
 echo "</tr>\n";
 echo $HTMLFooter;
-
-//echo '['. count($HTMLMessage) .']';
 
 if(count($HTMLMessage) > 0 AND !isset($_REQUEST['id'])) {
 	$FooterText = "<a href='http://www.funda.nl/'>funda.nl</a>";
