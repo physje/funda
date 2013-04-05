@@ -199,12 +199,15 @@ foreach($Opdrachten as $OpdrachtID) {
 					$prijzen = getPriceHistory($data['id']);
 					
 					array_shift($prijzen);	// De eerste prijs is al de huidige prijs. Die moeten we dus vergeten						
-					$percentageAll	= 100*($data['prijs'] - end($prijzen))/end($prijzen);
-					$percentageNu		= 100*($data['prijs'] - current($prijzen))/current($prijzen);
+					$vorigePrijs = array_shift($prijzen);
+					$beginPrijs = array_pop($prijzen);
+
+					$percentageAll	= 100*($data['prijs'] - $beginPrijs)/$beginPrijs;
+					$percentageNu		= 100*($data['prijs'] - $vorigePrijs)/$vorigePrijs;
 					
 					$Item = array();				
 					$Item[] = "<img src='". $data['thumb'] ."'><br>";
-					$Item[] = "<a href='http://www.funda.nl". $data['url'] ."'>". $data['adres'] ."</a>, van &euro;&nbsp;". number_format(current($prijzen), 0,'','.') ." naar &euro;&nbsp;". number_format($data['prijs'], 0,'','.') ." (".number_format($percentageNu, 0) ."%/".number_format($percentageAll, 0) ."%).";
+					$Item[] = "<a href='http://www.funda.nl". $data['url'] ."'>". $data['adres'] ."</a>, van &euro;&nbsp;". number_format($vorigePrijs, 0,'','.') ." naar &euro;&nbsp;". number_format($data['prijs'], 0,'','.') ." (".number_format($percentageNu, 0) ."%/".number_format($percentageAll, 0) ."%).";
 				
 					$UpdatePrice[] = implode("\n", $Item);
 				}
