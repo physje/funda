@@ -34,21 +34,26 @@ if(isset($_REQUEST['regio'])) {
 	echo "</tr>\n";
 		
 	do {
+		$percentage = $breedte = array();
 		$prijzen	= getPriceHistory($row[$HuizenID]);
-		$laatste	= current($prijzen);
-		$eerste		= end($prijzen);
-				
+		//$laatste	= array_shift($prijzen);
+								
 		if(max($prijzen) > 0) {
-			$percentageAll		= 100*($eerste - $laatste)/$eerste;
-			$breedte_1				= round(100*$percentageAll/$max_percentage);
-			$breedte_2				= round(100*($max_percentage-$percentageAll)/$max_percentage);
-			if($percentageAll > 0) {
-				$percGemiddeld[]	= $percentageAll;
+			$eerste		= array_pop($prijzen);
+			
+			foreach($prijzen as $key => $prijs) {
+				$percentage[$key]	= 100*($eerste - $prijs)/$eerste;
+				$breedte[$key]		= round(100*$percentage[$key]/$max_percentage);
+			}
+				
+			if(array_sum($percentage) > 0) {
+				$percGemiddeld[]	= array_sum($percentage);
 			}
 		} else {
-			$breedte_1 = 0;
-			$breedte_2 = 100;
+			$breedte[] = 0;
 		}
+		
+		$restBreedte = 100 - array_sum($breedte);
 		
 		if($row[$HuizenOffline] == '1') {
 			if($row[$HuizenVerkocht] != '1') {
@@ -66,10 +71,13 @@ if(isset($_REQUEST['regio'])) {
 		echo "	<td width='25%'><a id='". $row[$HuizenID] ."'><a href='admin/HouseDetails.php?regio=". $regio ."&id=". $row[$HuizenID] ."'><img src='http://www.vvaltena.nl/styles/img/details/report.png'></a> <a id='". $row[$HuizenID] ."'><a href='http://www.funda.nl". urldecode($row[$HuizenURL]) ."' target='_blank' class='$class'>". urldecode($row[$HuizenAdres]) ."</a></td>\n";
 		echo "	<td colspan=2>\n";
 		echo "	<table width='100%' border=0><tr>\n";
-		if($breedte_1 != 0) {
-			echo "		<td width='". $breedte_1 ."%' bgcolor='#FF6D6D' title='Gedaald van &euro;&nbsp;". number_format($eerste, 0,'','.') ." naar &euro;&nbsp;". number_format($laatste, 0,'','.') ." (".number_format($percentageAll, 0) ."%)'>&nbsp;</td>\n";
+		if(array_sum($breedte) > 0) {
+			
+			foreach(array_reverse($breedte, true) as $tijd => $value) {
+				echo "		<td width='". $value ."%' bgcolor='#FF6D6D' title='Gedaald naar &euro;&nbsp;". number_format($prijzen[$tijd], 0,'','.') .", oorspronkelijk &euro;&nbsp;". number_format($eerste, 0,'','.') ." (".number_format($percentage[$tijd], 0) ."%)'>&nbsp;</td>\n";
+			}
 		}
-		echo "		<td width='". $breedte_2 ."%'>&nbsp;</td>\n";
+		echo "		<td width='". $restBreedte ."%'>&nbsp;</td>\n";
 		echo "	</tr></table>\n";
 		echo "	</td>\n";
 		echo "	<td width='7%'><a href='TimeLine.php?regio=$regio#". $row[$HuizenID] ."'>". getDoorloptijd($row[$HuizenID]) ."</a></td>\n";		
