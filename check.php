@@ -198,9 +198,15 @@ foreach($Opdrachten as $OpdrachtID) {
 				if(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {						
 					$prijzen = getPriceHistory($data['id']);
 					
-					array_shift($prijzen);	// De eerste prijs is al de huidige prijs. Die moeten we dus vergeten						
-					$vorigePrijs = array_shift($prijzen);
-					$beginPrijs = array_pop($prijzen);
+					array_shift($prijzen);	// De eerste prijs is al de huidige prijs. Die moeten we dus vergeten
+					
+					// Als er nog maar 1 prijs over is, is de beginprijs en de vorige prijs dus hetzelfde :)
+					if(count($prijzen) == 1) {
+						$vorigePrijs = $beginPrijs = array_shift($prijzen);
+					} else {
+						$vorigePrijs = array_shift($prijzen);
+						$beginPrijs = array_pop($prijzen);
+					}
 
 					$percentageAll	= 100*($data['prijs'] - $beginPrijs)/$beginPrijs;
 					$percentageNu		= 100*($data['prijs'] - $vorigePrijs)/$vorigePrijs;
