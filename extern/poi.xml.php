@@ -25,6 +25,18 @@ foreach($Opdrachten as $OpdrachtID) {
 	$XML[] = "  </poi>";
 }
 
+$Lijsten = getLijsten(1);
+foreach($Lijsten as $lijst) {
+	$LijstData		= getLijstData($lijst);
+
+	$XML[] = "  <poi>";
+	$XML[] = "    <description>". $LijstData['naam'] ."</description>";
+	$XML[] = "    <url>". $ScriptURL ."extern/makeOV2.php?lijst=". $lijst ."</url>";
+	$XML[] = "    <map>Nederland</map>";
+	$XML[] = "    <image>". $ScriptURL ."extern/funda_logo.bmp</image>";
+	$XML[] = "  </poi>";
+}
+
 $XML[] = "</pois>";
 
 header("Expires: Mon, 26 Jul 2001 05:00:00 GMT");
