@@ -8,20 +8,50 @@ connect_db();
 
 echo $HTMLHeader;
 
-if(isset($_REQUEST['regio'])) {
-	$regio = $_REQUEST['regio'];
-	$opdrachtData = getOpdrachtData($regio);
+if(isset($_POST['add'])) {
+	foreach($_POST['huis'] as $huis) {
+		$sql_check = "SELECT * FROM $TableListResult WHERE $ListResultList like ". $_POST['lijst'] ." AND $ListResultHuis like '$huis'";
+		$result	= mysql_query($sql_check);
+		if(mysql_num_rows($result) == 0) {
+			$sql_insert = "INSERT INTO $TableListResult ($ListResultList, $ListResultHuis) VALUES (". $_POST['lijst'] .", $huis)";
+			if(!mysql_query($sql_insert)) {
+				echo '<b>'. $huis .' niet toegevoegd</b><br>';
+			} else {
+				echo $huis .' toegevoegd<br>';
+			}
+		} else {
+			echo $huis .' bestaat al<br>';
+		}			
+	}
+} elseif(isset($_REQUEST['submit_opdracht']) || isset($_REQUEST['submit_lijst'])) {
+	if(isset($_REQUEST['submit_opdracht'])) {
+		$opdracht			= $_REQUEST['opdracht'];
+		$opdrachtData	= getOpdrachtData($opdracht);
+		$Name	= $opdrachtData['naam'];
+		$from					= "$TableResultaat, $TableHuizen";
+		$where				= "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $opdracht";
+	} else {
+		$lijst				= $_REQUEST['lijst'];
+		$LijstData		= getLijstData($lijst);
+		$Name					= $LijstData['naam'];
+		$from					= "$TableListResult, $TableHuizen";
+		$where				= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $lijst";
+		}
+		
+	if($_POST['addHouses'] == '1') {
+		$showListAdd = true;
+	}
 	
-	$sql		= "SELECT * FROM $TableResultaat, $TableHuizen WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $regio ORDER BY $TableHuizen.$HuizenAdres";
+	$sql		= "SELECT * FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
 	$result	= mysql_query($sql);
 	$row		= mysql_fetch_array($result);
 	
 	$max_percentage = 33;
-	$gisteren = time() - (24*60*60);
-	
+		
+	echo "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
 	echo "<table width='100%' border=0>\n";
 	echo "<tr>\n";
-	echo "	<td align='center' colspan='4'><h1>Prijsdaling '". $opdrachtData['naam'] ."'</h1></td>\n";
+	echo "	<td align='center' colspan='4'><h1>Prijsdaling '$Name'</h1></td>\n";
 	echo "</tr>\n";
 	echo "<tr>\n";
 	echo "	<td colspan='4'>&nbsp;</td>\n";
@@ -73,7 +103,9 @@ if(isset($_REQUEST['regio'])) {
 		}
 				
 		echo "<tr>\n";
-		echo "	<td width='25%'><a id='". $row[$HuizenID] ."'><a href='admin/HouseDetails.php?regio=". $regio ."&id=". $row[$HuizenID] ."'><img src='http://www.vvaltena.nl/styles/img/details/report.png'></a> <a id='". $row[$HuizenID] ."'><a href='http://www.funda.nl". urldecode($row[$HuizenURL]) ."' target='_blank' class='$class'>". urldecode($row[$HuizenAdres]) ."</a></td>\n";
+		echo "	<td width='25%'>";
+		if($showListAdd)	echo "	<input type='checkbox' name='huis[]' value='". $row[$HuizenID] ."'>";
+		echo "<a id='". $row[$HuizenID] ."'><a href='admin/HouseDetails.php?regio=". $regio ."&id=". $row[$HuizenID] ."'><img src='http://www.vvaltena.nl/styles/img/details/report.png'></a> <a id='". $row[$HuizenID] ."'><a href='http://www.funda.nl". urldecode($row[$HuizenURL]) ."' target='_blank' class='$class'>". urldecode($row[$HuizenAdres]) ."</a></td>\n";
 		echo "	<td colspan=2>\n";
 		echo "	<table width='100%' border=0><tr>\n";
 		if(array_sum($breedte) > 0) {
@@ -103,24 +135,78 @@ if(isset($_REQUEST['regio'])) {
 	echo "	</td>\n";
 	echo "	<td width='7%'>&nbsp;</td>\n";		
 	echo "</tr>\n";
+	
+	if($showListAdd) {
+		echo "<tr>\n";
+		echo "	<td colspan='4'>&nbsp;</td>\n";
+		echo "</tr>\n";
+		echo "<tr>\n";
+		echo "	<td colspan='4'>";
+		echo "	<select name='lijst'>";
+		
+		$Lijsten = getLijsten(1);					
+		foreach($Lijsten as $LijstID) {
+			$LijstData = getLijstData($LijstID);
+			echo "	<option value='$LijstID' ". ($_POST['chosenList'] == $LijstID ? ' selected' : '') .">". $LijstData['naam'] ."</option>";		
+		}
+		
+		echo "	</select>";
+		echo "	<input type='submit' name='add' value='Voeg toe'>";
+		echo "	</td>\n";
+		echo "</tr>\n";
+	}
+	
 	echo "</table>\n";
+	echo "</form>\n";
 } else {
+	$Opdrachten = getZoekOpdrachten(1);
+	$Lijsten = getLijsten(1);
+	
+	if(count($Lijsten) == 0 || isset($_REQUEST['addHouses'])) {
+		$showList = false;
+	} else {
+		$showList = true;
+	}
+	
 	echo "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
+	echo "<input type='hidden' name='addHouses' value='". (isset($_REQUEST['addHouses']) ? '1' : '0') ."'>\n";
+	echo "<input type='hidden' name='chosenList' value='". $_REQUEST['chosenList'] ."'>\n";
 	echo "<table>\n";
 	echo "<tr>\n";
-	echo "	<td>Regio</td>\n";
-	echo "	<td>&nbsp;</td>\n";
-	echo "	<td><select name='regio'>\n";
-
-	$Opdrachten = getZoekOpdrachten(1);
+	echo "	<td>Zoekopdracht</td>\n";	
+	if($showList) {
+		echo "	<td>&nbsp;</td>\n";
+		echo "	<td>Lijst</td>\n";
+	}
+	echo "</tr>\n";
+	echo "<tr>\n";
+	echo "	<td><select name='opdracht'>\n";
+	echo "	<option value=''> [selecteer opdracht] </option>\n";
+	
 	foreach($Opdrachten as $OpdrachtID) {
 		$OpdrachtData = getOpdrachtData($OpdrachtID);
-		echo "	<option value='$OpdrachtID'". ($OpdrachtID == $regio ? ' selected' : '') .">". $OpdrachtData['naam'] ."</option>\n";
+		echo "	<option value='$OpdrachtID'>". $OpdrachtData['naam'] ."</option>\n";
 	}
-	echo "	</select>\n";
+	echo "	</select>\n";	
+	if($showList) {
+		echo "	<td>&nbsp;</td>\n";
+		echo "	<td><select name='lijst'>\n";
+		echo "	<option value=''> [selecteer lijst] </option>\n";
+	
+		foreach($Lijsten as $LijstID) {
+			$LijstData = getLijstData($LijstID);
+			echo "	<option value='$LijstID'>". $LijstData['naam'] ."</option>\n";
+		}
+		echo "	</select>\n";	
+	}
 	echo "	</td>\n";
 	echo "</tr>\n";
-	echo "	<td colspan=3><input type='submit' name='submit' value='Weergeven'></td>\n";
+	echo "<tr>\n";
+	echo "	<td><input type='submit' name='submit_opdracht' value='Opdracht weergeven'></td>\n";
+	if($showList) {
+		echo "	<td>&nbsp;</td>\n";
+		echo "	<td><input type='submit' name='submit_lijst' value='Lijst weergeven'></td>\n";
+	}
 	echo "</tr>\n";
 	echo "<table>\n";
 	echo "</form>\n";
@@ -128,4 +214,3 @@ if(isset($_REQUEST['regio'])) {
 
 echo $HTMLFooter;
 ?>
-	

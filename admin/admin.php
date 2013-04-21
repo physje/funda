@@ -13,7 +13,9 @@ connect_db();
 
 $links['../TimeLine.php']			= 'Tijdslijn';
 $links['../PrijsDaling.php']	= 'Prijs-afname';
+$links['../gallery.php']			= 'Fotoalbum';
 $links['edit_opdrachten.php']	= 'Zoekopdrachten';
+$links['edit_lijsten.php']		= 'Lijsten';
 $links['log.php']							= 'Log-files';
 $links['../extern/poi.xml.php']				= 'POI-Edit XML-file';
 $links['../extern/showKML.php']				= 'Google Maps (wijk)';

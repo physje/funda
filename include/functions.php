@@ -769,4 +769,39 @@ function guessDate($string) {
 	return $string;
 }
 
+function getLijsten($active) {
+	global $TableList, $ListID, $ListActive;
+	connect_db();
+	
+	$sql = "SELECT $ListID FROM $TableList";
+	
+	if($active == '1' OR $active == '0') {
+		$sql .= " WHERE $ListActive = '$active'";
+	}
+		
+	$result = mysql_query($sql);
+	
+	if($row = mysql_fetch_array($result)) {
+		do {
+			$Lijsten[] = $row[$ListID];
+		} while($row = mysql_fetch_array($result));
+	}
+	
+	return $Lijsten;
+}
+
+function getLijstData($id) {
+	global $TableList, $ListID, $ListActive, $ListNaam;
+	
+	$sql = "SELECT * FROM $TableList WHERE $ListID = '$id'";
+	$result = mysql_query($sql);
+	$row = mysql_fetch_array($result);
+	
+	$data['id']			= $row[$ListID];
+	$data['active'] = $row[$ListActive];
+	$data['naam']		= urldecode($row[$ListNaam]);
+	
+	return $data;	
+}
+
 ?>

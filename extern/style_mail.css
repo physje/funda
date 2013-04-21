@@ -40,3 +40,7 @@ h1 {
 .onlineVerkocht {
 	text-decoration:line-through;
 }
+
+.imageUnavailable {
+	opacity:0.4;
+}
