@@ -3,7 +3,7 @@
 $ScriptURL				= "";
 $ScriptTitle			= "Funda webchecker";
 $ScriptMailAdress = '';
-$Version					= '2.1.1';
+$Version					= '2.3';
 $SubjectPrefix		= "[funda] ";
 
 $debug						= 0;
@@ -16,7 +16,6 @@ $cfgLogInfoTime		= mktime(date('H'), date('i'), date('s'), date('m')-1, date('d'
 $cfgLogErrorTime	= mktime(date('H'), date('i'), date('s'), date('m'), date('d'), date('Y')-1);
 
 $TableHuizen			= "funda_huizen";
-//$HuizenKey 				= "id";
 $HuizenID 				= "funda_id";
 $HuizenURL	 			= "url";
 $HuizenAdres 			= "adres";
@@ -66,5 +65,14 @@ $LogType					= "type";
 $LogOpdracht			= "opdracht";
 $LogHuis					= "huis";
 $LogMessage				= "message";
+
+$TableList				= "funda_lists";
+$ListID						= "id";
+$ListActive 			= "active";
+$ListNaam					= "name";
+
+$TableListResult	= "funda_list_resultaat";
+$ListResultList		= "list";
+$ListResultHuis		= "huis";
 
 ?>

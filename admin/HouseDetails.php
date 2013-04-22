@@ -13,10 +13,10 @@ if(isset($_REQUEST['id'])) {
 	$links['delete.php?id='. $id]							= 'Verwijder';
 	$links['cleanPrice.php?id='. $id]					= 'Prijs opschonen';
 	
-	if(isset($_REQUEST['regio'])) {
-		$regio = $_REQUEST['regio'];
-		$links['../TimeLine.php?regio='. $regio .'#'. $id]		= 'Timeline';
-		$links['../PrijsDaling.php?regio='. $regio .'#'. $id]	= 'Prijsdaling';		
+	if(isset($_REQUEST['selectie'])) {
+		$selectie = $_REQUEST['selectie'];
+		$links['../TimeLine.php?selectie='. $selectie .'#'. $id]		= 'Timeline';
+		$links['../PrijsDaling.php?selectie='. $selectie .'#'. $id]	= 'Prijsdaling';		
 	} else {
 		$links['../TimeLine.php']			= 'Timeline';
 		$links['../PrijsDaling.php']	= 'Prijsdaling';

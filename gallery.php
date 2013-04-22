@@ -25,19 +25,20 @@ if(isset($_POST['add'])) {
 			echo $huis .' bestaat al<br>';
 		}			
 	}
-} elseif(isset($_POST['submit_opdracht']) || isset($_POST['submit_lijst'])) {
-	if(isset($_POST['submit_opdracht'])) {
-		$opdracht			= $_POST['opdracht'];
-		$opdrachtData	= getOpdrachtData($opdracht);
-		$galleryName	= $opdrachtData['naam'];
+} elseif(isset($_REQUEST['selectie'])) {
+	$groep	= substr($_REQUEST['selectie'], 0, 1);
+	$id			= substr($_REQUEST['selectie'], 1);
+	
+	if($groep == 'Z') {		
+		$opdrachtData	= getOpdrachtData($id);
+		$Name					= $opdrachtData['naam'];
 		$from					= "$TableResultaat, $TableHuizen";
-		$where				= "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $opdracht";		
+		$where				= "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $id";
 	} else {
-		$lijst				= $_POST['lijst'];
-		$LijstData		= getLijstData($lijst);
-		$galleryName	= $LijstData['naam'];
+		$LijstData		= getLijstData($id);
+		$Name					= $LijstData['naam'];
 		$from					= "$TableListResult, $TableHuizen";
-		$where				= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $lijst";
+		$where				= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $id";
 	}
 	
 	if($_POST['addHouses'] == '1') {
@@ -45,7 +46,6 @@ if(isset($_POST['add'])) {
 	}
 	
 	$sql = "SELECT $TableHuizen.$HuizenOffline, $TableHuizen.$HuizenThumb, $TableHuizen.$HuizenVerkocht, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenID, $TableHuizen.$HuizenURL FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
-	
 	$result	= mysql_query($sql);
 	$row		= mysql_fetch_array($result);
 	
@@ -53,7 +53,7 @@ if(isset($_POST['add'])) {
 	echo "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
 	echo "<table width='100%' border=0>\n";
 	echo "<tr>\n";
-	echo "	<td align='center' colspan='$aantalCols'><h1>Gallery '$galleryName'</h1></td>\n";
+	echo "	<td align='center' colspan='$aantalCols'><h1>Gallery '$Name'</h1></td>\n";
 	echo "</tr>\n";
 	echo "<tr>\n";
 	echo "	<td colspan='$aantalCols'>&nbsp;</td>\n";
@@ -129,8 +129,10 @@ if(isset($_POST['add'])) {
 	echo "</form>\n";	
 } else {
 	$Opdrachten = getZoekOpdrachten(1);
-	$Lijsten = getLijsten(1);
+	$Lijsten		= getLijsten(1);
 	
+	// Als er geen lijsten zijn of als er huizen aan een lijst worden toegevoegd
+	// (het is zinloos om dan lijsten te laten zien) de lijsten disablen
 	if(count($Lijsten) == 0 || isset($_REQUEST['addHouses'])) {
 		$showList = false;
 	} else {
@@ -142,40 +144,30 @@ if(isset($_POST['add'])) {
 	echo "<input type='hidden' name='chosenList' value='". $_REQUEST['chosenList'] ."'>\n";
 	echo "<table>\n";
 	echo "<tr>\n";
-	echo "	<td>Zoekopdracht</td>\n";	
-	if($showList) {
-		echo "	<td>&nbsp;</td>\n";
-		echo "	<td>Lijst</td>\n";
-	}
-	echo "</tr>\n";
-	echo "<tr>\n";
-	echo "	<td><select name='opdracht'>\n";
-	echo "	<option value=''> [selecteer opdracht] </option>\n";
+	echo "	<td>Selectie</td>\n";	
+	echo "	<td>&nbsp;</td>\n";
+	echo "	<td><select name='selectie'>\n";
+	echo "	<optgroup label='Zoekopdrachten'>\n";
 	
 	foreach($Opdrachten as $OpdrachtID) {
 		$OpdrachtData = getOpdrachtData($OpdrachtID);
-		echo "	<option value='$OpdrachtID'>". $OpdrachtData['naam'] ."</option>\n";
+		echo "	<option value='Z$OpdrachtID'>". $OpdrachtData['naam'] ."</option>\n";
 	}
-	echo "	</select>\n";	
-	if($showList) {
-		echo "	<td>&nbsp;</td>\n";
-		echo "	<td><select name='lijst'>\n";
-		echo "	<option value=''> [selecteer lijst] </option>\n";
 	
-		foreach($Lijsten as $LijstID) {
-			$LijstData = getLijstData($LijstID);
-			echo "	<option value='$LijstID'>". $LijstData['naam'] ."</option>\n";
-		}
-		echo "	</select>\n";	
+	echo "	</optgroup>\n";
+	echo "	<optgroup label='Lijsten'". ($showList ? '' : ' disabled') .">\n";
+	
+	foreach($Lijsten as $LijstID) {
+		$LijstData = getLijstData($LijstID);
+		echo "	<option value='L$LijstID'>". $LijstData['naam'] ."</option>\n";
 	}
+	
+	echo "	</optgroup>\n";
+	echo "	</select>\n";
 	echo "	</td>\n";
 	echo "</tr>\n";
 	echo "<tr>\n";
-	echo "	<td><input type='submit' name='submit_opdracht' value='Opdracht weergeven'></td>\n";
-	if($showList) {
-		echo "	<td>&nbsp;</td>\n";
-		echo "	<td><input type='submit' name='submit_lijst' value='Lijst weergeven'></td>\n";
-	}
+	echo "	<td colspan='3' align='center'><input type='submit' name='submit' value='Weergeven'></td>\n";
 	echo "</tr>\n";
 	echo "<table>\n";
 	echo "</form>\n";
