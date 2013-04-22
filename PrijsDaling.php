@@ -10,19 +10,22 @@ echo $HTMLHeader;
 
 if(isset($_POST['add'])) {
 	foreach($_POST['huis'] as $huis) {
-		$sql_check = "SELECT * FROM $TableListResult WHERE $ListResultList like ". $_POST['lijst'] ." AND $ListResultHuis like '$huis'";
-		$result	= mysql_query($sql_check);
-		if(mysql_num_rows($result) == 0) {
-			$sql_insert = "INSERT INTO $TableListResult ($ListResultList, $ListResultHuis) VALUES (". $_POST['lijst'] .", $huis)";
-			if(!mysql_query($sql_insert)) {
+		switch(addHouse2List($huis, $_POST['lijst'])) {
+			case 0:
 				echo '<b>'. $huis .' niet toegevoegd</b><br>';
-			} else {
+				break;
+			case 1:
 				echo $huis .' toegevoegd<br>';
-			}
-		} else {
-			echo $huis .' bestaat al<br>';
+				break;
+			case 2:
+				break;
+			default:
+				echo 'Ongeldige output<br>';
 		}			
 	}
+	
+	echo "Huizen verwerkt.";
+	
 } elseif(isset($_REQUEST['selectie'])) {
 	$groep	= substr($_REQUEST['selectie'], 0, 1);
 	$id			= substr($_REQUEST['selectie'], 1);
@@ -41,6 +44,7 @@ if(isset($_POST['add'])) {
 		
 	if($_POST['addHouses'] == '1') {
 		$showListAdd = true;
+		$Huizen = getLijstHuizen($_POST['chosenList']);
 	}
 	
 	$sql		= "SELECT * FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
@@ -50,6 +54,7 @@ if(isset($_POST['add'])) {
 	$max_percentage = 33;
 		
 	echo "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
+	if($showListAdd) echo "<input type='hidden' name='lijst' value='". $_POST['chosenList'] ."'>\n";
 	echo "<table width='100%' border=0>\n";
 	echo "<tr>\n";
 	echo "	<td align='center' colspan='4'><h1>Prijsdaling '$Name'</h1></td>\n";
@@ -105,7 +110,7 @@ if(isset($_POST['add'])) {
 				
 		echo "<tr>\n";
 		echo "	<td width='25%'>";
-		if($showListAdd)	echo "	<input type='checkbox' name='huis[]' value='". $row[$HuizenID] ."'>";
+		if($showListAdd)	echo "	<input type='checkbox' name='huis[]' value='". $row[$HuizenID] ."'". (in_array($row[$HuizenID], $Huizen) ? ' checked' : '') .">";
 		echo "<a id='". $row[$HuizenID] ."'><a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=". $row[$HuizenID] ."'><img src='http://www.vvaltena.nl/styles/img/details/report.png'></a> <a id='". $row[$HuizenID] ."'><a href='http://www.funda.nl". urldecode($row[$HuizenURL]) ."' target='_blank' class='$class'>". urldecode($row[$HuizenAdres]) ."</a></td>\n";
 		echo "	<td colspan=2>\n";
 		echo "	<table width='100%' border=0><tr>\n";
@@ -138,21 +143,10 @@ if(isset($_POST['add'])) {
 	
 	if($showListAdd) {
 		echo "<tr>\n";
-		echo "	<td colspan='4'>&nbsp;</td>\n";
+		echo "	<td colspan='$aantalCols'>&nbsp;</td>\n";
 		echo "</tr>\n";
 		echo "<tr>\n";
-		echo "	<td colspan='4'>";
-		echo "	<select name='lijst'>";
-		
-		$Lijsten = getLijsten(1);					
-		foreach($Lijsten as $LijstID) {
-			$LijstData = getLijstData($LijstID);
-			echo "	<option value='$LijstID' ". ($_POST['chosenList'] == $LijstID ? ' selected' : '') .">". $LijstData['naam'] ."</option>";		
-		}
-		
-		echo "	</select>";
-		echo "	<input type='submit' name='add' value='Voeg toe'>";
-		echo "	</td>\n";
+		echo "	<td colspan='$aantalCols' align='center'><input type='submit' name='add' value='Voeg toe'></td>\n";
 		echo "</tr>\n";
 	}
 	

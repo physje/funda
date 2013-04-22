@@ -76,18 +76,23 @@ if(isset($_POST['save_list'])) {
 	$Page_1 .= "</form>\n";
 		
 	if($list != 0) {		
-		$from		= "$TableListResult, $TableHuizen";
-		$where	= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $list";
-		$sql		= "SELECT $TableHuizen.$HuizenOffline, $TableHuizen.$HuizenThumb, $TableHuizen.$HuizenVerkocht, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenID, $TableHuizen.$HuizenURL FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
-		$result = mysql_query($sql);
-			
-		if($row = mysql_fetch_array($result)) {
+		//$from		= "$TableListResult, $TableHuizen";
+		//$where	= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $list";
+		//$sql		= "SELECT $TableHuizen.$HuizenOffline, $TableHuizen.$HuizenThumb, $TableHuizen.$HuizenVerkocht, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenID, $TableHuizen.$HuizenURL FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
+		//$result = mysql_query($sql);
+		
+		$Huizen = getLijstHuizen($list);
+					
+		//if($row = mysql_fetch_array($result)) {
+		if(count($Huizen) > 0) {
 			$Page_2 ="<form method='post' name='editform'>\n";
 			$Page_2 .= "<input type='hidden' name='list' value='$list'>\n";
 		
-			do {				
-				$Page_2 .= "<input type='checkbox' name='huis[]' value='". $row[$HuizenID] ."' checked> <a href='http://www.funda.nl". urldecode($row[$HuizenURL]) ."' target='_blank' class='$class'>". urldecode($row[$HuizenAdres]) ."</a><br>";				
-			} while($row = mysql_fetch_array($result));
+			foreach($Huizen as $huis) {
+				$data = getFundaData($huis);
+				$Page_2 .= "<input type='checkbox' name='huis[]' value='$huis' checked> <a href='http://www.funda.nl". $data['url'] ."' target='_blank' class='$class'>". $data['adres'] ."</a><br>";				
+			}
+			//} while($row = mysql_fetch_array($result));
 			
 			$Page_2 .= "<br>\n";
 			$Page_2 .= "<input type='submit' name='save_houses' value='Huizen opslaan'>\n";

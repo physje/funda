@@ -804,4 +804,43 @@ function getLijstData($id) {
 	return $data;	
 }
 
+function getLijstHuizen($list) {
+	global $TableListResult, $TableHuizen, $ListResultHuis, $ListResultList, $HuizenID, $HuizenAdres;
+	
+	$from		= "$TableListResult, $TableHuizen";
+	$where	= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $list";
+	$sql		= "SELECT $TableHuizen.$HuizenID FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
+	$result = mysql_query($sql);
+	
+	$Huizen = array();
+
+	if($row = mysql_fetch_array($result)) {
+		do {
+			$Huizen[] = $row[$HuizenID];
+		} while($row = mysql_fetch_array($result));
+	}
+	
+	return $Huizen;		
+}
+
+function addHouse2List($huis, $list) {
+	global $TableListResult, $ListResultList, $ListResultHuis;
+	
+	$sql_check = "SELECT * FROM $TableListResult WHERE $ListResultList like $list AND $ListResultHuis like '$huis'";
+	$result	= mysql_query($sql_check);
+	
+	if(mysql_num_rows($result) == 0) {
+		$sql_insert = "INSERT INTO $TableListResult ($ListResultList, $ListResultHuis) VALUES (". $_POST['lijst'] .", $huis)";
+		if(!mysql_query($sql_insert)) {
+			$output = 0;	// huis niet toegevoegd
+		} else {
+			$output = 1;	// huis toegevoegd
+		}
+	} else {
+		$output = 2;		// huis bestaat al
+	}
+	
+	return $output;
+}
+
 ?>

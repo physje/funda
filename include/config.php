@@ -3,13 +3,14 @@
 $ScriptURL				= "";
 $ScriptTitle			= "Funda webchecker";
 $ScriptMailAdress = '';
-$Version					= '2.3';
+$Version					= '2.3.4';
 $SubjectPrefix		= "[funda] ";
 
 $debug						= 0;
-$stapPrijs				= 25000;
-$colPhoto					= 3;
-$rowPhoto					= 3;
+$stapPrijs				= 25000;	// Stapjes in prijs in de Google Maps view
+$colPhoto					= 3;			// Aantal kolommen met foto in mail
+$rowPhoto					= 3;			// Aantal rijen met foto in mail
+$aantalCols				= 4;			// Aantal kolommen met foto in fotoalbum
 
 $cfgLogDebugTime	= mktime(date('H'), date('i'), date('s'), date('m'), date('d')-7, date('Y'));
 $cfgLogInfoTime		= mktime(date('H'), date('i'), date('s'), date('m')-1, date('d'), date('Y'));
