@@ -50,9 +50,8 @@ if(is_array($key_1)) {
 		//echo $key .'). '. $data_1['adres'] .' -> '. $data_2['adres'] .'<br>';
 		//echo $id_1 .' - '. date("d-m-Y", $data_1['start']) .' t/m '. date("d-m-Y", $data_1['eind']) .' ['. $data_1['start'] .'|'. $data_1['eind'] .']<br>';
 		//echo $id_2 .' - '. date("d-m-Y", $data_2['start']) .' t/m '. date("d-m-Y", $data_2['eind']) .' ['. $data_2['start'] .'|'. $data_2['eind'] .']<br>';	
-		
-		//$sql_update_1 = "UPDATE $TableHuizen SET $HuizenStart = ". min(array($data_1['start'], $data_2['start'])) .", $HuizenEind = ". max(array($data_1['eind'], $data_2['eind'])) ." WHERE $HuizenID like '". $id_2 ."'";
-		
+						
+		# De begin- en eindtijd voor het nieuwe huis in tabel met huizen updaten
 		$sql_update_1 = "UPDATE $TableHuizen SET $HuizenStart = ". $data_oud['start'] .", $HuizenEind = ". $data_new['eind'] ." WHERE $HuizenID like '". $id_new ."'";
 		if(!mysql_query($sql_update_1)) {
 			echo "[$sql_update]<br>";		
@@ -62,6 +61,7 @@ if(is_array($key_1)) {
 			toLog('info', '', $id_new, "Data van $id_oud toegevoegd.");
 		}
 		
+		# Tabel met prijzen updaten
 		$sql_update_2 = "UPDATE $TablePrijzen SET $PrijzenID = '$id_new' WHERE $PrijzenID like '$id_oud'";
 		if(!mysql_query($sql_update_2)) {
 			echo "[$sql_update]<br>";
@@ -70,15 +70,16 @@ if(is_array($key_1)) {
 			toLog('info', '', $id_oud, "Prijzen toewijzen aan $id_new");
 		}
 		
-		$sql_update_3 = "DELETE FROM $TableResultaat WHERE $ResultaatID like '$id_oud'";
-		//$sql_update_3 = "UPDATE $TableResultaat SET $ResultaatID = '$id_new' WHERE $ResultaatID like '$id_oud'";
+		# Tabel met lijsten updaten
+		$sql_update_3 = "UPDATE $TableListResult SET $ListResultHuis = '$id_new' WHERE $ListResultHuis like '$id_oud'";
 		if(!mysql_query($sql_update_3)) {
 			echo "[$sql_update]<br>";
-			toLog('error', '', $id_oud, "Error verwijderen van $id_oud in opdracht");
+			toLog('error', '', $id_oud, "Error toewijzen $id_new op lijst");
 		} else {
-			toLog('info', '', $id_oud, "Verwijderd uit opdracht (is nu $id_new)");
+			toLog('info', '', $id_oud, "$id_new toegewezen op lijst");
 		}
-		
+				
+		# Het oude huis uit de tabel met huizen halen
 		$sql_delete_1	= "DELETE FROM $TableHuizen WHERE $HuizenID like '$id_oud'";
 		if(!mysql_query($sql_delete_1)) {
 			echo "[$sql_delete_1]<br>";
@@ -87,12 +88,22 @@ if(is_array($key_1)) {
 			toLog('info', '', $id_oud, "Verwijderen huis (is identiek aan $id_new)");
 		}
 		
+		# Het oude huis uit de tabel met kenmerken halen (de nieuwe staan er al in)
 		$sql_delete_2	= "DELETE FROM $TableKenmerken WHERE $KenmerkenID like '$id_oud'";
 		if(!mysql_query($sql_delete_2)) {
 			echo "[$sql_delete_2]<br>";
 			toLog('error', '', $id_oud, "Error verwijderen kenmerken (zijn identiek aan $id_new)");
 		} else {
 			toLog('info', '', $id_oud, "Kenmerken verwijderd (zijn identiek aan $id_new)");
+		}
+		
+		# Het oude huis uit de tabel met resultaten halen (de nieuwe staat er al in)
+		$sql_delete_3 = "DELETE FROM $TableResultaat WHERE $ResultaatID like '$id_oud'";
+		if(!mysql_query($sql_delete_3)) {
+			echo "[$sql_update]<br>";
+			toLog('error', '', $id_oud, "Error verwijderen van $id_oud in opdracht");
+		} else {
+			toLog('info', '', $id_oud, "Verwijderd uit opdracht (is nu $id_new)");
 		}
 		
 		echo '<br>';

@@ -828,7 +828,7 @@ function addHouse2List($huis, $list) {
 	
 	$sql_check = "SELECT * FROM $TableListResult WHERE $ListResultList like $list AND $ListResultHuis like '$huis'";
 	$result	= mysql_query($sql_check);
-	
+		
 	if(mysql_num_rows($result) == 0) {
 		$sql_insert = "INSERT INTO $TableListResult ($ListResultList, $ListResultHuis) VALUES (". $_POST['lijst'] .", $huis)";
 		if(!mysql_query($sql_insert)) {

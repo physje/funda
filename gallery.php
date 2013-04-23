@@ -6,8 +6,6 @@ include_once('include/config.php');
 include_once('include/HTML_TopBottom.php');
 connect_db();
 
-$aantalCols			= 4;
-
 echo $HTMLHeader;
 
 if(isset($_POST['add'])) {
