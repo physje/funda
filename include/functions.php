@@ -1,5 +1,12 @@
 <?php
 
+# Geef de id's van zoekopdrachten
+#
+#	INPUT
+#		$active : 0 = niet actief, 1 = actief, '' = alle
+#
+# OUTPUT
+#		array met ids van zoekopdracht 
 function getZoekOpdrachten($active) {
 	global $TableZoeken, $ZoekenKey, $ZoekenActive;
 	connect_db();
@@ -23,6 +30,14 @@ function getZoekOpdrachten($active) {
 	return $Opdrachten;
 }
 
+
+# Zoek de gegevens van een zoekopdracht op basis van id
+#
+#	INPUT
+#		$id	id van de zoekopdracht
+#
+# OUTPUT
+#		array met gegevens
 function getOpdrachtData($id) {
 	global $TableZoeken, $ZoekenKey, $ZoekenActive, $ZoekenNaam, $ZoekenURL, $ZoekenMail, $ZoekenAdres;
 	
@@ -39,6 +54,16 @@ function getOpdrachtData($id) {
 	return $data;
 }
 
+
+# Probeer de inhoud van een pagina in te lezen in in een string
+# Mocht dit niet lukken probeer dan nogmaals
+#
+#	INPUT
+#		$url		String met de url van de in te lezen pagina
+#		$maxTry	Maximaal aantal pogingen (default = 3)
+#
+# OUTPUT
+#		String met de inhoud van de pagina
 function file_get_contents_retry($url, $maxTry = 3) {
 	$contents = false;
 	$counter = 0;
@@ -52,30 +77,17 @@ function file_get_contents_retry($url, $maxTry = 3) {
 	return $contents;
 }
 
-/*
-function getLocation($string) {
-	// URL : http://code.google.com/intl/nl/apis/maps/documentation/geocoding/
-	// URL : http://mapki.com/wiki/Google_Map_Parameters
 
-	$API_Key = 'ABQIAAAAu47B1qoFTFNYK9JqxGBuxhQfNzYv9ePMZnPGoYxKOXwffJ0ddxTfMVDQR2ZJAk6U34HnUZWm1ntUgw';
-	$URL_geocode = "http://maps.google.com/maps/api/geocode/xml?address=". urlencode($string) ."&sensor=false&key=". $API_Key;
-	
-	//echo "<a href='$URL_geocode'>$string</a> ";
-
-	$XML = file_get_contents($URL_geocode);
-
-	$loc = getString('<location>', '</location>', $XML, 0);
-
-	$lat = getString('<lat>', '</lat>', $loc[0], 0);
-	$lon = getString('<lng>', '</lng>', $loc[0], 0);
-	
-	$coord_lon = explode('.', $lon[0]);
-	$coord_lat = explode('.', $lat[0]);
-
-	return array($coord_lat[0], $coord_lat[1], $coord_lon[0], $coord_lon[1]);
-}
-*/
-
+# Zoek de coordinaten bij een gegeven straat, postcode en plaats en voeg deze toe
+#
+#	INPUT
+#		$straat		String met straatnaam
+#		$postcode	Volledige postcode
+#		$plaats		String met plaatsnaam
+#		$huisID		ID van huis op funda
+#
+# OUTPUT
+#		boolean of het wel of niet gelukt is
 function addCoordinates($straat, $postcode, $plaats, $huisID) {
 	$elementen		= explode(' ', urldecode($straat));
 	
@@ -96,18 +108,6 @@ function addCoordinates($straat, $postcode, $plaats, $huisID) {
 	
 	$coord				= getCoordinates($GoogleStraat, $postcode, $plaats);
 	
-	/*	
-	if(is_numeric($coord[1])) {
-		$sql = "UPDATE $TableHuizen SET $HuizenNdeg = '$coord[0]', $HuizenNdec = '$coord[1]', $HuizenOdeg = '$coord[2]', $HuizenOdec = '$coord[3]' WHERE $HuizenID = '$huisID'";
-		if(!mysql_query($sql)) {
-			return false;
-		} else {
-			return true;
-		}
-	} else {
-		return false;
-	}*/
-	
 	if(!addKnowCoordinates($coord, $huisID)) {
 		return false;
 	} else {
@@ -115,6 +115,14 @@ function addCoordinates($straat, $postcode, $plaats, $huisID) {
 	}	
 }
 
+# Voeg coordinaten toe aan huis
+#
+#	INPUT
+#		$coord		array met coordinaten [Ndeg,Ndec,Odeg,Odec]
+#		$huisID		ID van huis op funda
+#
+# OUTPUT
+#		boolean of het wel of niet gelukt is
 function addKnowCoordinates($coord, $huisID) {
 	global $TableHuizen, $HuizenNdeg, $HuizenNdec, $HuizenOdeg, $HuizenOdec, $HuizenID;
 			
@@ -130,34 +138,35 @@ function addKnowCoordinates($coord, $huisID) {
 	}
 }
 
-
-/*
-function addWijk($wijk, $huisID) {
-	global $TableHuizen, $HuizenWijk, $HuizenID;
-
-	$sql = "UPDATE $TableHuizen SET $HuizenWijk = '$wijk' WHERE $HuizenID = '$huisID'";
-	if(!mysql_query($sql)) {
-		return false;
-	} else {
-		return true;
-	}
-}
-*/
-
+# Toon een string in een gekleurd kader
+#
+#	INPUT
+#		$string		De te tonen string
+#
+# OUTPUT
+#		De opgemaakte string
 function showBlock($String) {
 	$Text = "<table width='95%' cellpadding='8' cellspacing='1' bgcolor='#636367'>\n";
 	$Text .= "<tr>\n";
 	$Text .= "	<td bgcolor='#EAEAEA'>\n";
-	$Text .= "<!-- BEGIN BLOK INHOUD -->\n";	
+	$Text .= "	<!-- BEGIN BLOK INHOUD -->\n";	
 	$Text .= $String;	
-	$Text .= "<!-- EIND BLOK INHOUD -->\n";	
-	$Text .= "</td>\n";	
+	$Text .= "	<!-- EIND BLOK INHOUD -->\n";	
+	$Text .= "	</td>\n";	
 	$Text .= "</tr>\n";
 	$Text .= "</table>\n";
 	
 	return $Text;
 }
 
+# Toon een string en kort hem indien nodig in
+#
+#	INPUT
+#		$string		De te tonen string
+#		$length		De maximale lengte van de uiteindelijke string
+#
+# OUTPUT
+#		De al dan niet ingekorte string
 function makeTextBlock($string, $length) {
 	if(strlen($string) > $length) {
 		$titel = substr($string, 0, $length-5) . "<br>\n.....";
@@ -168,8 +177,15 @@ function makeTextBlock($string, $length) {
 	return $titel;
 }
 
+# Extraheer gegevens van een huis uit de ruwe HTML-code van de overzichtspagina van funda.nl
+#
+#	INPUT
+#		$string		De ruwe HTML-code
+#
+# OUTPUT
+#		array met de gegevens van het huis
 function extractFundaData($HuisText) {	
-	// Overzichtspagina
+	# Overzichtspagina
 	$HuisURL= getString('<a href="', '"', $HuisText, 0);
 	$mappen = explode("/", $HuisURL[0]);
 	$key		= $mappen[3];	$key_parts = explode("-", $key);
@@ -192,7 +208,6 @@ function extractFundaData($HuisText) {
 	$data['id']			= $id;
 	$data['url']		= trim($HuisURL[0]);
 	$data['adres']	= trim(substr(trim($adres[0]), 1));
-	//$data['PC_geheel']		= count($postcode);
 	$data['PC_c']		= trim($postcode[0]);
 	$data['PC_l']		= trim($postcode[1]);
 	$data['plaats']	= end($postcode);
@@ -202,10 +217,12 @@ function extractFundaData($HuisText) {
 	return $data;
 }
 
+
 function convertToReadable($string) {
 	$string = str_replace('&#235;', 'ë', $string);
 	return $string;
 }
+
 
 function makeKMLEntry($id) {
 	global $ScriptURL;
@@ -217,7 +234,6 @@ function makeKMLEntry($id) {
 	
 	$KML_file[] = '	<Placemark>';
 	$KML_file[] = '		<name><![CDATA['. convertToReadable($data['adres']) .' voor '. number_format($Prijzen[$label],0,',','.') .']]></name>';
-	//$KML_file[] = '		<name>'. $data['adres'] .'</name>';
 	$KML_file[] = '		<visibility>0</visibility>';
 	$KML_file[] = '		<description><![CDATA[';
 	$KML_file[] = '		<table>';
@@ -245,17 +261,18 @@ function makeKMLEntry($id) {
 	return implode("\n", $KML_file);
 }
 
+
 function extractDetailedFundaData($URL) {
 	$contents		= file_get_contents_retry($URL);
 	
-	// Navigatie-gedeelte
+	# Navigatie-gedeelte
 	$navigatie	= getString('<p class="section path-nav">', '</p>', $contents, 0);
 	$stappen		= explode('&gt;', $navigatie[0]);
 	$wijk				= getString('/">', '</a>', $stappen[(count($stappen)-1)], 0);
 	$data['wijk']	= trim($wijk[0]);	
 	
 	if($contents != "") {		
-		// Omschrijving
+		# Omschrijving
 		$contents		= file_get_contents_retry($URL.'omschrijving/');
 		
 		if(strpos($contents, '<div class="description-full">')) {
@@ -270,7 +287,7 @@ function extractDetailedFundaData($URL) {
 		$data['descr']	= '';
 	}
 
-	// Kenmerken
+	# Kenmerken
 	$contents		= file_get_contents_retry($URL.'kenmerken/');
 	$contents		= getString('<table class="specs specs-cats" border="0">', '</table>', $contents, 0);
 	$kenmerken12	= explode('12"  class="', $contents[0]);	array_shift($kenmerken12);
@@ -286,32 +303,7 @@ function extractDetailedFundaData($URL) {
 		$data[$key] = trim(strip_tags($Waarde[0]));
 	}
 	
-	/*
-	if($contents != "") {
-		$temp				= getString('<tr id="twwo13"  class="sub-cat">', '<span class="specs-ad">', $contents, 0);
-		$Woonoppervlakte = getString('<span class="specs-val">', '</span>', $temp[0], 0);
-	
-		$temp				= getString('<tr id="perc12"  class="">', '<span class="specs-ad">', $contents, 0);
-		$Perceeloppervlakte = getString('<span class="specs-val">', '</span>', $temp[0], 0);
-	
-		$temp				= getString('<tr id="twih12"  class="">', '<span class="specs-ad">', $contents, 0);
-		$Inhoud			= getString('<span class="specs-val">', '</span>', $temp[0], 0);
-			
-		$temp				= getString('<tr id="aaka12"  class="">', '<span class="specs-ad">', $contents, 0);
-		$Kamers			= getString('<span class="specs-val">', '</span>', $temp[0], 0);
-		
-		$data['oppervlakte']	= trim($Woonoppervlakte[0]);
-		$data['perceel']= trim($Perceeloppervlakte[0]);
-		$data['inhoud']	= trim($Inhoud[0]);
-		$data['kamers']	= trim($Kamers[0]);		
-	} else {
-		$data['oppervlakte']	= '';
-		$data['perceel']= '';
-		$data['inhoud']	= '';
-		$data['kamers']	= '';
-	}	*/	
-			
-	// Foto	
+	# Foto	
 	$contents		= file_get_contents_retry($URL.'fotos/');
 	
 	if($contents != "") {
@@ -329,9 +321,7 @@ function extractDetailedFundaData($URL) {
 	}
 	
 	return $data;
-}	
-
-function knownHouse($key) {
+}	function knownHouse($key) {
 	global $TableHuizen, $HuizenID;	
 	connect_db();
 	
@@ -344,6 +334,7 @@ function knownHouse($key) {
 		return false;
 	}
 }
+
 
 function newHouse($key, $opdracht) {
 	global $TableResultaat, $ResultaatID, $ResultaatZoekID;	
@@ -358,6 +349,7 @@ function newHouse($key, $opdracht) {
 		return true;
 	}
 }
+
 
 function saveHouse($data, $moreData) {	
 	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenStart, $HuizenEind;
@@ -403,6 +395,7 @@ function saveHouse($data, $moreData) {
 	return true;	
 }
 
+
 function addHouse($data, $id) {
 	global $TableResultaat, $ResultaatZoekID, $ResultaatID, $ResultaatPrijs;
 
@@ -415,6 +408,7 @@ function addHouse($data, $id) {
 		return true;
 	}
 }
+
 
 function updateAvailability($id) {
 	global $TableHuizen, $HuizenEind, $HuizenID;
@@ -431,31 +425,17 @@ function updateAvailability($id) {
 	}
 }
 
-/*
-function newPrice($key, $price) {
-	global $TablePrijzen, $PrijzenKey, $PrijzenPrijs;	
-	connect_db();
-	
-	$sql		= "SELECT * FROM $TablePrijzen WHERE $PrijzenKey like '$key' AND $PrijzenPrijs = $price";
-	$result	= mysql_query($sql);
-	if(mysql_num_rows($result) > 0) {
-		return false;
-	} else {
-		return true;
-	}
-}*/
 
 function newPrice($key, $price) {
 	$history = getPriceHistory($key);
-	//$laatste = each($history);
 		
 	if($price != current($history)) {
-		//echo $price .'|'. current($history) .'<br>';
 		return true;
 	} else {
 		return false;
 	}		
 }
+
 
 function updatePrice($id, $price, $tijd = 0) {
 	global $TablePrijzen, $PrijzenID, $PrijzenPrijs, $PrijzenTijd;	
@@ -475,6 +455,7 @@ function updatePrice($id, $price, $tijd = 0) {
 	}
 }
 
+
 function changedPrice($id, $price, $opdracht) {
 	global $TableResultaat, $ResultaatZoekID, $ResultaatID, $ResultaatPrijs;
 	connect_db();
@@ -491,6 +472,7 @@ function changedPrice($id, $price, $opdracht) {
 		return true;
 	}
 }
+
 
 function getFundaData($id) {
 	global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenNdeg, $HuizenNdec, $HuizenOdeg, $HuizenOdec, $HuizenStart, $HuizenEind, $HuizenVerkocht;
@@ -517,6 +499,7 @@ function getFundaData($id) {
 			$data['start']		= $row[$HuizenStart];
 			$data['eind']			= $row[$HuizenEind];
 			$data['verkocht']	= $row[$HuizenVerkocht];
+			$data['offline']	= $row[$HuizenOffline];
 			
 			return $data;
 		} else {
@@ -526,6 +509,7 @@ function getFundaData($id) {
 		return false;
 	}
 }
+
 
 function getFundaKenmerken($id) {
 	global $TableKenmerken, $KenmerkenID, $KenmerkenValue, $KenmerkenKenmerk;
@@ -548,6 +532,7 @@ function getFundaKenmerken($id) {
 	}
 }
 
+
 function getHuizen($opdracht) {
 	global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenAdres;
 	global $TableResultaat, $ResultaatID, $ResultaatZoekID;
@@ -563,7 +548,7 @@ function getHuizen($opdracht) {
 	
 	return $output;
 }		
-   
+
 function getPriceHistory($input) {
 	global $TablePrijzen, $PrijzenTijd, $PrijzenID, $PrijzenPrijs;	
 	connect_db();
@@ -580,6 +565,7 @@ function getPriceHistory($input) {
 	return $PriceTable;
 }
 
+
 function toLog($type, $opdracht, $huis, $message) {
 	global $TableLog, $LogID, $LogTime, $LogType, $LogOpdracht, $LogHuis, $LogMessage;	
 
@@ -592,63 +578,6 @@ function toLog($type, $opdracht, $huis, $message) {
 	}
 }
 
-/*
-function getHuisnummers($straat, $plaats) {
-	$url ='http://www.postcode.nl/index?action=search&goto=postcoderesult&TreeID=1&address='. urlencode($plaats) .'%2C+'. urlencode($straat) .'&x=0&y=0';
-		
-	$contents	= file_get_contents($url);
-	
-	//echo "<a href='$url'>$url</a><br>\n";
-	//echo $contents;
-	
-	$inhoud		= getString('resultaten opge', 'resultaten opge', $contents, 0);
-	$nummers	= explode('<td>', $inhoud[1]);
-	$aantal		= count($nummers);
-	
-	//echo "<hr>\n". $aantal ."<hr>\n".$inhoud[1]."<hr>\n";
-	
-	//for($i=2; $i < $aantal ; $i = $i+1) {
-	//	echo $i ." => ".strip_tags($nummers[$i]) ."<br>\n";
-	//}
-	
-	for($i=3; $i < $aantal ; $i = $i+5) {
-		$min_max = explode('t/m', strip_tags($nummers[$i]));
-		$nummer_array[] = $min_max[0];
-		$nummer_array[] = $min_max[1];
-	}
-		
-	$output_array[0] = min($nummer_array);
-	$output_array[1] = max($nummer_array);
-	
-	return $output_array;	
-}
-*/
-
-/*
-function getDoorloptijd($id) {	
-	$data = getFundaData($id);
-	
-	$start = $data['start'];
-	$einde = $data['eind'];
-	
-	$jaren	= date("Y", $einde) - date("Y", $start);
-	$dagen	= date("z", $einde) - date("z", $start) + 1;
-	
-	if($dagen < 0) {
-		$dagen = $dagen + 365;
-		$jaren = $jaren - 1;
-	}
-	
-	$maanden	= floor($dagen/30);
-	$dagen		= $dagen - ($maanden*30);
-	
-	if($jaren > 0)		$output[] = $jaren ."j";
-	if($maanden > 0)	$output[] = $maanden ."m";
-	if($dagen > 0)		$output[] = $dagen ."d";
-	
-	return implode(" ", $output);
-}
-*/
 
 function getDoorloptijd($id) {	
 	$data = getFundaData($id);
@@ -667,9 +596,7 @@ function getDoorloptijd($id) {
 	$dag		= $dagE - $dagB;
 	$maand	= $maandE - $maandB;
 	$jaar		= $jaarE - $jaarB;
-	
-	//echo $dag .'|'. $maand .'|'. $jaar;
-	
+		
 	if($dag < 0) {
 		$dag = $dag + date("t", mktime(0,0,0,$maandE-1,$jaarE,$dagE));
 		$maand = $maand - 1;
@@ -679,23 +606,14 @@ function getDoorloptijd($id) {
 		$maand = $maand + 12;
 		$jaar = $jaar - 1;
 	}
-	
-	
-	// Druk het niet uit in jaren maar in maanden
+		
+	# Druk het niet uit in jaren maar in maanden
 	if($jaar > 0) {
 		$maand	= $maand + (12*$jaar);
 		$jaar		= 0;
 	}
 	
-	/*
-	// Funda rond het altijd naar beneden af op halve maand
-	if($dag > 15) {
-		$maand = $maand + 0.5;
-	}
-	$dag = 0;
-	*/
-	
-	// Druk het uit in weken
+	# Druk het uit in weken
 	if($dag > 7) {
 		$week = floor($dag/7);
 		$dag = 0;
@@ -712,9 +630,11 @@ function getDoorloptijd($id) {
 	return implode(" & ", $output);
 }
 
+
 function changeThumbLocation($string) {
 	return str_replace('images.funda.nl/valentinamedia', 'cloud.funda.nl/valentina_media', $string);
 }
+
 
 function guessDate($string) {	
 	$string = str_ireplace('zondag ', '', $string);
@@ -769,6 +689,7 @@ function guessDate($string) {
 	return $string;
 }
 
+
 function getLijsten($active) {
 	global $TableList, $ListID, $ListActive;
 	connect_db();
@@ -790,6 +711,7 @@ function getLijsten($active) {
 	return $Lijsten;
 }
 
+
 function getLijstData($id) {
 	global $TableList, $ListID, $ListActive, $ListNaam;
 	
@@ -803,6 +725,7 @@ function getLijstData($id) {
 	
 	return $data;	
 }
+
 
 function getLijstHuizen($list) {
 	global $TableListResult, $TableHuizen, $ListResultHuis, $ListResultList, $HuizenID, $HuizenAdres;
@@ -823,6 +746,7 @@ function getLijstHuizen($list) {
 	return $Huizen;		
 }
 
+
 function addHouse2List($huis, $list) {
 	global $TableListResult, $ListResultList, $ListResultHuis;
 	
@@ -830,17 +754,39 @@ function addHouse2List($huis, $list) {
 	$result	= mysql_query($sql_check);
 		
 	if(mysql_num_rows($result) == 0) {
-		$sql_insert = "INSERT INTO $TableListResult ($ListResultList, $ListResultHuis) VALUES (". $_POST['lijst'] .", $huis)";
+		$data = getFundaData($huis);
+		
+		$sql_insert = "INSERT INTO $TableListResult ($ListResultList, $ListResultHuis) VALUES ($list, $huis)";
 		if(!mysql_query($sql_insert)) {
-			$output = 0;	// huis niet toegevoegd
+			# huis niet toegevoegd
+			$output = "<b>". $data['adres'] ." niet toegevoegd</b><br>";
 		} else {
-			$output = 1;	// huis toegevoegd
+			# huis toegevoegd
+			$output = $data['adres'] ." toegevoegd<br>";
 		}
 	} else {
-		$output = 2;		// huis bestaat al
+		# huis bestaat al
+		$output = "";
 	}
 	
 	return $output;
 }
 
+function saveUpdateList($id, $actief, $naam) {
+	global $TableList, $ListActive, $ListNaam, $ListID;
+	
+	if($id == '') {
+		$sql = "INSERT INTO $TableList ($ListActive, $ListNaam) VALUES ('". ($actief == '1' ? '1' : '0') ."', '". urlencode($naam) ."')";
+	} else {
+		$sql = "UPDATE $TableList SET $ListActive = '". ($actief == '1' ? '1' : '0') ."', $ListNaam = '". urlencode($naam) ."' WHERE $ListID = ". $id;
+	}
+					
+	$result = mysql_query($sql);
+	
+	if($id == '') {
+		return mysql_insert_id();
+	} else {
+		return $result;
+	}		
+}
 ?>

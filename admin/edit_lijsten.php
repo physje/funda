@@ -5,48 +5,67 @@ include_once('../include/functions.php');
 include_once('../include/config.php');
 connect_db();
 
-$autocomplete = true;
-include('../include/HTML_TopBottom.php');
-
-if(isset($_POST['save_list'])) {
-	if(isset($_REQUEST['list']) AND $_REQUEST['list'] != 0) {
-		$sql = "UPDATE $TableList SET $ListActive = '". ($_POST['actief'] == '1' ? '1' : '0') ."', $ListNaam = '". urlencode($_POST['naam']) ."' WHERE $ListID = ". $_POST['list'];
+# Lijst verwijderen
+if(isset($_POST['delete_list'])) {
+	if(isset($_POST['delete_yes'])) {
+		$sql_delete_list = "DELETE FROM $TableList WHERE $ListID like ". $_POST['list'];
+		mysql_query($sql_delete_list);
+		
+		$sql_delete_result = "DELETE FROM $TableListResult WHERE $ListResultList like ". $_POST['list'];
+		mysql_query($sql_delete_result);
+		
+		$Page_1 = "De lijst incl. huizen is verwijderd";
+	} elseif(isset($_POST['delete_no'])) {	
+		$Page_1 = "Gelukkig !";
+		
+	# Weet je het heeeel zeker
 	} else {
-		$sql = "INSERT INTO $TableList ($ListActive, $ListNaam) VALUES ('". ($_POST['actief'] == '1' ? '1' : '0') ."', '". urlencode($_POST['naam']) ."')";
-	}
-			
-	if(!mysql_query($sql)) {
-		$Page_1 .= $sql;
+		$Page_1 = "Weet u zeker dat u deze lijst wilt verwijderen ?";
+		$Page_1 .= "<form method='post'>\n";
+		$Page_1 .= "<input type='hidden' name='delete_list' value='true'>\n";
+		$Page_1 .= "<input type='hidden' name='list' value='". $_POST['list'] ."'>\n";
+		$Page_1 .= "<input type='submit' name='delete_yes' value='Ja'> <input type='submit' name='delete_no' value='Nee'>";
+		$Page_1 .= "</form>";
 	}
 	
-	$Page_1 .= "<a href='?'>Start</a>";
+	if(isset($_POST['delete_yes']) || isset($_POST['delete_no'])) {
+		$Page_1 .= "<p><a href='". $_SERVER["PHP_SELF"] ."'>Start</a>";
+	}
+
+# Wijzigingen in lijst-gegevens opslaan
+} elseif(isset($_POST['save_list'])) {
+	$actie = saveUpdateList($_POST['list'], $_POST['actief'], $_POST['naam']);
+	
+	if(!is_numeric($actie) AND $actie == false) {
+		$Page_1 .= "Lijst opgeslagen";
+	}
+
+	$Page_1 .= "<p><a href='". $_SERVER["PHP_SELF"] ."'>Start</a>";
+
+# Array met huizen voor lijst toekennen aan lijst nadat eerst de lijst 'geleegd' is
 } elseif(isset($_POST['save_houses'])) {
 	$sql_delete = "DELETE FROM $TableListResult WHERE $ListResultList like ". $_POST['list'];
 	mysql_query($sql_delete);
 	
 	foreach($_POST['huis'] as $huis) {
-		switch(addHouse2List($huis, $_POST['lijst'])) {
-			case 0:
-				echo '<b>'. $huis .' niet toegevoegd</b><br>';
-				break;
-			case 1:
-				echo $huis .' toegevoegd<br>';
-				break;
-			case 2:
-				break;
-			default:
-				echo 'Ongeldige output<br>';
-		}			
+		$Page_1 .= addHouse2List($huis, $_POST['lijst']);
 	}
+	
+# Huis op basis van ingevoerd adres toevoegen
 } elseif(isset($_POST['add_house'])) {
 	$elementen = getString('[', ']', $_POST['extra_huis'], 0);	
-	$output = addHouse2List($elementen[0], $_POST['lijst']);
-	echo $huis .' toegevoegd<br>';
+	$Page_1 .= addHouse2List($elementen[0], $_POST['lijst']);
+	
+# Wijzigingsformulier tonen
 } elseif(isset($_REQUEST['list'])) {
 	$list = $_REQUEST['list'];
 	
+	# Door de boolean $autocomplete op true te zetten wordt javascript-code opgenomen op de pagina.
+	$autocomplete = true;
+	
 	$Page_1 ="<form method='post' name='editform'>\n";
 	
+	# Als er een lijst-id bekend is kunnen er knoppen getoond worden om hier huizen aan toe te kennen
 	if($list != 0) {
 		$data = getLijstData($list);
 		$Page_1 .= "<input type='hidden' name='list' value='$list'>\n";
@@ -69,28 +88,31 @@ if(isset($_POST['save_list'])) {
 		$Page_3 .= "<input type='submit' value='Voeg huizen toe in prijsdaling'>";
 		$Page_3 .= "</form>";
 	}
-		
-	$Page_1 .= "<table>\n";
+	
+	# Formulier om lijst-gegevens te wijzigen
+	$Page_1 .= "<table border=0>\n";
 	$Page_1 .= "<tr>\n";
 	$Page_1 .= "	<td><input type='checkbox' name='actief' value='1' ". ($data['active'] == 1 ? ' checked' : '') ."></td>\n";
 	$Page_1 .= "	<td>Actief</td>\n";
 	$Page_1 .= "</tr>\n";
 	$Page_1 .= "<tr>\n";
 	$Page_1 .= "	<td>Naam :</td>\n";
-	$Page_1 .= "	<td><input type='text' name='naam' value='". $data['naam'] ."'></td>\n";
+	$Page_1 .= "	<td><input type='text' name='naam' value='". $data['naam'] ."' size='45'></td>\n";
 	$Page_1 .= "</tr>\n";
 	$Page_1 .= "<tr>\n";
 	$Page_1 .= "	<td colspan='2'>&nbsp;</td>\n";
 	$Page_1 .= "</tr>\n";
 	$Page_1 .= "<tr>\n";
-	$Page_1 .= "	<td colspan='2'><input type='submit' name='save_list' value='Lijst-details opslaan'></td>\n";
+	$Page_1 .= "	<td colspan='2'><table width='100%'><tr><td><input type='submit' name='save_list' value='Lijst-details opslaan'></td><td align='right'><input type='submit' name='delete_list' value='Lijst verwijderen'></td></tr></table></td>\n";
 	$Page_1 .= "</tr>\n";
 	$Page_1 .= "</table>\n";
 	$Page_1 .= "</form>\n";
-		
+	
+	# Als er een lijst-id bekend is kunnen huizen op de lijst getoond worden en kunnen er nieuwe huizen worden toegevoegd.
 	if($list != 0) {		
 		$Huizen = getLijstHuizen($list);
 		
+		# Als er huizen op deze lijst staan moeten die getoond worden
 		if(count($Huizen) > 0) {
 			$Page_2 ="<form method='post' name='editform'>\n";
 			$Page_2 .= "<input type='hidden' name='list' value='$list'>\n";
@@ -105,10 +127,11 @@ if(isset($_POST['save_list'])) {
 			$Page_2 .= "</form>\n";
 		}
 		
+		# Formulier met autocomplete-textveld om handmatig een adres in te voeren		
 		$Page_4 ="<form method='post' name='addform'>\n";
 		$Page_4 .= "<input type='hidden' name='lijst' value='$list'>\n";
 		$Page_4 .= "Voer adres of funda_id in om handmatig een huis toe te voegen.<br>\n";
-		$Page_4 .= "<input type='text' name='extra_huis' id=\"tags\" size='50'><br>";
+		$Page_4 .= "<input type='text' name='extra_huis' id=\"huizen\" size='50'><br>";
 		$Page_4 .= "<br>\n";
 		$Page_4 .= "<input type='submit' name='add_house' value='Huis toevoegen'>\n";
 		$Page_4 .= "</form>\n";		
@@ -116,6 +139,8 @@ if(isset($_POST['save_list'])) {
 		$Page_2 = "";
 		$Page_4 = "";
 	}
+	
+# Overzicht van alle lijsten tonen
 } else {
 	$Lijsten = getLijsten('');
 		
@@ -133,6 +158,8 @@ if(isset($_POST['save_list'])) {
 	}
 	$Page_1 .= "<p>\n<a href='?list=0'>Nieuw</a><br>\n";
 }
+
+include('../include/HTML_TopBottom.php');
 
 echo $HTMLHeader;
 echo "<tr>\n";
@@ -154,6 +181,4 @@ if($Page_4 != '') {
 echo "	</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-
-//echo $Page_4;
 ?>

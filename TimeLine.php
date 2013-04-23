@@ -10,18 +10,7 @@ echo $HTMLHeader;
 
 if(isset($_POST['add'])) {
 	foreach($_POST['huis'] as $huis) {
-		switch(addHouse2List($huis, $_POST['lijst'])) {
-			case 0:
-				echo '<b>'. $huis .' niet toegevoegd</b><br>';
-				break;
-			case 1:
-				echo $huis .' toegevoegd<br>';
-				break;
-			case 2:
-				break;
-			default:
-				echo 'Ongeldige output<br>';
-		}			
+		echo addHouse2List($huis, $_POST['lijst']);
 	}
 	
 	echo "Huizen verwerkt.";	
@@ -79,12 +68,10 @@ if(isset($_POST['add'])) {
 	echo "	<td width='5%' align='right'>&nbsp;</td>\n";
 	echo "	</tr></table>\n";
 	echo "</td></tr>\n";
-	
-	
+		
 	do {
 		$breedte_1	= round(70*($row[$HuizenStart] - $start_tijd)/$fullWidth);
 		$breedte_2	= round(70*($row[$HuizenEind] - $row[$HuizenStart])/$fullWidth);
-		//$breedte_3	= round(70*($eind_tijd - $row[$HuizenEind])/$fullWidth);
 		$breedte_3	= 70 - $breedte_1 - $breedte_2;;
 		$adres			= convertToReadable(urldecode($row[$HuizenAdres]));
 		

@@ -6,17 +6,13 @@ include_once('../include/config.php');
 include_once('../include/HTML_TopBottom.php');
 connect_db();
 
-//$links['../check_prices.php']	= 'Check funda (zonder prijsdrempels)';
-//$links['getCoord.php']				= 'Coordinaten ophalen';
-//$links['combine_auto.php']		= 'Voeg hits samen';
-//$links['../extern/showKML_mail.php']	= 'Google Maps (mail)';
-
 $links['../TimeLine.php']			= 'Tijdslijn';
 $links['../PrijsDaling.php']	= 'Prijs-afname';
 $links['../gallery.php']			= 'Fotoalbum';
 $links['edit_opdrachten.php']	= 'Zoekopdrachten';
 $links['edit_lijsten.php']		= 'Lijsten';
 $links['log.php']							= 'Log-files';
+
 $links['../extern/poi.xml.php']				= 'POI-Edit XML-file';
 $links['../extern/showKML.php']				= 'Google Maps (wijk)';
 $links['../extern/showKML_prijs.php']	= 'Google Maps (prijs)';
@@ -24,6 +20,7 @@ $links['../extern/showKML_prijs.php']	= 'Google Maps (prijs)';
 $admin['../check.php']						= 'Check funda';
 $admin['combine_batch.php']				= 'Voeg hits automatisch samen';
 $admin['combine_manual.php']			= 'Voeg hits handmatig samen';
+$admin['combineSelections.php']		= 'Maak combinaties';
 $admin['getVerkochteHuizen.php']	= 'Werk verkochte huizen bij';
 $admin['cleanPrice.php']					= 'Prijzen opschonen';
 $admin['cleanKenmerk.php']				= 'Kenmerken opschonen';

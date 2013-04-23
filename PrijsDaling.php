@@ -9,19 +9,8 @@ connect_db();
 echo $HTMLHeader;
 
 if(isset($_POST['add'])) {
-	foreach($_POST['huis'] as $huis) {
-		switch(addHouse2List($huis, $_POST['lijst'])) {
-			case 0:
-				echo '<b>'. $huis .' niet toegevoegd</b><br>';
-				break;
-			case 1:
-				echo $huis .' toegevoegd<br>';
-				break;
-			case 2:
-				break;
-			default:
-				echo 'Ongeldige output<br>';
-		}			
+		foreach($_POST['huis'] as $huis) {
+		echo addHouse2List($huis, $_POST['lijst']);
 	}
 	
 	echo "Huizen verwerkt.";
@@ -33,24 +22,18 @@ if(isset($_POST['add'])) {
 	if($groep == 'Z') {		
 		$opdrachtData	= getOpdrachtData($id);
 		$Name					= $opdrachtData['naam'];
-		$from					= "$TableResultaat, $TableHuizen";
-		$where				= "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $id";
+		$dataset				= getHuizen($id);
 	} else {
 		$LijstData		= getLijstData($id);
 		$Name					= $LijstData['naam'];
-		$from					= "$TableListResult, $TableHuizen";
-		$where				= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $id";
+		$dataset			= getLijstHuizen($id);
 	}
-		
+	
 	if($_POST['addHouses'] == '1') {
 		$showListAdd = true;
-		$Huizen = getLijstHuizen($_POST['chosenList']);
+		$knownHuizen = getLijstHuizen($_POST['chosenList']);
 	}
-	
-	$sql		= "SELECT * FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
-	$result	= mysql_query($sql);
-	$row		= mysql_fetch_array($result);
-	
+		
 	$max_percentage = 33;
 		
 	echo "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
@@ -69,11 +52,12 @@ if(isset($_POST['add'])) {
 	echo "	<td width='7%'>&nbsp;</td>\n";
 	echo "</tr>\n";
 		
-	do {
+	foreach($dataset as $huisID) {
+		$data 			= getFundaData($huisID);
+		$adres			= convertToReadable($data['adres']);
+		$prijzen		= getPriceHistory($huisID);
 		$percentage = $breedte = array();
-		$prijzen	= getPriceHistory($row[$HuizenID]);
-		//$laatste	= array_shift($prijzen);
-								
+										
 		if(max($prijzen) > 0) {
 			$eerste		= array_pop($prijzen);
 			$prijzenRev	= array_reverse($prijzen, true);
@@ -96,22 +80,22 @@ if(isset($_POST['add'])) {
 		
 		$restBreedte = 100 - array_sum($breedte);
 		
-		if($row[$HuizenOffline] == '1') {
-			if($row[$HuizenVerkocht] != '1') {
-				$class = 'offline';
+		if($data['offline'] == '1') {
+			if($data['verkocht'] != '1') {
+				$TextClass = 'offline';
 			} else {
-				$class = 'offlineVerkocht';
+				$TextClass = 'offlineVerkocht';
 			}			
-		} elseif($row[$HuizenVerkocht] == '1') {
-			$class = 'onlineVerkocht';
+		} elseif($data['verkocht'] == '1') {
+			$TextClass = 'onlineVerkocht';
 		} else {
-			$class = '';
+			$TextClass = 'online';
 		}
 				
 		echo "<tr>\n";
 		echo "	<td width='25%'>";
-		if($showListAdd)	echo "	<input type='checkbox' name='huis[]' value='". $row[$HuizenID] ."'". (in_array($row[$HuizenID], $Huizen) ? ' checked' : '') .">";
-		echo "<a id='". $row[$HuizenID] ."'><a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=". $row[$HuizenID] ."'><img src='http://www.vvaltena.nl/styles/img/details/report.png'></a> <a id='". $row[$HuizenID] ."'><a href='http://www.funda.nl". urldecode($row[$HuizenURL]) ."' target='_blank' class='$class'>". urldecode($row[$HuizenAdres]) ."</a></td>\n";
+		if($showListAdd)	echo "	<input type='checkbox' name='huis[]' value='$huisID'". (in_array($huisID, $knownHuizen) ? ' checked' : '') .">";
+		echo "<a id='$huisID'><a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=$huisID'><img src='http://www.vvaltena.nl/styles/img/details/report.png'></a> <a id='$huisID'><a href='http://www.funda.nl". $data['url'] ."' target='_blank' class='$class'>$adres</a></td>\n";
 		echo "	<td colspan=2>\n";
 		echo "	<table width='100%' border=0><tr>\n";
 		if(array_sum($breedte) > 0) {			
@@ -122,9 +106,9 @@ if(isset($_POST['add'])) {
 		echo "		<td width='". $restBreedte ."%'>&nbsp;</td>\n";
 		echo "	</tr></table>\n";
 		echo "	</td>\n";
-		echo "	<td width='7%'><a href='TimeLine.php?selectie=". $_REQUEST['selectie'] ."#". $row[$HuizenID] ."'>". getDoorloptijd($row[$HuizenID]) ."</a></td>\n";		
+		echo "	<td width='7%'><a href='TimeLine.php?selectie=". $_REQUEST['selectie'] ."#$huisID'>". getDoorloptijd($huisID) ."</a></td>\n";		
 		echo "</tr>\n";
-	} while($row = mysql_fetch_array($result));
+	}
 	
 	$percentage = array_sum($percGemiddeld)/count($percGemiddeld);
 	$breedte_1	= round(100*$percentage/$max_percentage);

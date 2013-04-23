@@ -3,7 +3,6 @@ include_once('../../general_include/general_functions.php');
 include_once('../../general_include/general_config.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
-$JavaScript = true;
 include('../include/HTML_TopBottom.php');
 connect_db();
 
@@ -22,7 +21,50 @@ if(isset($_POST['doorgaan'])) {
 		$Page .= $sql;
 	}
 	
-	$Page .= "<a href='?'>Start</a>";
+	$Page .= "<p><a href='". $_SERVER["PHP_SELF"] ."'>Start</a>";
+} elseif(isset($_REQUEST['delete_opdracht'])) {
+	if(isset($_POST['delete_yes'])) {				
+		$Huizen = getHuizen($_POST['opdracht']);
+		
+		foreach($Huizen as $huis) {
+			$sql_check_unique = "SELECT * FROM $TableResultaat WHERE $ResultaatID like '$huis' AND $ResultaatZoekID NOT like ". $_POST['opdracht'];
+			$result	= mysql_query($sql_check_unique);
+			
+			if(mysql_num_rows($result) == 0) {
+				$sql_delete_huis		= "DELETE FROM $TableHuizen WHERE $HuizenID like ". $huis;
+				mysql_query($sql_delete_huis);
+				
+				$sql_delete_kenmerk	= "DELETE FROM $TableKenmerken WHERE $KenmerkenID like ". $huis;
+				mysql_query($sql_delete_kenmerk);
+				
+				$sql_delete_prijs		= "DELETE FROM $TablePrijzen WHERE $PrijzenID like ". $huis;
+				mysql_query($sql_delete_prijs);
+				
+				$sql_delete_list		= "DELETE FROM $TableListResult WHERE $ListResultHuis like ". $huis;
+				mysql_query($sql_delete_list);	
+			}				
+		}
+		
+		$sql_delete_opdracht = "DELETE FROM $TableZoeken WHERE $ZoekenKey like ". $_POST['opdracht'];
+		mysql_query($sql_delete_opdracht);
+		
+		$Page = "De lijst incl. huizen is verwijderd";
+	} elseif(isset($_POST['delete_no'])) {	
+		$Page = "Gelukkig !";
+		
+	# Weet je het heeeel zeker
+	} else {
+		$Page = "Weet u zeker dat u deze opdracht wilt verwijderen ?";
+		$Page .= "<form method='post'>\n";
+		$Page .= "<input type='hidden' name='delete_opdracht' value='true'>\n";
+		$Page .= "<input type='hidden' name='opdracht' value='". $_REQUEST['id'] ."'>\n";
+		$Page .= "<input type='submit' name='delete_yes' value='Ja'> <input type='submit' name='delete_no' value='Nee'>";
+		$Page .= "</form>";
+	}
+	
+	if(isset($_POST['delete_yes']) || isset($_POST['delete_no'])) {
+		$Page .= "<p><a href='". $_SERVER["PHP_SELF"] ."'>Start</a>";
+	}
 } elseif(isset($_REQUEST['id'])) {
 	$id = $_REQUEST['id'];
 	
@@ -35,7 +77,6 @@ if(isset($_POST['doorgaan'])) {
 		
 	$Page .= "<table>\n";
 	$Page .= "<tr>\n";
-	//$Page .= "	<td><input type='checkbox' name='actief' value='1' onclick='toggleFields(this)'". ($data['active'] == 1 ? ' checked' : '') ."></td>\n";
 	$Page .= "	<td><input type='checkbox' name='actief' value='1' ". ($data['active'] == 1 ? ' checked' : '') ."></td>\n";
 	$Page .= "	<td>Actief</td>\n";
 	$Page .= "</tr>\n";
@@ -49,8 +90,7 @@ if(isset($_POST['doorgaan'])) {
 	$Page .= "</tr>\n";
 	$Page .= "<tr>\n";
 	$Page .= "	<td>Email met resultaat :</td>\n";
-	//$Page .= "	<td><select name='mail'><option value='0'". ($data['mail'] == 0 ? ' selected' : '') ." onclick=\"this.form.adres.disabled = !this.checked;\">Nee</option><option value='1'". ($data['mail'] == 1 ? ' selected' : '') ." onclick=\"this.form.adres.disabled = this.checked;\">Ja</option></select></td>\n";
-	$Page .= "	<td><select name='mail'><option value='0'". ($data['mail'] == 0 ? ' selected' : '') ." onclick=\"this.form.adres.disabled = !this.checked;\">Nee</option><option value='1'". ($data['mail'] == 1 ? ' selected' : '') .">Ja</option></select></td>\n";
+	$Page .= "	<td><select name='mail'><option value='0'". ($data['mail'] == 0 ? ' selected' : '') .">Nee</option><option value='1'". ($data['mail'] == 1 ? ' selected' : '') .">Ja</option></select></td>\n";
 	$Page .= "</tr>\n";
 	$Page .= "<tr>\n";
 	$Page .= "	<td>Emailadres<br>(gescheiden door ;)</td>\n";
@@ -60,7 +100,7 @@ if(isset($_POST['doorgaan'])) {
 	$Page .= "	<td colspan='2'>&nbsp;</td>\n";
 	$Page .= "</tr>\n";
 	$Page .= "<tr>\n";
-	$Page .= "	<td colspan='2'><input type='submit' name='doorgaan' value='Opslaan'></td>\n";
+	$Page .= "	<td colspan='2'><table width='100%'><tr><td><input type='submit' name='doorgaan' value='Opslaan'></td><td align='right'><input type='submit' name='delete_opdracht' value='Verwijderen'></td></tr></table></td>\n";
 	$Page .= "</tr>\n";
 	$Page .= "</table>\n";
 	$Page .= "</form>\n";
