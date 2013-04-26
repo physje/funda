@@ -1,10 +1,10 @@
 <?php
 
-$ScriptURL				= "http://localhost/funda/";
-$ScriptTitle			= "Funda webchecker";
+$ScriptURL				= '';
+$ScriptTitle			= 'Funda webchecker';
 $ScriptMailAdress = '';
-$Version					= '2.3.4';
-$SubjectPrefix		= "[funda] ";
+$Version					= '2.4.1';
+$SubjectPrefix		= '[funda] ';
 
 $debug						= 0;
 $stapPrijs				= 25000;			# Stapjes in prijs in de Google Maps view

@@ -13,7 +13,7 @@ connect_db();
 # 	http://www.tytai.com/gmap/
 
 if($_POST[search]) {	
-	$sql = "SELECT $HuizenID, (6371*acos(cos(radians($_POST[latitude]))*cos(radians($HuizenLat))*cos(radians($HuizenLon) - radians($_POST[longitude]))+sin(radians($_POST[latitude])) * sin(radians($HuizenLat)))) AS distance FROM $TableHuizen HAVING distance < $_POST[afstand] ORDER BY distance";
+	$sql = "SELECT $TableHuizen.$HuizenID, (6371*acos(cos(radians($_POST[latitude]))*cos(radians($HuizenLat))*cos(radians($HuizenLon) - radians($_POST[longitude]))+sin(radians($_POST[latitude])) * sin(radians($HuizenLat)))) AS distance FROM $TableHuizen, $TableResultaat, $TableZoeken WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenActive like '1' HAVING distance < $_POST[afstand] ORDER BY distance";
 	$result = mysql_query($sql);
 		
 	if($row = mysql_fetch_array($result)) {
