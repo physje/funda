@@ -3,75 +3,82 @@ include_once('../../general_include/general_functions.php');
 include_once('../../general_include/general_config.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
+include_once('../include/HTML_TopBottom.php');
 connect_db();
 
 if(isset($_REQUEST['id'])) {
 	$sql		= "SELECT * FROM $TablePrijzen WHERE $PrijzenID like ". $_REQUEST['id'] ." ORDER BY $PrijzenTijd ASC";
 } else {
-	// Vraag alle huis-prijs combinaties op
+	# Vraag alle huis-prijs combinaties op
 	$sql		= "SELECT * FROM $TablePrijzen GROUP BY $PrijzenID, $PrijzenPrijs";
 }
 $result	= mysql_query($sql);
 $row		= mysql_fetch_array($result);
 
 do {	
-	// Vraag de huis-prijs combinatie op
+	# neem een huis-prijs combinatie
 	$huis		= $row[$PrijzenID];
 	$prijs	= $row[$PrijzenPrijs];
 	
-	// Vraag de gegevens van dit huis op
+	# Vraag de gegevens van dit huis op
 	$data = getFundaData($huis);
 	
-	// Hou bij welke huis-prijs combinaties zijn geweest.
-	// Als de array die dat bijhoudt niet bestaat : maak deze aan
+	# Hou bij welke huis-prijs combinaties er zijn geweest.
+	# Als de array die dat bijhoudt nog niet bestaat : maak deze dan aan
 	if(!isset($huis_array[$huis])) {
 		$huis_array[$huis] = array();
 	}
-		
+	
+	# Als het om een bekend huis gaat (lees correct id) ga verder
 	if(is_array($data)) {
+		# Vraag de eerst verschijning van deze prijs voor dit huis op
 		$sql_detail = "SELECT * FROM $TablePrijzen WHERE $PrijzenID like '$huis' AND $PrijzenPrijs like '$prijs' ORDER BY $PrijzenTijd ASC LIMIT 0,1";
 		
 		if($result_detail = mysql_query($sql_detail) AND !in_array($prijs, $huis_array[$huis])) {
 			$row_detail	= mysql_fetch_array($result_detail);
 			$tijd				= $row_detail[$PrijzenTijd];
 			
-			// Voeg de huis-prijs combinatie toe aan de array
+			# Voeg de gevonden huis-prijs combinatie toe aan de array
 			$huis_array[$huis][] = $prijs;
 			
-			// Verwijder alle entries van deze betreffende huis-prijs combinatie
+			# Verwijder alle entries van deze huis-prijs combinatie
 			$sql = "DELETE FROM $TablePrijzen WHERE $PrijzenID = $huis AND $PrijzenPrijs = $prijs";
 	
+			# Voeg alleen de eerst verschijning van deze huis-prijs combinatie weer toe
 			if(mysql_query($sql)) {
 				$sql = "INSERT INTO $TablePrijzen ($PrijzenID, $PrijzenPrijs, $PrijzenTijd) VALUES ('$huis', $prijs, $tijd)";
 				if(!mysql_query($sql)) {
-					echo "Toevoegen van de prijs van <b>". $data['adres'] ."</b> ($huis) is mislukt<br>\n";
+					$error[] = "Toevoegen van de prijs van <b>". $data['adres'] ."</b> ($huis) is mislukt<br>\n";
 				} else {
-					echo '<b>'. $data['adres'] .'</b> : '. date("d-m-Y", $tijd)  ." -> $prijs<br>\n";
+					$melding[] = '<b>'. $data['adres'] .'</b> : '. date("d-m-Y", $tijd)  ." -> ". formatPrice($prijs) ."<br>\n";
 				}
 			}
 		}
-		
-		/*
-		if($data['start'] > $tijd) {
-			echo "<a href='edit.php?id=$huis'>$huis</a> is 'ouder'<br>\n";
-		} else {
-			echo "<u>$huis</u> is ok<br>\n";
-		}
-		*/
-		
 	} else {
-		echo "<u>$huis</u> bestaat niet";
-				
+		# Er is een prijs gevonden voor een huis wat niet meer bestaat.
+		# Als het goed is komt dit nooit voor, mocht het vaker voorkomen dan kan checkTables.php gedraaid worden.
+		# Hiermee worden de huizen uit de verschillende tabellen naast elkaar gelegd op zoek naar discrepanties
+		$error[] = "<u>$huis</u> bestaat niet";
+		
+		# Als het huis niet bestaat kunnen de prijzen verwijderd worden				
 		$sql = "DELETE FROM $TablePrijzen WHERE $PrijzenID = $huis";
 		if(mysql_query($sql)) {
-			echo ", en is verwijderd<br>\n";
+			$error[] = ", en is verwijderd<br>\n";
 		} else {
-			echo ", maar kon niet worden verwijderd<br>\n";
+			$error[] = ", maar kon niet worden verwijderd<br>\n";
 		}			
 	}
 	
 } while($row = mysql_fetch_array($result));
 
-//
-
+# Uitkomst netjes op het scherm tonen
+echo $HTMLHeader;
+echo "<tr>\n";
+echo "<td width='50%' valign='top' align='center'>\n";
+echo showBlock(implode("\n", $error));
+echo "</td><td width='50%' valign='top' align='center'>\n";
+echo showBlock(implode("\n", $melding));
+echo "</td>\n";
+echo "</tr>\n";
+echo $HTMLFooter;
 ?>

@@ -18,13 +18,16 @@ $links['../extern/showKML.php']				= 'Google Maps (wijk)';
 $links['../extern/showKML_prijs.php']	= 'Google Maps (prijs)';
 
 $admin['../check.php']						= 'Check funda';
+$admin['HouseDetails.php']				= 'Bekijk details van een huis';
 $admin['combine_batch.php']				= 'Voeg hits automatisch samen';
 $admin['combine_manual.php']			= 'Voeg hits handmatig samen';
 $admin['combineSelections.php']		= 'Maak combinaties';
+$admin['search4Coord.php']				= 'Selecteer huizen obv coordinaten';
 $admin['getVerkochteHuizen.php']	= 'Werk verkochte huizen bij';
 $admin['cleanPrice.php']					= 'Prijzen opschonen';
 $admin['cleanKenmerk.php']				= 'Kenmerken opschonen';
-$admin['searchOffline.php']				= 'Zet pagina\'s offline';
+$admin['checkTables.php']					= 'Check de verschillende databases';
+$admin['search4Offline.php']			= 'Zet pagina\'s offline';
 $admin['cleanUp.php']							= 'Verwijder oude log-items';
 
 foreach($links as $url => $titel) {

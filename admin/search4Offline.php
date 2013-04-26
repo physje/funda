@@ -6,7 +6,7 @@ include_once('../include/config.php');
 connect_db();
 
 $grens	= time() - (2*24*60*60);
-$sql		= "SELECT $TableHuizen.$HuizenID, $TableHuizen.$HuizenURL, $TableHuizen.$HuizenAdres FROM $TableResultaat, $TableHuizen, $TableZoeken WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenActive like '1' AND $TableHuizen.$HuizenOffline = '0' AND $TableHuizen.$HuizenEind < $grens GROUP BY $TableHuizen.$HuizenID";
+$sql		= "SELECT $TableHuizen.$HuizenID, $TableHuizen.$HuizenURL, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenPlaats, $TableHuizen.$HuizenEind FROM $TableResultaat, $TableHuizen, $TableZoeken WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenActive like '1' AND $TableHuizen.$HuizenOffline = '0' AND $TableHuizen.$HuizenVerkocht = '0' AND $TableHuizen.$HuizenEind < $grens GROUP BY $TableHuizen.$HuizenID";
 $result	= mysql_query($sql);
 
 //echo $sql;
@@ -17,7 +17,7 @@ if($row = mysql_fetch_array($result)) {
 		$url			= "http://www.funda.nl". urldecode($row[$HuizenURL]);
 		$contents = file_get_contents_retry($url);
 		
-		echo '<b>'. urldecode($row[$HuizenAdres]) ."</b> (<a href='$url' target='_blank'>url</a>)<br>";
+		echo date("d-m-Y H:i", $row[$HuizenEind]). ' <b>'. urldecode($row[$HuizenAdres]) ."</b>, ". $row[$HuizenPlaats] ." (<a href='HouseDetails.php?id=$fundaID' target='_blank'>edit</a>, <a href='$url' target='_blank'>funda</a>)<br>";
 		
 		if(!is_string($contents)) {
 			$sql_update = "UPDATE $TableHuizen SET $HuizenOffline = '1' WHERE $HuizenID like $fundaID";

@@ -124,10 +124,14 @@ function addCoordinates($straat, $postcode, $plaats, $huisID) {
 # OUTPUT
 #		boolean of het wel of niet gelukt is
 function addKnowCoordinates($coord, $huisID) {
-	global $TableHuizen, $HuizenNdeg, $HuizenNdec, $HuizenOdeg, $HuizenOdec, $HuizenID;
+	//global $TableHuizen, $HuizenNdeg, $HuizenNdec, $HuizenOdeg, $HuizenOdec, $HuizenID;
+	global $TableHuizen, $HuizenLat, $HuizenLon, $HuizenID;
 			
 	if(is_numeric($coord[1])) {
-		$sql = "UPDATE $TableHuizen SET $HuizenNdeg = '$coord[0]', $HuizenNdec = '$coord[1]', $HuizenOdeg = '$coord[2]', $HuizenOdec = '$coord[3]' WHERE $HuizenID = '$huisID'";
+		$lat = $coord[0].'.'.$coord[1];
+		$lng = $coord[2].'.'.$coord[3]; 
+		$sql = "UPDATE $TableHuizen SET $HuizenLat = '$lat', $HuizenLon = '$lng' WHERE $HuizenID = '$huisID'";
+		//$sql = "UPDATE $TableHuizen SET $HuizenNdeg = '$coord[0]', $HuizenNdec = '$coord[1]', $HuizenOdeg = '$coord[2]', $HuizenOdec = '$coord[3]' WHERE $HuizenID = '$huisID'";
 		if(!mysql_query($sql)) {
 			return false;
 		} else {
@@ -167,9 +171,13 @@ function showBlock($String) {
 #
 # OUTPUT
 #		De al dan niet ingekorte string
-function makeTextBlock($string, $length) {
+function makeTextBlock($string, $length, $reverse = false) {
 	if(strlen($string) > $length) {
-		$titel = substr($string, 0, $length-5) . "<br>\n.....";
+		if($reverse) {
+			$titel = "...".substr($string, -$length+3);
+		} else {
+			$titel = substr($string, 0, $length-5) . ".....";
+		}
 	} else {
 		$titel = $string;
 	}
@@ -220,6 +228,7 @@ function extractFundaData($HuisText) {
 
 function convertToReadable($string) {
 	$string = str_replace('&#235;', 'ë', $string);
+	$string = str_replace('&#39;', '', $string);
 	return $string;
 }
 
@@ -254,7 +263,8 @@ function makeKMLEntry($id) {
 	$KML_file[] = '		]]></description>';		
 	$KML_file[] = '		<styleUrl>#style1</styleUrl>';
 	$KML_file[] = '		<Point>';
-	$KML_file[] = '			<coordinates>'. $data['O_deg'] .'.'. $data['O_dec'] .','. $data['N_deg'] .'.'. $data['N_dec'] .',0</coordinates>';
+	//$KML_file[] = '			<coordinates>'. $data['O_deg'] .'.'. $data['O_dec'] .','. $data['N_deg'] .'.'. $data['N_dec'] .',0</coordinates>';
+	$KML_file[] = '			<coordinates>'. $data['long'] .','. $data['lat'] .',0</coordinates>';
 	$KML_file[] = '		</Point>';
 	$KML_file[] = '	</Placemark>';
 	
@@ -475,7 +485,8 @@ function changedPrice($id, $price, $opdracht) {
 
 
 function getFundaData($id) {
-	global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenNdeg, $HuizenNdec, $HuizenOdeg, $HuizenOdec, $HuizenStart, $HuizenEind, $HuizenVerkocht;
+	//global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenNdeg, $HuizenNdec, $HuizenOdeg, $HuizenOdec, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht;
+	global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht;
 	connect_db();
   
   if($id != 0) {
@@ -492,10 +503,12 @@ function getFundaData($id) {
 			$data['plaats']		= urldecode($row[$HuizenPlaats]);
 			$data['wijk']			= urldecode($row[$HuizenWijk]);
 			$data['thumb']		= urldecode($row[$HuizenThumb]);
-			$data['N_deg']		= $row[$HuizenNdeg];
-			$data['N_dec']		= $row[$HuizenNdec];
-			$data['O_deg']		= $row[$HuizenOdeg];
-			$data['O_dec']		= $row[$HuizenOdec];
+			//$data['N_deg']		= $row[$HuizenNdeg];
+			//$data['N_dec']		= $row[$HuizenNdec];
+			//$data['O_deg']		= $row[$HuizenOdeg];
+			//$data['O_dec']		= $row[$HuizenOdec];
+			$data['lat']			= $row[$HuizenLat];
+			$data['long']			= $row[$HuizenLon];
 			$data['start']		= $row[$HuizenStart];
 			$data['eind']			= $row[$HuizenEind];
 			$data['verkocht']	= $row[$HuizenVerkocht];
@@ -541,7 +554,7 @@ function getHuizen($opdracht) {
 	$sql		= "SELECT * FROM $TableHuizen, $TableResultaat WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID like '$opdracht' ORDER BY $TableHuizen.$HuizenAdres";
 	$result	= mysql_query($sql);
 	$row		= mysql_fetch_array($result);
-	
+		
 	do {
 		$output[] = $row[$HuizenID];
 	} while($row = mysql_fetch_array($result));
@@ -563,6 +576,67 @@ function getPriceHistory($input) {
 	} while($row = mysql_fetch_array($result));
 	
 	return $PriceTable;
+}
+
+function getHuidigePrijs($input) {
+	$prijzen			= getPriceHistory($input);
+	$HuidigePrijs	= array_slice ($prijzen, 0, 1);
+	
+	return $HuidigePrijs[0];
+}
+
+function getOrginelePrijs($input) {
+	$prijzen			= getPriceHistory($input);
+	$OriginelePrijs	= array_slice ($prijzen, (count($prijzen)-1), 1);
+	
+	return $OriginelePrijs[0];
+}
+
+function formatPrice($input, $euro = true) {
+	if($euro) {
+		return "&euro;&nbsp;". number_format($input, 0,'','.');
+	} else {
+		return number_format($input, 0,'','.');
+	}
+}
+
+function formatPercentage($input) {
+	if(is_int($input)) {
+		$dec = 0;
+	} else {
+		$dec = 1;
+	}
+	return number_format($input, $dec, ',','') .'%';
+}
+
+function getFullPriceHistory($input) {
+	$afname = $percentage = $overall_afname = $overall_percentage = array();
+	$prizeArray = getPriceHistory($input);
+		
+	$HuidigePrijs		= array_slice ($prizeArray, 0, 1);
+	$OriginelePrijs	= array_slice ($prizeArray, (count($prizeArray)-1), 1);
+	
+	$prijzenRev	= array_reverse($prizeArray, true);
+	$vorige			= $OriginelePrijs[0];
+	array_shift($prijzenRev);
+	
+	foreach($prijzenRev as $key => $prijs) {
+		$afname[$key]			= 100*($vorige - $prijs)/$vorige;
+		$percentage[$key]	= 100*$prijs/$vorige;
+		$vorige				= $prijs;
+		
+		$overall_afname[$key]			= 100*($OriginelePrijs[0] - $prijs)/$OriginelePrijs[0];
+		$overall_percentage[$key]	= 100*$prijs/$OriginelePrijs[0];
+	}
+	
+	$output[0] = $prijzenRev;
+	$output[1] = $percentage;
+	$output[2] = $afname;
+	$output[3] = $overall_percentage;
+	$output[4] = $overall_afname;
+	$output[5] = 100*$HuidigePrijs[0]/$OriginelePrijs[0];
+		
+	return $output;
 }
 
 

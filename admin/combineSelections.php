@@ -66,14 +66,18 @@ if(isset($_POST['combine'])) {
 		
 		$nieuwNaam = "$Name_1 of $Name_2";
 	}
+	
+	if(count($newDataset) > 0){		
+		$lijstID = saveUpdateList('', 1, $nieuwNaam);
 		
-	$lijstID = saveUpdateList('', 1, $nieuwNaam);
-	
-	foreach($newDataset as $huis) {		
-		$Page .= addHouse2List($huis, $lijstID);
+		foreach($newDataset as $huis) {		
+			$Page .= addHouse2List($huis, $lijstID);
+		}
+		
+		$Page .= "<p>Selectie opgeslagen als <a href='edit_lijsten.php?list=$lijstID'>$nieuwNaam</a>";
+	} else {
+		$Page .= "<p>Selectie bevat geen huizen";
 	}
-	
-	$Page .= "<p>Selectie opgeslagen als <a href='edit_lijsten.php?list=$lijstID'>$nieuwNaam</a>";
 } else {
 	$Opdrachten = getZoekOpdrachten(1);
 	$Lijsten		= getLijsten(1);

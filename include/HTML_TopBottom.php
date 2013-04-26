@@ -1,10 +1,11 @@
 <?php
 
+# Header
 $HTMLHeader	 = "<!--     Deze pagina is onderdeel van $ScriptTitle $Version gemaakt door Matthijs Draijer     -->\n\n";
 $HTMLHeader	.= "<html>\n";
 $HTMLHeader	.= "<head>\n";
 $HTMLHeader	.= "	<title>$ScriptTitle $Version</title>\n";
-$HTMLHeader	.= "	<link rel='stylesheet' type='text/css' href='". $ScriptURL ."extern/style_mail.css'>\n";
+$HTMLHeader	.= "	<link rel='stylesheet' type='text/css' href='". $ScriptURL ."extern/style.css'>\n";
 
 if($autocomplete) {
 	$HTMLHeader .= "	<link rel='stylesheet' type='text/css' href='http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css'>\n";
@@ -30,15 +31,31 @@ if($autocomplete) {
 	$HTMLHeader .= "</script>\n";
 }
 
+if($googleMaps) {
+	$HTMLHeader .= "	<script src='../include/if_gmap.js'></script>\n";
+	$HTMLHeader .= "	<script type='text/javascript' src='http://maps.google.com/maps/api/js?sensor=false'></script>\n";
+}
+
 $HTMLHeader	.= "</head>\n";
-$HTMLHeader	.= "<body>\n";
+
+if($googleMaps) {
+	$HTMLHeader	.= "<body onload='if_gmap_init();'>\n";
+} else {
+	$HTMLHeader	.= "<body>\n";
+}
 $HTMLHeader	.= "<center>\n";
 $HTMLHeader	.= "<table width='100%' align='center' border=0>\n";
 
+
+
+# PreFooter (alleen gebruikt in mail volgens mij
 $HTMLPreFooter = "<tr>\n";
 $HTMLPreFooter .= "	<td colspan='2' align='center'>". showBlock($FooterText) ."</td>\n";
 $HTMLPreFooter .= "</tr>\n";
 
+
+
+# Footer
 $HTMLFooter = "</table>\n";			
 $HTMLFooter .= "</body>\n";
 $HTMLFooter .= "</html>\n";

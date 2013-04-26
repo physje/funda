@@ -51,29 +51,24 @@ if(isset($_POST['add'])) {
 	echo "	<td width='34%' align='right'>$max_percentage %</td>\n";
 	echo "	<td width='7%'>&nbsp;</td>\n";
 	echo "</tr>\n";
-		
+	
+	# Doorloop alle huizen
 	foreach($dataset as $huisID) {
 		$data 			= getFundaData($huisID);
 		$adres			= convertToReadable($data['adres']);
-		$prijzen		= getPriceHistory($huisID);
-		$percentage = $breedte = array();
-										
-		if(max($prijzen) > 0) {
-			$eerste		= array_pop($prijzen);
-			$prijzenRev	= array_reverse($prijzen, true);
-			$vorige		= $eerste;
+		$relPrijzen	= getFullPriceHistory($huisID);
+		$prijzen						= $relPrijzen[0];
+		$percentage					= $relPrijzen[2];
+		$percentage_overall	= $relPrijzen[4];
+		
+		$breedte		= array();
+		
+		if(array_sum($percentage) > 0) {
+			foreach($percentage as $key => $perc) {
+				$breedte[$key]	= round(100*$perc/$max_percentage);
+			}
 			
-			foreach($prijzenRev as $key => $prijs) {
-				$percentage[$key]	= 100*($vorige - $prijs)/$vorige;				
-				$breedte[$key]		= round(100*$percentage[$key]/$max_percentage);
-				$vorige						= $prijs;
-				
-				$percentage_overall[$key]	= 100*($eerste - $prijs)/$eerste;
-			}
-				
-			if(array_sum($percentage) > 0) {
-				$percGemiddeld[]	= array_sum($percentage);
-			}
+			$percGemiddeld[]	= 100-$relPrijzen[5];
 		} else {
 			$breedte[] = 0;
 		}
@@ -95,12 +90,13 @@ if(isset($_POST['add'])) {
 		echo "<tr>\n";
 		echo "	<td width='25%'>";
 		if($showListAdd)	echo "	<input type='checkbox' name='huis[]' value='$huisID'". (in_array($huisID, $knownHuizen) ? ' checked' : '') .">";
-		echo "<a id='$huisID'><a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=$huisID'><img src='http://www.vvaltena.nl/styles/img/details/report.png'></a> <a id='$huisID'><a href='http://www.funda.nl". $data['url'] ."' target='_blank' class='$class'>$adres</a></td>\n";
+		echo "<a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=$huisID'><img src='http://www.vvaltena.nl/styles/img/details/report.png'></a>";
+		echo "<a id='$huisID'> <a href='http://www.funda.nl". $data['url'] ."' target='_blank' class='$TextClass'>$adres</a></td>\n";
 		echo "	<td colspan=2>\n";
 		echo "	<table width='100%' border=0><tr>\n";
 		if(array_sum($breedte) > 0) {			
 			foreach($breedte as $tijd => $value) {
-				echo "		<td width='". $value ."%' bgcolor='#FF6D6D' title='Gedaald naar &euro;&nbsp;". number_format($prijzen[$tijd], 0,'','.') ." (afname ".number_format($percentage[$tijd], 0) ."%)\nOorspronkelijk &euro;&nbsp;". number_format($eerste, 0,'','.') ." (afname ".number_format($percentage_overall[$tijd], 0) ."%)'>&nbsp;</td>\n";
+				echo "		<td width='". $value ."%' bgcolor='#FF6D6D' title='Gedaald naar ". formatPrice($prijzen[$tijd]) ." (afname ". formatPercentage($percentage[$tijd]) .")\nOorspronkelijk ". formatPrice(getOrginelePrijs($huisID)) ." (afname ". formatPercentage($percentage_overall[$tijd]) .")'>&nbsp;</td>\n";
 			}
 		}
 		echo "		<td width='". $restBreedte ."%'>&nbsp;</td>\n";
@@ -125,6 +121,7 @@ if(isset($_POST['add'])) {
 	echo "	<td width='7%'>&nbsp;</td>\n";		
 	echo "</tr>\n";
 	
+	# Laat een submit-button zien als dat nodig is.
 	if($showListAdd) {
 		echo "<tr>\n";
 		echo "	<td colspan='$aantalCols'>&nbsp;</td>\n";
@@ -137,11 +134,13 @@ if(isset($_POST['add'])) {
 	echo "</table>\n";
 	echo "</form>\n";
 } else {
+	# Vraag alle actieve opdrachten en lijsten op en zet die in een pull-down menu
+	# De value is Z... voor een zoekopdracht en L... voor een lijst
 	$Opdrachten = getZoekOpdrachten(1);
 	$Lijsten		= getLijsten(1);
 	
-	// Als er geen lijsten zijn of als er huizen aan een lijst worden toegevoegd
-	// (het is zinloos om dan lijsten te laten zien) de lijsten disablen
+	# Als er geen lijsten zijn of als er huizen aan een lijst worden toegevoegd
+	# (het is zinloos om dan lijsten te laten zien) de lijsten disablen
 	if(count($Lijsten) == 0 || isset($_REQUEST['addHouses'])) {
 		$showList = false;
 	} else {

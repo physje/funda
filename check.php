@@ -2,12 +2,14 @@
 include_once('../general_include/general_functions.php');
 include_once('../general_include/general_config.php');
 include_once('../general_include/class.phpmailer.php');
-
 include_once('include/functions.php');
 include_once('include/config.php');
+include_once('include/HTML_TopBottom.php');
 
 connect_db();
 
+# Als er een OpdrachtID is meegegeven hoeft alleen die uitgevoerd te worden.
+# In alle andere gevallen gewoon alle actieve zoekopdrachten
 if(isset($_REQUEST[OpdrachtID])) {
 	$Opdrachten = array($_REQUEST[OpdrachtID]);
 	$enkeleOpdracht = true;
@@ -16,11 +18,13 @@ if(isset($_REQUEST[OpdrachtID])) {
 	$enkeleOpdracht = false;
 }
 
+# Doorloop alle zoekopdrachten
 foreach($Opdrachten as $OpdrachtID) {
 	$OpdrachtData = getOpdrachtData($OpdrachtID);
 	$OpdrachtURL	= $OpdrachtData['url'];
 	toLog('info', $OpdrachtID, '', 'Start controle '. $OpdrachtData['naam']);
 	
+	# Vraag de pagina op en herhaal dit het standaard aantal keer mocht het niet lukken
 	$contents	= file_get_contents_retry($OpdrachtURL);
 	
 	$NrHuizen	= getString('<span class="hits"> (', ')', $contents, 0);
@@ -30,27 +34,34 @@ foreach($Opdrachten as $OpdrachtID) {
 		toLog('error', $OpdrachtID, '', 'Ongeldig aantal huizen');
 	}
 	
-	echo "<a href='$OpdrachtURL'>". $OpdrachtData['naam'] ."</a> -> ". $NrHuizen[0] ." huizen<br>\n";
+	$block[] = "<a href='$OpdrachtURL'>". $OpdrachtData['naam'] ."</a> -> ". $NrHuizen[0] ." huizen<br>\n";
 	
-	// Alles initialiseren
+	# Alles initialiseren
 	$HTMLMessage = $UpdatePrice = $Subject = $sommatie = array();
 	$nextPage = true;
-	$p=0;
-
-	//for($p=1; $p<=$NrPages ; $p++) {
+	$p = 0;
+	
+	# Omdat funda.nl niet standaard 15 'echte' huizen op een pagina zet, is het aantal pagina's niet te bepalen
+	# op basis van het aantal gevonden huizen ($NrHuizen).
+	# Door te kijken of 'next page' op een pagina voorkomt weet ik dat ik nog een pagina verder moet
 	while($nextPage) {
 		$AdressenArray = $VerlopenArray = array();
 		$p++;
 		
-		$PageURL		= $OpdrachtURL.'p'.$p.'/';
-		$contents = file_get_contents_retry($PageURL, 5);
+		$PageURL	= $OpdrachtURL.'p'.$p.'/';
+		$contents	= file_get_contents_retry($PageURL, 5);
 		
 		if(is_numeric(strpos($contents, "paging next")) AND $debug == 0) {
 			$nextPage = true;
 		} else {
 			$nextPage = false;
 		}
-				
+		
+		# Op funda.nl staan huizen van verschillende makkelaars-organisaties (NVM, VBO, etc.)
+		# Voor elke organisatie wordt een andere class uit de style-sheet gebruikt
+		# Deze class geeft precies het begin van een nieuw huis op de overzichtspagina aan
+		# Om zeker te zijn dat ik alle huizen vind doe ik eerst alsof álle huizen van NVM zijn,
+		# dan of álle huizen van VBO zijn, etc.
 		$HuizenNVM		= explode(' nvm" >', $contents);			array_shift($HuizenNVM);
 		$HuizenNVMlst	= explode(' nvm lst" >', $contents);	array_shift($HuizenNVMlst);
 		$HuizenVBO		= explode(' vbo" >', $contents);			array_shift($HuizenVBO);
@@ -61,10 +72,10 @@ foreach($Opdrachten as $OpdrachtID) {
 		$HuizenExtlst	= explode(' ext lst" >', $contents);	array_shift($HuizenExtlst);
 		$HuizenProject= explode('closed" >', $contents);		array_shift($HuizenProject);
 		$Huizen				= array_merge($HuizenNVM, $HuizenNVMlst, $HuizenVBO, $HuizenVBOlst, $HuizenLMV, $HuizenLMVlst, $HuizenExt, $HuizenExtlst, $HuizenProject);
-		$NrPageHuizen		= count($Huizen);
+		$NrPageHuizen	= count($Huizen);
 		
-		// funda heeft sinds 18-02-2013 de gekke gewoonte om ook verkochte huizen op te nemen.
-		// Op deze manier wordt de teller van gevonden huizen wel kloppend gehouden.
+		# funda.nl heeft sinds 18-02-2013 de gekke gewoonte om ook verkochte huizen op te nemen.
+		# Op deze manier wordt de teller van gevonden huizen wel kloppend gehouden.
 		$HuizenExpNVM	= explode(' nvm exp" >', $contents);		array_shift($HuizenExpNVM);
 		$HuizenExpVBO	= explode(' vbo exp" >', $contents);		array_shift($HuizenExpVBO);
 		$HuizenExpLMV	= explode(' lmv exp" >', $contents);		array_shift($HuizenExpLMV);		
@@ -76,25 +87,28 @@ foreach($Opdrachten as $OpdrachtID) {
 		}
 				
 		if($debug == 1) {
-			echo "Aantal huizen op <a href='$PageURL'>pagina $p</a> : ". $NrPageHuizen ."<br>\n";;
+			$block[] = "Aantal huizen op <a href='$PageURL'>pagina $p</a> : ". $NrPageHuizen ."<br>\n";;
 			$NrPageHuizen = 7;
 		}
-				
+		
+		# Doorloop nu alle gevonden huizen op de overzichtspagina
 		foreach($Huizen as $HuisText) {
+			# Extraheer hier adres, plaats, prijs, id etc. uit
 			$data = extractFundaData($HuisText);
 			$AdressenArray[] = $data['adres'];
 						
-			// Huis is nog niet bekend bij het script
+			# Huis is nog niet bekend bij het script, dus moet worden toegevoegd
 			if(!knownHouse($data['id'])) {
 				$extraData = extractDetailedFundaData("http://www.funda.nl". $data['url']);				
+				# Gegevens over het huis opslaan
 				if(!saveHouse($data, $extraData)) {
-					echo "Ging niet goed [1]";
 					$ErrorMessage[] = "Toevoegen van ". $data['adres'] ." aan het script ging niet goed";
 					toLog('error', $OpdrachtID, $data['id'], 'Huis toevoegen aan script mislukt');
 				} else {					
 					toLog('info', $OpdrachtID, $data['id'], 'Huis toevoegen aan script');
 				}
 				
+				# Coordinaten van het huis toevoegen
 				if(!addCoordinates($data['adres'], $data['PC_c'], $data['plaats'], $data['id'])) {					
 					$ErrorMessage[] = "Toevoegen van coordinaten aan ". $data['adres'] ." ging niet goed";	
 					toLog('error', $OpdrachtID, $data['id'], 'Coordinaten toevoegen mislukt');
@@ -102,15 +116,16 @@ foreach($Opdrachten as $OpdrachtID) {
 					toLog('debug', $OpdrachtID, $data['id'], "Coordinaten toegevoegd");
 				}
 				
+				# Prijs van het huis opslaan
 				if(!updatePrice($data['id'], $data['prijs'])) {
 					$ErrorMessage[] = "Toevoegen van prijs (". $data['prijs'] .") aan ". $data['adres'] ." ging niet goed";
 					toLog('error', $OpdrachtID, $data['id'], 'Prijs toevoegen mislukt');
 				} else {
 					toLog('debug', $OpdrachtID, $data['id'], "Prijs toegevoegd");
-				}
-				
+				}				
 			} else {				
-				// Huis is al bekend bij het script, aangeven dat huis nog bestaat
+				# Huis is al bekend bij het script
+				# We moeten dus aangeven dat hij nog steeds op de markt is
 				if(!updateAvailability($data['id'])) {
 					echo "<font color='red'>Updaten van <b>". $data['adres'] ."</b> is mislukt</font> | $sql<br>\n";
 					$ErrorMessage[] = "Updaten van ". $data['adres'] ." is mislukt";
@@ -119,7 +134,8 @@ foreach($Opdrachten as $OpdrachtID) {
 					toLog('debug', $OpdrachtID, $data['id'], 'Huis geupdate');
 				}
 
-				// Huis is al bekend bij het script, controleer of de prijs gedaald is
+				# Huis kan gedaald zijn in prijs
+				# Dat moeten we dus controleren en indien nodig opslaan en melding van maken
 				if(newPrice($data['id'], $data['prijs'])) {							
 					if(!updatePrice($data['id'], $data['prijs'])) {
 						echo "Toevoegen van de prijs van <b>". $data['adres'] ."</b> is mislukt | $sql<br>\n";
@@ -131,19 +147,18 @@ foreach($Opdrachten as $OpdrachtID) {
 				}
 			}
 			
-			// Kijk of dit huis al vaker gevonden is voor deze opdracht
-			if(newHouse($data['id'], $OpdrachtID)) {
+			# Kijk of dit huis al vaker gevonden is voor deze opdracht
+			if(newHouse($data['id'], $OpdrachtID)) {				
 				if(!addHouse($data, $OpdrachtID)) {
-					echo "Ging niet goed [4]";
 					$ErrorMessage[] = "Toevoegen van ". $data['adres'] ." aan opdracht $OpdrachtID ging niet goed";
 					toLog('error', $OpdrachtID, $data['id'], 'Huis toekennen aan opdracht mislukt');
 				} else {
 					toLog('debug', $OpdrachtID, $data['id'], 'Huis toegekend aan opdracht');
 				}
 				
-				$fundaData = getFundaData($data['id']);
-				$kenmerken = getFundaKenmerken($data['id']);
-				$fotos	= explode('|', $kenmerken['foto']);
+				$fundaData	= getFundaData($data['id']);
+				$kenmerken	= getFundaKenmerken($data['id']);
+				$fotos			= explode('|', $kenmerken['foto']);
 
 				$Item = array();				
 				$Item[] = "<table width='100%'>";
@@ -155,9 +170,8 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item[] = "	<td align='left' width='40%'>";
 				$Item[] = "  ". $fundaData['PC_c'] ." ". $fundaData['PC_l'] ." ". $fundaData['plaats'] ."<br>";
 				$Item[] = "  ". $kenmerken['Aantal kamers'] ."<br>";
-				//$Item[] = "  ". $extraData['perceel'] ." (". $extraData['inhoud'] ."/". $extraData['oppervlakte'] .")<br>";
 				$Item[] = "  ". $kenmerken['Perceeloppervlakte'] ." (". $kenmerken['Inhoud'] .")<br>";
-				$Item[] = "  <b>&euro;&nbsp;". number_format($data['prijs'], 0,'','.') ."</b></td>";
+				$Item[] = "  <b>". formatPrice($data['prijs']) ."</b></td>";
 				$Item[] = "</tr>";
 				$Item[] = "<tr>";
 				$Item[] = "	<td colspan='2'>&nbsp;</td>";
@@ -195,68 +209,76 @@ foreach($Opdrachten as $OpdrachtID) {
 					
 				$HTMLMessage[] = showBlock(implode("\n", $Item));					
 			} else {
-				if(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {						
-					$prijzen = getPriceHistory($data['id']);
+				if(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {
+					$PriceHistory = getFullPriceHistory($data['id']);
+					//$prijzen = getPriceHistory($data['id']);
+					//
+					//array_shift($prijzen);	# De eerste prijs is al de huidige prijs. Die moeten we dus vergeten
+					//
+					//// Als er nog maar 1 prijs over is, is de beginprijs en de vorige prijs dus hetzelfde :)
+					//if(count($prijzen) == 1) {
+					//	$vorigePrijs = $beginPrijs = array_shift($prijzen);
+					//} else {
+					//	$vorigePrijs = array_shift($prijzen);
+					//	$beginPrijs = array_pop($prijzen);
+					//}
+          //
+					//$percentageAll	= 100*($data['prijs'] - $beginPrijs)/$beginPrijs;
+					//$percentageNu		= 100*($data['prijs'] - $vorigePrijs)/$vorigePrijs;
 					
-					array_shift($prijzen);	// De eerste prijs is al de huidige prijs. Die moeten we dus vergeten
-					
-					// Als er nog maar 1 prijs over is, is de beginprijs en de vorige prijs dus hetzelfde :)
-					if(count($prijzen) == 1) {
-						$vorigePrijs = $beginPrijs = array_shift($prijzen);
-					} else {
-						$vorigePrijs = array_shift($prijzen);
-						$beginPrijs = array_pop($prijzen);
-					}
-
-					$percentageAll	= 100*($data['prijs'] - $beginPrijs)/$beginPrijs;
-					$percentageNu		= 100*($data['prijs'] - $vorigePrijs)/$vorigePrijs;
+					$percentageNu		= current($PriceHistory[2]);
+					$percentageAll	= $PriceHistory[4];
 					
 					$Item = array();				
 					$Item[] = "<img src='". $data['thumb'] ."'><br>";
-					$Item[] = "<a href='http://www.funda.nl". $data['url'] ."'>". $data['adres'] ."</a>, van &euro;&nbsp;". number_format($vorigePrijs, 0,'','.') ." naar &euro;&nbsp;". number_format($data['prijs'], 0,'','.') ." (".number_format($percentageNu, 0) ."%/".number_format($percentageAll, 0) ."%).";
+					$Item[] = "<a href='http://www.funda.nl". $data['url'] ."'>". $data['adres'] ."</a>, van ". formatPrice($vorigePrijs) ." naar ". formatPrice($data['prijs']) ." (". formatPercentage($percentageNu[0]) ."/". formatPercentage($percentageAll) .").";
 				
 					$UpdatePrice[] = implode("\n", $Item);
 				}
 			}
 		}
-		echo "<a href='$PageURL'>Pagina $p</a> verwerkt en ". (count($AdressenArray) + count($VerlopenArray))  ." huizen gevonden :<br>\n";
+		$String = array('');
+		$String[] = "<a href='$PageURL'>Pagina $p</a> verwerkt en ". (count($AdressenArray) + count($VerlopenArray))  ." huizen gevonden :<br>";
 		
 		if($enkeleOpdracht) {
-			echo '<ol>';
+			$String[] = '<ol>';
 			
 			foreach($AdressenArray as $key => $value) {
-				echo "<li>$value</li>\n";
+				$String[] = "<li>$value</li>";
 			}
 			
-			echo '</ol>';
-			echo '<ul>';
+			$String[] = '</ol>';
+			$String[] = '<ul>';
 						
 			foreach($VerlopenArray as $key => $value) {
-				echo "<li>$value</li>\n";
+				$String[] = "<li>$value</li>";
 			}
 			
-			echo '</ul>';
+			$String[] = '</ul>';
 		}
 		
-		//$sommatie[] = count($AdressenArray);
+		$block[] = implode("\n", $String);
+		
 		toLog('debug', $OpdrachtID, '', "Einde pagina $p (". count($AdressenArray) ." huizen)");
 		
 		// Dus niet de laatste pagina en minder dan 15 => niet goed
 		if((count($AdressenArray) + count($AdressenArray)) < 15 AND $nextPage) {
 			$ErrorMessage[] = $OpdrachtData['naam'] ."; Script vond maar ". (count($AdressenArray) + count($VerlopenArray)) .' huizen op pagina '. $p;
 			toLog('error', $OpdrachtID, '', "script vond maar ". (count($AdressenArray) + count($VerlopenArray)) ." huizen; pag. $p");
-		}				
-		sleep(3);	// Pauzeer even 3 seconden voor de volgende pagina op te vragen
-	}
+		}
 		
+		# Om funda.nl niet helemaal murw te beuken wachten we even 3 seconden voordat we de volgende pagina opvragen
+		sleep(3);	
+	}
 	
-	echo "<br>\n<br>\n";
+	//echo "<br>\n<br>\n";
 	
+	# Als er een nieuw huis is of een huis in prijs gedaald is moet er een mail verstuurd worden.
 	if(count($HTMLMessage) > 0 OR count($UpdatePrice) > 0) {		
 		$FooterText  = "Google Maps (";
 		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_mail.php?regio=$OpdrachtID") ."'>vandaag</a>, ";
-		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML.php?regio=$OpdrachtID&datum=1") ."'>wijk</a>, ";
-		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_prijs.php?regio=$OpdrachtID&datum=1") ."'>prijs</a>) | ";
+		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML.php?selectie=Z$OpdrachtID&datum=1") ."'>wijk</a>, ";
+		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_prijs.php?selectie=Z$OpdrachtID&datum=1") ."'>prijs</a>) | ";
 		$FooterText .= "<a href='". $ScriptURL ."admin/edit_opdrachten.php?id=$OpdrachtID'>Zoekopdracht</a> | ";
 		$FooterText .= "<a href='$OpdrachtURL'>funda.nl</a>";
 		
@@ -322,11 +344,28 @@ foreach($Opdrachten as $OpdrachtID) {
 				}
 			}
 		}
-	} else {
-		//toLog('info', $OpdrachtID, '', "Geen mail hoeven versturen");
 	}
 }
 
+$tweeKolom = false;
+echo $HTMLHeader;
+echo "<tr>\n";
+echo "<td width='50%' valign='top' align='center'>\n";
+
+foreach($block as $key => $value) {
+	echo showBlock($value);
+	echo '<p>';	
+	if($key > (count($block)/2 - 1) AND !$tweeKolom) {
+		echo "</td><td width='50%' valign='top' align='center'>\n";
+		$tweeKolom = true;
+	}
+}
+echo "</td>\n";
+echo "</tr>\n";
+echo $HTMLFooter;
+
+# Als er een error-meldingen zijn gegenereerd in het script moet er een mail de deur uit.
+# Natuurlijk alleen als we niet aan het debuggen zijn
 if(count($ErrorMessage) > 0 AND $debug == 0) {	
 	include('include/HTML_TopBottom.php');
 	$HTMLMail = $HTMLHeader;

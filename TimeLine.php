@@ -75,15 +75,9 @@ if(isset($_POST['add'])) {
 		$breedte_3	= 70 - $breedte_1 - $breedte_2;;
 		$adres			= convertToReadable(urldecode($row[$HuizenAdres]));
 		
-		$prijzen	= getPriceHistory($row[$HuizenID]);
-		$laatste	= current($prijzen);
-		$eerste		= end($prijzen);
-				
-		if(max($prijzen) > 0) {
-			$percentageAll	= 100*($eerste - $laatste)/$eerste;
-		} else {
-			$percentageAll = 0;
-		}		
+		$relPrijzen			= getFullPriceHistory($row[$HuizenID]);
+		$prijzen				= $relPrijzen[0];
+		$percentageAll	= 100-$relPrijzen[5];	
 		
 		if($row[$HuizenOffline] == '1') {
 			if($row[$HuizenVerkocht] != '1') {
@@ -125,8 +119,8 @@ if(isset($_POST['add'])) {
 	$Opdrachten = getZoekOpdrachten(1);
 	$Lijsten		= getLijsten(1);
 	
-	// Als er geen lijsten zijn of als er huizen aan een lijst worden toegevoegd
-	// (het is zinloos om dan lijsten te laten zien) de lijsten disablen
+	# Als er geen lijsten zijn of als er huizen aan een lijst worden toegevoegd
+	# (het is zinloos om dan lijsten te laten zien) de lijsten disablen
 	if(count($Lijsten) == 0 || isset($_REQUEST['addHouses'])) {
 		$showList = false;
 	} else {

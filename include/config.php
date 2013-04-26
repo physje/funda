@@ -1,16 +1,16 @@
 <?php
 
-$ScriptURL				= "";
+$ScriptURL				= "http://localhost/funda/";
 $ScriptTitle			= "Funda webchecker";
 $ScriptMailAdress = '';
 $Version					= '2.3.4';
 $SubjectPrefix		= "[funda] ";
 
 $debug						= 0;
-$stapPrijs				= 25000;	// Stapjes in prijs in de Google Maps view
-$colPhoto					= 3;			// Aantal kolommen met foto in mail
-$rowPhoto					= 3;			// Aantal rijen met foto in mail
-$aantalCols				= 4;			// Aantal kolommen met foto in fotoalbum
+$stapPrijs				= 25000;			# Stapjes in prijs in de Google Maps view
+$colPhoto					= 3;					# Aantal kolommen met foto in mail
+$rowPhoto					= 3;					# Aantal rijen met foto in mail
+$aantalCols				= 4;					# Aantal kolommen met foto in fotoalbum
 
 $cfgLogDebugTime	= mktime(date('H'), date('i'), date('s'), date('m'), date('d')-7, date('Y'));
 $cfgLogInfoTime		= mktime(date('H'), date('i'), date('s'), date('m')-1, date('d'), date('Y'));
@@ -25,10 +25,12 @@ $HuizenPC_l				= "PC_letters";
 $HuizenPlaats			= "plaats";
 $HuizenWijk				= "wijk";
 $HuizenThumb			= "thumb";
-$HuizenNdeg 			= "N_deg";
-$HuizenNdec 			= "N_dec";
-$HuizenOdeg 			= "O_deg";
-$HuizenOdec				= "O_dec";
+$HuizenNdeg 			= "N_deg";		# Op 25 april buiten gebruik gesteld
+$HuizenNdec 			= "N_dec";		# Op 25 april buiten gebruik gesteld
+$HuizenOdeg 			= "O_deg";		# Op 25 april buiten gebruik gesteld
+$HuizenOdec				= "O_dec";		# Op 25 april buiten gebruik gesteld
+$HuizenLat				= "latitude";
+$HuizenLon				= "longitude";
 $HuizenStart			= "start";
 $HuizenEind				= "eind";
 $HuizenVerkocht		= "verkocht";

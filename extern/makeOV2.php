@@ -9,43 +9,28 @@ $output = $ov2output = "";
 $grens	= time() - (24*60*60);
 
 if(isset($_REQUEST['opdracht'])) {
-	$opdracht			= $_REQUEST['opdracht'];
-	$opdrachtData	= getOpdrachtData($opdracht);
+	$id						= $_REQUEST['opdracht'];
+	$opdrachtData	= getOpdrachtData($id);
 	$Name					= $opdrachtData['naam'];
-	$from					= "$TableResultaat, $TableHuizen";
-	$where				= "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $opdracht AND $TableHuizen.$HuizenEind > $grens";		
-} elseif(isset($_REQUEST['lijst'])) {
-	$lijst				= $_REQUEST['lijst'];
-	$LijstData		= getLijstData($lijst);
+	$dataset			= getHuizen($id);
+} else {
+	$id						= $_REQUEST['lijst'];
+	$LijstData		= getLijstData($id);
 	$Name					= $LijstData['naam'];
-	$from					= "$TableListResult, $TableHuizen";
-	$where				= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $lijst AND $TableHuizen.$HuizenEind > $grens";
+	$dataset			= getLijstHuizen($id);
 }
 
-$sql = "SELECT $TableHuizen.$HuizenOffline, $TableHuizen.$HuizenThumb, $TableHuizen.$HuizenVerkocht, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenID, $TableHuizen.$HuizenURL FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
-
-//$OpdrachtID = $_REQUEST['opdracht'];
-//$OpdrachtData = getOpdrachtData($OpdrachtID);
-//$grens	= time() - (24*60*60);
-////$sql		= "SELECT * FROM $TableHuizen WHERE $HuizenEind > $grens AND $HuizenOpdracht = $OpdrachtID ORDER BY $HuizenAdres";
-//
-//$sql		= "SELECT * FROM $TableHuizen, $TableResultaat WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $OpdrachtID AND $TableHuizen.$HuizenEind > $grens ORDER BY $TableHuizen.$HuizenAdres";
-$result = mysql_query($sql);
-$row		= mysql_fetch_array($result);
-
-do {
-	$Prijzen	= getPriceHistory($row[$HuizenID]);
-	$temp			= each($Prijzen);
-	$label		= $temp[0];	
-	$lat			= $row[$HuizenNdeg].substr($row[$HuizenNdec].'00000', 0, 5);
-	$long			= $row[$HuizenOdeg].substr($row[$HuizenOdec].'00000', 0, 5);
-		
-	$name = urldecode($row[$HuizenAdres]) ."; ". urldecode($row[$HuizenPlaats]).'; '. number_format($Prijzen[$label],0,',','.');
+foreach($dataset as $huisID) {
+	$data 			= getFundaData($huisID);
+	$name				= convertToReadable($data['adres']) ."; ". $data['plaats'].'; '. formatPrice(getHuidigePrijs($huisID), false);	
+	$lat				= explode('.', $data['lat']);
+	$long				= explode('.', $data['long']);	
+	$latitude		= $lat[0].substr($lat[1].'00000', 0, 5);
+	$longitude	= $long[0].substr($long[1].'00000', 0, 5);	
 	
-	$ov2part = pack("VV", $long, $lat).$name.chr(0);
+	$ov2part = pack("VV", $longitude, $latitude).$name.chr(0);
 	$ov2output .= chr(2).pack("V", strlen($ov2part)+5).$ov2part;
 }
-while($row = mysql_fetch_array($result));
 
 header("Expires: Mon, 26 Jul 2001 05:00:00 GMT");
 header("Cache-Control: no-store, no-cache, must-revalidate");

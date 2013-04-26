@@ -19,8 +19,6 @@ echo $HTMLHeader;
 echo "<tr>\n";
 echo "<td width='50%' valign='top' align='center'>\n";
 echo showBlock($pagina);
-//echo "</td><td width='50%' valign='top' align='center'>\n";
-//echo showBlock($deel_3);
 echo "</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
