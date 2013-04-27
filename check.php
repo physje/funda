@@ -211,31 +211,24 @@ foreach($Opdrachten as $OpdrachtID) {
 			} else {
 				if(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {
 					$PriceHistory = getFullPriceHistory($data['id']);
-					//$prijzen = getPriceHistory($data['id']);
-					//
-					//array_shift($prijzen);	# De eerste prijs is al de huidige prijs. Die moeten we dus vergeten
-					//
-					//// Als er nog maar 1 prijs over is, is de beginprijs en de vorige prijs dus hetzelfde :)
-					//if(count($prijzen) == 1) {
-					//	$vorigePrijs = $beginPrijs = array_shift($prijzen);
-					//} else {
-					//	$vorigePrijs = array_shift($prijzen);
-					//	$beginPrijs = array_pop($prijzen);
-					//}
-          //
-					//$percentageAll	= 100*($data['prijs'] - $beginPrijs)/$beginPrijs;
-					//$percentageNu		= 100*($data['prijs'] - $vorigePrijs)/$vorigePrijs;
+					$prijzen_array = $PriceHistory[0];
+					$prijzen_perc = $PriceHistory[3];
 					
-					$percentageNu		= current($PriceHistory[2]);
-					$percentageAll	= $PriceHistory[4];
+					$Item  = "<table width='100%'>\n";
+					$Item .= "<tr>\n";
+					$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
+					$Item .= "	<td align='center'><a href='http://www.funda.nl". $data['url'] ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
 					
-					$Item = array();				
-					$Item[] = "<img src='". $data['thumb'] ."'><br>";
-					$Item[] = "<a href='http://www.funda.nl". $data['url'] ."'>". $data['adres'] ."</a>, van ". formatPrice($vorigePrijs) ." naar ". formatPrice($data['prijs']) ." (". formatPercentage($percentageNu[0]) ."/". formatPercentage($percentageAll) .").";
-				
-					$UpdatePrice[] = implode("\n", $Item);
+					foreach($prijzen_array as $tijd => $waarde) {
+						$Item .= date("d-m-y", $tijd) ." : ". formatPrice($waarde) ." (". formatPercentage($prijzen_perc[$tijd]) .")<br>\n";
+					}
+					
+					$Item .= "</tr>\n";
+					$Item .= "</table>\n";
+					
+					$UpdatePrice[] = showBlock($Item);					
 				}
-			}
+			}			
 		}
 		$String = array('');
 		$String[] = "<a href='$PageURL'>Pagina $p</a> verwerkt en ". (count($AdressenArray) + count($VerlopenArray))  ." huizen gevonden :<br>";
@@ -261,7 +254,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		
 		toLog('debug', $OpdrachtID, '', "Einde pagina $p (". count($AdressenArray) ." huizen)");
 		
-		// Dus niet de laatste pagina en minder dan 15 => niet goed
+		# Niet de laatste pagina en minder dan 15 huizen => niet goed
 		if((count($AdressenArray) + count($AdressenArray)) < 15 AND $nextPage) {
 			$ErrorMessage[] = $OpdrachtData['naam'] ."; Script vond maar ". (count($AdressenArray) + count($VerlopenArray)) .' huizen op pagina '. $p;
 			toLog('error', $OpdrachtID, '', "script vond maar ". (count($AdressenArray) + count($VerlopenArray)) ." huizen; pag. $p");
@@ -271,25 +264,54 @@ foreach($Opdrachten as $OpdrachtID) {
 		sleep(3);	
 	}
 	
-	//echo "<br>\n<br>\n";
+	# Verkochte huizen
+	$sql_verkocht = "SELECT $TableHuizen.$HuizenID FROM $TableResultaat, $TableHuizen WHERE $TableHuizen.$HuizenVerkocht like '1' AND $TableResultaat.$ResultaatVerkocht like '0' AND $TableResultaat.$ResultaatZoekID like '$OpdrachtID' AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID";
+	$result = mysql_query($sql_verkocht);
 	
-	# Als er een nieuw huis is of een huis in prijs gedaald is moet er een mail verstuurd worden.
-	if(count($HTMLMessage) > 0 OR count($UpdatePrice) > 0) {		
+	if($row = mysql_fetch_array($result)) {
+		do {
+			$fundaID	= $row[$HuizenID];
+			$data			= getFundaData($fundaID);
+			
+			$OorspronkelijkeVraagprijs	= getOrginelePrijs($fundaID);
+			$LaatsteVraagprijs					= getHuidigePrijs($fundaID);
+						
+			$Item  = "<table width='100%'>\n";
+			$Item .= "<tr>\n";
+			$Item .= "	<td align='center'><img src='". changeThumbLocation($data['thumb']) ."'></td>\n";
+			$Item .= "	<td align='center'><a href='http://www.funda.nl". $data['url'] ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
+			$Item .= "	". date("d-m-y", $data['start']) .' t/m '. date("d-m-y", $data['eind']) ." (". getDoorloptijd($fundaID) .")<br>\n";
+			if($LaatsteVraagprijs != $OorspronkelijkeVraagprijs) { $Item .= '<b>'. formatPrice($OorspronkelijkeVraagprijs) .'</b> -> '; }
+			$Item .= '	<b>'. formatPrice($LaatsteVraagprijs) ."</b></td>\n";
+			$Item .= "</tr>\n";
+			$Item .= "</table>\n";
+			
+			$VerkochtHuis[] = showBlock($Item);
+			
+			# Bijhouden dat mail verstuurd is met verkochte huis
+			$sql_update_verkocht = "UPDATE $TableResultaat SET $ResultaatVerkocht = '1' WHERE $ResultaatZoekID like '$OpdrachtID' AND $ResultaatID like '$fundaID'";
+			mysql_query($sql_update_verkocht);
+		} while($row = mysql_fetch_array($result));
+	}
+	
+	# Als er een nieuw huis, een huis in prijs gedaald of een huis verkocht is moet er een mail verstuurd worden.
+	if(count($HTMLMessage) > 0 OR count($UpdatePrice) > 0 OR count($VerkochtHuis) > 0) {	
 		$FooterText  = "Google Maps (";
 		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_mail.php?regio=$OpdrachtID") ."'>vandaag</a>, ";
 		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML.php?selectie=Z$OpdrachtID&datum=1") ."'>wijk</a>, ";
 		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_prijs.php?selectie=Z$OpdrachtID&datum=1") ."'>prijs</a>) | ";
 		$FooterText .= "<a href='". $ScriptURL ."admin/edit_opdrachten.php?id=$OpdrachtID'>Zoekopdracht</a> | ";
 		$FooterText .= "<a href='$OpdrachtURL'>funda.nl</a>";
+		$FooterText .= "<div class='float_rechts'>© 2009-". date("Y") ." Matthijs Draijer</div>";
 		
 		include('include/HTML_TopBottom.php');
 		
 		$HTMLMail = $HTMLHeader;
 		
 		if(count($HTMLMessage) > 0) {
-			$omslag = round(count($HTMLMessage)/2);
-			$KolomEen = array_slice ($HTMLMessage, 0, $omslag);
-			$KolomTwee = array_slice ($HTMLMessage, $omslag, $omslag);
+			$omslag			= round(count($HTMLMessage)/2);
+			$KolomEen		= array_slice ($HTMLMessage, 0, $omslag);
+			$KolomTwee	= array_slice ($HTMLMessage, $omslag, $omslag);
 			
 			$HTMLMail .= "<tr>\n";
 			$HTMLMail .= "<td width='50%' valign='top' align='center'>\n";
@@ -310,16 +332,65 @@ foreach($Opdrachten as $OpdrachtID) {
 		}
 		
 		if(count($UpdatePrice) > 0) {
+			//$HTMLMail .= "<tr>\n";
+			//$HTMLMail .= "	<td colspan='2' align='center'>". showBlock("De volgende huizen zijn in prijs gedaald :<p>". implode("<p>", $UpdatePrice)) ."</td>\n";
+			//$HTMLMail .= "</tr>\n";			
+			//$HTMLMail .= "<tr>\n";
+			//$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
+			//$HTMLMail .= "</tr>\n";
+			
+			$omslag			= round(count($UpdatePrice)/2);
+			$KolomEen		= array_slice ($UpdatePrice, 0, $omslag);
+			$KolomTwee	= array_slice ($UpdatePrice, $omslag, $omslag);
+			
 			$HTMLMail .= "<tr>\n";
-			$HTMLMail .= "<td colspan='2' align='center'>". showBlock("De volgende huizen zijn in prijs gedaald :<p>". implode("<p>", $UpdatePrice)) ."</td>\n";
-			$HTMLMail .= "<tr>\n";			
+			$HTMLMail .= "	<td colspan='2'><h2>In prijs gedaald</h2></td>\n";
+			$HTMLMail .= "</tr>\n";			
+			$HTMLMail .= "<tr>\n";
+			$HTMLMail .= "<td width='50%' valign='top' align='center'>\n";
+			$HTMLMail .= implode("\n<p>\n", $KolomEen);
+			$HTMLMail .= "</td><td width='50%' valign='top' align='center'>\n";
+			if(count($KolomTwee) > 0) {
+				$HTMLMail .= implode("\n<p>\n", $KolomTwee);	
+			} else {
+				$HTMLMail .= "&nbsp;";	
+			}
+			$HTMLMail .= "</td>\n";
+			$HTMLMail .= "</tr>\n";
 			$HTMLMail .= "<tr>\n";
 			$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
-			$HTMLMail .= "</tr>\n";
+			$HTMLMail .= "</tr>\n";			
 			
 			$Subject[] = count($UpdatePrice) ." ". (count($UpdatePrice) == 1 ? 'huis' : 'huizen') . " in prijs gedaald";
 		}
 		
+		if(count($VerkochtHuis) > 0) {
+			$omslag			= round(count($VerkochtHuis)/2);
+			$KolomEen		= array_slice ($VerkochtHuis, 0, $omslag);
+			$KolomTwee	= array_slice ($VerkochtHuis, $omslag, $omslag);
+			
+			$HTMLMail .= "<tr>\n";
+			$HTMLMail .= "	<td colspan='2'><h2>Verkocht</h2></td>\n";
+			$HTMLMail .= "</tr>\n";			
+			$HTMLMail .= "<tr>\n";
+			$HTMLMail .= "<td width='50%' valign='top' align='center'>\n";
+			$HTMLMail .= implode("\n<p>\n", $KolomEen);
+			$HTMLMail .= "</td><td width='50%' valign='top' align='center'>\n";
+			if(count($KolomTwee) > 0) {
+				$HTMLMail .= implode("\n<p>\n", $KolomTwee);	
+			} else {
+				$HTMLMail .= "&nbsp;";	
+			}
+			$HTMLMail .= "</td>\n";
+			$HTMLMail .= "</tr>\n";
+			$HTMLMail .= "<tr>\n";
+			$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
+			$HTMLMail .= "</tr>\n";
+			
+			$Subject[] = count($VerkochtHuis) ." ". (count($VerkochtHuis) == 1 ? 'huis' : 'huizen') . " verkocht";
+		}
+		
+				
 		$HTMLMail .= $HTMLPreFooter;
 		$HTMLMail .= $HTMLFooter;
 		
@@ -347,6 +418,7 @@ foreach($Opdrachten as $OpdrachtID) {
 	}
 }
 
+# Laat de resultaten vam de check netjes op het scherm zien.
 $tweeKolom = false;
 echo $HTMLHeader;
 echo "<tr>\n";

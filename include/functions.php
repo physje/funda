@@ -618,9 +618,9 @@ function getFullPriceHistory($input) {
 	
 	$prijzenRev	= array_reverse($prizeArray, true);
 	$vorige			= $OriginelePrijs[0];
-	array_shift($prijzenRev);
+	current($prijzenRev);
 	
-	foreach($prijzenRev as $key => $prijs) {
+	foreach($prijzenRev as $key => $prijs) {		
 		$afname[$key]			= 100*($vorige - $prijs)/$vorige;
 		$percentage[$key]	= 100*$prijs/$vorige;
 		$vorige				= $prijs;

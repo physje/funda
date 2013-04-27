@@ -29,8 +29,7 @@ if(isset($_POST['doorgaan'])) {
 		foreach($Huizen as $huis) {
 			$sql_check_unique = "SELECT * FROM $TableResultaat WHERE $ResultaatID like '$huis' AND $ResultaatZoekID NOT like ". $_POST['opdracht'];
 			$result	= mysql_query($sql_check_unique);
-			$Page .= $sql_check_unique.'<br>';
-			
+						
 			if(mysql_num_rows($result) == 0) {
 				$sql_delete_huis		= "DELETE FROM $TableHuizen WHERE $HuizenID like ". $huis;
 				if(!mysql_query($sql_delete_huis)) $Page .= $sql_delete_huis.'<br>';
@@ -43,11 +42,11 @@ if(isset($_POST['doorgaan'])) {
 				
 				$sql_delete_list		= "DELETE FROM $TableListResult WHERE $ListResultHuis like ". $huis;
 				if(!mysql_query($sql_delete_list)) $Page .= $sql_delete_list.'<br>';
-			}
-			
-			$sql_delete_opdracht= "DELETE FROM $TableResultaat WHERE $ResultaatID like '$huis' AND $ResultaatZoekID like ". $_POST['opdracht'];
-			if(!mysql_query($sql_delete_opdracht)) $Page .= $sql_delete_opdracht.'<br>';	
+			}			
 		}
+		
+		$sql_delete_huizen = "DELETE FROM $TableResultaat WHERE $ResultaatZoekID like ". $_POST['opdracht'];
+		if(!mysql_query($sql_delete_huizen)) $Page .= $sql_delete_huizen.'<br>';	
 		
 		$sql_delete_opdracht = "DELETE FROM $TableZoeken WHERE $ZoekenKey like ". $_POST['opdracht'];
 		if(!mysql_query($sql_delete_opdracht)) $Page .= $sql_delete_opdracht.'<br>';	

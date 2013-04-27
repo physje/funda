@@ -3,7 +3,7 @@
 $ScriptURL				= '';
 $ScriptTitle			= 'Funda webchecker';
 $ScriptMailAdress = '';
-$Version					= '2.4.1';
+$Version					= '2.4.4';
 $SubjectPrefix		= '[funda] ';
 
 $debug						= 0;
@@ -25,12 +25,12 @@ $HuizenPC_l				= "PC_letters";
 $HuizenPlaats			= "plaats";
 $HuizenWijk				= "wijk";
 $HuizenThumb			= "thumb";
-$HuizenNdeg 			= "N_deg";		# Op 25 april buiten gebruik gesteld
-$HuizenNdec 			= "N_dec";		# Op 25 april buiten gebruik gesteld
-$HuizenOdeg 			= "O_deg";		# Op 25 april buiten gebruik gesteld
-$HuizenOdec				= "O_dec";		# Op 25 april buiten gebruik gesteld
-$HuizenLat				= "latitude";
-$HuizenLon				= "longitude";
+$HuizenNdeg 			= "N_deg";			# Op 24 april buiten gebruik gesteld -> changeTable_24-04-2013.php
+$HuizenNdec 			= "N_dec";			# Op 24 april buiten gebruik gesteld
+$HuizenOdeg 			= "O_deg";			# Op 24 april buiten gebruik gesteld
+$HuizenOdec				= "O_dec";			# Op 24 april buiten gebruik gesteld
+$HuizenLat				= "latitude";		# Op 24 april in gebruik genomen
+$HuizenLon				= "longitude";	# Op 24 april in gebruik genomen
 $HuizenStart			= "start";
 $HuizenEind				= "eind";
 $HuizenVerkocht		= "verkocht";
@@ -52,6 +52,7 @@ $TableResultaat 	= "funda_resultaat";
 $ResultaatZoekID	= "zoek_id";
 $ResultaatID			= "funda_id";
 $ResultaatPrijs		= "prijs";
+$ResultaatVerkocht= "verkocht";		# Op 27 april in gebruik genomen -> changeTable_27-04-2013.php
 
 $TableZoeken			= "funda_zoeken";
 $ZoekenKey				= "id";
