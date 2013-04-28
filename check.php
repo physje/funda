@@ -20,6 +20,11 @@ if(isset($_REQUEST[OpdrachtID])) {
 
 # Doorloop alle zoekopdrachten
 foreach($Opdrachten as $OpdrachtID) {
+	# Alles initialiseren
+	$HTMLMessage = $UpdatePrice = $VerkochtHuis = $Subject = $sommatie = array();
+	$nextPage = true;
+	$p = 0;
+
 	$OpdrachtData = getOpdrachtData($OpdrachtID);
 	$OpdrachtURL	= $OpdrachtData['url'];
 	toLog('info', $OpdrachtID, '', 'Start controle '. $OpdrachtData['naam']);
@@ -35,11 +40,6 @@ foreach($Opdrachten as $OpdrachtID) {
 	}
 	
 	$block[] = "<a href='$OpdrachtURL'>". $OpdrachtData['naam'] ."</a> -> ". $NrHuizen[0] ." huizen<br>\n";
-	
-	# Alles initialiseren
-	$HTMLMessage = $UpdatePrice = $Subject = $sommatie = array();
-	$nextPage = true;
-	$p = 0;
 	
 	# Omdat funda.nl niet standaard 15 'echte' huizen op een pagina zet, is het aantal pagina's niet te bepalen
 	# op basis van het aantal gevonden huizen ($NrHuizen).
