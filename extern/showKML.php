@@ -4,9 +4,6 @@ include_once('../../general_include/general_config.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
 include_once('../include/HTML_TopBottom.php');
-$minUserLevel = 1;
-$cfgProgDir = '../auth/';
-include($cfgProgDir. "secure.php");
 connect_db();
 
 $bDag		= getParam('bDag', date("d"));
@@ -92,7 +89,7 @@ if($_REQUEST['datum'] == 0) {
 	$HTML[] = "	</td>\n";
 	$HTML[] = "	<td>&nbsp;</td>\n";
 	$HTML[] = "</tr>\n";
-	$HTML[] = "	<td colspan=7><input type=checkbox name=link value=1>Open direct in GoogleMaps ipv downloaden KML-file</td>\n";
+	$HTML[] = "	<td colspan=7><input type=checkbox name=link value=1 checked>Open direct in GoogleMaps ipv downloaden KML-file</td>\n";
 	$HTML[] = "</tr>\n";
 	$HTML[] = "<table>\n";
 	$HTML[] = "</form>\n";
