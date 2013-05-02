@@ -3,7 +3,10 @@ include_once('../../general_include/general_functions.php');
 include_once('../../general_include/general_config.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
-include('../include/HTML_TopBottom.php');
+include_once('../include/HTML_TopBottom.php');
+$minUserLevel = 1;
+$cfgProgDir = '../auth/';
+include($cfgProgDir. "secure.php");
 connect_db();
 
 if(isset($_POST['combine'])) {	
@@ -68,7 +71,7 @@ if(isset($_POST['combine'])) {
 	}
 	
 	if(count($newDataset) > 0){		
-		$lijstID = saveUpdateList('', 1, $nieuwNaam);
+		$lijstID = saveUpdateList('', $_SESSION['UserID'], 1, $nieuwNaam);
 		
 		foreach($newDataset as $huis) {		
 			$Page .= addHouse2List($huis, $lijstID);
@@ -79,8 +82,8 @@ if(isset($_POST['combine'])) {
 		$Page .= "<p>Selectie bevat geen huizen";
 	}
 } else {
-	$Opdrachten = getZoekOpdrachten(1);
-	$Lijsten		= getLijsten(1);
+	$Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
+	$Lijsten		= getLijsten($_SESSION['UserID'], 1, true);
 
 	$list[] = "	<optgroup label='Zoekopdrachten'>";	
 	
@@ -98,7 +101,21 @@ if(isset($_POST['combine'])) {
 	}	
 	
 	$list[] = "	</optgroup>";
+
+	if($_SESSION['account'] != $_SESSION['UserID']) {
+		$Lijsten_2	= getLijsten($_SESSION['account'], 1);
+		$MemberData = getMemberDetails($_SESSION['account']);
 	
+		$list[] = "	<optgroup label='Lijsten van ". $MemberData['naam'] ."'>\n";
+	
+		foreach($Lijsten_2 as $LijstID) {
+			$LijstData = getLijstData($LijstID);
+			$list[] = "	<option value='L$LijstID'>". $LijstData['naam'] ."</option>\n";
+		}
+	
+		$list[] = "	</optgroup>\n";
+	}
+
 	$Page = "<form method='post' action='$_SERVER[PHP_SELF]'>\n";	
 	$Page .= "<table border=0>\n";
 	$Page .= "<tr>\n";

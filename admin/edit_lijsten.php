@@ -3,6 +3,9 @@ include_once('../../general_include/general_functions.php');
 include_once('../../general_include/general_config.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
+$minUserLevel = 1;
+$cfgProgDir = '../auth/';
+include($cfgProgDir. "secure.php");
 connect_db();
 
 # Lijst verwijderen
@@ -34,7 +37,7 @@ if(isset($_POST['delete_list'])) {
 
 # Wijzigingen in lijst-gegevens opslaan
 } elseif(isset($_POST['save_list'])) {
-	$actie = saveUpdateList($_POST['list'], $_POST['actief'], $_POST['naam']);
+	$actie = saveUpdateList($_POST['list'], $_SESSION['UserID'], $_POST['actief'], $_POST['naam']);
 	
 	if(!is_numeric($actie) AND $actie == false) {
 		$Page_1 .= "Lijst opgeslagen";
@@ -142,7 +145,7 @@ if(isset($_POST['delete_list'])) {
 	
 # Overzicht van alle lijsten tonen
 } else {
-	$Lijsten = getLijsten('');
+	$Lijsten = getLijsten($_SESSION['UserID'], '');
 		
 	foreach($Lijsten as $LijstID) {
 		$LijstData = getLijstData($LijstID);

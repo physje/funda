@@ -4,6 +4,10 @@ include_once('../general_include/general_config.php');
 include_once('include/functions.php');
 include_once('include/config.php');
 include_once('include/HTML_TopBottom.php');
+$minUserLevel = 1;
+$cfgProgDir = 'auth/';
+include($cfgProgDir. "secure.php");
+
 connect_db();
 
 echo $HTMLHeader;
@@ -114,10 +118,10 @@ if(isset($_POST['add'])) {
 	}
 	
 	echo "</table>\n";
-	echo "</form>\n";
+	echo "</form>\n";	
 } else {
-	$Opdrachten = getZoekOpdrachten(1);
-	$Lijsten		= getLijsten(1);
+	$Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
+	$Lijsten		= getLijsten($_SESSION['UserID'], 1);
 	
 	# Als er geen lijsten zijn of als er huizen aan een lijst worden toegevoegd
 	# (het is zinloos om dan lijsten te laten zien) de lijsten disablen
@@ -151,7 +155,22 @@ if(isset($_POST['add'])) {
 	}
 	
 	echo "	</optgroup>\n";
-	echo "	</select>\n";
+
+	if($_SESSION['account'] != $_SESSION['UserID']) {
+		$Lijsten_2	= getLijsten($_SESSION['account'], 1);
+		$MemberData = getMemberDetails($_SESSION['account']);
+	
+		echo "	<optgroup label='Lijsten van ". $MemberData['naam'] ."'>\n";
+	
+		foreach($Lijsten_2 as $LijstID) {
+			$LijstData = getLijstData($LijstID);
+			echo "	<option value='L$LijstID'>". $LijstData['naam'] ."</option>\n";
+		}
+	
+		echo "	</optgroup>\n";
+	}
+	
+	echo "	</select>\n";	
 	echo "	</td>\n";
 	echo "</tr>\n";
 	echo "<tr>\n";

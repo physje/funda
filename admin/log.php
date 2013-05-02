@@ -6,6 +6,9 @@ include_once('../include/functions.php');
 include_once('../include/config.php');
 include_once('../include/HTML_TopBottom.php');
 setlocale(LC_ALL, 'nl_NL');
+$minUserLevel = 3;
+$cfgProgDir = '../auth/';
+include($cfgProgDir. "secure.php");
 
 connect_db();
 
@@ -108,7 +111,7 @@ do {
 $deel_1 .= "</table>";
 $deel_2 .= "</table>";
 
-$Opdrachten	= getZoekOpdrachten(1);
+$Opdrachten	= getZoekOpdrachten('', 1);
 
 $zoekScherm = "<form method='post'>\n";
 $zoekScherm .= "<table border=0 align='center'>\n";

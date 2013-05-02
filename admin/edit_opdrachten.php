@@ -3,7 +3,10 @@ include_once('../../general_include/general_functions.php');
 include_once('../../general_include/general_config.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
-include('../include/HTML_TopBottom.php');
+include_once('../include/HTML_TopBottom.php');
+$minUserLevel = 2;
+$cfgProgDir = '../auth/';
+include($cfgProgDir. "secure.php");
 connect_db();
 
 echo $HTMLHeader;
@@ -12,9 +15,9 @@ echo "	<td>\n";
 
 if(isset($_POST['doorgaan'])) {
 	if(isset($_REQUEST['id']) AND $_REQUEST['id'] != 0) {
-		$sql = "UPDATE $TableZoeken SET $ZoekenActive = '". ($_POST['actief'] == '1' ? '1' : '0') ."', $ZoekenMail = '". ($_POST['mail'] == '1' ? '1' : '0') ."', $ZoekenNaam = '". urlencode($_POST['naam']) ."', $ZoekenURL = '". urlencode($_POST['url']) ."', $ZoekenAdres = '". $_POST['adres'] ."' WHERE $ZoekenKey = ". $_POST['id'];
+		$sql = "UPDATE $TableZoeken SET $ZoekenActive = '". ($_POST['actief'] == '1' ? '1' : '0') ."', $ZoekenUser = '". $_SESSION['account'] ."', $ZoekenMail = '". ($_POST['mail'] == '1' ? '1' : '0') ."', $ZoekenNaam = '". urlencode($_POST['naam']) ."', $ZoekenURL = '". urlencode($_POST['url']) ."', $ZoekenAdres = '". $_POST['adres'] ."' WHERE $ZoekenKey = ". $_POST['id'];
 	} else {
-		$sql = "INSERT INTO $TableZoeken ($ZoekenActive, $ZoekenMail, $ZoekenNaam, $ZoekenURL, $ZoekenAdres) VALUES ('". ($_POST['actief'] == '1' ? '1' : '0') ."', '". ($_POST['mail'] == '1' ? '1' : '0') ."', '". urlencode($_POST['naam']) ."', '". urlencode($_POST['url']) ."', '". $_POST['adres'] ."')";
+		$sql = "INSERT INTO $TableZoeken ($ZoekenUser, $ZoekenActive, $ZoekenMail, $ZoekenNaam, $ZoekenURL, $ZoekenAdres) VALUES ('". $_SESSION['account'] ."', '". ($_POST['actief'] == '1' ? '1' : '0') ."', '". ($_POST['mail'] == '1' ? '1' : '0') ."', '". urlencode($_POST['naam']) ."', '". urlencode($_POST['url']) ."', '". $_POST['adres'] ."')";
 	}
 			
 	if(!mysql_query($sql)) {
@@ -108,7 +111,9 @@ if(isset($_POST['doorgaan'])) {
 	$Page .= "</table>\n";
 	$Page .= "</form>\n";
 } else  {	
-	$Opdrachten = getZoekOpdrachten('');
+	$Opdrachten = getZoekOpdrachten($_SESSION['account'], '');
+	
+	$Page .= "<table>\n";
 	
 	foreach($Opdrachten as $OpdrachtID) {
 		$OpdrachtData = getOpdrachtData($OpdrachtID);
@@ -125,13 +130,18 @@ if(isset($_POST['doorgaan'])) {
 			$class = 'online';
 		}
 		
-		$Page .= "<a href='?id=$OpdrachtID' title='wijzig zoekopdracht' class='$class'>". $OpdrachtData['naam'] ."</a>";
-		
+		$Page .= "<tr>\n";
 		if($OpdrachtData['active'] == 1) {
-			$Page .= "&nbsp;<a href='../check.php?OpdrachtID=$OpdrachtID'><img src='http://www.llowlab.nl/wp-content/plugins/tweet-blender/img/ajax-refresh-icon.gif' title='voer zoekopdracht uit'></a>";
+			$Page .= "	<td><a href='../check.php?OpdrachtID=$OpdrachtID'><img src='http://www.llowlab.nl/wp-content/plugins/tweet-blender/img/ajax-refresh-icon.gif' title='voer zoekopdracht uit'></a></td>";
+			$Page .= "	<td><a href='getVerkochteHuizen.php?OpdrachtID=$OpdrachtID'><img src='http://www.llowlab.nl/wp-content/plugins/tweet-blender/img/ajax-refresh-icon.gif' title='zoek verkochten huizen voor zoekopdracht'></a></td>";
+		} else {
+			$Page .= "	<td colspan='2'>&nbsp;</td>";
 		}
-		$Page .= "<br>\n";
+		
+		$Page .= "	<td><a href='?id=$OpdrachtID' title='wijzig zoekopdracht' class='$class'>". $OpdrachtData['naam'] ."</a></td>";
+		$Page .= "</tr>\n";
 	}
+	$Page .= "</table>\n";
 	$Page .= "<p>\n<a href='?id=0'>Nieuw</a><br>\n";
 }
 

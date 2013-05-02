@@ -3,6 +3,9 @@ include_once('../../general_include/general_functions.php');
 include_once('../../general_include/general_config.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
+$minUserLevel = 3;
+$cfgProgDir = '../auth/';
+include($cfgProgDir. "secure.php");
 connect_db();
 
 $sql		= "SELECT * FROM $TableKenmerken GROUP BY $KenmerkenID";

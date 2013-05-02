@@ -3,6 +3,9 @@ include_once('../../general_include/general_functions.php');
 include_once('../../general_include/general_config.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
+$minUserLevel = 1;
+$cfgProgDir = '../auth/';
+include($cfgProgDir. "secure.php");
 connect_db();
 
 # Informatie over het zoeken met coordinaten in een MySQL-query heb ik gekopieerd van
@@ -18,7 +21,7 @@ if($_POST[search]) {
 		
 	if($row = mysql_fetch_array($result)) {
 		$nieuwNaam = $_POST[afstand] ." km rondom ". $_POST[latitude] .', '. $_POST[longitude];
-		$lijstID = saveUpdateList('', 1, $nieuwNaam);		
+		$lijstID = saveUpdateList('', $_SESSION['UserID'], 1, $nieuwNaam);
 		do {
 			$deel_2 .= addHouse2List($row[$HuizenID], $lijstID);			
 		} while($row = mysql_fetch_array($result));

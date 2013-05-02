@@ -4,6 +4,10 @@ include_once('../general_include/general_config.php');
 include_once('include/functions.php');
 include_once('include/config.php');
 include_once('include/HTML_TopBottom.php');
+$minUserLevel = 1;
+$cfgProgDir = 'auth/';
+include($cfgProgDir. "secure.php");
+
 connect_db();
 
 echo $HTMLHeader;
@@ -62,11 +66,16 @@ if(isset($_POST['add'])) {
 		$percentage_overall	= $relPrijzen[4];
 		
 		$breedte		= array();
-		
+				
 		if(array_sum($percentage) > 0) {
 			foreach($percentage as $key => $perc) {
 				$breedte[$key]	= round(100*$perc/$max_percentage);
 			}
+			
+			# De eerste breedte is altijd 0, die skippen we dus
+			# Omdat we wél de keys willen behouden (omdat dat de link is met andere arrays) moeten we de 4de variabele meegeven.
+			# Omdat ik geen idee heb hoe lang de array is, neem ik 999 voor de 3de variabele
+			$breedte = array_slice($breedte, 1, 999, true);
 			
 			$percGemiddeld[]	= 100-$relPrijzen[5];
 		} else {
@@ -136,8 +145,8 @@ if(isset($_POST['add'])) {
 } else {
 	# Vraag alle actieve opdrachten en lijsten op en zet die in een pull-down menu
 	# De value is Z... voor een zoekopdracht en L... voor een lijst
-	$Opdrachten = getZoekOpdrachten(1);
-	$Lijsten		= getLijsten(1);
+	$Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
+	$Lijsten		= getLijsten($_SESSION['UserID'], 1);
 	
 	# Als er geen lijsten zijn of als er huizen aan een lijst worden toegevoegd
 	# (het is zinloos om dan lijsten te laten zien) de lijsten disablen
@@ -171,6 +180,21 @@ if(isset($_POST['add'])) {
 	}
 	
 	echo "	</optgroup>\n";
+
+	if($_SESSION['account'] != $_SESSION['UserID']) {
+		$Lijsten_2	= getLijsten($_SESSION['account'], 1);
+		$MemberData = getMemberDetails($_SESSION['account']);
+	
+		echo "	<optgroup label='Lijsten van ". $MemberData['naam'] ."'>\n";
+	
+		foreach($Lijsten_2 as $LijstID) {
+			$LijstData = getLijstData($LijstID);
+			echo "	<option value='L$LijstID'>". $LijstData['naam'] ."</option>\n";
+		}
+	
+		echo "	</optgroup>\n";
+	}
+	
 	echo "	</select>\n";
 	echo "	</td>\n";
 	echo "</tr>\n";

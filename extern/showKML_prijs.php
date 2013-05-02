@@ -4,6 +4,9 @@ include_once('../../general_include/general_config.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
 include_once('../include/HTML_TopBottom.php');
+$minUserLevel = 1;
+$cfgProgDir = '../auth/';
+include($cfgProgDir. "secure.php");
 connect_db();
 
 $bDag			= getParam('bDag', date("d"));
@@ -53,8 +56,8 @@ if($_REQUEST['datum'] == 0) {
 	$HTML[] = "	<td><select name='selectie'>\n";
 	$HTML[] = "	<optgroup label='Zoekopdrachten'>\n";
 	
-	$Opdrachten = getZoekOpdrachten(1);
-	$Lijsten		= getLijsten(1);	
+	$Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
+	$Lijsten		= getLijsten($_SESSION['UserID'], 1);
 	
 	foreach($Opdrachten as $OpdrachtID) {
 		$OpdrachtData = getOpdrachtData($OpdrachtID);
@@ -70,6 +73,21 @@ if($_REQUEST['datum'] == 0) {
 	}
 	
 	$HTML[] = "	</optgroup>\n";
+
+	if($_SESSION['account'] != $_SESSION['UserID']) {
+		$Lijsten_2	= getLijsten($_SESSION['account'], 1);
+		$MemberData = getMemberDetails($_SESSION['account']);
+	
+		$HTML[] = "	<optgroup label='Lijsten van ". $MemberData['naam'] ."'>\n";
+	
+		foreach($Lijsten_2 as $LijstID) {
+			$LijstData = getLijstData($LijstID);
+			$HTML[] = "	<option value='L$LijstID'>". $LijstData['naam'] ."</option>\n";
+		}
+	
+		$HTML[] = "	</optgroup>\n";
+	}
+	
 	$HTML[] = "	</select>\n";	
 	$HTML[] = "	</td>\n";
 	$HTML[] = "	<td>&nbsp;</td>\n";

@@ -4,7 +4,7 @@ include_once('../../general_include/general_config.php');
 include_once('../../general_include/class.phpmailer.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
-
+if($ServerIP != $_SERVER['REMOTE_ADDR'])	$minUserLevel = 3;	$cfgProgDir = '../auth/';	include($cfgProgDir. "secure.php");
 connect_db();
 
 if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {

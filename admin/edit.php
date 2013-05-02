@@ -5,6 +5,9 @@ include_once('../include/functions.php');
 include_once('../include/config.php');
 include_once('../include/HTML_TopBottom.php');
 setlocale(LC_ALL, 'nl_NL');
+$minUserLevel = 2;
+$cfgProgDir = '../auth/';
+include($cfgProgDir. "secure.php");
 connect_db();
 
 if(isset($_REQUEST['id'])) {

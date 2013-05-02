@@ -1,0 +1,44 @@
+<?php
+
+echo $HTMLHeader;
+echo "<tr>\n";
+echo "<td width='25%' valign='top' align='center'>&nbsp;</td>\n";
+echo "<td width='50%' valign='top' align='center'>";
+
+echo "<form name='loginform' action='$_SERVER[PHP_SELF]' METHOD='post'>\n";
+echo "<input type='hidden' name='interface' value='true'>\n";
+echo "<table align='center' border=0>\n";
+echo "<tr>\n";
+echo "	<td colspan='4'>&nbsp;</td>\n";
+echo "</tr>\n";
+echo "<tr>\n";
+echo "	<td colspan='4' align='center'><h2>Inlogscherm</h2></td>\n";
+echo "</tr>\n";
+echo "<tr>\n";
+echo "	<td colspan='4' align='center'>". ($phpSP_message != '' ? "<b><i><font color=red>$phpSP_message</font></b></i>" : '&nbsp;') ."</td>\n";
+echo "</tr>\n";
+echo "<tr>\n";
+echo "	<td rowspan='2'>&nbsp;</td>\n";
+echo "	<td width='25'>Loginnaam</td>\n";
+echo "  <td width='25'><input type='text' name='entered_login' tabindex='1'></td>\n";
+echo "	<td rowspan='2'>&nbsp;</td>\n";
+echo "</tr>\n";
+echo "<tr>\n";
+echo "	<td>Wachtwoord</td>\n";
+echo "  <td><input type='password' name='entered_password' tabindex='1'></td>\n";
+echo "</tr>\n";
+echo "<tr>\n";
+echo "	<td colspan='4' align='center'>&nbsp;</td>\n";
+echo "</tr>\n";
+echo "<tr>\n";
+echo "	<td colspan='4' valign='bottom' align='center'><input type='submit' tabindex='1' name='inloggen' value='Inloggen'></td>\n";
+echo "</tr>\n";
+echo "</table>\n";
+echo "</form>\n";
+
+echo "</td>\n";
+echo "<td width='25%' valign='top' align='center'>&nbsp;</td>\n";
+echo "</tr>\n";
+echo $HTMLFooter;
+
+?>

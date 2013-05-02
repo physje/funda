@@ -4,6 +4,9 @@ include_once('../../general_include/general_config.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
 include_once('../include/HTML_TopBottom.php');
+$minUserLevel = 3;
+$cfgProgDir = '../auth/';
+include($cfgProgDir. "secure.php");
 connect_db();
 
 if(isset($_REQUEST['id'])) {
@@ -14,6 +17,8 @@ if(isset($_REQUEST['id'])) {
 }
 $result	= mysql_query($sql);
 $row		= mysql_fetch_array($result);
+
+$error = array();
 
 do {	
 	# neem een huis-prijs combinatie
@@ -71,13 +76,25 @@ do {
 	
 } while($row = mysql_fetch_array($result));
 
+if(count($error) > 0) {
+	$errorVenster = implode("\n", $error);
+} else {
+	$errorVenster	= "Er zijn geen foutmeldingen\n";
+}
+
+if(count($melding) > 0) {
+	$meldingenVenster = implode("\n", $melding);
+} else {
+	$meldingenVenster	= "Er zijn geen meldingen\n";
+}
+
 # Uitkomst netjes op het scherm tonen
 echo $HTMLHeader;
 echo "<tr>\n";
 echo "<td width='50%' valign='top' align='center'>\n";
-echo showBlock(implode("\n", $error));
+echo showBlock($errorVenster);
 echo "</td><td width='50%' valign='top' align='center'>\n";
-echo showBlock(implode("\n", $melding));
+echo showBlock($meldingenVenster);
 echo "</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;

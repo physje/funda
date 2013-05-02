@@ -15,7 +15,7 @@ if($autocomplete) {
 	$HTMLHeader .= "		<script>\n";
 	$HTMLHeader .= "		$(function() {\n";
 	
-	$sql		= "SELECT $TableHuizen.$HuizenID, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenPlaats FROM $TableHuizen, $TableZoeken, $TableResultaat WHERE $TableZoeken.$ZoekenActive = '1' AND $TableZoeken.$ZoekenKey = $TableResultaat.$ResultaatZoekID AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID GROUP BY $TableHuizen.$HuizenID";
+	$sql		= "SELECT $TableHuizen.$HuizenID, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenPlaats FROM $TableHuizen, $TableZoeken, $TableResultaat WHERE $TableZoeken.$ZoekenActive = '1' AND $TableZoeken.$ZoekenKey = $TableResultaat.$ResultaatZoekID AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableZoeken.$ZoekenUser = ". $_SESSION['account'] ." GROUP BY $TableHuizen.$HuizenID";
 	$result	= mysql_query($sql);
 	$row		= mysql_fetch_array($result);
 	

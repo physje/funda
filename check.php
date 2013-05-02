@@ -5,8 +5,10 @@ include_once('../general_include/class.phpmailer.php');
 include_once('include/functions.php');
 include_once('include/config.php');
 include_once('include/HTML_TopBottom.php');
-
 connect_db();
+
+# Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
+# Iedereen kan deze pagina dus in principe openen.
 
 # Als er een OpdrachtID is meegegeven hoeft alleen die uitgevoerd te worden.
 # In alle andere gevallen gewoon alle actieve zoekopdrachten
@@ -14,14 +16,14 @@ if(isset($_REQUEST[OpdrachtID])) {
 	$Opdrachten = array($_REQUEST[OpdrachtID]);
 	$enkeleOpdracht = true;
 } else {
-	$Opdrachten = getZoekOpdrachten(1);
+	$Opdrachten = getZoekOpdrachten('', 1);
 	$enkeleOpdracht = false;
 }
 
 # Doorloop alle zoekopdrachten
 foreach($Opdrachten as $OpdrachtID) {
 	# Alles initialiseren
-	$HTMLMessage = $UpdatePrice = $VerkochtHuis = $Subject = $sommatie = array();
+	$HTMLMessage = $UpdatedPrice = $VerkochtHuis = $OnderVoorbehoud = $Subject = $sommatie = array();
 	$nextPage = true;
 	$p = 0;
 
@@ -145,7 +147,14 @@ foreach($Opdrachten as $OpdrachtID) {
 						toLog('debug', $OpdrachtID, $data['id'], "Prijs geupdate");
 					}
 				}
+				
+				# Huis kan onder voorbehoud verkocht zijn
+				if($data['vov'] > 0) {
+					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '2' WHERE $HuizenID like '". $data['id'] ."'";
+					mysql_query($sql);
+				}
 			}
+			
 			
 			# Kijk of dit huis al vaker gevonden is voor deze opdracht
 			if(newHouse($data['id'], $OpdrachtID)) {				
@@ -210,23 +219,21 @@ foreach($Opdrachten as $OpdrachtID) {
 				$HTMLMessage[] = showBlock(implode("\n", $Item));					
 			} else {
 				if(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {
-					$PriceHistory = getFullPriceHistory($data['id']);
-					$prijzen_array = $PriceHistory[0];
-					$prijzen_perc = $PriceHistory[3];
+					$PriceHistory		= getFullPriceHistory($data['id']);
+					$prijzen_array	= $PriceHistory[0];
+					$prijzen_perc 	= $PriceHistory[3];
+					end($prijzen_array);	# De pointer op de laatste waarde (=laatste prijs) zetten
 					
 					$Item  = "<table width='100%'>\n";
 					$Item .= "<tr>\n";
 					$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
 					$Item .= "	<td align='center'><a href='http://www.funda.nl". $data['url'] ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
-					
-					foreach($prijzen_array as $tijd => $waarde) {
-						$Item .= date("d-m-y", $tijd) ." : ". formatPrice($waarde) ." (". formatPercentage($prijzen_perc[$tijd]) .")<br>\n";
-					}
-					
+					$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $data['wijk'] .")<br>\n";
+					$Item .= 		formatPrice(prev($prijzen_array)) ." -> ". formatPrice(end($prijzen_array)) ." (". formatPercentage(end($prijzen_perc)) .")\n";
 					$Item .= "</tr>\n";
 					$Item .= "</table>\n";
 					
-					$UpdatePrice[] = showBlock($Item);					
+					$UpdatedPrice[] = showBlock($Item);					
 				}
 			}			
 		}
@@ -264,8 +271,8 @@ foreach($Opdrachten as $OpdrachtID) {
 		sleep(3);	
 	}
 	
-	# Verkochte huizen
-	$sql_verkocht = "SELECT $TableHuizen.$HuizenID FROM $TableResultaat, $TableHuizen WHERE $TableHuizen.$HuizenVerkocht like '1' AND $TableResultaat.$ResultaatVerkocht like '0' AND $TableResultaat.$ResultaatZoekID like '$OpdrachtID' AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID";
+	# Verkochte ($data['verkocht'] = 1) en onder voorbehoud ($data['verkocht'] = 2) verkochte huizen
+	$sql_verkocht = "SELECT $TableHuizen.$HuizenID FROM $TableResultaat, $TableHuizen WHERE $TableHuizen.$HuizenVerkocht NOT LIKE $TableResultaat.$ResultaatVerkocht AND $TableResultaat.$ResultaatZoekID like '$OpdrachtID' AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID";
 	$result = mysql_query($sql_verkocht);
 	
 	if($row = mysql_fetch_array($result)) {
@@ -275,27 +282,39 @@ foreach($Opdrachten as $OpdrachtID) {
 			
 			$OorspronkelijkeVraagprijs	= getOrginelePrijs($fundaID);
 			$LaatsteVraagprijs					= getHuidigePrijs($fundaID);
-						
-			$Item  = "<table width='100%'>\n";
-			$Item .= "<tr>\n";
-			$Item .= "	<td align='center'><img src='". changeThumbLocation($data['thumb']) ."'></td>\n";
-			$Item .= "	<td align='center'><a href='http://www.funda.nl". $data['url'] ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
-			$Item .= "	". date("d-m-y", $data['start']) .' t/m '. date("d-m-y", $data['eind']) ." (". getDoorloptijd($fundaID) .")<br>\n";
-			if($LaatsteVraagprijs != $OorspronkelijkeVraagprijs) { $Item .= '<b>'. formatPrice($OorspronkelijkeVraagprijs) .'</b> -> '; }
-			$Item .= '	<b>'. formatPrice($LaatsteVraagprijs) ."</b></td>\n";
-			$Item .= "</tr>\n";
-			$Item .= "</table>\n";
 			
-			$VerkochtHuis[] = showBlock($Item);
+			if($data['verkocht'] == 1) {							
+				$Item  = "<table width='100%'>\n";
+				$Item .= "<tr>\n";
+				$Item .= "	<td align='center'><img src='". changeThumbLocation($data['thumb']) ."'></td>\n";
+				$Item .= "	<td align='center'><a href='http://www.funda.nl". changeURLLocation($data['url']) ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
+				$Item .= "	". date("d-m-y", $data['start']) .' t/m '. date("d-m-y", $data['eind']) ." (". getDoorloptijd($fundaID) .")<br>\n";
+				if($LaatsteVraagprijs != $OorspronkelijkeVraagprijs) { $Item .= '<b>'. formatPrice($OorspronkelijkeVraagprijs) .'</b> -> '; }
+				$Item .= '	<b>'. formatPrice($LaatsteVraagprijs) ."</b></td>\n";
+				$Item .= "</tr>\n";
+				$Item .= "</table>\n";
+				
+				$VerkochtHuis[] = showBlock($Item);
+			} elseif($data['verkocht'] == 2) {
+				$Item  = "<table width='100%'>\n";
+				$Item .= "<tr>\n";
+				$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
+				$Item .= "	<td align='center'><a href='http://www.funda.nl". $data['url'] ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
+				$Item .= '	<b>'. formatPrice($LaatsteVraagprijs) ."</b></td>\n";
+				$Item .= "</tr>\n";
+				$Item .= "</table>\n";
+				
+				$OnderVoorbehoud[] = showBlock($Item);
+			}				
 			
 			# Bijhouden dat mail verstuurd is met verkochte huis
-			$sql_update_verkocht = "UPDATE $TableResultaat SET $ResultaatVerkocht = '1' WHERE $ResultaatZoekID like '$OpdrachtID' AND $ResultaatID like '$fundaID'";
+			$sql_update_verkocht = "UPDATE $TableResultaat SET $ResultaatVerkocht = '". $data['verkocht'] ."' WHERE $ResultaatZoekID like '$OpdrachtID' AND $ResultaatID like '$fundaID'";
 			mysql_query($sql_update_verkocht);
 		} while($row = mysql_fetch_array($result));
 	}
 	
 	# Als er een nieuw huis, een huis in prijs gedaald of een huis verkocht is moet er een mail verstuurd worden.
-	if(count($HTMLMessage) > 0 OR count($UpdatePrice) > 0 OR count($VerkochtHuis) > 0) {	
+	if(count($HTMLMessage) > 0 OR count($UpdatedPrice) > 0 OR count($VerkochtHuis) > 0) {	
 		$FooterText  = "Google Maps (";
 		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_mail.php?regio=$OpdrachtID") ."'>vandaag</a>, ";
 		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML.php?selectie=Z$OpdrachtID&datum=1") ."'>wijk</a>, ";
@@ -331,17 +350,17 @@ foreach($Opdrachten as $OpdrachtID) {
 			$Subject[] = count($HTMLMessage) ." ". (count($HTMLMessage) == 1 ? 'nieuw huis' : 'nieuwe huizen');
 		}
 		
-		if(count($UpdatePrice) > 0) {
+		if(count($UpdatedPrice) > 0) {
 			//$HTMLMail .= "<tr>\n";
-			//$HTMLMail .= "	<td colspan='2' align='center'>". showBlock("De volgende huizen zijn in prijs gedaald :<p>". implode("<p>", $UpdatePrice)) ."</td>\n";
+			//$HTMLMail .= "	<td colspan='2' align='center'>". showBlock("De volgende huizen zijn in prijs gedaald :<p>". implode("<p>", $UpdatedPrice)) ."</td>\n";
 			//$HTMLMail .= "</tr>\n";			
 			//$HTMLMail .= "<tr>\n";
 			//$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
 			//$HTMLMail .= "</tr>\n";
 			
-			$omslag			= round(count($UpdatePrice)/2);
-			$KolomEen		= array_slice ($UpdatePrice, 0, $omslag);
-			$KolomTwee	= array_slice ($UpdatePrice, $omslag, $omslag);
+			$omslag			= round(count($UpdatedPrice)/2);
+			$KolomEen		= array_slice ($UpdatedPrice, 0, $omslag);
+			$KolomTwee	= array_slice ($UpdatedPrice, $omslag, $omslag);
 			
 			$HTMLMail .= "<tr>\n";
 			$HTMLMail .= "	<td colspan='2'><h2>In prijs gedaald</h2></td>\n";
@@ -361,9 +380,35 @@ foreach($Opdrachten as $OpdrachtID) {
 			$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
 			$HTMLMail .= "</tr>\n";			
 			
-			$Subject[] = count($UpdatePrice) ." ". (count($UpdatePrice) == 1 ? 'huis' : 'huizen') . " in prijs gedaald";
+			$Subject[] = count($UpdatedPrice) ." ". (count($UpdatedPrice) == 1 ? 'huis' : 'huizen') . " in prijs gedaald";
 		}
 		
+		if(count($OnderVoorbehoud) > 0) {
+			$omslag			= round(count($OnderVoorbehoud)/2);
+			$KolomEen		= array_slice ($OnderVoorbehoud, 0, $omslag);
+			$KolomTwee	= array_slice ($OnderVoorbehoud, $omslag, $omslag);
+			
+			$HTMLMail .= "<tr>\n";
+			$HTMLMail .= "	<td colspan='2'><h2>Onder voorbehoud verkocht</h2></td>\n";
+			$HTMLMail .= "</tr>\n";			
+			$HTMLMail .= "<tr>\n";
+			$HTMLMail .= "<td width='50%' valign='top' align='center'>\n";
+			$HTMLMail .= implode("\n<p>\n", $KolomEen);
+			$HTMLMail .= "</td><td width='50%' valign='top' align='center'>\n";
+			if(count($KolomTwee) > 0) {
+				$HTMLMail .= implode("\n<p>\n", $KolomTwee);	
+			} else {
+				$HTMLMail .= "&nbsp;";	
+			}
+			$HTMLMail .= "</td>\n";
+			$HTMLMail .= "</tr>\n";
+			$HTMLMail .= "<tr>\n";
+			$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
+			$HTMLMail .= "</tr>\n";
+			
+			$Subject[] = count($OnderVoorbehoud) ." ". (count($OnderVoorbehoud) == 1 ? 'huis' : 'huizen') . " onder voorbehoud verkocht";
+		}
+				
 		if(count($VerkochtHuis) > 0) {
 			$omslag			= round(count($VerkochtHuis)/2);
 			$KolomEen		= array_slice ($VerkochtHuis, 0, $omslag);
@@ -389,7 +434,6 @@ foreach($Opdrachten as $OpdrachtID) {
 			
 			$Subject[] = count($VerkochtHuis) ." ". (count($VerkochtHuis) == 1 ? 'huis' : 'huizen') . " verkocht";
 		}
-		
 				
 		$HTMLMail .= $HTMLPreFooter;
 		$HTMLMail .= $HTMLFooter;

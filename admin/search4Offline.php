@@ -5,6 +5,9 @@ include_once('../include/functions.php');
 include_once('../include/config.php');
 connect_db();
 
+# Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
+# Iedereen kan deze pagina dus in principe openen.
+
 $grens	= time() - (2*24*60*60);
 $sql		= "SELECT $TableHuizen.$HuizenID, $TableHuizen.$HuizenURL, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenPlaats, $TableHuizen.$HuizenEind FROM $TableResultaat, $TableHuizen, $TableZoeken WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenActive like '1' AND $TableHuizen.$HuizenOffline = '0' AND $TableHuizen.$HuizenVerkocht = '0' AND $TableHuizen.$HuizenEind < $grens GROUP BY $TableHuizen.$HuizenID";
 $result	= mysql_query($sql);

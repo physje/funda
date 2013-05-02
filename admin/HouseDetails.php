@@ -3,6 +3,9 @@ include_once('../../general_include/general_functions.php');
 include_once('../../general_include/general_config.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
+$minUserLevel = 1;
+$cfgProgDir = '../auth/';
+include($cfgProgDir. "secure.php");
 connect_db();
 
 if(isset($_REQUEST['id'])) {
@@ -13,26 +16,26 @@ if(isset($_REQUEST['id'])) {
 }
 
 if($id != '') {	
-	$links['getVerkochteHuizen.php?id='. $id] = 'Haal verkoop-gegevens op';
-	$links['edit.php?id='. $id]								= 'Wijzig gegevens';
-	$links['delete.php?id='. $id]							= 'Verwijder';
-	$links['cleanPrice.php?id='. $id]					= 'Prijs opschonen';
+	$data = getFundaData($id);
+	$deel_2 = $data['adres'];
+	
+	$links['checkOudeHuizen.php?id='. $id] 		= 'Haal verkoop-gegevens van '. $data['adres'] .' op';
+	$links['edit.php?id='. $id]								= 'Wijzig de gegevens van '. $data['adres'];	
+	$links['delete.php?id='. $id]							= 'Verwijder '. $data['adres'] .' uit de database';
+	$links['cleanPrice.php?id='. $id]					= 'Prijzen van '. $data['adres'] .' opschonen';
 	
 	if(isset($_REQUEST['selectie'])) {
 		$selectie = $_REQUEST['selectie'];
-		$links['../TimeLine.php?selectie='. $selectie .'#'. $id]		= 'Timeline';
-		$links['../PrijsDaling.php?selectie='. $selectie .'#'. $id]	= 'Prijsdaling';		
+		$links['../TimeLine.php?selectie='. $selectie .'#'. $id]		= 'Bekijk de tijdslijn';
+		$links['../PrijsDaling.php?selectie='. $selectie .'#'. $id]	= 'Bekijk de prijsdalingen';
 	} else {
-		$links['../TimeLine.php']			= 'Timeline';
-		$links['../PrijsDaling.php']	= 'Prijsdaling';
+		$links['../TimeLine.php']			= 'Bekijk de tijdslijn';
+		$links['../PrijsDaling.php']	= 'Bekijk de prijsdalingen';
 	}
 
 	foreach($links as $url => $titel) {
 		$deel_1 .= "<a href='$url'>$titel</a><br>\n";
 	}
-	
-	$data = getFundaData($id);
-	$deel_2 = $data['adres'];
 } else {
 	$autocomplete = true; 
 	$deel_1 = "<form method='post' name='searchform'>\n";
