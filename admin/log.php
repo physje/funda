@@ -93,10 +93,6 @@ do {
 	$rij = "<tr>";
 	$rij .= "	<td>". date("d-m H:i:s", $row[$LogTime]) ."</td>";
 	$rij .= "	<td>&nbsp;</td>\n";
-	//$rij .= "	<td>". $row[$LogType] ."</td>";
-	//$rij .= "	<td>&nbsp;</td>\n";
-	//$rij .= "	<td>". $row[$LogOpdracht] ."</td>";
-	//$rij .= "	<td>&nbsp;</td>\n";
 	$rij .= "	<td><a href='http://www.funda.nl". $fundaData['url'] ."' title='". $opdrachtData['naam'] .'; '. $fundaData['adres'] ."'>". $row[$LogHuis] ."</a></td>";
 	$rij .= "	<td>&nbsp;</td>\n";
 	$rij .= "	<td>". $row[$LogMessage] ."</td>";
@@ -111,86 +107,62 @@ do {
 $deel_1 .= "</table>";
 $deel_2 .= "</table>";
 
-$Opdrachten	= getZoekOpdrachten('', 1);
+$dateSelection = makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar);
 
-$zoekScherm = "<form method='post'>\n";
-$zoekScherm .= "<table border=0 align='center'>\n";
-$zoekScherm .= "<tr>\n";
-$zoekScherm .= "	<td><b>Begindatum</b></td>\n";
-$zoekScherm .= "	<td>&nbsp;</td>\n";
-$zoekScherm .= "	<td><b>Einddatum</b></td>\n";
-$zoekScherm .= "	<td>&nbsp;</td>\n";
-$zoekScherm .= "	<td><b>Zoekopdracht</b></td>\n";
-$zoekScherm .= "	<td>&nbsp;</td>\n";
-$zoekScherm .= "	<td><b>Huis</b></td>\n";
-$zoekScherm .= "	<td>&nbsp;</td>\n";
-$zoekScherm .= "	<td rowspan='4'><input type='submit' value='Zoeken' name='submit'></td>\n";
-$zoekScherm .= "</tr>\n";
-$zoekScherm .= "<tr>\n";
-$zoekScherm .= "	<td><select name='bDag'>\n";
-for($d=1 ; $d<=31 ; $d++)	{	$zoekScherm .= "<option value='$d'". ($d == $bDag ? ' selected' : '') .">$d</option>\n";	}
-$zoekScherm .= "	</select><select name='bMaand'>\n";
-for($m=1 ; $m<=12 ; $m++)	{	$zoekScherm .= "<option value='$m'". ($m == $bMaand ? ' selected' : '') .">". strftime("%B", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
-$zoekScherm .= "	</select><select name='bJaar'>\n";
-for($j=(date('Y') - 1) ; $j<=(date('Y') + 1) ; $j++)	{	$zoekScherm .= "<option value='$j'". ($j == $bJaar ? ' selected' : '') .">$j</option>\n";	}
-$zoekScherm .= "	</select></td>\n";
-$zoekScherm .= "	<td>&nbsp;</td>\n";
-$zoekScherm .= "	<td><select name='eDag'>\n";
-for($d=1 ; $d<=31 ; $d++)	{	$zoekScherm .= "<option value='$d'". ($d == $eDag ? ' selected' : '') .">$d</option>\n";	}
-$zoekScherm .= "	</select><select name='eMaand'>\n";
-for($m=1 ; $m<=12 ; $m++)	{	$zoekScherm .= "<option value='$m'". ($m == $eMaand ? ' selected' : '') .">". strftime("%B", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
-$zoekScherm .= "	</select><select name='eJaar'>\n";
-for($j=(date('Y') - 1) ; $j<=(date('Y') + 1) ; $j++)	{	$zoekScherm .= "<option value='$j'". ($j == $eJaar ? ' selected' : '') .">$j</option>\n";	}
-$zoekScherm .= "	</select></td>\n";
-$zoekScherm .= "	<td>&nbsp;</td>\n";
-$zoekScherm .= "	<td><select name='opdracht'>\n";
-$zoekScherm .= "	<option value=''>Alle</option>\n";
-foreach($Opdrachten as $OpdrachtID) {
-	$OpdrachtData = getOpdrachtData($OpdrachtID);
-	$zoekScherm .= "<option value='$OpdrachtID'". ($opdracht == $OpdrachtID ? ' selected' : '') .">". $OpdrachtData['naam'] ."</option>\n";
-}
-$zoekScherm .= "	</select></td>\n";
-$zoekScherm .= "	<td>&nbsp;</td>\n";
+$zoekScherm[] = "<form method='post'>";
+$zoekScherm[] = "<table border=0 align='center'>";
+$zoekScherm[] = "<tr>";
+$zoekScherm[] = "	<td><b>Begindatum</b></td>";
+$zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "	<td><b>Einddatum</b></td>";
+$zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "	<td><b>Zoekopdracht</b></td>";
+$zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "	<td><b>Huis</b></td>";
+$zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "	<td rowspan='4'><input type='submit' value='Zoeken' name='submit'></td>";
+$zoekScherm[] = "</tr>";
+$zoekScherm[] = "<tr>";
+$zoekScherm[] = "	<td>". $dateSelection[0] ."</td>";
+$zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "	<td>". $dateSelection[1] ."</td>";
+$zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "	<td>". makeSelectionSelection(true) ."</td>";
+$zoekScherm[] = "	<td>&nbsp;</td>";
 if(isset($opdracht)) {
 	$Huizen			= getHuizen($opdracht);
 
-	$zoekScherm .= "	<td><select name='huis'>\n";
-	$zoekScherm .= "	<option value=''>Alle</option>\n";
+	$zoekScherm .= "	<td><select name='huis'>";
+	$zoekScherm .= "	<option value=''>Alle</option>";
 	foreach($Huizen as $huisID) {
 		$HuisData = getFundaData($huisID, $opdracht);
-		$zoekScherm .= "	<option value='$huisID'". ($huis == $huisID ? ' selected' : '') .">". $HuisData['adres'] ."</option>\n";
+		$zoekScherm[] = "	<option value='$huisID'". ($huis == $huisID ? ' selected' : '') .">". $HuisData['adres'] ."</option>";
 	}
 	
-	$zoekScherm .= "	</select></td>\n";
+	$zoekScherm[] = "	</select></td>";
 } else {
-	$zoekScherm .= "	<td>&nbsp;</td>\n";
+	$zoekScherm[] = "	<td>&nbsp;</td>";
 }
-$zoekScherm .= "	<td>&nbsp;</td>\n";
-$zoekScherm .= "</tr>\n";
-$zoekScherm .= "<tr>\n";
-$zoekScherm .= "	<td colspan='7'>";
-$zoekScherm .= "	<input type='checkbox' name='error' value='ja' ". ($error == 'ja' ? ' checked' : '') ."> Error&nbsp;&nbsp;&nbsp;";
-$zoekScherm .= "	<input type='checkbox' name='info' value='ja' ". ($info == 'ja' ? ' checked' : '') ."> Info&nbsp;&nbsp;&nbsp;";
-$zoekScherm .= "	<input type='checkbox' name='debug' value='ja' ". ($debug == 'ja' ? ' checked' : '') ."> Debug";
-$zoekScherm .= "	</td>\n";
-$zoekScherm .= "	<td>&nbsp;</td>\n";
-$zoekScherm .= "</tr>\n";
-$zoekScherm .= "</table>\n";
-$zoekScherm .= "</form>\n";
+$zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "</tr>";
+$zoekScherm[] = "<tr>";
+$zoekScherm[] = "	<td colspan='7'>";
+$zoekScherm[] = "	<input type='checkbox' name='error' value='ja' ". ($error == 'ja' ? ' checked' : '') ."> Error&nbsp;&nbsp;&nbsp;";
+$zoekScherm[] = "	<input type='checkbox' name='info' value='ja' ". ($info == 'ja' ? ' checked' : '') ."> Info&nbsp;&nbsp;&nbsp;";
+$zoekScherm[] = "	<input type='checkbox' name='debug' value='ja' ". ($debug == 'ja' ? ' checked' : '') ."> Debug";
+$zoekScherm[] = "	</td>";
+$zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "</tr>";
+$zoekScherm[] = "</table>";
+$zoekScherm[] = "</form>";
 
 echo $HTMLHeader;
 echo "<tr>\n";
-echo "<td valign='top' align='center' colspan=2>\n";
-echo showBlock($zoekScherm);
-echo "</td>\n";
+echo "	<td valign='top' align='center' colspan=2>". showBlock(implode("\n", $zoekScherm)) ."</td>\n";
 echo "</tr>\n";
 echo "<tr>\n";
-echo "<td width='50%' valign='top' align='center'>\n";
-echo showBlock($deel_1);
-echo "</td>\n";
-echo "<td width='50%' valign='top' align='center'>\n";
-echo showBlock($deel_2);
-echo "</td>\n";
+echo "	<td width='50%' valign='top' align='center'>". showBlock($deel_1) ."</td>\n";
+echo "	<td width='50%' valign='top' align='center'>". showBlock($deel_2) ."</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
 

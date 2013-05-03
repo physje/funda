@@ -152,6 +152,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				if($data['vov'] > 0) {
 					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '2' WHERE $HuizenID like '". $data['id'] ."'";
 					mysql_query($sql);
+					toLog('info', $OpdrachtID, $data['id'], 'Onder voorbehoud verkocht');
 				}
 			}
 			
@@ -228,8 +229,8 @@ foreach($Opdrachten as $OpdrachtID) {
 					$Item .= "<tr>\n";
 					$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
 					$Item .= "	<td align='center'><a href='http://www.funda.nl". $data['url'] ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
-					$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $data['wijk'] .")<br>\n";
-					$Item .= 		formatPrice(prev($prijzen_array)) ." -> ". formatPrice(end($prijzen_array)) ." (". formatPercentage(end($prijzen_perc)) .")\n";
+					$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $fundaData['wijk'] .")<br>\n";
+					$Item .= "<b>". formatPrice(prev($prijzen_array)) ."</b> -> <b>". formatPrice(end($prijzen_array)) ."</b> (". formatPercentage(end($prijzen_perc)) .")\n";
 					$Item .= "</tr>\n";
 					$Item .= "</table>\n";
 					
@@ -288,18 +289,20 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item .= "<tr>\n";
 				$Item .= "	<td align='center'><img src='". changeThumbLocation($data['thumb']) ."'></td>\n";
 				$Item .= "	<td align='center'><a href='http://www.funda.nl". changeURLLocation($data['url']) ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
+				$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $data['wijk'] .")<br>\n";
 				$Item .= "	". date("d-m-y", $data['start']) .' t/m '. date("d-m-y", $data['eind']) ." (". getDoorloptijd($fundaID) .")<br>\n";
 				if($LaatsteVraagprijs != $OorspronkelijkeVraagprijs) { $Item .= '<b>'. formatPrice($OorspronkelijkeVraagprijs) .'</b> -> '; }
 				$Item .= '	<b>'. formatPrice($LaatsteVraagprijs) ."</b></td>\n";
 				$Item .= "</tr>\n";
 				$Item .= "</table>\n";
-				
+								
 				$VerkochtHuis[] = showBlock($Item);
 			} elseif($data['verkocht'] == 2) {
 				$Item  = "<table width='100%'>\n";
 				$Item .= "<tr>\n";
 				$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
 				$Item .= "	<td align='center'><a href='http://www.funda.nl". $data['url'] ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
+				$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $data['wijk'] .")<br>\n";
 				$Item .= '	<b>'. formatPrice($LaatsteVraagprijs) ."</b></td>\n";
 				$Item .= "</tr>\n";
 				$Item .= "</table>\n";

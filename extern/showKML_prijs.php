@@ -15,93 +15,40 @@ $eJaar		= getParam('eJaar', date("Y"));
 $selectie	= getParam('selectie', '');
 
 if($_REQUEST['datum'] == 0) {	
-	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
-	$HTML[] = "<input type='hidden' name='datum' value='1'>\n";
-	$HTML[] = "<table>\n";
-	$HTML[] = "<tr>\n";
-	$HTML[] = "	<td>Begin Datum</td>\n";
-	$HTML[] = "	<td>&nbsp;</td>\n";
-	$HTML[] = "	<td>Eind Datum</td>\n";
-	$HTML[] = "	<td>&nbsp;</td>\n";
-	$HTML[] = "	<td>Groep</td>\n";
-	$HTML[] = "	<td>&nbsp;</td>\n";
-	$HTML[] = "	<td rowspan='2'><input type='submit' name='submit' value='Weergeven'></td>\n";
-	$HTML[] = "</tr>\n";
-	$HTML[] = "<tr>\n";
-	$HTML[] = "	<td><select name='bDag'>\n";
-	for($d=1 ; $d<=31 ; $d++)	$HTML[] = "	<option value='$d'". ($d == $bDag ? ' selected' : '') .">$d</option>\n";
-	$HTML[] = "	</select>\n";	
-	$HTML[] = "	<select name='bMaand'>\n";
-	for($m=1 ; $m<=12 ; $m++)	$HTML[] = "	<option value='$m'". ($m == $bMaand ? ' selected' : '') .">$m</option>\n";
-	$HTML[] = "	</select>\n";
-	$HTML[] = "	<select name='bJaar'>\n";
-	for($j=2004 ; $j<=date("Y") ; $j++)	$HTML[] = "	<option value='$j'". ($j == $bJaar ? ' selected' : '') .">$j</option>\n";
-	$HTML[] = "	</select>\n";
-	$HTML[] = "	</td>\n";
-	$HTML[] = "	<td>&nbsp;</td>\n";
-	$HTML[] = "	<td><select name='eDag'>\n";
-	for($d=1 ; $d<=31 ; $d++)	$HTML[] = "	<option value='$d'". ($d == $eDag ? ' selected' : '') .">$d</option>\n";
-	$HTML[] = "	</select>\n";	
-	$HTML[] = "	<select name='eMaand'>\n";
-	for($m=1 ; $m<=12 ; $m++)	$HTML[] = "	<option value='$m'". ($m == $eMaand ? ' selected' : '') .">$m</option>\n";
-	$HTML[] = "	</select>\n";
-	$HTML[] = "	<select name='eJaar'>\n";
-	for($j=2004 ; $j<=date("Y") ; $j++)	$HTML[] = "	<option value='$j'". ($j == $eJaar ? ' selected' : '') .">$j</option>\n";
-	$HTML[] = "	</select>\n";
-	$HTML[] = "	</td>\n";
-	$HTML[] = "	<td>&nbsp;</td>\n";
-	$HTML[] = "	<td><select name='selectie'>\n";
-	$HTML[] = "	<optgroup label='Zoekopdrachten'>\n";
+	$dateSelection = makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar);
 	
-	$Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
-	$Lijsten		= getLijsten($_SESSION['UserID'], 1);
-	
-	foreach($Opdrachten as $OpdrachtID) {
-		$OpdrachtData = getOpdrachtData($OpdrachtID);
-		$HTML[] = "	<option value='Z$OpdrachtID'>". $OpdrachtData['naam'] ."</option>\n";
-	}
-	
-	$HTML[] = "	</optgroup>\n";
-	$HTML[] = "	<optgroup label='Lijsten'>\n";
-	
-	foreach($Lijsten as $LijstID) {
-		$LijstData = getLijstData($LijstID);
-		$HTML[] = "	<option value='L$LijstID'>". $LijstData['naam'] ."</option>\n";
-	}
-	
-	$HTML[] = "	</optgroup>\n";
-
-	if($_SESSION['account'] != $_SESSION['UserID']) {
-		$Lijsten_2	= getLijsten($_SESSION['account'], 1);
-		$MemberData = getMemberDetails($_SESSION['account']);
-	
-		$HTML[] = "	<optgroup label='Lijsten van ". $MemberData['naam'] ."'>\n";
-	
-		foreach($Lijsten_2 as $LijstID) {
-			$LijstData = getLijstData($LijstID);
-			$HTML[] = "	<option value='L$LijstID'>". $LijstData['naam'] ."</option>\n";
-		}
-	
-		$HTML[] = "	</optgroup>\n";
-	}
-	
-	$HTML[] = "	</select>\n";	
-	$HTML[] = "	</td>\n";
-	$HTML[] = "	<td>&nbsp;</td>\n";
-	$HTML[] = "</tr>\n";
+	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+	$HTML[] = "<input type='hidden' name='datum' value='1'>";
+	$HTML[] = "<table>";
+	$HTML[] = "<tr>";
+	$HTML[] = "	<td>Begin Datum</td>";
+	$HTML[] = "	<td>&nbsp;</td>";
+	$HTML[] = "	<td>Eind Datum</td>";
+	$HTML[] = "	<td>&nbsp;</td>";
+	$HTML[] = "	<td>Groep</td>";
+	$HTML[] = "	<td>&nbsp;</td>";
+	$HTML[] = "	<td rowspan='2'><input type='submit' name='submit' value='Weergeven'></td>";
+	$HTML[] = "</tr>";
+	$HTML[] = "<tr>";
+	$HTML[] = "	<td>". $dateSelection[0] ."</td>";
+	$HTML[] = "	<td>&nbsp;</td>";
+	$HTML[] = "	<td>". $dateSelection[1] ."</td>";
+	$HTML[] = "	<td>&nbsp;</td>";
+	$HTML[] = "	<td>". makeSelectionSelection(false) ."</td>";
+	$HTML[] = "	<td>&nbsp;</td>";
+	$HTML[] = "</tr>";
 	$HTML[] = "	<td colspan=7><input type=checkbox name=link value=1 checked>Open direct in GoogleMaps ipv downloaden KML-file</td>\n";
-	$HTML[] = "</tr>\n";
-	$HTML[] = "<table>\n";
-	$HTML[] = "</form>\n";
+	$HTML[] = "</tr>";
+	$HTML[] = "</table>";
+	$HTML[] = "</form>";
 	
 	echo $HTMLHeader;
 	echo "<tr>\n";
-	//echo "<td width='50%' valign='top' align='center'>\n";
-	echo "<td width='100%' valign='top' align='center'>\n";
-	echo showBlock(implode("", $HTML));
-	//echo "</td><td width='50%' valign='top' align='center'>\n";
-	//echo showBlock($deel_3);
+	echo "<td width='8%'>&nbsp;</td>\n";
+	echo "<td width='84%' valign='top' align='center'>\n";
+	echo showBlock(implode("\n", $HTML));
 	echo "</td>\n";
+	echo "<td width='8%'>&nbsp;</td>\n";
 	echo "</tr>\n";
 	echo $HTMLFooter;
 } elseif($_REQUEST['link'] == '1') {

@@ -35,7 +35,7 @@ foreach($Opdrachten as $OpdrachtID) {
 	$HTML[] = "Zoekopdracht <a href='$OpdrachtURL'>". $OpdrachtData['naam'] ."</a>\n<p>\n";
 	
 	while($nextPage) {
-		set_time_limit (60);
+		set_time_limit (30);
 		$p++;
 		
 		$PageURL	= $OpdrachtURL.'p'.$p.'/';

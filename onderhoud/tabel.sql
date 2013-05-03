@@ -3,17 +3,14 @@
 -- http://www.phpmyadmin.net
 --
 -- Machine: localhost
--- Genereertijd: 27 Apr 2013 om 20:38
+-- Genereertijd: 03 Mei 2013 om 16:20
 -- Serverversie: 5.1.41
 -- PHP-Versie: 5.3.1
 
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+-- --------------------------------------------------------
 
 --
 -- Tabelstructuur voor tabel `funda_huizen`
---
--- Gecreëerd: 26 Apr 2013 om 09:42
--- Laatst bijgewerkt: 27 Apr 2013 om 11:50
 --
 
 CREATE TABLE IF NOT EXISTS `funda_huizen` (
@@ -29,17 +26,15 @@ CREATE TABLE IF NOT EXISTS `funda_huizen` (
   `longitude` float(10,6) NOT NULL,
   `start` int(10) NOT NULL DEFAULT '0',
   `eind` int(10) NOT NULL DEFAULT '0',
-  `verkocht` set('0','1') NOT NULL DEFAULT '0',
+  `verkocht` set('0','1','2') NOT NULL DEFAULT '0',
   `offline` set('0','1') NOT NULL DEFAULT '0',
   UNIQUE KEY `funda_id` (`funda_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
+-- --------------------------------------------------------
 
 --
 -- Tabelstructuur voor tabel `funda_kenmerken`
---
--- Gecreëerd: 26 Apr 2013 om 09:35
--- Laatst bijgewerkt: 26 Apr 2013 om 09:36
 --
 
 CREATE TABLE IF NOT EXISTS `funda_kenmerken` (
@@ -51,40 +46,35 @@ CREATE TABLE IF NOT EXISTS `funda_kenmerken` (
   UNIQUE KEY `id` (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
+-- --------------------------------------------------------
 
 --
 -- Tabelstructuur voor tabel `funda_lists`
 --
--- Gecreëerd: 24 Apr 2013 om 15:16
--- Laatst bijgewerkt: 26 Apr 2013 om 17:20
---
 
 CREATE TABLE IF NOT EXISTS `funda_lists` (
-  `id` int(3) NOT NULL AUTO_INCREMENT,
+  `id` int(2) NOT NULL AUTO_INCREMENT,
+  `user` int(3) NOT NULL,
   `active` set('0','1') NOT NULL,
   `name` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
+-- --------------------------------------------------------
 
 --
 -- Tabelstructuur voor tabel `funda_list_resultaat`
 --
--- Gecreëerd: 24 Apr 2013 om 15:16
--- Laatst bijgewerkt: 26 Apr 2013 om 17:15
---
 
 CREATE TABLE IF NOT EXISTS `funda_list_resultaat` (
-  `list` int(3) NOT NULL,
-  `huis` int(8) NOT NULL
+  `list` int(2) NOT NULL,
+  `huis` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
+-- --------------------------------------------------------
 
 --
 -- Tabelstructuur voor tabel `funda_log`
---
--- Gecreëerd: 02 Apr 2013 om 12:10
--- Laatst bijgewerkt: 27 Apr 2013 om 20:33
 --
 
 CREATE TABLE IF NOT EXISTS `funda_log` (
@@ -98,47 +88,61 @@ CREATE TABLE IF NOT EXISTS `funda_log` (
   UNIQUE KEY `id` (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `funda_members`
+--
+
+CREATE TABLE IF NOT EXISTS `funda_members` (
+  `id` int(3) NOT NULL AUTO_INCREMENT,
+  `name` text NOT NULL,
+  `username` text NOT NULL,
+  `password` text NOT NULL,
+  `level` int(1) NOT NULL,
+  `mail` text NOT NULL,
+  `account` int(3) NOT NULL,
+  `lastLogin` int(11) NOT NULL,
+  UNIQUE KEY `id` (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
+INSERT INTO `funda_members` (`id`, `name`, `username`, `password`, `level`, `mail`, `account`, `lastLogin`) VALUES (1, 'Admin', 'admin', '21232f297a57a5a743894a0e4a801fc3', 3, '', 0, 0),
+
+-- --------------------------------------------------------
 
 --
 -- Tabelstructuur voor tabel `funda_prijzen`
---
--- Gecreëerd: 26 Apr 2013 om 09:36
--- Laatst bijgewerkt: 26 Apr 2013 om 22:07
 --
 
 CREATE TABLE IF NOT EXISTS `funda_prijzen` (
   `id` int(5) NOT NULL AUTO_INCREMENT,
   `funda_id` int(8) NOT NULL,
-  `prijs` int(8) NOT NULL DEFAULT '0',
+  `prijs` int(6) NOT NULL DEFAULT '0',
   `tijd` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
+-- --------------------------------------------------------
 
 --
 -- Tabelstructuur voor tabel `funda_resultaat`
 --
--- Gecreëerd: 27 Apr 2013 om 13:31
--- Laatst bijgewerkt: 27 Apr 2013 om 13:50
---
 
 CREATE TABLE IF NOT EXISTS `funda_resultaat` (
-  `zoek_id` int(3) NOT NULL,
+  `zoek_id` int(2) NOT NULL,
   `funda_id` int(8) NOT NULL,
   `prijs` int(8) NOT NULL,
-  `verkocht` set('0','1') NOT NULL DEFAULT '0'
+  `verkocht` set('0','1','2') NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
+-- --------------------------------------------------------
 
 --
 -- Tabelstructuur voor tabel `funda_zoeken`
 --
--- Gecreëerd: 24 Apr 2013 om 15:16
--- Laatst bijgewerkt: 27 Apr 2013 om 11:50
---
 
 CREATE TABLE IF NOT EXISTS `funda_zoeken` (
-  `id` int(3) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user` int(3) NOT NULL,
   `active` set('0','1') NOT NULL,
   `mail` set('0','1') NOT NULL DEFAULT '1',
   `adres` text NOT NULL,

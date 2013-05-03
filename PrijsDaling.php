@@ -143,66 +143,28 @@ if(isset($_POST['add'])) {
 	echo "</table>\n";
 	echo "</form>\n";
 } else {
-	# Vraag alle actieve opdrachten en lijsten op en zet die in een pull-down menu
-	# De value is Z... voor een zoekopdracht en L... voor een lijst
-	$Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
-	$Lijsten		= getLijsten($_SESSION['UserID'], 1);
+	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+	$HTML[] = "<input type='hidden' name='addHouses' value='". (isset($_REQUEST['addHouses']) ? '1' : '0') ."'>";
+	$HTML[] = "<input type='hidden' name='chosenList' value='". $_REQUEST['chosenList'] ."'>";
+	$HTML[] = "<table>";
+	$HTML[] = "<tr>";
+	$HTML[] = "	<td>Selectie</td>";	
+	$HTML[] = "	<td>&nbsp;</td>";
+	$HTML[] = "	<td>". makeSelectionSelection(isset($_REQUEST['addHouses'])) ."</td>";
+	$HTML[] = "</tr>";
+	$HTML[] = "<tr>";
+	$HTML[] = "	<td colspan='3' align='center'><input type='submit' name='submit' value='Weergeven'></td>";
+	$HTML[] = "</tr>";
+	$HTML[] = "</table>";
+	$HTML[] = "</form>";
 	
-	# Als er geen lijsten zijn of als er huizen aan een lijst worden toegevoegd
-	# (het is zinloos om dan lijsten te laten zien) de lijsten disablen
-	if(count($Lijsten) == 0 || isset($_REQUEST['addHouses'])) {
-		$showList = false;
-	} else {
-		$showList = true;
-	}
-	
-	echo "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
-	echo "<input type='hidden' name='addHouses' value='". (isset($_REQUEST['addHouses']) ? '1' : '0') ."'>\n";
-	echo "<input type='hidden' name='chosenList' value='". $_REQUEST['chosenList'] ."'>\n";
-	echo "<table>\n";
 	echo "<tr>\n";
-	echo "	<td>Selectie</td>\n";	
-	echo "	<td>&nbsp;</td>\n";
-	echo "	<td><select name='selectie'>\n";
-	echo "	<optgroup label='Zoekopdrachten'>\n";
-	
-	foreach($Opdrachten as $OpdrachtID) {
-		$OpdrachtData = getOpdrachtData($OpdrachtID);
-		echo "	<option value='Z$OpdrachtID'>". $OpdrachtData['naam'] ."</option>\n";
-	}
-	
-	echo "	</optgroup>\n";
-	echo "	<optgroup label='Lijsten'". ($showList ? '' : ' disabled') .">\n";
-	
-	foreach($Lijsten as $LijstID) {
-		$LijstData = getLijstData($LijstID);
-		echo "	<option value='L$LijstID'>". $LijstData['naam'] ."</option>\n";
-	}
-	
-	echo "	</optgroup>\n";
-
-	if($_SESSION['account'] != $_SESSION['UserID']) {
-		$Lijsten_2	= getLijsten($_SESSION['account'], 1);
-		$MemberData = getMemberDetails($_SESSION['account']);
-	
-		echo "	<optgroup label='Lijsten van ". $MemberData['naam'] ."'>\n";
-	
-		foreach($Lijsten_2 as $LijstID) {
-			$LijstData = getLijstData($LijstID);
-			echo "	<option value='L$LijstID'>". $LijstData['naam'] ."</option>\n";
-		}
-	
-		echo "	</optgroup>\n";
-	}
-	
-	echo "	</select>\n";
-	echo "	</td>\n";
-	echo "</tr>\n";
-	echo "<tr>\n";
-	echo "	<td colspan='3' align='center'><input type='submit' name='submit' value='Weergeven'></td>\n";
-	echo "</tr>\n";
-	echo "<table>\n";
-	echo "</form>\n";
+	echo "<td width='25%' valign='top' align='center'>&nbsp;</td>\n";
+	echo "<td width='50%' valign='top' align='center'>\n";
+	echo showBlock(implode("\n", $HTML));
+	echo "</td>\n";
+	echo "<td width='25%' valign='top' align='center'>&nbsp;</td>\n";
+	echo "</tr>\n";	
 }
 
 echo $HTMLFooter;

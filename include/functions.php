@@ -744,8 +744,13 @@ function changeThumbLocation($string) {
 	return str_replace('images.funda.nl/valentinamedia', 'cloud.funda.nl/valentina_media', $string);
 }
 
+
 function changeURLLocation($string) {
-	return str_replace('/koop/', '/koop/verkocht/', $string);
+	if(substr($string, 0, 6) == '/koop/' AND substr($string, 0, 15) != '/koop/verkocht/') {
+		return '/koop/verkocht/'. substr($string, 6);
+	} else {
+		return $string;
+	}
 }
 
 
@@ -1150,4 +1155,82 @@ function extractAndUpdateVerkochtData($fundaID) {
 	
 	return $HTML;
 }
+
+function makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar) {
+	$maandNamen = array(1 => 'Jan', 2 => 'Feb', 3 => 'Mrt', 4 => 'Apr', 5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Dec');
+		
+	$begin[] = "<select name='bDag'>";
+	for($d=1 ; $d<=31 ; $d++)	$begin[] = "	<option value='$d'". ($d == $bDag ? ' selected' : '') .">$d</option>";
+	$begin[] = "	</select>";
+	$begin[] = "	<select name='bMaand'>";
+	for($m=1 ; $m<=12 ; $m++)	$begin[] = "	<option value='$m'". ($m == $bMaand ? ' selected' : '') .">". $maandNamen[$m] ."</option>";
+	$begin[] = "	</select>";
+	$begin[] = "	<select name='bJaar'>";
+	for($j=2004 ; $j<=date("Y") ; $j++)	$begin[] = "	<option value='$j'". ($j == $bJaar ? ' selected' : '') .">$j</option>";
+	$begin[] = "	</select>";
+	
+	$eind[] = "<select name='eDag'>";
+	for($d=1 ; $d<=31 ; $d++)	$eind[] = "	<option value='$d'". ($d == $eDag ? ' selected' : '') .">$d</option>";
+	$eind[] = "	</select>";
+	$eind[] = "	<select name='eMaand'>";
+	for($m=1 ; $m<=12 ; $m++)	$eind[] = "	<option value='$m'". ($m == $eMaand ? ' selected' : '') .">". $maandNamen[$m] ."</option>";
+	$eind[] = "	</select>";
+	$eind[] = "	<select name='eJaar'>";
+	for($j=2004 ; $j<=date("Y") ; $j++)	$eind[] = "	<option value='$j'". ($j == $eJaar ? ' selected' : '') .">$j</option>";
+	$eind[] = "	</select>";
+	
+	return array(implode("\n", $begin), implode("\n", $eind));
+}
+
+function makeSelectionSelection($addHouses) {
+	# Vraag alle actieve opdrachten en lijsten op en zet die in een pull-down menu
+	# De value is Z... voor een zoekopdracht en L... voor een lijst		
+	$Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
+	$Lijsten		= getLijsten($_SESSION['UserID'], 1);
+	$Lijsten_2	= getLijsten($_SESSION['account'], 1);
+	
+	# Als er geen lijsten zijn of als er huizen aan een lijst worden toegevoegd
+	# (het is zinloos om dan lijsten te laten zien) de lijsten disablen
+	if(count($Lijsten) == 0 || $addHouses) {
+		$showList = false;
+	} else {
+		$showList = true;
+	}
+	
+	$HTML[] = "	<select name='selectie'>";
+	$HTML[] = "	<optgroup label='Zoekopdrachten'>";
+		
+	foreach($Opdrachten as $OpdrachtID) {
+		$OpdrachtData = getOpdrachtData($OpdrachtID);
+		$HTML[] = "		<option value='Z$OpdrachtID'>". $OpdrachtData['naam'] ."</option>";
+	}
+	
+	$HTML[] = "	</optgroup>";
+	$HTML[] = "	<optgroup label='Lijsten'". ($showList ? '' : ' disabled') .">";
+	
+	foreach($Lijsten as $LijstID) {
+		$LijstData = getLijstData($LijstID);
+		$HTML[] = "		<option value='L$LijstID'>". $LijstData['naam'] ."</option>";
+	}
+	
+	$HTML[] = "	</optgroup>";
+
+	if($_SESSION['account'] != $_SESSION['UserID']) {		
+		$MemberData = getMemberDetails($_SESSION['account']);
+	
+		$HTML[] = "	<optgroup label='Lijsten van ". $MemberData['naam'] ."'>";
+	
+		foreach($Lijsten_2 as $LijstID) {
+			$LijstData = getLijstData($LijstID);
+			$HTML[] = "		<option value='L$LijstID'>". $LijstData['naam'] ."</option>";
+		}
+	
+		$HTML[] = "	</optgroup>";
+	}
+	
+	$HTML[] = "	</select>";
+	
+	return implode("\n", $HTML);
+}
+
 ?>

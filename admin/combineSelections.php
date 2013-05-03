@@ -74,12 +74,12 @@ if(isset($_POST['combine'])) {
 		$lijstID = saveUpdateList('', $_SESSION['UserID'], 1, $nieuwNaam);
 		
 		foreach($newDataset as $huis) {		
-			$Page .= addHouse2List($huis, $lijstID);
+			$deel_2 .= addHouse2List($huis, $lijstID);
 		}
 		
-		$Page .= "<p>Selectie opgeslagen als <a href='edit_lijsten.php?list=$lijstID'>$nieuwNaam</a>";
+		$deel_1 = "<p>Selectie opgeslagen als <a href='edit_lijsten.php?list=$lijstID'>$nieuwNaam</a>";
 	} else {
-		$Page .= "<p>Selectie bevat geen huizen";
+		$deel_1 = "<p>Selectie bevat geen huizen";
 	}
 } else {
 	$Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
@@ -154,9 +154,11 @@ if(isset($_POST['combine'])) {
 
 echo $HTMLHeader;
 echo "<tr>\n";
-echo "	<td width='100%' valign='top' align='center'>\n";
-echo showBlock($Page);
-echo "	</td>\n";
+echo "<td width='50%' valign='top' align='center'>\n";
+echo showBlock($deel_1);
+echo "</td><td width='50%' valign='top' align='center'>\n";
+if($deel_2 != "") echo showBlock($deel_2);
+echo "</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
 ?>
