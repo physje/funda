@@ -3,7 +3,7 @@
 $ScriptURL				= '';
 $ScriptTitle			= 'Funda webchecker';
 $ScriptMailAdress = '';
-$Version					= '3.0';
+$Version					= '3.1';
 $SubjectPrefix		= '[funda] ';
 
 $debug						= 0;
