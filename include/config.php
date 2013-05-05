@@ -3,7 +3,7 @@
 $ScriptURL				= '';
 $ScriptTitle			= 'Funda Alert';
 $ScriptMailAdress = '';
-$Version					= '3.2';
+$Version					= '3.2.1';
 $SubjectPrefix		= '[funda] ';
 
 $debug						= 0;
@@ -64,14 +64,14 @@ $TableResultaat 	= "funda_resultaat";
 $ResultaatZoekID	= "zoek_id";
 $ResultaatID			= "funda_id";
 $ResultaatPrijs		= "prijs";
-$ResultaatVerkocht= "verkocht";				# Op 27 april in gebruik genomen -> changeTable_27-04-2013.php
+$ResultaatVerkocht= "verkocht";					# Op 27 april in gebruik genomen -> changeTable_27-04-2013.php
 
 $TableZoeken			= "funda_zoeken";
 $ZoekenKey				= "id";
-$ZoekenUser				= "user";						# Op 1 mei in gebruik genomen -> changeTable_01-05-2013.php
+$ZoekenUser				= "user";							# Op 1 mei in gebruik genomen -> changeTable_01-05-2013.php
 $ZoekenActive 		= "active";
-$ZoekenMail				= "mail";
-$ZoekenAdres			= "adres";
+$ZoekenMail				= "mail";							# Op 5 mei buiten gebruik gesteld
+$ZoekenAdres			= "adres";						# Op 5 mei buiten gebruik gesteld
 $ZoekenNaam				= "naam";
 $ZoekenURL				= "url";
 
@@ -85,7 +85,7 @@ $LogMessage				= "message";
 
 $TableList				= "funda_lists";
 $ListID						= "id";
-$ListUser					= "user";						# Op 1 mei in gebruik genomen -> changeTable_01-05-2013.php
+$ListUser					= "user";							# Op 1 mei in gebruik genomen -> changeTable_01-05-2013.php
 $ListActive 			= "active";
 $ListNaam					= "name";
 
@@ -93,15 +93,15 @@ $TableListResult	= "funda_list_resultaat";
 $ListResultList		= "list";
 $ListResultHuis		= "huis";
 
-$TableUsers				= "funda_members";	# Op 1 mei in gebruik genomen -> changeTable_01-05-2013.php
-$UsersID					= "id";							# Op 1 mei in gebruik genomen
-$UsersName				= "name";						# Op 1 mei in gebruik genomen
-$UsersUsername		= "username";				# Op 1 mei in gebruik genomen
-$UsersPassword		= "password";				# Op 1 mei in gebruik genomen
-$UsersLevel				= "level";					# Op 1 mei in gebruik genomen
-$UsersAdres				= "mail";						# Op 1 mei in gebruik genomen
-$UsersAccount			= "account";				# Op 1 mei in gebruik genomen
-$UsersLastLogin		= "lastLogin";			# Op 1 mei in gebruik genomen
+$TableUsers				= "funda_members";		# Op 1 mei in gebruik genomen -> changeTable_01-05-2013.php
+$UsersID					= "id";								# Op 1 mei in gebruik genomen
+$UsersName				= "name";							# Op 1 mei in gebruik genomen
+$UsersUsername		= "username";					# Op 1 mei in gebruik genomen
+$UsersPassword		= "password";					# Op 1 mei in gebruik genomen
+$UsersLevel				= "level";						# Op 1 mei in gebruik genomen
+$UsersAdres				= "mail";							# Op 1 mei in gebruik genomen
+$UsersAccount			= "account";					# Op 1 mei in gebruik genomen
+$UsersLastLogin		= "lastLogin";				# Op 1 mei in gebruik genomen
 
 $TableAbo					= "funda_abonnement";	# Op 5 mei in gebruik genomen -> changeTable_05-05-2013.php
 $AboZoekID				= "zoek_id";					# Op 5 mei in gebruik genomen

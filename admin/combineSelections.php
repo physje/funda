@@ -99,9 +99,7 @@ if(isset($_POST['combine'])) {
 	} else {
 		$deel_1 = "<p>Selectie bevat geen huizen";
 	}	
-} else {
-	makeSelectionSelection($addHouses);
-	
+} else {	
 	$Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
 	$Lijsten		= getLijsten($_SESSION['UserID'], 1, true);
 

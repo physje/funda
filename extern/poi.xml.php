@@ -18,7 +18,7 @@ foreach($Opdrachten as $OpdrachtID) {
 	$OpdrachtData = getOpdrachtData($OpdrachtID);
 
 	$XML[] = "  <poi>";
-	$XML[] = "    <description>". $OpdrachtData['naam'] ."</description>";
+	$XML[] = "    <description>". str_replace("&", '-', $OpdrachtData['naam']) ."</description>";
 	$XML[] = "    <url>". $ScriptURL ."extern/makeOV2.php?opdracht=". $OpdrachtID ."</url>";
 	$XML[] = "    <map>Nederland</map>";
 	$XML[] = "    <image>". $ScriptURL ."extern/funda_logo.bmp</image>";
@@ -30,7 +30,7 @@ foreach($Lijsten as $lijst) {
 	$LijstData		= getLijstData($lijst);
 
 	$XML[] = "  <poi>";
-	$XML[] = "    <description>". $LijstData['naam'] ."</description>";
+	$XML[] = "    <description>". str_replace("&", '-', $LijstData['naam']) ."</description>";
 	$XML[] = "    <url>". $ScriptURL ."extern/makeOV2.php?lijst=". $lijst ."</url>";
 	$XML[] = "    <map>Nederland</map>";
 	$XML[] = "    <image>". $ScriptURL ."extern/funda_logo.bmp</image>";

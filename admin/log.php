@@ -127,7 +127,7 @@ $zoekScherm[] = "	<td>". $dateSelection[0] ."</td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "	<td>". $dateSelection[1] ."</td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
-$zoekScherm[] = "	<td>". makeSelectionSelection(true) ."</td>";
+$zoekScherm[] = "	<td>". makeSelectionSelection(true, true) ."</td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
 if(isset($opdracht)) {
 	$Huizen			= getHuizen($opdracht);

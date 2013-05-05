@@ -37,8 +37,8 @@ function if_gmap_init()
 		infoWindow.open(gmapdata, gmapmarker);
 	});
 
-	document.getElementById("longval").value = def_longval;
-	document.getElementById("latval").value = def_latval;
+	//document.getElementById("longval").value = def_longval;
+	//document.getElementById("latval").value = def_latval;
 
 	return false;
 } // end of if_gmap_init

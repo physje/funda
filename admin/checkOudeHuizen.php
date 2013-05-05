@@ -39,7 +39,7 @@ $selectie	= getParam('selectie', '');
 // Die wil ik onderdrukken
 error_reporting(0);
 
-if(!isset($_POST['submit'])) {
+if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	$dateSelection = makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar);
 		
 	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
@@ -70,7 +70,7 @@ if(!isset($_POST['submit'])) {
 	$opdracht	= substr($_REQUEST['selectie'], 1);
 	
 	if(isset($_REQUEST['id'])) {
-		$sql_array[] = "SELECT * FROM $TableHuizen WHERE $HuizenID like $id";
+		$sql_array[] = "SELECT * FROM $TableHuizen WHERE $HuizenID like ". $_REQUEST['id'];
 		$HTML[] = '<h1>'. $_REQUEST['id'] ."</h1><br>\n";
 	} elseif(isset($_POST['submit'])) {		
 		$beginGrens = mktime(0, 0, 0, $_POST['bMaand'], $_POST['bDag'], $_POST['bJaar']);

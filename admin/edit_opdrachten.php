@@ -23,13 +23,16 @@ if(isset($_REQUEST['action'])) {
 
 if(isset($_POST['doorgaan'])) {
 	if(isset($_REQUEST['id']) AND $_REQUEST['id'] != 0) {
-		$sql = "UPDATE $TableZoeken SET $ZoekenActive = '". ($_POST['actief'] == '1' ? '1' : '0') ."', $ZoekenUser = '". $_SESSION['account'] ."', $ZoekenMail = '". ($_POST['mail'] == '1' ? '1' : '0') ."', $ZoekenNaam = '". urlencode($_POST['naam']) ."', $ZoekenURL = '". urlencode($_POST['url']) ."', $ZoekenAdres = '". $_POST['adres'] ."' WHERE $ZoekenKey = ". $_POST['id'];
+		$sql = "UPDATE $TableZoeken SET $ZoekenActive = '". ($_POST['actief'] == '1' ? '1' : '0') ."', $ZoekenUser = '". $_SESSION['account'] ."', $ZoekenNaam = '". urlencode($_POST['naam']) ."', $ZoekenURL = '". urlencode($_POST['url']) ."' WHERE $ZoekenKey = ". $_POST['id'];
 	} else {
-		$sql = "INSERT INTO $TableZoeken ($ZoekenUser, $ZoekenActive, $ZoekenMail, $ZoekenNaam, $ZoekenURL, $ZoekenAdres) VALUES ('". $_SESSION['account'] ."', '". ($_POST['actief'] == '1' ? '1' : '0') ."', '". ($_POST['mail'] == '1' ? '1' : '0') ."', '". urlencode($_POST['naam']) ."', '". urlencode($_POST['url']) ."', '". $_POST['adres'] ."')";
+		$sql = "INSERT INTO $TableZoeken ($ZoekenUser, $ZoekenActive, $ZoekenNaam, $ZoekenURL) VALUES ('". $_SESSION['account'] ."', '". ($_POST['actief'] == '1' ? '1' : '0') ."', '". urlencode($_POST['naam']) ."', '". urlencode($_POST['url']) ."')";
 	}
 			
 	if(!mysql_query($sql)) {
 		$Page .= $sql;
+	} else {
+		$OpdrachtID = mysql_insert_id();
+		addMember2Opdracht($OpdrachtID, $_SESSION['account']);
 	}
 	
 	$Page .= "<p><a href='". $_SERVER["PHP_SELF"] ."'>Start</a>";

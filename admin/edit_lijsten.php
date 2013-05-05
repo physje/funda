@@ -39,7 +39,7 @@ if(isset($_POST['delete_list'])) {
 } elseif(isset($_POST['save_list'])) {
 	$actie = saveUpdateList($_POST['list'], $_SESSION['UserID'], $_POST['actief'], $_POST['naam']);
 	
-	if(!is_numeric($actie) AND $actie == false) {
+	if(is_numeric($actie) OR $actie != false) {
 		$Page_1 .= "Lijst opgeslagen";
 	}
 

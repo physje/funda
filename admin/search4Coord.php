@@ -1,4 +1,8 @@
 <?php
+
+// 6.5641251875
+// 52.2357641300
+
 include_once('../../general_include/general_functions.php');
 include_once('../../general_include/general_config.php');
 include_once('../include/functions.php');
@@ -31,13 +35,23 @@ if($_POST[search]) {
 		$deel_1 = "<p>Selectie bevat geen huizen";
 	}	
 } else {
+	$sql		= "SELECT AVG($TableHuizen.$HuizenLat) as mean_lat, AVG($TableHuizen.$HuizenLon) as mean_lon FROM $TableHuizen, $TableResultaat, $TableZoeken WHERE $TableHuizen.$HuizenID = $TableResultaat.$ResultaatID AND $TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenUser = ". $_SESSION['account'] ." AND $TableZoeken.$ZoekenActive like '1'";
+	$result = mysql_query($sql);
+	$row		= mysql_fetch_array($result);
+	
+	//$deel_2 = $sql;
+	
+	//$deel_2 .= "Gemiddelde lokatie van je huizen : <br>";
+	//$deel_2 .= substr($row['mean_lat'], 0, 9) .'<br>';
+	//$deel_2 .= substr($row['mean_lon'], 0, 9) .'<br>';
+		
 	$deel_1 .= "<form method='post'>\n";
 	$deel_1 .= "<table border=0>\n";
 	$deel_1 .= "	<tr>\n";
-	$deel_1 .= "		<td valign=top>Latitude:</td>\n";
-	$deel_1 .= "		<td><input size=10 type=text value='52.543210' id='latval' name='latitude'></td>\n";
-	$deel_1 .= "		<td valign=top>Longitude:</td>\n";
-	$deel_1 .= "		<td><input size=10 type=text value='5.258258' id='longval' name='longitude'></td>\n";
+	$deel_1 .= "		<td>Latitude:</td>\n";
+	$deel_1 .= "		<td><input size=10 type=text value='". substr($row['mean_lat'], 0, 9) ."' id='latval' name='latitude'></td>\n";
+	$deel_1 .= "		<td>Longitude:</td>\n";
+	$deel_1 .= "		<td><input size=10 type=text value='". substr($row['mean_lon'], 0, 9) ."' id='longval' name='longitude'></td>\n";
 	$deel_1 .= "		<td align=center><input type=button value='Ga naar lokatie' onclick='if_gmap_loadpicker();'></td>\n";
 	$deel_1 .= "	</tr>\n";
 	$deel_1 .= "	<tr>\n";
