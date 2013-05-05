@@ -98,11 +98,11 @@ if(isset($_POST['add'])) {
 		# De HTML van een huis
 		# Let op dat de <div class='float_rechts'> eerst staan, en pas daarna de linkertekst.
 		# Deze hack zorgt dat het in IE ook werkt
-		$Foto  = "	<a href='". $ScriptURL ."extern/redirect.php?id=$huisID' target='_blank'><div class='wrapper'><img src='$image' class='$imageClass'></a>";
+		$Foto  = "	<a href='". $ScriptURL ."extern/redirect.php?id=$huisID' target='_blank' title='Toon ". $data['adres'] ." op Google Maps'><div class='wrapper'><img src='$image' class='$imageClass'></a>";
 		if(!$housAvailable)	$Foto .= "<div class='description'><p class='description_content'>". strtoupper($description) ."</p></div>";
 		$Foto .= "</div><br>\n";		
 		if($showListAdd)	$Foto .= "	<input type='checkbox' name='huis[]' value='$huisID'". (in_array($huisID, $knownHuizen) ? ' checked' : '') .">";
-		$Foto .= "	<div class='float_rechts'>". getDoorloptijd($huisID) ."</div><a href='http://www.funda.nl". $url ."' target='_blank' class='$TextClass'>$adres</a><br>\n";
+		$Foto .= "	<div class='float_rechts'>". getDoorloptijd($huisID) ."</div><a href='http://www.funda.nl". $url ."' target='_blank' class='$TextClass' title='Ga naar ". $data['adres'] ." op funda.nl'>$adres</a><br>\n";
 		$Foto .= "	<div class='float_rechts'><b>". formatPercentage($relPrize[5]) ."</b></div><b>". formatPrice(getHuidigePrijs($huisID)) ."</b>\n";
 		
 		echo "	<td align='center'>";
@@ -141,7 +141,7 @@ if(isset($_POST['add'])) {
 	$HTML[] = "<tr>";
 	$HTML[] = "	<td>Selectie</td>";	
 	$HTML[] = "	<td>&nbsp;</td>";
-	$HTML[] = "	<td>". makeSelectionSelection(isset($_REQUEST['addHouses'])) ."</td>";
+	$HTML[] = "	<td>". makeSelectionSelection(isset($_REQUEST['addHouses']), false) ."</td>";
 	$HTML[] = "</tr>";
 	$HTML[] = "<tr>";
 	$HTML[] = "	<td colspan='3' align='center'><input type='submit' name='submit' value='Weergeven'></td>";

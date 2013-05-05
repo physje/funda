@@ -99,11 +99,11 @@ if(isset($_POST['add'])) {
 		echo "	<table width='100%' border=0><tr>\n";
 		echo "		<td width='25%'>";
 		if($showListAdd)	echo "	<input type='checkbox' name='huis[]' value='". $row[$HuizenID] ."'". (in_array($row[$HuizenID], $Huizen) ? ' checked' : '') .">";
-		echo "<a id='". $row[$HuizenID] ."'><a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=". $row[$HuizenID] ."'><img src='http://www.vvaltena.nl/styles/img/details/report.png'></a> <a href='http://www.funda.nl". urldecode($row[$HuizenURL]) ."' target='_blank' class='$class'>$adres</a></td>\n";
+		echo "<a id='". $row[$HuizenID] ."'><a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=". $row[$HuizenID] ."'><img src='http://www.nccfsokotoalumni.com/wp-content/themes/NCCF/images/tags.png' title='Toon opties voor $adres'></a> <a href='http://www.funda.nl". urldecode($row[$HuizenURL]) ."' target='_blank' class='$class' title='Bezoek $adres op funda.nl'>$adres</a></td>\n";
 		if($breedte_1 != 0) { echo "		<td width='". $breedte_1 ."%'>&nbsp;</td>\n"; }
 		echo "		<td width='". $breedte_2 ."%' bgcolor='#FF6D6D' title='In de verkoop van ". date("d-m", $row[$HuizenStart]) .' t/m '. date("d-m", $row[$HuizenEind]) ."'>". getDoorloptijd($row[$HuizenID]) ."</td>\n";
 		if($breedte_3 != 0) { echo "		<td width='". $breedte_3 ."%'>&nbsp;</td>\n"; }
-		echo "		<td width='5%' align='right'><a href='PrijsDaling.php?selectie=". $_REQUEST['selectie'] ."#". $row[$HuizenID] ."'>". number_format($percentageAll, 0) ."%</a></td>\n";			
+		echo "		<td width='5%' align='right'><a href='PrijsDaling.php?selectie=". $_REQUEST['selectie'] ."#". $row[$HuizenID] ."' title='Bekijk de prijsdaling van $adres'>". number_format($percentageAll, 0) ."%</a></td>\n";
 		echo "	</tr></table>\n";
 		echo "</td></tr>\n";
 	} while($row = mysql_fetch_array($result));
@@ -127,7 +127,7 @@ if(isset($_POST['add'])) {
 	$HTML[] = "<tr>";
 	$HTML[] = "	<td>Selectie</td>";	
 	$HTML[] = "	<td>&nbsp;</td>";
-	$HTML[] = "	<td>". makeSelectionSelection(isset($_REQUEST['addHouses'])) ."</td>";
+	$HTML[] = "	<td>". makeSelectionSelection(isset($_REQUEST['addHouses']), false) ."</td>";
 	$HTML[] = "</tr>";
 	$HTML[] = "<tr>";
 	$HTML[] = "	<td colspan='3' align='center'><input type='submit' name='submit' value='Weergeven'></td>";

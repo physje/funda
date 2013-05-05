@@ -48,7 +48,7 @@ $HTMLHeader	.= "<table width='100%' align='center' border=0>\n";
 
 
 
-# PreFooter (alleen gebruikt in mail volgens mij
+# PreFooter (alleen gebruikt in mail volgens mij)
 $HTMLPreFooter = "<tr>\n";
 $HTMLPreFooter .= "	<td colspan='2' align='center'>". showBlock($FooterText) ."</td>\n";
 $HTMLPreFooter .= "</tr>\n";

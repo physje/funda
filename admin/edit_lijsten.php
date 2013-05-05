@@ -51,13 +51,13 @@ if(isset($_POST['delete_list'])) {
 	mysql_query($sql_delete);
 	
 	foreach($_POST['huis'] as $huis) {
-		$Page_1 .= addHouse2List($huis, $_POST['lijst']);
+		$Page_1 .= addHouse2List($huis, $_POST['list']);
 	}
 	
 # Huis op basis van ingevoerd adres toevoegen
 } elseif(isset($_POST['add_house'])) {
 	$elementen = getString('[', ']', $_POST['extra_huis'], 0);	
-	$Page_1 .= addHouse2List($elementen[0], $_POST['lijst']);
+	$Page_1 .= addHouse2List($elementen[0], $_POST['list']);
 	
 # Wijzigingsformulier tonen
 } elseif(isset($_REQUEST['list'])) {
@@ -132,7 +132,7 @@ if(isset($_POST['delete_list'])) {
 		
 		# Formulier met autocomplete-textveld om handmatig een adres in te voeren		
 		$Page_4 ="<form method='post' name='addform'>\n";
-		$Page_4 .= "<input type='hidden' name='lijst' value='$list'>\n";
+		$Page_4 .= "<input type='hidden' name='list' value='$list'>\n";
 		$Page_4 .= "Voer adres of funda_id in om handmatig een huis toe te voegen.<br>\n";
 		$Page_4 .= "<input type='text' name='extra_huis' id=\"huizen\" size='50'><br>";
 		$Page_4 .= "<br>\n";

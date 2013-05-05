@@ -4,7 +4,7 @@ include_once('../../general_include/general_config.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
 include_once('../include/HTML_TopBottom.php');
-$minUserLevel = 2;
+$minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 connect_db();
@@ -12,6 +12,14 @@ connect_db();
 echo $HTMLHeader;
 echo "<tr>\n";
 echo "	<td>\n";
+
+if(isset($_REQUEST['action'])) {
+	if($_REQUEST['action'] == 'add') {
+		addMember2Opdracht($_REQUEST['opdracht'], $_SESSION['account']);
+	} else {
+		removeMember4Opdracht($_REQUEST['opdracht'], $_SESSION['account']);
+	}
+}
 
 if(isset($_POST['doorgaan'])) {
 	if(isset($_REQUEST['id']) AND $_REQUEST['id'] != 0) {
@@ -51,9 +59,12 @@ if(isset($_POST['doorgaan'])) {
 		$sql_delete_huizen = "DELETE FROM $TableResultaat WHERE $ResultaatZoekID like ". $_POST['opdracht'];
 		if(!mysql_query($sql_delete_huizen)) $Page .= $sql_delete_huizen.'<br>';	
 		
+		$sql_delete_abbo = "DELETE FROM $TableAbo WHERE $AboZoekID like ". $_POST['opdracht'];
+		if(!mysql_query($sql_delete_abbo)) $Page .= $sql_delete_abbo.'<br>';	
+		
 		$sql_delete_opdracht = "DELETE FROM $TableZoeken WHERE $ZoekenKey like ". $_POST['opdracht'];
 		if(!mysql_query($sql_delete_opdracht)) $Page .= $sql_delete_opdracht.'<br>';	
-		
+				
 		$Page .= "De lijst incl. huizen is verwijderd";
 	} elseif(isset($_POST['delete_no'])) {	
 		$Page = "Gelukkig !";
@@ -83,7 +94,7 @@ if(isset($_POST['doorgaan'])) {
 		
 	$Page .= "<table>\n";
 	$Page .= "<tr>\n";
-	$Page .= "	<td><input type='checkbox' name='actief' value='1' ". ($data['active'] == 1 ? ' checked' : '') ."></td>\n";
+	$Page .= "	<td><input type='checkbox' name='actief' value='1' ". ($data['active'] == 1 || !isset($data['active']) ? ' checked' : '') ."></td>\n";
 	$Page .= "	<td>Actief</td>\n";
 	$Page .= "</tr>\n";
 	$Page .= "<tr>\n";
@@ -94,14 +105,14 @@ if(isset($_POST['doorgaan'])) {
 	$Page .= "	<td>URL :</td>\n";
 	$Page .= "	<td><input type='text' name='url' value='". $data['url'] ."' size='125'></td>\n";
 	$Page .= "</tr>\n";
-	$Page .= "<tr>\n";
-	$Page .= "	<td>Email met resultaat :</td>\n";
-	$Page .= "	<td><select name='mail'><option value='0'". ($data['mail'] == 0 ? ' selected' : '') .">Nee</option><option value='1'". ($data['mail'] == 1 ? ' selected' : '') .">Ja</option></select></td>\n";
-	$Page .= "</tr>\n";
-	$Page .= "<tr>\n";
-	$Page .= "	<td>Emailadres<br>(gescheiden door ;)</td>\n";
-	$Page .= "	<td><input type='text' name='adres' value='". ($data['adres'] == '' ? $ScriptMailAdress : $data['adres']) ."' size='125'></td>\n";
-	$Page .= "</tr>\n";
+	//$Page .= "<tr>\n";
+	//$Page .= "	<td>Email met resultaat :</td>\n";
+	//$Page .= "	<td><select name='mail'><option value='0'". ($data['mail'] == 0 ? ' selected' : '') .">Nee</option><option value='1'". ($data['mail'] == 1 ? ' selected' : '') .">Ja</option></select></td>\n";
+	//$Page .= "</tr>\n";
+	//$Page .= "<tr>\n";
+	//$Page .= "	<td>Emailadres<br>(gescheiden door ;)</td>\n";
+	//$Page .= "	<td><input type='text' name='adres' value='". ($data['adres'] == '' ? $ScriptMailAdress : $data['adres']) ."' size='125'></td>\n";
+	//$Page .= "</tr>\n";
 	$Page .= "<tr>\n";
 	$Page .= "	<td colspan='2'>&nbsp;</td>\n";
 	$Page .= "</tr>\n";
@@ -110,39 +121,53 @@ if(isset($_POST['doorgaan'])) {
 	$Page .= "</tr>\n";
 	$Page .= "</table>\n";
 	$Page .= "</form>\n";
-} else  {	
-	$Opdrachten = getZoekOpdrachten($_SESSION['account'], '');
+} else  {
+	if($_SESSION['level'] > 1) {
+		$Opdrachten = getZoekOpdrachten($_SESSION['account'], '');
+	} else {
+		$Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
+	}
 	
 	$Page .= "<table>\n";
 	
 	foreach($Opdrachten as $OpdrachtID) {
 		$OpdrachtData = getOpdrachtData($OpdrachtID);
+		$Abonnees = getMembers4Opdracht($OpdrachtID);
 		
 		if($OpdrachtData['active'] == 0) {
-			if($OpdrachtData['mail'] == 0) {
-				$class = 'offlineVerkocht';
-			} else {
-				$class = 'offline';
-			}
-		} elseif($OpdrachtData['mail'] == 0) {
-			$class = 'onlineVerkocht';
+			$class = 'offline';
 		} else {
 			$class = 'online';
 		}
 		
 		$Page .= "<tr>\n";
+		$Page .= "	<td>". ($_SESSION['level'] > 1 ? "<a href='?id=$OpdrachtID' title=\"wijzig '". $OpdrachtData['naam'] ."'\" class='$class'>" : '' ) . $OpdrachtData['naam'] . ($_SESSION['level'] > 1 ? "</a>" : '') ."</td>";
+				
 		if($OpdrachtData['active'] == 1) {
-			$Page .= "	<td><a href='../check.php?OpdrachtID=$OpdrachtID'><img src='http://www.llowlab.nl/wp-content/plugins/tweet-blender/img/ajax-refresh-icon.gif' title='voer zoekopdracht uit'></a></td>";
-			$Page .= "	<td><a href='getVerkochteHuizen.php?OpdrachtID=$OpdrachtID'><img src='http://www.llowlab.nl/wp-content/plugins/tweet-blender/img/ajax-refresh-icon.gif' title='zoek verkochten huizen voor zoekopdracht'></a></td>";
+			$Page .= "	<td>&nbsp;</td>";
+			
+			if($_SESSION['level'] > 1) {
+				$Page .= "	<td><a href='../check.php?OpdrachtID=$OpdrachtID'><img src='http://www.funda.nl/img/favicon/funda.ico' title=\"Voer '". $OpdrachtData['naam'] ."' uit\"></a></td>";
+				$Page .= "	<td>&nbsp;</td>";
+				$Page .= "	<td><a href='getVerkochteHuizen.php?OpdrachtID=$OpdrachtID'><img src='http://www.vanveldhuizenmakelaardij.nl/images/pic_info.gif' title=\"Zoek naar verkochte huizen voor '". $OpdrachtData['naam'] ."'\"></a></td>";				
+				$Page .= "	<td>&nbsp;</td>";
+			}
+			if(in_array($_SESSION['account'] ,$Abonnees)) {
+				$Page .= "	<td><a href='". $_SERVER["PHP_SELF"] ."?action=remove&opdracht=$OpdrachtID'><img src='http://alpem.net/appli/includes/classeLogon/img/mail_yes.gif' title=\"Ik wil géén mails meer ontvangen voor '". $OpdrachtData['naam'] ."'\"></a></td>";
+			} else {
+				$Page .= "	<td><a href='". $_SERVER["PHP_SELF"] ."?action=add&opdracht=$OpdrachtID'><img src='http://alpem.net/appli/includes/classeLogon/img/mail_no.gif' title=\"Ik wil mails ontvangen voor '". $OpdrachtData['naam'] ."'\"></a></td>";
+			}
 		} else {
-			$Page .= "	<td colspan='2'>&nbsp;</td>";
+			$Page .= "	<td colspan='6'>&nbsp;</td>";
 		}
 		
-		$Page .= "	<td><a href='?id=$OpdrachtID' title='wijzig zoekopdracht' class='$class'>". $OpdrachtData['naam'] ."</a></td>";
 		$Page .= "</tr>\n";
-	}
+	}	
 	$Page .= "</table>\n";
-	$Page .= "<p>\n<a href='?id=0'>Nieuw</a><br>\n";
+	
+	if($_SESSION['level'] > 1) {
+		$Page .= "<p>\n<a href='?id=0' title='Maak een nieuwe opdracht aan'>Nieuw</a><br>\n";
+	}
 }
 
 echo showBlock($Page);

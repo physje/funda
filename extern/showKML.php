@@ -34,7 +34,7 @@ if($_REQUEST['datum'] == 0) {
 	$HTML[] = "	<td>&nbsp;</td>";
 	$HTML[] = "	<td>". $dateSelection[1] ."</td>";
 	$HTML[] = "	<td>&nbsp;</td>";
-	$HTML[] = "	<td>". makeSelectionSelection(false) ."</td>";
+	$HTML[] = "	<td>". makeSelectionSelection(false, false) ."</td>";
 	$HTML[] = "	<td>&nbsp;</td>";
 	$HTML[] = "</tr>";
 	$HTML[] = "	<td colspan=7><input type=checkbox name=link value=1 checked>Open direct in GoogleMaps ipv downloaden KML-file</td>\n";

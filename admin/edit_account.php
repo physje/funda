@@ -13,9 +13,17 @@ if(isset($_POST['doorgaan'])) {
 	if(saveUpdateMember($_POST['member_id'], $_POST['naam'], $_POST['username'], $_POST['password'], $_POST['mail'], $_POST['level'], $_SESSION['UserID'])) {
 		$Page .= "Account opgeslagen";
 	}
+} elseif(isset($_REQUEST['all']) AND $_SESSION['level'] == 3) {
+	$Users = getUsers();
+	
+	foreach($Users as $user) {
+		$data = getMemberDetails($user);
+		$Page .= "<a href='$_SERVER[PHP_SELF]?id=$user'>". $data['naam'] ."</a><br>\n";
+	}
+	
 } else {
-	if($_SESSION['level'] == 3 AND $_REQUEST['$id'] != '') {
-		$id = $_REQUEST['$id'];
+	if($_SESSION['level'] == 3 AND $_REQUEST['id'] != '') {
+		$id = $_REQUEST['id'];
 	} elseif(isset($_REQUEST['new']) AND $_SESSION['level'] > 1) {
 		$id = 0;
 	} else {
@@ -39,7 +47,7 @@ if(isset($_POST['doorgaan'])) {
 	$Page .= "</tr>\n";
 	$Page .= "<tr>\n";
 	$Page .= "	<td>Wachtwoord :</td>\n";
-	$Page .= "	<td><input type='password' name='password' size='50'></td>\n";
+	$Page .= "	<td class='small'><input type='password' name='password' size='50'><br>Alleen invullen indien je je wachtwoord wilt wijzigen</td>\n";
 	$Page .= "</tr>\n";
 	$Page .= "<tr>\n";
 	$Page .= "	<td>Emailadres :</td>\n";

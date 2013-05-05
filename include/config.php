@@ -1,9 +1,9 @@
 <?php
 
 $ScriptURL				= '';
-$ScriptTitle			= 'Funda webchecker';
+$ScriptTitle			= 'Funda Alert';
 $ScriptMailAdress = '';
-$Version					= '3.1';
+$Version					= '3.2';
 $SubjectPrefix		= '[funda] ';
 
 $debug						= 0;
@@ -102,5 +102,11 @@ $UsersLevel				= "level";					# Op 1 mei in gebruik genomen
 $UsersAdres				= "mail";						# Op 1 mei in gebruik genomen
 $UsersAccount			= "account";				# Op 1 mei in gebruik genomen
 $UsersLastLogin		= "lastLogin";			# Op 1 mei in gebruik genomen
+
+$TableAbo					= "funda_abonnement";	# Op 5 mei in gebruik genomen -> changeTable_05-05-2013.php
+$AboZoekID				= "zoek_id";					# Op 5 mei in gebruik genomen
+$AboUserID				= "member_id";				# Op 5 mei in gebruik genomen
+
+// http://photos-f.ak.fbcdn.net/photos-ak-snc7/v43/218/226836780678110/app_2_226836780678110_6214.gif
 
 ?>

@@ -28,6 +28,7 @@ foreach($Opdrachten as $OpdrachtID) {
 	$p = 0;
 
 	$OpdrachtData = getOpdrachtData($OpdrachtID);
+	$OpdrachtMembers	= getMembers4Opdracht($OpdrachtID);	
 	$OpdrachtURL	= $OpdrachtData['url'];
 	toLog('info', $OpdrachtID, '', 'Start controle '. $OpdrachtData['naam']);
 	
@@ -150,9 +151,11 @@ foreach($Opdrachten as $OpdrachtID) {
 				
 				# Huis kan onder voorbehoud verkocht zijn
 				if($data['vov'] > 0) {
-					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '2' WHERE $HuizenID like '". $data['id'] ."'";
-					mysql_query($sql);
-					toLog('info', $OpdrachtID, $data['id'], 'Onder voorbehoud verkocht');
+					if(!soldHouseTentative($data['id'])) {
+						$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '2' WHERE $HuizenID like '". $data['id'] ."'";
+						mysql_query($sql);
+						toLog('info', $OpdrachtID, $data['id'], 'Onder voorbehoud verkocht');
+					}
 				}
 			}
 			
@@ -317,19 +320,7 @@ foreach($Opdrachten as $OpdrachtID) {
 	}
 	
 	# Als er een nieuw huis, een huis in prijs gedaald of een huis verkocht is moet er een mail verstuurd worden.
-	if(count($HTMLMessage) > 0 OR count($UpdatedPrice) > 0 OR count($OnderVoorbehoud) > 0 OR count($VerkochtHuis) > 0) {	
-		$FooterText  = "Google Maps (";
-		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_mail.php?regio=$OpdrachtID") ."'>vandaag</a>, ";
-		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML.php?selectie=Z$OpdrachtID&datum=1") ."'>wijk</a>, ";
-		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_prijs.php?selectie=Z$OpdrachtID&datum=1") ."'>prijs</a>) | ";
-		$FooterText .= "<a href='". $ScriptURL ."admin/edit_opdrachten.php?id=$OpdrachtID'>Zoekopdracht</a> | ";
-		$FooterText .= "<a href='$OpdrachtURL'>funda.nl</a>";
-		$FooterText .= "<div class='float_rechts'>© 2009-". date("Y") ." Matthijs Draijer</div>";
-		
-		include('include/HTML_TopBottom.php');
-		
-		$HTMLMail = $HTMLHeader;
-		
+	if((count($HTMLMessage) > 0 OR count($UpdatedPrice) > 0 OR count($OnderVoorbehoud) > 0 OR count($VerkochtHuis) > 0) AND (count($OpdrachtMembers) > 0)) {				
 		if(count($HTMLMessage) > 0) {
 			$omslag			= round(count($HTMLMessage)/2);
 			$KolomEen		= array_slice ($HTMLMessage, 0, $omslag);
@@ -437,31 +428,46 @@ foreach($Opdrachten as $OpdrachtID) {
 			
 			$Subject[] = count($VerkochtHuis) ." ". (count($VerkochtHuis) == 1 ? 'huis' : 'huizen') . " verkocht";
 		}
-				
-		$HTMLMail .= $HTMLPreFooter;
-		$HTMLMail .= $HTMLFooter;
 		
-		if($OpdrachtData['mail'] == 1 AND $debug == 0) {
-			$adressen = explode(';', $OpdrachtData['adres']);
+		foreach($OpdrachtMembers as $memberID) {
+			$MemberData = getMemberDetails($memberID);
+						
+			$FooterText  = "Google Maps (";
+			$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_mail.php?regio=$OpdrachtID") ."'>vandaag</a>, ";
+			$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML.php?selectie=Z$OpdrachtID&datum=1") ."'>wijk</a>, ";
+			$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_prijs.php?selectie=Z$OpdrachtID&datum=1") ."'>prijs</a>) | ";
+			$FooterText .= "<a href='". $ScriptURL ."admin/edit_opdrachten.php?id=$OpdrachtID'>Zoekopdracht</a> | ";
+			$FooterText .= "<a href='". $ScriptURL ."admin/edit_opdrachten.php?action=remove&opdracht=$OpdrachtID'>uitschrijven</a> |";
+			$FooterText .= "<a href='$OpdrachtURL'>funda.nl</a>";
+			$FooterText .= "<div class='float_rechts'>© 2009-". date("Y") ." Matthijs Draijer</div>";			
+			include('include/HTML_TopBottom.php');
 			
-			foreach($adressen as $key => $adres) {	
-				$mail = new PHPMailer;				
-				$mail->AddAddress($adres);
-				$mail->From     = $ScriptMailAdress;
-				$mail->FromName = $ScriptTitle;
-				$mail->Subject	= $SubjectPrefix.implode(' en ', $Subject) ." voor '". $OpdrachtData['naam'] ."'";
-				$mail->IsHTML(true);
-				$mail->Body			= $HTMLMail;
-		
-				if(!$mail->Send()) {
-					echo "Versturen van mail naar $adres is mislukt<br>";
-					$ErrorMessage[] = "Het versturen van een mail voor ". $OpdrachtData['naam'] ." is mislukt";
-					toLog('error', $OpdrachtID, '', "Kon geen mail versturen naar $adres");
-				} else {
-					toLog('info', $OpdrachtID, '', "Mail verstuurd naar $adres");
-				}
+			$HTMLMail = $HTMLHeader.$HTMLMail.$HTMLPreFooter.$HTMLFooter;
+			
+			$html =& new html2text($HTMLMail);
+			$html->set_base_url($ScriptURL);
+			$PlainText = $html->get_text();
+						
+			$mail = new PHPMailer;
+			$mail->AddAddress($MemberData['mail'], $MemberData['naam']);
+			$mail->From     = $ScriptMailAdress;
+			$mail->FromName = $ScriptTitle;
+			$mail->Subject	= $SubjectPrefix.implode(' en ', $Subject) ." voor '". $OpdrachtData['naam'] ."'";
+			$mail->IsHTML(true);
+			$mail->Body			= $HTMLMail;
+			$mail->AltBody	= $PlainText;
+			
+			if(!$mail->Send()) {
+				echo "Versturen van mail naar ". $MemberData['mail'] ." is mislukt<br>";
+				$ErrorMessage[] = "Het versturen van een mail voor ". $OpdrachtData['naam'] ." naar ". $MemberData['mail'] ." is mislukt";
+				toLog('error', $OpdrachtID, '', "Kon geen mail versturen naar ". $MemberData['mail']);
+			} else {
+				toLog('info', $OpdrachtID, '', "Mail verstuurd naar ". $MemberData['mail']);
 			}
-		}
+			
+			//echo $HTMLHeader.$HTMLMail.$HTMLPreFooter.$HTMLFooter;
+			//echo '<hr>';
+		}		
 	}
 }
 

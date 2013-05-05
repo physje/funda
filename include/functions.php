@@ -23,7 +23,9 @@ function getZoekOpdrachten($id, $active) {
 		$where[] = "$ZoekenUser = '$id'";
 	}
 	
-	$sql .= ' WHERE '. implode(" AND ", $where);
+	if(count($where) > 0) {
+		$sql .= ' WHERE '. implode(" AND ", $where);
+	}
 	
 	$result = mysql_query($sql);	
 	if($row = mysql_fetch_array($result)) {
@@ -44,13 +46,14 @@ function getZoekOpdrachten($id, $active) {
 # OUTPUT
 #		array met gegevens
 function getOpdrachtData($id) {
-	global $TableZoeken, $ZoekenKey, $ZoekenActive, $ZoekenNaam, $ZoekenURL, $ZoekenMail, $ZoekenAdres;
+	global $TableZoeken, $ZoekenKey, $ZoekenActive, $ZoekenUser, $ZoekenNaam, $ZoekenURL, $ZoekenMail, $ZoekenAdres;
 	
 	$sql		= "SELECT * FROM $TableZoeken WHERE $ZoekenKey = $id";
 	$result	= mysql_query($sql);
 	$row		= mysql_fetch_array($result);
 	
 	$data['active']	= $row[$ZoekenActive];
+	$data['user']		= $row[$ZoekenUser];
 	$data['mail']		= $row[$ZoekenMail];
 	$data['adres']	= $row[$ZoekenAdres];
 	$data['naam']		= urldecode($row[$ZoekenNaam]);
@@ -120,6 +123,7 @@ function addCoordinates($straat, $postcode, $plaats, $huisID) {
 	}	
 }
 
+
 # Voeg coordinaten toe aan huis
 #
 #	INPUT
@@ -147,6 +151,7 @@ function addKnowCoordinates($coord, $huisID) {
 	}
 }
 
+
 # Toon een string in een gekleurd kader
 #
 #	INPUT
@@ -167,6 +172,7 @@ function showBlock($String) {
 	
 	return $Text;
 }
+
 
 # Toon een string en kort hem indien nodig in
 #
@@ -189,6 +195,7 @@ function makeTextBlock($string, $length, $reverse = false) {
 	
 	return $titel;
 }
+
 
 # Extraheer gegevens van een huis uit de ruwe HTML-code van de overzichtspagina van funda.nl
 #
@@ -366,11 +373,27 @@ function knownHouse($key) {
 	}
 }
 
+
 function soldHouse($key) {
 	global $TableHuizen, $HuizenID, $HuizenVerkocht;	
 	connect_db();
 	
 	$sql		= "SELECT * FROM $TableHuizen WHERE $HuizenID like '$key' AND $HuizenVerkocht like '1'";
+			
+	$result	= mysql_query($sql);
+	if(mysql_num_rows($result) == 1) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+
+function soldHouseTentative($key) {
+	global $TableHuizen, $HuizenID, $HuizenVerkocht;	
+	connect_db();
+	
+	$sql		= "SELECT * FROM $TableHuizen WHERE $HuizenID like '$key' AND $HuizenVerkocht like '2'";
 			
 	$result	= mysql_query($sql);
 	if(mysql_num_rows($result) == 1) {
@@ -597,6 +620,7 @@ function getHuizen($opdracht) {
 	return $output;
 }		
 
+
 function getPriceHistory($input) {
 	global $TablePrijzen, $PrijzenTijd, $PrijzenID, $PrijzenPrijs;	
 	connect_db();
@@ -613,6 +637,7 @@ function getPriceHistory($input) {
 	return $PriceTable;
 }
 
+
 function getHuidigePrijs($input) {
 	$prijzen			= getPriceHistory($input);
 	$HuidigePrijs	= array_slice ($prijzen, 0, 1);
@@ -620,12 +645,14 @@ function getHuidigePrijs($input) {
 	return $HuidigePrijs[0];
 }
 
+
 function getOrginelePrijs($input) {
 	$prijzen			= getPriceHistory($input);
 	$OriginelePrijs	= array_slice ($prijzen, (count($prijzen)-1), 1);
 	
 	return $OriginelePrijs[0];
 }
+
 
 function formatPrice($input, $euro = true) {
 	if($euro) {
@@ -635,6 +662,7 @@ function formatPrice($input, $euro = true) {
 	}
 }
 
+
 function formatPercentage($input) {
 	if(is_int($input)) {
 		$dec = 0;
@@ -643,6 +671,7 @@ function formatPercentage($input) {
 	}
 	return number_format($input, $dec, ',','') .'%';
 }
+
 
 function getFullPriceHistory($input) {
 	$afname = $percentage = $overall_afname = $overall_percentage = array();
@@ -879,7 +908,7 @@ function addHouse2List($huis, $list) {
 	
 	$sql_check = "SELECT * FROM $TableListResult WHERE $ListResultList like $list AND $ListResultHuis like '$huis'";
 	$result	= mysql_query($sql_check);
-		
+			
 	if(mysql_num_rows($result) == 0) {
 		$data = getFundaData($huis);
 		
@@ -898,6 +927,7 @@ function addHouse2List($huis, $list) {
 	
 	return $output;
 }
+
 
 function saveUpdateList($id, $user, $actief, $naam) {
 	global $TableList, $ListUser, $ListActive, $ListNaam, $ListID;
@@ -919,6 +949,24 @@ function saveUpdateList($id, $user, $actief, $naam) {
 	}		
 }
 
+
+function getUsers() {
+	global $TableUsers, $UsersID;
+	
+	$Users = array();
+	
+	$sql = "SELECT * FROM $TableUsers";
+	$result = mysql_query($sql);
+	
+	if($row = mysql_fetch_array($result)) {
+		do {
+			$Users[] = $row[$UsersID];
+		} while($row = mysql_fetch_array($result));
+	}
+	
+	return $Users;	
+}
+
 function getMemberDetails($id) {
 	global $TableUsers, $UsersID, $UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres, $UsersAccount, $UsersLastLogin;
 	
@@ -937,6 +985,7 @@ function getMemberDetails($id) {
 	
 	return $data;
 }
+
 
 function saveUpdateMember($id, $name, $username, $wachtwoord, $mail, $level, $gebruiker) {
 	global $TableUsers, $UsersID, $UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres, $UsersAccount;
@@ -961,6 +1010,40 @@ function saveUpdateMember($id, $name, $username, $wachtwoord, $mail, $level, $ge
 		return $result;
 	}		
 }
+
+
+function getMembers4Opdracht($OpdrachtID) {
+	global $TableAbo, $AboZoekID, $AboUserID;
+	
+	$sql = "SELECT * FROM $TableAbo WHERE $AboZoekID like '$OpdrachtID'";
+	$result = mysql_query($sql);
+	
+	$Members = array();
+
+	if($row = mysql_fetch_array($result)) {
+		do {
+			$Members[] = $row[$AboUserID];
+		} while($row = mysql_fetch_array($result));
+	}
+	
+	return $Members;
+}
+
+
+function addMember2Opdracht($opdracht, $user) {
+	global $TableAbo, $AboZoekID, $AboUserID;
+	
+	$sql = "INSERT INTO $TableAbo ($AboZoekID, $AboUserID) VALUES ($opdracht, $user)";
+	return mysql_query($sql);
+}
+
+function removeMember4Opdracht($opdracht, $user) {
+	global $TableAbo, $AboZoekID, $AboUserID;
+	
+	$sql = "DELETE FROM $TableAbo WHERE $AboZoekID = $opdracht AND $AboUserID = $user";
+	return mysql_query($sql);
+}
+
 
 function extractAndUpdateVerkochtData($fundaID) {
 	global $TableHuizen, $HuizenStart, $HuizenEind, $HuizenVerkocht, $HuizenID;
@@ -1156,6 +1239,7 @@ function extractAndUpdateVerkochtData($fundaID) {
 	return $HTML;
 }
 
+
 function makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar) {
 	$maandNamen = array(1 => 'Jan', 2 => 'Feb', 3 => 'Mrt', 4 => 'Apr', 5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Dec');
 		
@@ -1182,7 +1266,8 @@ function makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar) {
 	return array(implode("\n", $begin), implode("\n", $eind));
 }
 
-function makeSelectionSelection($addHouses) {
+
+function makeSelectionSelection($addHouses, $blankOption) {
 	# Vraag alle actieve opdrachten en lijsten op en zet die in een pull-down menu
 	# De value is Z... voor een zoekopdracht en L... voor een lijst		
 	$Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
@@ -1198,8 +1283,9 @@ function makeSelectionSelection($addHouses) {
 	}
 	
 	$HTML[] = "	<select name='selectie'>";
+	if($blankOption)	$HTML[] = "		<option value=''>Alle opdrachten</option>";
 	$HTML[] = "	<optgroup label='Zoekopdrachten'>";
-		
+			
 	foreach($Opdrachten as $OpdrachtID) {
 		$OpdrachtData = getOpdrachtData($OpdrachtID);
 		$HTML[] = "		<option value='Z$OpdrachtID'>". $OpdrachtData['naam'] ."</option>";
@@ -1231,6 +1317,51 @@ function makeSelectionSelection($addHouses) {
 	$HTML[] = "	</select>";
 	
 	return implode("\n", $HTML);
+}
+
+
+function generatePassword ($length = 8) {
+	// start with a blank password
+	$password = "";
+	$possible = "";
+	
+	// define possible characters - any character in this string can be
+	// picked for use in the password, so if you want to put vowels back in
+  // or add special characters such as exclamation marks, this is where
+  // you should do it
+  //$possible = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&";
+  $possible .= "1234567890";
+  $possible .= "bcdfghjkmnpqrtvwxyz";
+  $possible .= "BCDFGHJKLMNPQRTVWXYZ";
+  $possible .= "!#$%&";
+  
+  // we refer to the length of $possible a few times, so let's grab it now
+  $maxlength = strlen($possible);
+  
+  // check for length overflow and truncate if necessary
+  if ($length > $maxlength) {
+  	$length = $maxlength;
+  }
+  
+  // set up a counter for how many characters are in the password so far
+  $i = 0;
+  
+  // add random characters to $password until $length is reached
+  while ($i < $length) { 
+  	// pick a random character from the possible ones
+  	$char = substr($possible, mt_rand(0, $maxlength-1), 1);
+  	
+  	// have we already used this character in $password?
+  	if (!strstr($password, $char)) {
+  		// no, so it's OK to add it onto the end of whatever we've already got...
+  		$password .= $char;
+      // ... and increase the counter by one
+      $i++;
+    }
+  }
+  
+  // done!
+  return $password;
 }
 
 ?>

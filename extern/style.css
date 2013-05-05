@@ -41,6 +41,23 @@ a.onlineVerkocht {
 	text-decoration:line-through;
 }
 
+div.float_rechts {
+	float: right;
+}
+
+td.error {
+	height:50px;
+	vertical-align:middle;
+	color: red;
+	font-weight:bold;
+	font-weight:italic;
+}
+
+td.small {
+	font-size: 10px;
+}
+
+
 /*
 Het maken van grayscale heb ik geleend van
 http://demosthenes.info/blog/532/Convert-Images-To-Black-And-White-With-CSS
@@ -49,10 +66,6 @@ img.imageUnavailable {
   opacity: 0.6; 
 	filter: url(desaturate.svg#grayscale);
 	filter: gray;
-}
-
-div.float_rechts {
-	float: right;
 }
 
 /*
