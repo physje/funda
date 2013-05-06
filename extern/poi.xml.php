@@ -7,33 +7,31 @@ connect_db();
 
 $XML[] = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>";
 $XML[] = "<pois>";
-$XML[] = "  <!-- Specific info for PoiEdit -->";
-$XML[] = "  <poiedit>";
-$XML[] = "    <!-- Minimal version that is required -->";
-$XML[] = "    <version>2.7.3</version>";
-$XML[] = "  </poiedit>";
+$XML[] = "  <infourl>$ScriptURL</infourl>";
 
-$Opdrachten = getZoekOpdrachten(1);
+$Opdrachten = getZoekOpdrachten('',1);
 foreach($Opdrachten as $OpdrachtID) {
 	$OpdrachtData = getOpdrachtData($OpdrachtID);
 
 	$XML[] = "  <poi>";
-	$XML[] = "    <description>". str_replace("&", '-', $OpdrachtData['naam']) ."</description>";
-	$XML[] = "    <url>". $ScriptURL ."extern/makeOV2.php?opdracht=". $OpdrachtID ."</url>";
+	$XML[] = "    <description><![CDATA[". $OpdrachtData['naam'] ."]]></description>";
+	$XML[] = "    <url>". $ScriptURL ."extern/makeOV2.php?opdracht=". $OpdrachtID ."&amp;user=%Username%&amp;pass=%Password%</url>";
 	$XML[] = "    <map>Nederland</map>";
 	$XML[] = "    <image>". $ScriptURL ."extern/funda_logo.bmp</image>";
+	$XML[] = "    <authorization>Registered</authorization>";
 	$XML[] = "  </poi>";
 }
 
-$Lijsten = getLijsten(1);
+$Lijsten = getLijsten('',1);
 foreach($Lijsten as $lijst) {
 	$LijstData		= getLijstData($lijst);
 
 	$XML[] = "  <poi>";
-	$XML[] = "    <description>". str_replace("&", '-', $LijstData['naam']) ."</description>";
-	$XML[] = "    <url>". $ScriptURL ."extern/makeOV2.php?lijst=". $lijst ."</url>";
+	$XML[] = "    <description><![CDATA[". $LijstData['naam'] ."]]></description>";
+	$XML[] = "    <url>". $ScriptURL ."extern/makeOV2.php?lijst=". $lijst ."&amp;user=%Username%&amp;pass=%Password%</url>";
 	$XML[] = "    <map>Nederland</map>";
 	$XML[] = "    <image>". $ScriptURL ."extern/funda_logo.bmp</image>";
+	$XML[] = "    <authorization>Registered</authorization>";
 	$XML[] = "  </poi>";
 }
 

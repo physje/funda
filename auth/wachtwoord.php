@@ -29,8 +29,8 @@ if(isset($_POST['opvragen'])) {
 		$Mail[] = "je hebt een nieuw wachtwoord aangevraagd voor $ScriptTitle $Version.<br>";
 		$Mail[] = "Je kan inloggen met :<br>";
 		$Mail[] = "<br>";
-		$Mail[] = "Loginnaam : <u>". $data['username'] ."</u><br>";
-		$Mail[] = "Wachtwoord : <u>". $nieuwPassword ."</u><br>";
+		$Mail[] = "Loginnaam : ". $data['username'] ."<br>";
+		$Mail[] = "Wachtwoord : ". $nieuwPassword ."<br>";
 		$Mail[] = "<br>";
 		$Mail[] = "Met deze gegevens kan je via <a href='". $ScriptURL ."admin/edit_account.php'>". $ScriptURL ."admin/edit_account.php</a> je eigen wachtwoord instellen<br>";	
 		$HTMLMail = implode("\n", $Mail);
@@ -47,8 +47,6 @@ if(isset($_POST['opvragen'])) {
 		$mail->IsHTML(true);
 		$mail->Body			= $HTMLMail;
 		$mail->AltBody	= $PlainText;
-		
-		echo $HTMLMail;
 		
 		if(!$mail->Send()) {
 			toLog('error', '', '', "Kon geen inloggegevens versturen naar ". $data['naam']);

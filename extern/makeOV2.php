@@ -13,11 +13,23 @@ if(isset($_REQUEST['opdracht'])) {
 	$opdrachtData	= getOpdrachtData($id);
 	$Name					= $opdrachtData['naam'];
 	$dataset			= getHuizen($id);
+	$tables				= "$TableZoeken, $TableUsers";
+	$sql_postfix	= "$TableUsers.$UsersID = $TableZoeken.$ZoekenUser AND $TableZoeken.$ZoekenKey = $id";
 } else {
 	$id						= $_REQUEST['lijst'];
 	$LijstData		= getLijstData($id);
 	$Name					= $LijstData['naam'];
 	$dataset			= getLijstHuizen($id);
+	$tables				= "$TableList, $TableUsers";
+	$sql_postfix	= "$TableUsers.$UsersID = $TableList.$ListUser AND $TableList.$ListID = $id";
+}
+
+# Kijken of de combinatie user/pass en lijst/opdracht een geldige combi is
+$sql = "SELECT * FROM $tables WHERE $TableUsers.$UsersUsername like '". $_REQUEST['user'] ."' AND $TableUsers.$UsersPassword like '". md5($_REQUEST['pass']) ."' AND ". $sql_postfix;
+$result = mysql_query($sql);
+if(mysql_num_rows($result) == 0) {
+	$dataset = array();
+	exit;
 }
 
 foreach($dataset as $huisID) {
