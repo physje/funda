@@ -216,7 +216,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$key_parts = explode("-", $key);
 	$id			= $key_parts[1];
 	$foto		= getString('<img src="', '" alt="" title="" class="photo"', $HuisURL[1], 0);
-	$adres	= getString('<a href="'. $HuisURL[0] .'"', '</a>', $foto[1], 0);
+	$adres	= getString('<a href="'. $HuisURL[0] .'" class="object-street" >', '</a>', $foto[1], 0);
 	$PC			= getString('<li>', '<span class="', $adres[1], 0);		
 	$prijs	= getString('<span class="price">', '</span>', $PC[1], 0);
 	
@@ -238,13 +238,18 @@ function extractFundaData($HuisText, $verkocht = false) {
 	
 	$data['id']			= $id;
 	$data['url']		= trim($HuisURL[0]);
-	$data['adres']	= trim(substr(trim($adres[0]), 1));
+	$data['adres']	= trim($adres[0]);
 	$data['PC_c']		= trim($postcode[0]);
 	$data['PC_l']		= trim($postcode[1]);
 	$data['plaats']	= end($postcode);
 	$data['thumb']	= trim($foto[0]);
 	$data['prijs']	= $HuisPrijs;
 	$data['vov']		= $voorbehoud;
+	
+	//foreach($data as $key => $value) {
+	//	echo $key .'|'.makeTextBlock($value, 100) .'<br>';
+	//}
+	//echo '------------------------------';
 	
 	return $data;
 }

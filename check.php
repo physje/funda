@@ -48,6 +48,7 @@ foreach($Opdrachten as $OpdrachtID) {
 	# op basis van het aantal gevonden huizen ($NrHuizen).
 	# Door te kijken of 'next page' op een pagina voorkomt weet ik dat ik nog een pagina verder moet
 	while($nextPage) {
+		set_time_limit (30);
 		$AdressenArray = $VerlopenArray = array();
 		$p++;
 		
@@ -65,23 +66,23 @@ foreach($Opdrachten as $OpdrachtID) {
 		# Deze class geeft precies het begin van een nieuw huis op de overzichtspagina aan
 		# Om zeker te zijn dat ik alle huizen vind doe ik eerst alsof álle huizen van NVM zijn,
 		# dan of álle huizen van VBO zijn, etc.
-		$HuizenNVM		= explode(' nvm" >', $contents);			array_shift($HuizenNVM);
-		$HuizenNVMlst	= explode(' nvm lst" >', $contents);	array_shift($HuizenNVMlst);
-		$HuizenVBO		= explode(' vbo" >', $contents);			array_shift($HuizenVBO);
-		$HuizenVBOlst	= explode(' vbo lst" >', $contents);	array_shift($HuizenVBOlst);
-		$HuizenLMV		= explode(' lmv" >', $contents);			array_shift($HuizenLMV);
-		$HuizenLMVlst	= explode(' lmv lst" >', $contents);	array_shift($HuizenLMVlst);
-		$HuizenExt		= explode(' ext" >', $contents);			array_shift($HuizenExt);
-		$HuizenExtlst	= explode(' ext lst" >', $contents);	array_shift($HuizenExtlst);
-		$HuizenProject= explode('closed" >', $contents);		array_shift($HuizenProject);
+		$HuizenNVM		= explode(' nvm " >', $contents);			array_shift($HuizenNVM);
+		$HuizenNVMlst	= explode(' nvm lst " >', $contents);	array_shift($HuizenNVMlst);
+		$HuizenVBO		= explode(' vbo " >', $contents);			array_shift($HuizenVBO);
+		$HuizenVBOlst	= explode(' vbo lst " >', $contents);	array_shift($HuizenVBOlst);
+		$HuizenLMV		= explode(' lmv " >', $contents);			array_shift($HuizenLMV);
+		$HuizenLMVlst	= explode(' lmv lst " >', $contents);	array_shift($HuizenLMVlst);
+		$HuizenExt		= explode(' ext " >', $contents);			array_shift($HuizenExt);
+		$HuizenExtlst	= explode(' ext lst " >', $contents);	array_shift($HuizenExtlst);
+		$HuizenProject= explode('closed " >', $contents);		array_shift($HuizenProject);
 		$Huizen				= array_merge($HuizenNVM, $HuizenNVMlst, $HuizenVBO, $HuizenVBOlst, $HuizenLMV, $HuizenLMVlst, $HuizenExt, $HuizenExtlst, $HuizenProject);
 		$NrPageHuizen	= count($Huizen);
 		
 		# funda.nl heeft sinds 18-02-2013 de gekke gewoonte om ook verkochte huizen op te nemen.
 		# Op deze manier wordt de teller van gevonden huizen wel kloppend gehouden.
-		$HuizenExpNVM	= explode(' nvm exp" >', $contents);		array_shift($HuizenExpNVM);
-		$HuizenExpVBO	= explode(' vbo exp" >', $contents);		array_shift($HuizenExpVBO);
-		$HuizenExpLMV	= explode(' lmv exp" >', $contents);		array_shift($HuizenExpLMV);		
+		$HuizenExpNVM	= explode(' nvm exp " >', $contents);		array_shift($HuizenExpNVM);
+		$HuizenExpVBO	= explode(' vbo exp " >', $contents);		array_shift($HuizenExpVBO);
+		$HuizenExpLMV	= explode(' lmv exp " >', $contents);		array_shift($HuizenExpLMV);		
 		$verlopenHuizen			= array_merge($HuizenExpNVM, $HuizenExpVBO, $HuizenExpLMV);
 		
 		foreach($verlopenHuizen as $HuisText) {
@@ -90,8 +91,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		}
 				
 		if($debug == 1) {
-			$block[] = "Aantal huizen op <a href='$PageURL'>pagina $p</a> : ". $NrPageHuizen ."<br>\n";;
-			$NrPageHuizen = 7;
+			$block[] = "Aantal huizen op <a href='$PageURL'>pagina $p</a> : ". $NrPageHuizen ."<br>\n";
 		}
 		
 		# Doorloop nu alle gevonden huizen op de overzichtspagina
