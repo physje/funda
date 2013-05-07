@@ -18,6 +18,8 @@ $sql_optimize = "OPTIMIZE TABLE $TableLog";
 mysql_query($sql_optimize);
 $pagina .= "Log-database geoptimaliseerd.<br>\n";
 
+toLog('info', '', '', "Logfiles opgeschoond");
+
 echo $HTMLHeader;
 echo "<tr>\n";
 echo "<td width='50%' valign='top' align='center'>\n";

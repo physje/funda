@@ -14,6 +14,8 @@ $result	= mysql_query($sql);
 
 //echo $sql;
 
+toLog('info', '', '', "Start controle offline huizen");
+
 if($row = mysql_fetch_array($result)) {
 	do {
 		$fundaID	= $row[$HuizenID];

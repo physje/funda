@@ -44,6 +44,10 @@ foreach($Opdrachten as $OpdrachtID) {
 	
 	$block[] = "<a href='$OpdrachtURL'>". $OpdrachtData['naam'] ."</a> -> ". $NrHuizen[0] ." huizen<br>\n";
 	
+	if(!$enkeleOpdracht) {
+		$String = array('');
+	}
+	
 	# Omdat funda.nl niet standaard 15 'echte' huizen op een pagina zet, is het aantal pagina's niet te bepalen
 	# op basis van het aantal gevonden huizen ($NrHuizen).
 	# Door te kijken of 'next page' op een pagina voorkomt weet ik dat ik nog een pagina verder moet
@@ -241,7 +245,9 @@ foreach($Opdrachten as $OpdrachtID) {
 				}
 			}			
 		}
-		$String = array('');
+		if($enkeleOpdracht) {
+			$String = array('');
+		}
 		$String[] = "<a href='$PageURL'>Pagina $p</a> verwerkt en ". (count($AdressenArray) + count($VerlopenArray))  ." huizen gevonden :<br>";
 		
 		if($enkeleOpdracht) {
@@ -261,8 +267,9 @@ foreach($Opdrachten as $OpdrachtID) {
 			$String[] = '</ul>';
 		}
 		
-		$block[] = implode("\n", $String);
-		
+		if($enkeleOpdracht) {
+			$block[] = implode("\n", $String);
+		}		
 		toLog('debug', $OpdrachtID, '', "Einde pagina $p (". count($AdressenArray) ." huizen)");
 		
 		# Niet de laatste pagina en minder dan 15 huizen => niet goed
@@ -274,6 +281,10 @@ foreach($Opdrachten as $OpdrachtID) {
 		# Om funda.nl niet helemaal murw te beuken wachten we even 3 seconden voordat we de volgende pagina opvragen
 		sleep(3);	
 	}
+	
+	if(!$enkeleOpdracht) {
+		$block[] = implode("\n", $String);
+	}		
 	
 	# Verkochte ($data['verkocht'] = 1) en onder voorbehoud ($data['verkocht'] = 2) verkochte huizen
 	$sql_verkocht = "SELECT $TableHuizen.$HuizenID FROM $TableResultaat, $TableHuizen WHERE $TableHuizen.$HuizenVerkocht NOT LIKE $TableResultaat.$ResultaatVerkocht AND $TableResultaat.$ResultaatZoekID like '$OpdrachtID' AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID";

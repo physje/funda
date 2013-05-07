@@ -9,30 +9,49 @@ $XML[] = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>";
 $XML[] = "<pois>";
 $XML[] = "  <infourl>$ScriptURL</infourl>";
 
-$Opdrachten = getZoekOpdrachten('',1);
-foreach($Opdrachten as $OpdrachtID) {
-	$OpdrachtData = getOpdrachtData($OpdrachtID);
+$sql		= "SELECT * FROM $TableZoeken GROUP BY $ZoekenUser";
+$result	= mysql_query($sql);
 
-	$XML[] = "  <poi>";
-	$XML[] = "    <description><![CDATA[". $OpdrachtData['naam'] ."]]></description>";
-	$XML[] = "    <url>". $ScriptURL ."extern/makeOV2.php?opdracht=". $OpdrachtID ."&amp;user=%Username%&amp;pass=%Password%</url>";
-	$XML[] = "    <map>Nederland</map>";
-	$XML[] = "    <image>". $ScriptURL ."extern/funda_logo.bmp</image>";
-	$XML[] = "    <authorization>Registered</authorization>";
-	$XML[] = "  </poi>";
+while($row = mysql_fetch_array($result)) {
+	$userID = $row[$ZoekenUser];          
+	$data = getMemberDetails($userID);
+	
+	$Opdrachten = getZoekOpdrachten($userID,1);
+	
+	foreach($Opdrachten as $OpdrachtID) {
+		$OpdrachtData = getOpdrachtData($OpdrachtID);
+	
+		$XML[] = "  <poi>";
+		$XML[] = "    <description><![CDATA[". $OpdrachtData['naam'] ."]]></description>";
+		$XML[] = "    <url>". $ScriptURL ."extern/makeOV2.php?opdracht=". $OpdrachtID ."&amp;user=%Username%&amp;pass=%Password%</url>";
+		$XML[] = "    <map>Nederland</map>";
+		$XML[] = "    <group>". $data['naam'] ."</group>";
+		$XML[] = "    <image>". $ScriptURL ."extern/funda_logo.bmp</image>";
+		$XML[] = "    <authorization>Registered</authorization>";
+		$XML[] = "  </poi>";
+	}
 }
 
-$Lijsten = getLijsten('',1);
-foreach($Lijsten as $lijst) {
-	$LijstData		= getLijstData($lijst);
+$sql		= "SELECT * FROM $TableList GROUP BY $ListUser";
+$result	= mysql_query($sql);
 
-	$XML[] = "  <poi>";
-	$XML[] = "    <description><![CDATA[". $LijstData['naam'] ."]]></description>";
-	$XML[] = "    <url>". $ScriptURL ."extern/makeOV2.php?lijst=". $lijst ."&amp;user=%Username%&amp;pass=%Password%</url>";
-	$XML[] = "    <map>Nederland</map>";
-	$XML[] = "    <image>". $ScriptURL ."extern/funda_logo.bmp</image>";
-	$XML[] = "    <authorization>Registered</authorization>";
-	$XML[] = "  </poi>";
+while($row = mysql_fetch_array($result)) {
+	$userID = $row[$ListUser];          
+	$data = getMemberDetails($userID);
+
+	$Lijsten = getLijsten($userID,1);
+	foreach($Lijsten as $lijst) {
+		$LijstData		= getLijstData($lijst);
+	
+		$XML[] = "  <poi>";
+		$XML[] = "    <description><![CDATA[". $LijstData['naam'] ."]]></description>";
+		$XML[] = "    <url>". $ScriptURL ."extern/makeOV2.php?lijst=". $lijst ."&amp;user=%Username%&amp;pass=%Password%</url>";
+		$XML[] = "    <map>Nederland</map>";
+		$XML[] = "    <group>". $data['naam'] ."</group>";
+		$XML[] = "    <image>". $ScriptURL ."extern/funda_logo.bmp</image>";
+		$XML[] = "    <authorization>Registered</authorization>";
+		$XML[] = "  </poi>";
+	}
 }
 
 $XML[] = "</pois>";

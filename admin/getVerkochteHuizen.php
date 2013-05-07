@@ -28,6 +28,8 @@ foreach($Opdrachten as $OpdrachtID) {
 	$OpdrachtData = getOpdrachtData($OpdrachtID);
 	$OpdrachtURL	= str_replace('http://www.funda.nl/koop/', 'http://www.funda.nl/koop/verkocht/', $OpdrachtData['url']);
 	
+	toLog('info', $OpdrachtID, '', 'Start controle verkochte huizen '. $OpdrachtData['naam']);
+	
 	# Vraag de pagina op en herhaal dit het standaard aantal keer mocht het niet lukken
 	$contents	= file_get_contents_retry($OpdrachtURL);
 	
