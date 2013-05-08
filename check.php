@@ -2,6 +2,7 @@
 include_once('../general_include/general_functions.php');
 include_once('../general_include/general_config.php');
 include_once('../general_include/class.phpmailer.php');
+include_once('../general_include/class.html2text.php');
 include_once('include/functions.php');
 include_once('include/config.php');
 include_once('include/HTML_TopBottom.php');
@@ -42,10 +43,11 @@ foreach($Opdrachten as $OpdrachtID) {
 		toLog('error', $OpdrachtID, '', 'Ongeldig aantal huizen');
 	}
 	
-	$block[] = "<a href='$OpdrachtURL'>". $OpdrachtData['naam'] ."</a> -> ". $NrHuizen[0] ." huizen<br>\n";
+	$String = array('');
+	$String[] = "<a href='$OpdrachtURL'>". $OpdrachtData['naam'] ."</a> -> ". $NrHuizen[0] ." huizen<br>\n";
 	
-	if(!$enkeleOpdracht) {
-		$String = array('');
+	if($enkeleOpdracht) {
+		$block[] = implode("\n", $String);		
 	}
 	
 	# Omdat funda.nl niet standaard 15 'echte' huizen op een pagina zet, is het aantal pagina's niet te bepalen
@@ -248,7 +250,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		if($enkeleOpdracht) {
 			$String = array('');
 		}
-		$String[] = "<a href='$PageURL'>Pagina $p</a> verwerkt en ". (count($AdressenArray) + count($VerlopenArray))  ." huizen gevonden :<br>";
+		$String[] = "<a href='$PageURL'>Pagina $p</a> verwerkt en ". (count($AdressenArray) + count($VerlopenArray))  ." huizen gevonden". ($enkeleOpdracht ? ' :' : '') ."<br>";
 		
 		if($enkeleOpdracht) {
 			$String[] = '<ol>';
@@ -298,7 +300,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			$OorspronkelijkeVraagprijs	= getOrginelePrijs($fundaID);
 			$LaatsteVraagprijs					= getHuidigePrijs($fundaID);
 			
-			if($data['verkocht'] == 1) {							
+			if($data['verkocht'] == '1') {							
 				$Item  = "<table width='100%'>\n";
 				$Item .= "<tr>\n";
 				$Item .= "	<td align='center'><img src='". changeThumbLocation($data['thumb']) ."'></td>\n";
@@ -311,7 +313,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item .= "</table>\n";
 								
 				$VerkochtHuis[] = showBlock($Item);
-			} elseif($data['verkocht'] == 2) {
+			} elseif($data['verkocht'] == '2') {
 				$Item  = "<table width='100%'>\n";
 				$Item .= "<tr>\n";
 				$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
@@ -322,7 +324,9 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item .= "</table>\n";
 				
 				$OnderVoorbehoud[] = showBlock($Item);
-			}				
+			} else {
+				$ErrorMessage[] = $OpdrachtData['naam'] ."; Zoeken van verkochte huizen geeft ongeldig resultaat";
+			}
 			
 			# Bijhouden dat mail verstuurd is met verkochte huis
 			$sql_update_verkocht = "UPDATE $TableResultaat SET $ResultaatVerkocht = '". $data['verkocht'] ."' WHERE $ResultaatZoekID like '$OpdrachtID' AND $ResultaatID like '$fundaID'";
@@ -475,9 +479,6 @@ foreach($Opdrachten as $OpdrachtID) {
 			} else {
 				toLog('info', $OpdrachtID, '', "Mail verstuurd naar ". $MemberData['mail']);
 			}
-			
-			//echo $HTMLHeader.$HTMLMail.$HTMLPreFooter.$HTMLFooter;
-			//echo '<hr>';
 		}		
 	}
 }

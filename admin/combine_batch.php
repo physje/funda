@@ -2,6 +2,7 @@
 include_once('../../general_include/general_functions.php');
 include_once('../../general_include/general_config.php');
 include_once('../../general_include/class.phpmailer.php');
+include_once('../../general_include/class.html2text.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
 connect_db();
@@ -11,10 +12,11 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	$key_2[0] = $_REQUEST['id_2'];
 } else {
 	$i = 1;
-	$KeyArray = array();
-	$grens = time() - (2*24*60*60);
-
-	$sql		= "SELECT * FROM $TableHuizen WHERE $HuizenEind < $grens AND $HuizenVerkocht like '0' ORDER BY $HuizenAdres, $HuizenStart";
+	$KeyArray			= array();
+	$beginGrens		= mktime(0, 0, 0, date("n")-7, date("j"), date("Y"));	# Huizen die langer dan 7 maanden van funda zijn afgeweest zie ik als "nieuw"
+	$eindGrens		= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));	# Huizen moeten 2 dagen van funda zijn verdwenen wil ik aanmerken als "van funda af"
+		
+	$sql		= "SELECT * FROM $TableHuizen WHERE ($HuizenEind BETWEEN $beginGrens AND $eindGrens) AND $HuizenVerkocht like '0' ORDER BY $HuizenAdres, $HuizenStart";
 	$result	= mysql_query($sql);
 	$row = mysql_fetch_array($result);
 
@@ -29,8 +31,8 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 			$row_2	= mysql_fetch_array($result_2);
 			$id_new	= $row_2[$HuizenID];
 		
-			$key_1[$i] = $id_oud;//$row[$HuizenID];
-			$key_2[$i] = $id_new;//$row_2[$HuizenID];
+			$key_1[$i] = $id_oud;
+			$key_2[$i] = $id_new;
 		
 			$i++;
 			$KeyArray[$id_new] = $id_oud;
@@ -46,10 +48,11 @@ if(is_array($key_1)) {
 		$data_oud = getFundaData($id_oud);
 		$data_new = getFundaData($id_new);
 		
-		//echo $key .'). '. $data_1['adres'] .' -> '. $data_2['adres'] .'<br>';
-		//echo $id_1 .' - '. date("d-m-Y", $data_1['start']) .' t/m '. date("d-m-Y", $data_1['eind']) .' ['. $data_1['start'] .'|'. $data_1['eind'] .']<br>';
-		//echo $id_2 .' - '. date("d-m-Y", $data_2['start']) .' t/m '. date("d-m-Y", $data_2['eind']) .' ['. $data_2['start'] .'|'. $data_2['eind'] .']<br>';	
-						
+		# Actie-lijst :
+		#		Vervang begintijd_2 door begintijd_1		
+		#		Vervang ID_1 door ID_2 in prijzen- en lijsten-tabel
+		# 	Verwijder key_1 in huizen-, kenmerken- en resultaten-tabel
+								
 		# De begin- en eindtijd voor het nieuwe huis in tabel met huizen updaten
 		$sql_update_1 = "UPDATE $TableHuizen SET $HuizenStart = ". $data_oud['start'] .", $HuizenEind = ". $data_new['eind'] ." WHERE $HuizenID like '". $id_new ."'";
 		if(!mysql_query($sql_update_1)) {
@@ -124,12 +127,7 @@ if(is_array($key_1)) {
 		
 		$HTMLMessage[] = showBlock($Item);
 	}
-	
-	
-	// Vervang begintijd_2 door begintijd_1
-	// Verwijder key_1
-	// Vervang in prijzen tabel ID_1 door ID_2
-	
+		
 	if(count($HTMLMessage) > 0) {
 		$FooterText = "<a href='http://www.funda.nl/'>funda.nl</a>";
 		include('../include/HTML_TopBottom.php');
@@ -157,6 +155,10 @@ if(is_array($key_1)) {
 		
 		$HTMLMail .= $HTMLPreFooter;
 		$HTMLMail .= $HTMLFooter;
+		
+		$html =& new html2text($HTMLMail);
+		$html->set_base_url($ScriptURL);
+		$PlainText = $html->get_text();
 			
 		$mail = new PHPMailer;
 		$mail->From     = $ScriptMailAdress;
@@ -166,10 +168,11 @@ if(is_array($key_1)) {
 		$mail->Subject	= $SubjectPrefix. "Funda opruiming";
 		$mail->IsHTML(true);
 		$mail->Body			= $HTMLMail;
+		$mail->AltBody	= $PlainText;
 		
 		if(!$mail->Send()) {
 			echo "Versturen van mail is mislukt<br>";
-			toLog('error', '', '', "Fout met mail nav opschoonwerkzaamheden");			
+			toLog('error', '', '', "Fout met mail nav opschoonwerkzaamheden");		
 		} else {
 			toLog('info', '', '', "Mail nav opschoonwerkzaamheden verstuurd");
 		}
