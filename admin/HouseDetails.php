@@ -38,7 +38,7 @@ if($id != '') {
 	}
 } else {
 	$autocomplete = true; 
-	$deel_1 = "<form method='post' name='searchform'>\n";
+	$deel_1 = "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
 	$deel_1 .= "Voer adres of funda_id in om te zoeken.<br>\n";
 	$deel_1 .= "<input type='text' name='extra_huis' id=\"huizen\" size='50'><br>";
 	$deel_1 .= "<br>\n";

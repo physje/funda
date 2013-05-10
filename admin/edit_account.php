@@ -34,7 +34,7 @@ if(isset($_POST['doorgaan'])) {
 		$data = getMemberDetails($id);
 	}
 	
-	$Page ="<form method='post' name='editform'>\n";
+	$Page ="<form method='post' action='$_SERVER[PHP_SELF]'>\n";
 	$Page .="<input type='hidden' name='member_id' value='$id'>\n";
 	$Page .= "<table>\n";
 	$Page .= "<tr>\n";

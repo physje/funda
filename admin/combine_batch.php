@@ -163,7 +163,6 @@ if(is_array($key_1)) {
 		$mail = new PHPMailer;
 		$mail->From     = $ScriptMailAdress;
 		$mail->FromName = $ScriptTitle;
-		$mail->WordWrap = 90;
 		$mail->AddAddress($ScriptMailAdress, 'Matthijs');
 		$mail->Subject	= $SubjectPrefix. "Funda opruiming";
 		$mail->IsHTML(true);

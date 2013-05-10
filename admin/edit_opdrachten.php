@@ -75,7 +75,7 @@ if(isset($_POST['doorgaan'])) {
 	# Weet je het heeeel zeker
 	} else {
 		$Page = "Weet u zeker dat u deze opdracht wilt verwijderen ?";
-		$Page .= "<form method='post'>\n";
+		$Page .= "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
 		$Page .= "<input type='hidden' name='delete_opdracht' value='true'>\n";
 		$Page .= "<input type='hidden' name='opdracht' value='". $_REQUEST['id'] ."'>\n";
 		$Page .= "<input type='submit' name='delete_yes' value='Ja'> <input type='submit' name='delete_no' value='Nee'>";
@@ -88,7 +88,7 @@ if(isset($_POST['doorgaan'])) {
 } elseif(isset($_REQUEST['id'])) {
 	$id = $_REQUEST['id'];
 	
-	$Page ="<form method='post' name='editform'>\n";
+	$Page ="<form method='post' action='$_SERVER[PHP_SELF]'>\n";
 	
 	if($id != 0) {
 		$data = getOpdrachtData($id);
@@ -108,14 +108,6 @@ if(isset($_POST['doorgaan'])) {
 	$Page .= "	<td>URL :</td>\n";
 	$Page .= "	<td><input type='text' name='url' value='". $data['url'] ."' size='125'></td>\n";
 	$Page .= "</tr>\n";
-	//$Page .= "<tr>\n";
-	//$Page .= "	<td>Email met resultaat :</td>\n";
-	//$Page .= "	<td><select name='mail'><option value='0'". ($data['mail'] == 0 ? ' selected' : '') .">Nee</option><option value='1'". ($data['mail'] == 1 ? ' selected' : '') .">Ja</option></select></td>\n";
-	//$Page .= "</tr>\n";
-	//$Page .= "<tr>\n";
-	//$Page .= "	<td>Emailadres<br>(gescheiden door ;)</td>\n";
-	//$Page .= "	<td><input type='text' name='adres' value='". ($data['adres'] == '' ? $ScriptMailAdress : $data['adres']) ."' size='125'></td>\n";
-	//$Page .= "</tr>\n";
 	$Page .= "<tr>\n";
 	$Page .= "	<td colspan='2'>&nbsp;</td>\n";
 	$Page .= "</tr>\n";
@@ -154,6 +146,8 @@ if(isset($_POST['doorgaan'])) {
 				$Page .= "	<td>&nbsp;</td>";
 				$Page .= "	<td><a href='getVerkochteHuizen.php?OpdrachtID=$OpdrachtID'><img src='http://www.vanveldhuizenmakelaardij.nl/images/pic_info.gif' title=\"Zoek naar verkochte huizen voor '". $OpdrachtData['naam'] ."'\"></a></td>";				
 				$Page .= "	<td>&nbsp;</td>";
+				$Page .= "	<td><a href='invite.php?OpdrachtID=$OpdrachtID'><img src='http://www.lessthanfour.org/resources/images/icons/16-inviteGroup.png' title=\"Nodig iemand uit voor '". $OpdrachtData['naam'] ."'\"></a></td>";
+				$Page .= "	<td>&nbsp;</td>";
 			}
 			if(in_array($_SESSION['account'] ,$Abonnees)) {
 				$Page .= "	<td><a href='". $_SERVER["PHP_SELF"] ."?action=remove&opdracht=$OpdrachtID'><img src='http://alpem.net/appli/includes/classeLogon/img/mail_yes.gif' title=\"Ik wil géén mails meer ontvangen voor '". $OpdrachtData['naam'] ."'\"></a></td>";
@@ -161,7 +155,7 @@ if(isset($_POST['doorgaan'])) {
 				$Page .= "	<td><a href='". $_SERVER["PHP_SELF"] ."?action=add&opdracht=$OpdrachtID'><img src='http://alpem.net/appli/includes/classeLogon/img/mail_no.gif' title=\"Ik wil mails ontvangen voor '". $OpdrachtData['naam'] ."'\"></a></td>";
 			}
 		} else {
-			$Page .= "	<td colspan='6'>&nbsp;</td>";
+			$Page .= "	<td colspan='8'>&nbsp;</td>";
 		}
 		
 		$Page .= "</tr>\n";

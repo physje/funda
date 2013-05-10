@@ -19,7 +19,7 @@ if(isset($_REQUEST['huis']) AND isset($_REQUEST['opdracht'])) {
 } else {	
 	$opdrachten = getZoekOpdrachten('');
 	
-	echo "<form method='post'>\n";
+	echo "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
 	echo "<table>\n";
 	echo "<tr>";
 	echo "	<td>Opdracht</td>";

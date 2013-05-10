@@ -108,7 +108,7 @@ $deel_2 .= "</table>";
 
 $dateSelection = makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar);
 
-$zoekScherm[] = "<form method='post'>";
+$zoekScherm[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
 $zoekScherm[] = "<table border=0 align='center'>";
 $zoekScherm[] = "<tr>";
 $zoekScherm[] = "	<td><b>Begindatum</b></td>";

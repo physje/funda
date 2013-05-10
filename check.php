@@ -336,6 +336,22 @@ foreach($Opdrachten as $OpdrachtID) {
 	
 	# Als er een nieuw huis, een huis in prijs gedaald of een huis verkocht is moet er een mail verstuurd worden.
 	if((count($HTMLMessage) > 0 OR count($UpdatedPrice) > 0 OR count($OnderVoorbehoud) > 0 OR count($VerkochtHuis) > 0) AND (count($OpdrachtMembers) > 0)) {				
+		$FooterText  = "Google Maps (";
+		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_mail.php?regio=$OpdrachtID") ."'>vandaag</a>, ";
+		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML.php?selectie=Z$OpdrachtID&datum=1") ."'>wijk</a>, ";
+		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_prijs.php?selectie=Z$OpdrachtID&datum=1") ."'>prijs</a>) | ";
+		$FooterText .= "<a href='". $ScriptURL ."admin/edit_opdrachten.php?id=$OpdrachtID'>Zoekopdracht</a> | ";
+		$FooterText .= "<a href='". $ScriptURL ."admin/edit_opdrachten.php?action=remove&opdracht=$OpdrachtID'>uitschrijven</a> | ";
+		$FooterText .= "<a href='$OpdrachtURL'>funda.nl</a>";
+		$FooterText .= "<div class='float_rechts'>© 2009-". date("Y") ." Matthijs Draijer</div>";			
+		include('include/HTML_TopBottom.php');
+		
+		$HTMLMail = $HTMLHeader.$HTMLMail.$HTMLPreFooter.$HTMLFooter;
+		
+		$html =& new html2text($HTMLMail);
+		$html->set_base_url($ScriptURL);
+		$PlainText = $html->get_text();
+		
 		if(count($HTMLMessage) > 0) {
 			$omslag			= round(count($HTMLMessage)/2);
 			$KolomEen		= array_slice ($HTMLMessage, 0, $omslag);
@@ -447,22 +463,6 @@ foreach($Opdrachten as $OpdrachtID) {
 		foreach($OpdrachtMembers as $memberID) {
 			$MemberData = getMemberDetails($memberID);
 						
-			$FooterText  = "Google Maps (";
-			$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_mail.php?regio=$OpdrachtID") ."'>vandaag</a>, ";
-			$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML.php?selectie=Z$OpdrachtID&datum=1") ."'>wijk</a>, ";
-			$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_prijs.php?selectie=Z$OpdrachtID&datum=1") ."'>prijs</a>) | ";
-			$FooterText .= "<a href='". $ScriptURL ."admin/edit_opdrachten.php?id=$OpdrachtID'>Zoekopdracht</a> | ";
-			$FooterText .= "<a href='". $ScriptURL ."admin/edit_opdrachten.php?action=remove&opdracht=$OpdrachtID'>uitschrijven</a> |";
-			$FooterText .= "<a href='$OpdrachtURL'>funda.nl</a>";
-			$FooterText .= "<div class='float_rechts'>© 2009-". date("Y") ." Matthijs Draijer</div>";			
-			include('include/HTML_TopBottom.php');
-			
-			$HTMLMail = $HTMLHeader.$HTMLMail.$HTMLPreFooter.$HTMLFooter;
-			
-			$html =& new html2text($HTMLMail);
-			$html->set_base_url($ScriptURL);
-			$PlainText = $html->get_text();
-						
 			$mail = new PHPMailer;
 			$mail->AddAddress($MemberData['mail'], $MemberData['naam']);
 			$mail->From     = $ScriptMailAdress;
@@ -512,7 +512,6 @@ if(count($ErrorMessage) > 0 AND $debug == 0) {
 	$mail = new PHPMailer;
 	$mail->From     = $ScriptMailAdress;
 	$mail->FromName = $ScriptTitle;
-	//$mail->WordWrap = 90;
 	$mail->AddAddress($ScriptMailAdress, 'Matthijs');
 	$mail->Subject	= $SubjectPrefix."problemen met ".$ScriptTitle;
 	$mail->IsHTML(true);

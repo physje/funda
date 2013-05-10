@@ -37,7 +37,7 @@ if(isset($_REQUEST['id'])) {
 	} else {		
 		$data = getFundaData($id);
 		
-		$HTML[] = "<form method='post'>";
+		$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
 		$HTML[] = "<input type='hidden' name='id' value='$id'>";
 		$HTML[] = "<table>";	
 		$HTML[] = "<tr>";
@@ -112,7 +112,7 @@ if(isset($_REQUEST['id'])) {
 	} else {
 		$Prijzen = getPriceHistory($id);
 	
-		$Kenmerk[] = "<form method='post'>";
+		$Kenmerk[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
 		$Kenmerk[] = "<input type='hidden' name='id' value='$id'>";
 		$Kenmerk[] = "<table>";
 		

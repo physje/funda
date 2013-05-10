@@ -45,7 +45,7 @@ if($_POST[search]) {
 	//$deel_2 .= substr($row['mean_lat'], 0, 9) .'<br>';
 	//$deel_2 .= substr($row['mean_lon'], 0, 9) .'<br>';
 		
-	$deel_1 .= "<form method='post'>\n";
+	$deel_1 .= "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
 	$deel_1 .= "<table border=0>\n";
 	$deel_1 .= "	<tr>\n";
 	$deel_1 .= "		<td>Latitude:</td>\n";

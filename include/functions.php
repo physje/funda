@@ -51,11 +51,11 @@ function getOpdrachtData($id) {
 	$sql		= "SELECT * FROM $TableZoeken WHERE $ZoekenKey = $id";
 	$result	= mysql_query($sql);
 	$row		= mysql_fetch_array($result);
-	
+		
 	$data['active']	= $row[$ZoekenActive];
 	$data['user']		= $row[$ZoekenUser];
-	$data['mail']		= $row[$ZoekenMail];
-	$data['adres']	= $row[$ZoekenAdres];
+	//$data['mail']		= $row[$ZoekenMail];
+	//$data['adres']	= $row[$ZoekenAdres];
 	$data['naam']		= urldecode($row[$ZoekenNaam]);
 	$data['url']		= urldecode($row[$ZoekenURL]);
 	
@@ -1272,7 +1272,7 @@ function makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar) {
 }
 
 
-function makeSelectionSelection($addHouses, $blankOption) {
+function makeSelectionSelection($disableList, $blankOption, $preSelect = 0) {
 	# Vraag alle actieve opdrachten en lijsten op en zet die in een pull-down menu
 	# De value is Z... voor een zoekopdracht en L... voor een lijst		
 	$Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
@@ -1281,7 +1281,7 @@ function makeSelectionSelection($addHouses, $blankOption) {
 	
 	# Als er geen lijsten zijn of als er huizen aan een lijst worden toegevoegd
 	# (het is zinloos om dan lijsten te laten zien) de lijsten disablen
-	if(count($Lijsten) == 0 || $addHouses) {
+	if(count($Lijsten) == 0 || $disableList) {
 		$showList = false;
 	} else {
 		$showList = true;
@@ -1293,7 +1293,7 @@ function makeSelectionSelection($addHouses, $blankOption) {
 			
 	foreach($Opdrachten as $OpdrachtID) {
 		$OpdrachtData = getOpdrachtData($OpdrachtID);
-		$HTML[] = "		<option value='Z$OpdrachtID'>". $OpdrachtData['naam'] ."</option>";
+		$HTML[] = "		<option value='Z$OpdrachtID'". ($OpdrachtID == $preSelect ? ' selected' : '') .">". $OpdrachtData['naam'] ."</option>";
 	}
 	
 	$HTML[] = "	</optgroup>";
@@ -1301,7 +1301,7 @@ function makeSelectionSelection($addHouses, $blankOption) {
 	
 	foreach($Lijsten as $LijstID) {
 		$LijstData = getLijstData($LijstID);
-		$HTML[] = "		<option value='L$LijstID'>". $LijstData['naam'] ."</option>";
+		$HTML[] = "		<option value='L$LijstID'". ($LijstID == $preSelect ? ' selected' : '') .">". $LijstData['naam'] ."</option>";
 	}
 	
 	$HTML[] = "	</optgroup>";
@@ -1313,7 +1313,7 @@ function makeSelectionSelection($addHouses, $blankOption) {
 	
 		foreach($Lijsten_2 as $LijstID) {
 			$LijstData = getLijstData($LijstID);
-			$HTML[] = "		<option value='L$LijstID'>". $LijstData['naam'] ."</option>";
+			$HTML[] = "		<option value='L$LijstID'". ($LijstID == $preSelect ? ' selected' : '') .">". $LijstData['naam'] ."</option>";
 		}
 	
 		$HTML[] = "	</optgroup>";

@@ -24,7 +24,7 @@ if(isset($_POST['delete_list'])) {
 	# Weet je het heeeel zeker
 	} else {
 		$Page_1 = "Weet u zeker dat u deze lijst wilt verwijderen ?";
-		$Page_1 .= "<form method='post'>\n";
+		$Page_1 .= "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
 		$Page_1 .= "<input type='hidden' name='delete_list' value='true'>\n";
 		$Page_1 .= "<input type='hidden' name='list' value='". $_POST['list'] ."'>\n";
 		$Page_1 .= "<input type='submit' name='delete_yes' value='Ja'> <input type='submit' name='delete_no' value='Nee'>";
@@ -66,7 +66,7 @@ if(isset($_POST['delete_list'])) {
 	# Door de boolean $autocomplete op true te zetten wordt javascript-code opgenomen op de pagina.
 	$autocomplete = true;
 	
-	$Page_1 ="<form method='post' name='editform'>\n";
+	$Page_1 ="<form method='post' action='$_SERVER[PHP_SELF]'>\n";
 	
 	# Als er een lijst-id bekend is kunnen er knoppen getoond worden om hier huizen aan toe te kennen
 	if($list != 0) {
@@ -117,7 +117,7 @@ if(isset($_POST['delete_list'])) {
 		
 		# Als er huizen op deze lijst staan moeten die getoond worden
 		if(count($Huizen) > 0) {
-			$Page_2 ="<form method='post' name='editform'>\n";
+			$Page_2 ="<form method='post' action='$_SERVER[PHP_SELF]'>\n";
 			$Page_2 .= "<input type='hidden' name='list' value='$list'>\n";
 		
 			foreach($Huizen as $huis) {
@@ -131,7 +131,7 @@ if(isset($_POST['delete_list'])) {
 		}
 		
 		# Formulier met autocomplete-textveld om handmatig een adres in te voeren		
-		$Page_4 ="<form method='post' name='addform'>\n";
+		$Page_4 ="<form method='post' action='$_SERVER[PHP_SELF]'>\n";
 		$Page_4 .= "<input type='hidden' name='list' value='$list'>\n";
 		$Page_4 .= "Voer adres of funda_id in om handmatig een huis toe te voegen.<br>\n";
 		$Page_4 .= "<input type='text' name='extra_huis' id=\"huizen\" size='50'><br>";
