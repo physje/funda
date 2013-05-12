@@ -6,11 +6,11 @@ Funda Alert is een script om funda.nl in de gaten te houden en daar "statistiek"
 ## Configureren
 Om te beginnen moeten alle bestanden op een server geplaatst worden die verbinding heeft met internet (duh) en moeten de variabelen in /include/config.php worden aangepast naar de in jouw geval geldende waarden. Verder moeten de MySQL-tabellen worden aangemaakt, de SQL-queries hiervoor staan in /onderhoud/tabel.sql. Vervolgens moeten een aantal cronjobs worden ingesteld zodat het geheel automatisch kan functioneren.
 De tijdstippen kan je zelf varieëren, maar ik heb de volgende jobs draaien :
-* 1   1   			* 	* 	* 			wget -q -O /dev/null http://www.example.com/funda/admin/search4Offline.php
-* 22 	2 				* 	* 	* 			wget -q -O /dev/null http://www.example.com/funda/admin/getVerkochteHuizen.php
-* 33 	3 				* 	* 	0 			wget -q -O /dev/null http://www.example.com/funda/admin/cleanUp.php
-* 33 	4 				* 	* 	1,3,5 	wget -q -O /dev/null http://www.example.com/funda/admin/combine_batch.ph
-* 14 	8,14,20 	* 	* 	* 			wget -q -O /dev/null http://www.example.com/funda/check.php
+- 1   1   			* 	* 	* 			wget -q -O /dev/null http://www.example.com/funda/admin/search4Offline.php
+- 22 	2 				* 	* 	* 			wget -q -O /dev/null http://www.example.com/funda/admin/getVerkochteHuizen.php
+- 33 	3 				* 	* 	0 			wget -q -O /dev/null http://www.example.com/funda/admin/cleanUp.php
+- 33 	4 				* 	* 	1,3,5 	wget -q -O /dev/null http://www.example.com/funda/admin/combine_batch.ph
+- 14 	8,14,20 	* 	* 	* 			wget -q -O /dev/null http://www.example.com/funda/check.php
 
 ## Aan de slag
 Vervolgens kan je op de index-pagina inloggen en 'van alles' regelen. Afhankelijk van je rechten (admin of niet) kan je verschillende zaken wijzigen op de site.
@@ -20,12 +20,12 @@ Vervolgens kan je op de index-pagina inloggen en 'van alles' regelen. Afhankelij
 * Als je verschillende zoekopdrachten en lijsten hebt, kan je met behulp van de optie 'Maak combinaties van lijsten & opdrachten' combinatie maken (bv huizen die zowel op de lijst 'Mooie huizen' als op de lijst 'Afvallers' voorkomen of huizen die wel op de lijst 'Mooie huizen' staan, maar niet op 'alle huizen binnen een straal van 1 km rondom voetbalstadion'). Het script zal een lijst aanmaken met alle huizen die aan deze combinatie voldoen.
 * Data van van een specifiek huis (bv. dat ene huis aan de Prinsengracht) kan worden opgezocht met 'Bekijk details van een huis'. Als je daar begint met typen zal het script automatisch tonen welke huizen bekend zijn met deze tekst in adres, plaats of id.
 * De huizen van zoekpdrachten of lijsten kunnen op verschillende manier getoond worden
-[x] Tijdslijn : hier wordt van alle huizen met een balk getoond hoe lang deze huizen al te koop staan.
-[x] Prijs-afname : hier wordt van alle huizen met een balk getoond hoeveel zij al in prijs gedaald zijn.
-[x] Fotoalbum : hier wordt van alle huizen een kleine foto getoond met daaronder adres, huidige prijs, totale prijsdaling en hoe lang ze al te koop staan.
-[x] Google Maps (wijk) : hiermee wordt een bestand voor Google Maps of Google Earth gegenereerd waarin alle huizen op wijk gegroepeerd zijn.
-[x] Google Maps (prijs) : hiermee wordt een bestand voor Google Maps of Google Earth gegenereerd waarin alle huizen op prijs-klasse gegroepeerd zijn.
-[x] POI-Edit XML-file : Dit is een XML-file die gebruikt kan worden om POI-edit (http://www.poiedit.com/) te vertellen welke POI-files er beschikbaar zijn voor TomTom.
+  * Tijdslijn : hier wordt van alle huizen met een balk getoond hoe lang deze huizen al te koop staan.
+  * Prijs-afname : hier wordt van alle huizen met een balk getoond hoeveel zij al in prijs gedaald zijn.
+  * Fotoalbum : hier wordt van alle huizen een kleine foto getoond met daaronder adres, huidige prijs, totale prijsdaling en hoe lang ze al te koop staan.
+  * Google Maps (wijk) : hiermee wordt een bestand voor Google Maps of Google Earth gegenereerd waarin alle huizen op wijk gegroepeerd zijn.
+  * Google Maps (prijs) : hiermee wordt een bestand voor Google Maps of Google Earth gegenereerd waarin alle huizen op prijs-klasse gegroepeerd zijn.
+  * POI-Edit XML-file : Dit is een XML-file die gebruikt kan worden om POI-edit (http://www.poiedit.com/) te vertellen welke POI-files er beschikbaar zijn voor TomTom.
 
 ## Onderhoud (alleen beschikbaar voor Administrator)
 Als het script enige tijd draait zal de database vervuild raken (dat ligt niet aan het script, dat ligt aan het feit dat makelaars huizen soms meerdere keren er opzetten of huizen er afhalen en dan na een paar dagen weer op zetten).
