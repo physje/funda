@@ -11,7 +11,7 @@ connect_db();
 
 if(isset($_POST['doorgaan'])) {
 	if(saveUpdateMember($_POST['member_id'], $_POST['naam'], $_POST['username'], $_POST['password'], $_POST['mail'], $_POST['level'], $_SESSION['UserID'])) {
-		$Page .= "Account opgeslagen";
+		$Page .= "Account opgeslagen. Dit tabblad kan nu gesloten worden.";
 	}
 } elseif(isset($_REQUEST['all']) AND $_SESSION['level'] == 3) {
 	$Users = getUsers();

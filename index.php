@@ -41,7 +41,7 @@ if($_SESSION['level'] > 1) {
 if($_SESSION['level'] > 2) {
 	$onderhoud['check.php']											= 'Check funda';	
 	$onderhoud['admin/getVerkochteHuizen.php']	= 'Werk verkochte huizen bij';
-	$onderhoud['admin/checkOudeHuizen.php']			= 'Zoek naar gegevens van oude huizen';
+	$onderhoud['admin/checkOudeHuizen.php']			= 'Zoek naar gegevens van vermiste huizen';
 	$onderhoud['admin/cleanPrice.php']					= 'Prijzen opschonen';
 	$onderhoud['admin/cleanKenmerk.php']				= 'Kenmerken opschonen';
 	$onderhoud['admin/checkTables.php']					= 'Check de verschillende databases';
@@ -51,35 +51,35 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['admin/cleanUp.php']							= 'Verwijder oude log-items';
 	
 	foreach($onderhoud as $url => $titel) {
-		$blockOnderhoud .= "<a href='$url' target='new'>$titel</a><br>\n";
+		$blockOnderhoud .= "<a href='$url' target='_blank'>$titel</a><br>\n";
 	}
 }
 
 foreach($links as $url => $titel) {
-	$blockLinks .= "<a href='$url' target='new'>$titel</a><br>\n";
+	$blockLinks .= "<a href='$url' target='_blank'>$titel</a><br>\n";
 }
 
 foreach($admin as $url => $titel) {
-	$blockAdmin .= "<a href='$url' target='new'>$titel</a><br>\n";
+	$blockAdmin .= "<a href='$url' target='_blank'>$titel</a><br>\n";
 }
 
 $blockAccount = "<div class='float_rechts'>Ingelogd als <b>". $UserData['naam'] ."</b></div><a href='". $cfgProgDir ."objects/logout.php'>uitloggen</a><br>\n";
-$blockAccount .= "<a href='admin/edit_account.php' target='new'>wijzig gegevens</a><br>\n";
+$blockAccount .= "<a href='admin/edit_account.php' target='_blank'>wijzig gegevens</a><br>\n";
 if($_SESSION['level'] > 1) {
-	$blockAccount .= "<a href='admin/edit_account.php?new' target='new'>maak account voor een ander aan</a><br>\n";
+	$blockAccount .= "<a href='admin/edit_account.php?new' target='_blank'>maak account voor een ander aan</a><br>\n";
 }
 if($_SESSION['level'] == 3) {
-	$blockAccount .= "<a href='admin/edit_account.php?all' target='new'>toon alle accounts</a><br>\n";
+	$blockAccount .= "<a href='admin/edit_account.php?all' target='_blank'>toon alle accounts</a><br>\n";
 }
 
 $Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
 foreach($Opdrachten as $OpdrachtID) {
 	$OpdrachtData = getOpdrachtData($OpdrachtID);
-	$blockOpdrachten .= "funda.nl : <a href='". $OpdrachtData['url'] ."' target='new'>". $OpdrachtData['naam'] ."</a><br>\n";
+	$blockOpdrachten .= "funda.nl : <a href='". $OpdrachtData['url'] ."' target='_blank'>". $OpdrachtData['naam'] ."</a><br>\n";
 }
 
 if(count($Opdrachten) == 0) {
-	$blockOpdrachten .= "<i>Maak je eerste <a href='admin/edit_opdrachten.php?id=0' target='new'>zoekopdracht</a> aan.</i>";
+	$blockOpdrachten .= "<i>Maak je eerste <a href='admin/edit_opdrachten.php?id=0' target='_blank'>zoekopdracht</a> aan.</i>";
 }
 
 echo $HTMLHeader;

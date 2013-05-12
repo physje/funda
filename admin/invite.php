@@ -20,9 +20,11 @@ if(isset($_POST['invite'])) {
 	$Mail[] = "Beste ". $dataOntvanger['naam'] .",<br>";
 	$Mail[] = "<br>";
 	$Mail[] = $dataZender['naam'] ." heeft je uitgenodigd voor de zoekopdracht '<a href='". $dataOpdracht['url'] ."'>". $dataOpdracht['naam'] ."</a>'.<br>";
-	$Mail[] = "Klik <a href='". $ScriptURL ."admin/edit_account.php?action=add&opdracht=". $OpdrachtID ."'>hier</a> als je voortaan ook mails voor deze opdracht wilt ontvangen.<br>";
+	$Mail[] = "Klik <a href='". $ScriptURL ."admin/edit_opdrachten.php?action=add&opdracht=". $OpdrachtID ."'>hier</a> als je voortaan ook mails voor deze opdracht wilt ontvangen.<br>";
 	$Mail[] = "<br>";
 	$Mail[] = "Hiervoor is het wel nodig een account voor $ScriptTitle $Version te hebben. Mocht je die niet hebben dan kan je de gegevens aanvragen via <a href='". $ScriptURL ."auth/wachtwoord.php'>deze link</a>.<br>";
+	$Mail[] = "<br>";
+	$Mail[] = "Uitleg over wat er allemaal mogelijk is in het script kan je vinden in de <a href='https://github.com/physje/funda/blob/master/README.md'>help-file</a>.<br>";
 	$Mail[] = "<br>";
 	$Mail[] = "Met groet<br>";
 	$Mail[] = $dataZender['naam']. "<br>";

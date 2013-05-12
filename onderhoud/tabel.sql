@@ -10,6 +10,17 @@
 -- --------------------------------------------------------
 
 --
+-- Tabelstructuur voor tabel `funda_abonnement`
+--
+
+CREATE TABLE IF NOT EXISTS `funda_abonnement` (
+  `zoek_id` int(3) NOT NULL,
+  `member_id` int(3) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Tabelstructuur voor tabel `funda_huizen`
 --
 
@@ -105,7 +116,11 @@ CREATE TABLE IF NOT EXISTS `funda_members` (
   `lastLogin` int(11) NOT NULL,
   UNIQUE KEY `id` (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
-INSERT INTO `funda_members` (`id`, `name`, `username`, `password`, `level`, `mail`, `account`, `lastLogin`) VALUES (1, 'Admin', 'admin', '21232f297a57a5a743894a0e4a801fc3', 3, '', 0, 0),
+
+-- --------------------------------------------------------
+
+INSERT INTO `funda_members` (`id`, `name`, `username`, `password`, `level`, `mail`, `account`, `lastLogin`) VALUES
+(1, 'Admin', 'admin', '21232f297a57a5a743894a0e4a801fc3', 3, '', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -144,8 +159,6 @@ CREATE TABLE IF NOT EXISTS `funda_zoeken` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user` int(3) NOT NULL,
   `active` set('0','1') NOT NULL,
-  `mail` set('0','1') NOT NULL DEFAULT '1',
-  `adres` text NOT NULL,
   `naam` text NOT NULL,
   `url` text NOT NULL,
   UNIQUE KEY `id` (`id`)
