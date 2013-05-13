@@ -227,24 +227,23 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item[] = "</table>";
 					
 				$HTMLMessage[] = showBlock(implode("\n", $Item));					
-			} else {
-				if(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {
-					$PriceHistory		= getFullPriceHistory($data['id']);
-					$prijzen_array	= $PriceHistory[0];
-					$prijzen_perc 	= $PriceHistory[3];
-					end($prijzen_array);	# De pointer op de laatste waarde (=laatste prijs) zetten
-					
-					$Item  = "<table width='100%'>\n";
-					$Item .= "<tr>\n";
-					$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
-					$Item .= "	<td align='center'><a href='http://www.funda.nl". $data['url'] ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
-					$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $fundaData['wijk'] .")<br>\n";
-					$Item .= "<b>". formatPrice(prev($prijzen_array)) ."</b> -> <b>". formatPrice(end($prijzen_array)) ."</b> (". formatPercentage(end($prijzen_perc)) .")\n";
-					$Item .= "</tr>\n";
-					$Item .= "</table>\n";
-					
-					$UpdatedPrice[] = showBlock($Item);					
-				}
+			} elseif(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {
+				$fundaData			= getFundaData($data['id']);
+				$PriceHistory		= getFullPriceHistory($data['id']);
+				$prijzen_array	= $PriceHistory[0];
+				$prijzen_perc 	= $PriceHistory[3];
+				end($prijzen_array);	# De pointer op de laatste waarde (=laatste prijs) zetten
+				
+				$Item  = "<table width='100%'>\n";
+				$Item .= "<tr>\n";
+				$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
+				$Item .= "	<td align='center'><a href='http://www.funda.nl". $data['url'] ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
+				$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $fundaData['wijk'] .")<br>\n";
+				$Item .= "<b>". formatPrice(prev($prijzen_array)) ."</b> -> <b>". formatPrice(end($prijzen_array)) ."</b> (". formatPercentage(end($prijzen_perc)) .")\n";
+				$Item .= "</tr>\n";
+				$Item .= "</table>\n";
+				
+				$UpdatedPrice[] = showBlock($Item);
 			}			
 		}
 		if($enkeleOpdracht) {
