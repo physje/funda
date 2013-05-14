@@ -25,6 +25,7 @@ if(isset($_REQUEST[OpdrachtID])) {
 foreach($Opdrachten as $OpdrachtID) {
 	# Alles initialiseren
 	$HTMLMessage = $UpdatedPrice = $VerkochtHuis = $OnderVoorbehoud = $Subject = $sommatie = array();
+	$HTMLMail = "";
 	$nextPage = true;
 	$p = 0;
 
@@ -334,7 +335,7 @@ foreach($Opdrachten as $OpdrachtID) {
 	}
 	
 	# Als er een nieuw huis, een huis in prijs gedaald of een huis verkocht is moet er een mail verstuurd worden.
-	if((count($HTMLMessage) > 0 OR count($UpdatedPrice) > 0 OR count($OnderVoorbehoud) > 0 OR count($VerkochtHuis) > 0) AND (count($OpdrachtMembers) > 0)) {				
+	if((count($HTMLMessage) > 0 OR count($UpdatedPrice) > 0 OR count($OnderVoorbehoud) > 0 OR count($VerkochtHuis) > 0) AND (count($OpdrachtMembers) > 0)) {
 		$FooterText  = "Google Maps (";
 		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_mail.php?regio=$OpdrachtID") ."'>vandaag</a>, ";
 		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML.php?selectie=Z$OpdrachtID&datum=1") ."'>wijk</a>, ";
