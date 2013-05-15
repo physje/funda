@@ -454,9 +454,9 @@ foreach($Opdrachten as $OpdrachtID) {
 			$Subject[] = count($VerkochtHuis) ." ". (count($VerkochtHuis) == 1 ? 'huis' : 'huizen') . " verkocht";
 		}
 		
-		$HTMLMail = $HTMLHeader.$HTMLMail.$HTMLPreFooter.$HTMLFooter;
+		$FinalHTMLMail = $HTMLHeader.$HTMLMail.$HTMLPreFooter.$HTMLFooter;
 				
-		$html =& new html2text($HTMLMail);
+		$html =& new html2text($FinalHTMLMail);
 		$html->set_base_url($ScriptURL);
 		$PlainText = $html->get_text();
 		
@@ -469,17 +469,23 @@ foreach($Opdrachten as $OpdrachtID) {
 			$mail->FromName = $ScriptTitle;
 			$mail->Subject	= $SubjectPrefix.implode(' en ', $Subject) ." voor '". $OpdrachtData['naam'] ."'";
 			$mail->IsHTML(true);
-			$mail->Body			= $HTMLMail;
+			$mail->Body			= $FinalHTMLMail;
 			$mail->AltBody	= $PlainText;
 			
 			if(!$mail->Send()) {
 				echo "Versturen van mail naar ". $MemberData['mail'] ." is mislukt<br>";
 				$ErrorMessage[] = "Het versturen van een mail voor ". $OpdrachtData['naam'] ." naar ". $MemberData['mail'] ." is mislukt";
 				toLog('error', $OpdrachtID, '', "Kon geen mail versturen naar ". $MemberData['mail']);
+				
+				# Als mail versturen niet lukt dan schrijven we de inhoud weg als HTML_pagina incl. datum
+				$bestandsnaam = $OpdrachtData['naam'] .' ('. date("Ymd_Hi") .'}';
+				$fp = fopen($bestandsnaam.'.htm', 'w');
+				fwrite($fp, $FinalHTMLMail);
+				fclose($fp);				
 			} else {
 				toLog('info', $OpdrachtID, '', "Mail verstuurd naar ". $MemberData['mail']);
 			}
-		}		
+		}	
 	}
 }
 

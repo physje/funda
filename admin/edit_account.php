@@ -18,7 +18,7 @@ if(isset($_POST['doorgaan'])) {
 	
 	foreach($Users as $user) {
 		$data = getMemberDetails($user);
-		$Page .= "<a href='$_SERVER[PHP_SELF]?id=$user'>". $data['naam'] ."</a><br>\n";
+		$Page .= date("d-m-y H:i", $data['login']). " | <a href='$_SERVER[PHP_SELF]?id=$user'>". $data['naam'] ."</a><br>\n";
 	}
 	
 } else {
