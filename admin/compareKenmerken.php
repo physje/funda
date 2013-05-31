@@ -27,9 +27,9 @@ if($groep == 'Z') {
 	foreach($dataset as $huisID) {
 		$kenmerken = getFundaKenmerken($huisID);
 		
-		# Sommige huizen hebben geen kenmerken in de database.
+		# Sommige huizen hebben maar weinig (lees : geen) kenmerken in de database.
 		# Die toevoegen in het overzicht is zinloos
-		if(count($kenmerken) > 0) {
+		if(count($kenmerken) > 2) {
 			$huizen[] = $huisID;
 			
 			# Doorloop alle kenmerken van het huis
@@ -54,19 +54,36 @@ if($groep == 'Z') {
 	ksort($kolom);
 	
 	# Maak de de eerste regel aan
-	$CSV_kop[] = '';
+	$CSV_kop = array('', 'url', 'Huidige Prijs', 'Orginele Prijs');
 	foreach($kolom as $kenmerk => $dummy) {
-		$CSV_kop[] = $kenmerk;
+		if($kenmerk == 'Achtertuin') {
+			$CSV_kop[] = $kenmerk;
+			$CSV_kop[] = $kenmerk .' (diep)';
+			$CSV_kop[] = $kenmerk .' (breed)';
+		} else {
+			$CSV_kop[] = $kenmerk;
+		}
 	}	
 	$CSV[] = implode(';', $CSV_kop);
 	
 	# Doorloop alle huizen en geef de waarde van het kenmerk weer
 	foreach($huizen as $huisID) {
 		$data				= getFundaData($huisID);
-		$CSV_regel	= array($data['adres']);
+		$CSV_regel	= array($data['adres'], 'http://www.funda.nl'.$data['url'], getHuidigePrijs($huisID), getOrginelePrijs($huisID));
 		
 		foreach($kolom as $kenmerk => $dummy) {
-			$CSV_regel[] = html_entity_decode($kenmerkenArray[$kenmerk][$huisID]);
+			$string = html_entity_decode($kenmerkenArray[$kenmerk][$huisID]);
+			
+			if($kenmerk == 'Achtertuin') {			
+				$string = str_replace(' mÂ²', '', $string);
+				$temp = getString('', '(', $string, 0);						$CSV_regel[] = trim($temp[0]);
+				$temp = getString('(', 'm diep', $string, 0);			$CSV_regel[] = trim($temp[0]);
+				$temp = getString('en ', 'm breed', $string, 0);	$CSV_regel[] = trim($temp[0]);
+			} else {					
+				$string = str_replace('m²', '', $string);
+				$string = str_replace('m³', '', $string);
+				$CSV_regel[] = trim($string);
+			}
 		}
 		$CSV[] = implode(';', $CSV_regel);
 	}
@@ -77,7 +94,7 @@ if($groep == 'Z') {
 	header("Pragma: no-cache");
 	header("Cache-control: private");
 	header('Content-type: application/csv');
-	header('Content-Disposition: attachment; filename="'.  str_replace(' ', '_', $Name .'-'. date("d_M-H\hi\m")) .'.csv"');
+	header('Content-Disposition: attachment; filename="'.  str_replace(' ', '_', $Name .'-'. strftime ('%d%b %H%M')) .'.txt"');
 	echo implode("\n", $CSV);
 	
 } else {
