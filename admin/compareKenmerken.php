@@ -51,12 +51,12 @@ if($groep == 'Z') {
 	}
 	
 	# Sorteer de kenmerken op alfabetische volgorde
-	ksort($kolom);
+	//ksort($kolom);
 	
 	# Maak de de eerste regel aan
-	$CSV_kop = array('', 'url', 'Huidige Prijs', 'Orginele Prijs');
+	$CSV_kop = array('', 'ID', 'url', 'Huidige Prijs', 'Orginele Prijs', 'Status', 'Wijk');
 	foreach($kolom as $kenmerk => $dummy) {
-		if($kenmerk == 'Achtertuin') {
+		if($kenmerk == 'Achtertuin' || $kenmerk == 'Voortuin' || $kenmerk == 'Plaats') {
 			$CSV_kop[] = $kenmerk;
 			$CSV_kop[] = $kenmerk .' (diep)';
 			$CSV_kop[] = $kenmerk .' (breed)';
@@ -69,16 +69,34 @@ if($groep == 'Z') {
 	# Doorloop alle huizen en geef de waarde van het kenmerk weer
 	foreach($huizen as $huisID) {
 		$data				= getFundaData($huisID);
-		$CSV_regel	= array($data['adres'], 'http://www.funda.nl'.$data['url'], getHuidigePrijs($huisID), getOrginelePrijs($huisID));
+		
+		if(soldHouse($huisID)) {
+			$status = 'verkocht';
+		} elseif(soldHouseTentative($huisID)) {
+			$status = 'onder voorbehoud';
+		} else {
+			$status = 'beschikbaar';
+		}
+		
+		$CSV_regel	= array($data['adres'], $huisID, 'http://www.funda.nl'.$data['url'], getHuidigePrijs($huisID), getOrginelePrijs($huisID), $status, $data['wijk']);
 		
 		foreach($kolom as $kenmerk => $dummy) {
-			$string = html_entity_decode($kenmerkenArray[$kenmerk][$huisID]);
+			//$string = html_entity_decode($kenmerkenArray[$kenmerk][$huisID]);
+			$string = $kenmerkenArray[$kenmerk][$huisID];
+			$string = str_replace('&nbsp;m&sup2;', '', $string);
+			$string = str_replace('&nbsp;m&sup3;', '', $string);
 			
-			if($kenmerk == 'Achtertuin') {			
-				$string = str_replace(' mÂ²', '', $string);
-				$temp = getString('', '(', $string, 0);						$CSV_regel[] = trim($temp[0]);
-				$temp = getString('(', 'm diep', $string, 0);			$CSV_regel[] = trim($temp[0]);
-				$temp = getString('en ', 'm breed', $string, 0);	$CSV_regel[] = trim($temp[0]);
+			if($kenmerk == 'Achtertuin' || $kenmerk == 'Voortuin' || $kenmerk == 'Plaats') {
+				if(strlen($string) > 10) {
+					$string = str_replace(' mÂ²', '', $string);
+					$temp = getString('', '(', $string, 0);						$CSV_regel[] = trim($temp[0]);
+					$temp = getString('(', 'm diep', $string, 0);			$CSV_regel[] = trim($temp[0]);
+					$temp = getString('en ', 'm breed', $string, 0);	$CSV_regel[] = trim($temp[0]);
+				} else {
+					$CSV_regel[] = '';
+					$CSV_regel[] = '';
+					$CSV_regel[] = '';
+				}
 			} else {					
 				$string = str_replace('m²', '', $string);
 				$string = str_replace('m³', '', $string);
