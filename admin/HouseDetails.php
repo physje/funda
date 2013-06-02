@@ -19,10 +19,11 @@ if($id != '') {
 	$data = getFundaData($id);
 	$deel_2 = $data['adres'];
 	
-	$links['checkOudeHuizen.php?id='. $id] 		= 'Haal verkoop-gegevens van '. $data['adres'] .' op';
-	$links['edit.php?id='. $id]								= 'Wijzig de gegevens van '. $data['adres'];	
-	$links['delete.php?id='. $id]							= 'Verwijder '. $data['adres'] .' uit de database';
-	$links['cleanPrice.php?id='. $id]					= 'Prijzen van '. $data['adres'] .' opschonen';
+	$links['http://www.funda.nl'.$data['url']] 	= 'Bekijk '. $data['adres'] .' op funda.nl';
+	$links['checkOudeHuizen.php?id='. $id] 			= 'Haal verkoop-gegevens van '. $data['adres'] .' op';
+	$links['edit.php?id='. $id]									= 'Wijzig de gegevens van '. $data['adres'];	
+	$links['delete.php?id='. $id]								= 'Verwijder '. $data['adres'] .' uit de database';
+	$links['cleanPrice.php?id='. $id]						= 'Prijzen van '. $data['adres'] .' opschonen';
 	
 	if(isset($_REQUEST['selectie'])) {
 		$selectie = $_REQUEST['selectie'];

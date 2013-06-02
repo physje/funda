@@ -70,10 +70,12 @@ if($groep == 'Z') {
 	foreach($huizen as $huisID) {
 		$data				= getFundaData($huisID);
 		
-		if(soldHouse($huisID)) {
+		if($data['verkocht'] == 1) {
 			$status = 'verkocht';
-		} elseif(soldHouseTentative($huisID)) {
+		} elseif($data['verkocht'] == 2) {
 			$status = 'onder voorbehoud';
+		} elseif($data['offline'] == 1) {
+			$status = 'offline';	
 		} else {
 			$status = 'beschikbaar';
 		}
@@ -81,10 +83,10 @@ if($groep == 'Z') {
 		$CSV_regel	= array($data['adres'], $huisID, 'http://www.funda.nl'.$data['url'], getHuidigePrijs($huisID), getOrginelePrijs($huisID), $status, $data['wijk']);
 		
 		foreach($kolom as $kenmerk => $dummy) {
-			//$string = html_entity_decode($kenmerkenArray[$kenmerk][$huisID]);
 			$string = $kenmerkenArray[$kenmerk][$huisID];
 			$string = str_replace('&nbsp;m&sup2;', '', $string);
 			$string = str_replace('&nbsp;m&sup3;', '', $string);
+			$string = html_entity_decode($string);
 			
 			if($kenmerk == 'Achtertuin' || $kenmerk == 'Voortuin' || $kenmerk == 'Plaats') {
 				if(strlen($string) > 10) {
