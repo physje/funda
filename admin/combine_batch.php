@@ -135,11 +135,17 @@ if(is_array($key_1)) {
 		$Item .= "	<td align='center'>". date("d-m-y", $data_new['start']) .' t/m '. date("d-m-y", $data_new['eind']) ."</td>\n";
 		$Item .= "</tr>\n";
 		$Item .= "</table>\n";
-					
-		$HTMLMessage[] = showBlock($Item);	
+		
+		if(!$verwijderd) {
+			$HTMLMessageNeg[] = showBlock($Item);
+		} else {
+			$HTMLMessage[] = showBlock($Item);
+		}
 	}
 	
 	if(count($HTMLMessage) > 0) {
+		$HTMLMessage = array_merge($HTMLMessage, $HTMLMessageNeg);
+		
 		$FooterText = "<a href='http://www.funda.nl/'>funda.nl</a>";
 		include('../include/HTML_TopBottom.php');
 				
