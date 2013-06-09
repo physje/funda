@@ -22,6 +22,17 @@ $cfgUserLevels = array(
 	3 => 'Administrator'	
 );
 
+$cfgCSVExport[] = 'Inhoud';
+$cfgCSVExport[] = 'Aantal kamers';
+$cfgCSVExport[] = 'Tuin';
+$cfgCSVExport[] = 'Achtertuin';
+$cfgCSVExport[] = 'Ligging tuin';
+$cfgCSVExport[] = 'Wonen (= woonoppervlakte)';
+$cfgCSVExport[] = 'Badkamervoorzieningen';
+$cfgCSVExport[] = 'Bouwjaar';
+$cfgCSVExport[] = 'Plaats';
+$cfgCSVExport[] = 'Voortuin';
+
 # Strings met meldingen voor het inloggen
 #$strNoAccess          = "Toegang geweigerd";
 $strNoPassword        = "Geen wachtwoord ingevuld";
