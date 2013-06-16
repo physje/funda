@@ -12,14 +12,14 @@ if(isset($_REQUEST['opdracht'])) {
 	$id						= $_REQUEST['opdracht'];
 	$opdrachtData	= getOpdrachtData($id);
 	$Name					= $opdrachtData['naam'];
-	$dataset			= getHuizen($id);
+	$dataset			= getHuizen($id, true);
 	$tables				= "$TableZoeken, $TableUsers";
 	$sql_postfix	= "$TableUsers.$UsersID = $TableZoeken.$ZoekenUser AND $TableZoeken.$ZoekenKey = $id";
 } else {
 	$id						= $_REQUEST['lijst'];
 	$LijstData		= getLijstData($id);
 	$Name					= $LijstData['naam'];
-	$dataset			= getLijstHuizen($id);
+	$dataset			= getLijstHuizen($id, true);
 	$tables				= "$TableList, $TableUsers";
 	$sql_postfix	= "$TableUsers.$UsersID = $TableList.$ListUser AND $TableList.$ListID = $id";
 }

@@ -609,12 +609,17 @@ function getFundaKenmerken($id) {
 }
 
 
-function getHuizen($opdracht) {
-	global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenAdres;
+function getHuizen($opdracht, $excludeVerkocht = false) {
+	global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenAdres, $HuizenVerkocht;
 	global $TableResultaat, $ResultaatID, $ResultaatZoekID;
 	connect_db();
 	
-	$sql		= "SELECT * FROM $TableHuizen, $TableResultaat WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID like '$opdracht' ORDER BY $TableHuizen.$HuizenAdres";
+	$sql .= "SELECT * FROM $TableHuizen, $TableResultaat WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID like '$opdracht' ";
+	$excludeVerkocht {
+		$sql .= "AND $TableHuizen.$HuizenVerkocht NOT like '1' ";
+	}
+	$sql .= "ORDER BY $TableHuizen.$HuizenAdres";
+	
 	$result	= mysql_query($sql);
 	$row		= mysql_fetch_array($result);
 		
@@ -888,11 +893,14 @@ function getLijstData($id) {
 }
 
 
-function getLijstHuizen($list) {
+function getLijstHuizen($list, $excludeVerkocht = false) {
 	global $TableListResult, $TableHuizen, $ListResultHuis, $ListResultList, $HuizenID, $HuizenAdres;
 	
 	$from		= "$TableListResult, $TableHuizen";
 	$where	= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $list";
+	$excludeVerkocht {
+		$where .= "AND $TableHuizen.$HuizenVerkocht NOT like '1' ";
+	}	
 	$sql		= "SELECT $TableHuizen.$HuizenID FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
 	$result = mysql_query($sql);
 	

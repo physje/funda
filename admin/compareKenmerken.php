@@ -55,6 +55,8 @@ if(isset($_POST['kolom'])) {
 			$string = $kenmerken[$kenmerk];
 			$string = str_replace('&nbsp;m&sup2;', '', $string);
 			$string = str_replace('&nbsp;m&sup3;', '', $string);
+			$string = str_replace('&#235;', 'ë', $string);
+			$string = str_replace('&amp;', '&', $string);
 			$string = html_entity_decode($string);
 			
 			if($kenmerk == 'Achtertuin' || $kenmerk == 'Voortuin' || $kenmerk == 'Plaats') {
@@ -183,11 +185,11 @@ if(isset($_POST['kolom'])) {
 if(isset($HTML)) {
 	echo $HTMLHeader;
 	echo "<tr>\n";
-	echo "<td width='25%' valign='top' align='center'>&nbsp;</td>\n";
-	echo "<td width='50%' valign='top' align='center'>\n";
+	echo "<td width='15%' valign='top' align='center'>&nbsp;</td>\n";
+	echo "<td width='80%' valign='top' align='center'>\n";
 	echo showBlock(implode("\n", $HTML));
 	echo "</td>\n";
-	echo "<td width='25%' valign='top' align='center'>&nbsp;</td>\n";
+	echo "<td width='15%' valign='top' align='center'>&nbsp;</td>\n";
 	echo "</tr>\n";
 	echo $HTMLFooter;
 }
