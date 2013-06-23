@@ -780,7 +780,9 @@ function getDoorloptijd($id) {
 
 
 function changeThumbLocation($string) {
-	return str_replace('images.funda.nl/valentinamedia', 'cloud.funda.nl/valentina_media', $string);
+	$string = str_replace('valentinamedia', 'valentina_media', $string);
+	$string = str_replace('images.funda.nl/valentina', 'cloud.funda.nl/valentina', $string);
+	return $string;
 }
 
 

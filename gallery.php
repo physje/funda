@@ -57,7 +57,7 @@ if(isset($_POST['add'])) {
 	foreach($dataset as $huisID) {
 		$data 			= getFundaData($huisID);
 		$adres			= makeTextBlock(convertToReadable($data['adres']), 24, true);
-		$image			= str_replace('_klein.jpg', '_middel.jpg', $data['thumb']);
+		$image			= str_replace('_klein.jpg', '_middel.jpg', changeThumbLocation($data['thumb']));
 		$relPrize		= getFullPriceHistory($huisID);
 		$url				= $data['url'];
 	
@@ -71,7 +71,7 @@ if(isset($_POST['add'])) {
 		
 		# funda.nl verplaatst de thumbs als huizen offline of verkocht zijn
 		if($data['verkocht'] == '1' || $data['verkocht'] == '2' || $data['offline'] == '1') {
-			$image	= changeThumbLocation($image);			
+			//$image	= changeThumbLocation($image);			
 			
 			$imageClass = 'imageUnavailable';
 			$housAvailable = false;
