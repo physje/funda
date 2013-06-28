@@ -190,7 +190,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item[] = "	<td align='left' width='40%'>";
 				$Item[] = "  ". $fundaData['PC_c'] ." ". $fundaData['PC_l'] ." ". $fundaData['plaats'] ."<br>";
 				$Item[] = "  ". $kenmerken['Aantal kamers'] ."<br>";
-				$Item[] = "  ". $kenmerken['Perceeloppervlakte'] ." (". $kenmerken['Inhoud'] .")<br>";
+				$Item[] = "  ". $kenmerken['Wonen (= woonoppervlakte)'] ." (". $kenmerken['Perceeloppervlakte'] .'/'. $kenmerken['Inhoud'] .")<br>";
 				$Item[] = "  <b>". formatPrice($data['prijs']) ."</b></td>";
 				$Item[] = "</tr>";
 				$Item[] = "<tr>";
