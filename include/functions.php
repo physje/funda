@@ -218,8 +218,14 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$foto		= getString('<img src="', '" alt="" title="" class="photo"', $HuisURL[1], 0);
 	$adres	= getString('<a href="'. $HuisURL[0] .'" class="object-street" >', '</a>', $foto[1], 0);
 	$PC			= getString('<li>', '<', $adres[1], 0);
-	$R_url	= getString('<a class="realtor" href="', '">', $PC[1], 0);
-	$R_naam	= getString('">', '</a>', $R_url[1], 0);	
+	
+	if(strpos($HuisText, '<a class="realtor" href="')) {
+		$R_url	= getString('<a class="realtor" href="', '">', $PC[1], 0);
+		$R_naam	= getString('">', '</a>', $R_url[1], 0);
+	} else {
+		$R_url	= array('', '');
+		$R_naam	= getString('<span class="realtor">', '</span>', $PC[1], 0);
+	}
 	$prijs	= getString('<span class="price">', '</span>', $R_naam[1], 0);
 	
 	if(strpos($HuisText, 'Verkocht onder voorbehoud')) {
