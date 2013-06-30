@@ -50,6 +50,8 @@ if(isset($_POST['kolom'])) {
 		if(array_key_exists('Orginele Prijs', $_POST['prefix']))	$CSV_regel[] = getOrginelePrijs($huisID);
 		if(array_key_exists('Status', $_POST['prefix']))					$CSV_regel[] = $status;
 		if(array_key_exists('Wijk', $_POST['prefix']))						$CSV_regel[] = $data['wijk'];
+		if(array_key_exists('Latitude', $_POST['prefix']))				$CSV_regel[] = $data['lat'];
+		if(array_key_exists('Longitude', $_POST['prefix']))				$CSV_regel[] = $data['long'];
 		
 		foreach($_POST['kolom'] as $kenmerk => $dummy) {				
 			$string = $kenmerken[$kenmerk];
@@ -127,6 +129,8 @@ if(isset($_POST['kolom'])) {
 	$prefix['Orginele Prijs'] = 1;
 	$prefix['Status'] = 1;
 	$prefix['Wijk'] = 1;
+	$prefix['Latitude'] = 1;
+	$prefix['Longitude'] = 1;
 	
 	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
 	$HTML[] = "<input type='hidden' name='Name' value='$Name'>";

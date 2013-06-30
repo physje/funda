@@ -48,6 +48,7 @@ $HuizenPC_l				= "PC_letters";
 $HuizenPlaats			= "plaats";
 $HuizenWijk				= "wijk";
 $HuizenThumb			= "thumb";
+$HuizenMakelaar		= "makelaar";				# Op 1 juli in gebruik genomen -> changeTable_01-07-2013.php
 $HuizenNdeg 			= "N_deg";					# Op 24 april buiten gebruik gesteld -> changeTable_24-04-2013.php
 $HuizenNdec 			= "N_dec";					# Op 24 april buiten gebruik gesteld
 $HuizenOdeg 			= "O_deg";					# Op 24 april buiten gebruik gesteld

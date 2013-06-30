@@ -217,8 +217,10 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$id			= $key_parts[1];
 	$foto		= getString('<img src="', '" alt="" title="" class="photo"', $HuisURL[1], 0);
 	$adres	= getString('<a href="'. $HuisURL[0] .'" class="object-street" >', '</a>', $foto[1], 0);
-	$PC			= getString('<li>', '<span class="', $adres[1], 0);		
-	$prijs	= getString('<span class="price">', '</span>', $PC[1], 0);
+	$PC			= getString('<li>', '<', $adres[1], 0);
+	$R_url	= getString('<a class="realtor" href="', '">', $PC[1], 0);
+	$R_naam	= getString('">', '</a>', $R_url[1], 0);	
+	$prijs	= getString('<span class="price">', '</span>', $R_naam[1], 0);
 	
 	if(strpos($HuisText, 'Verkocht onder voorbehoud')) {
 		$voorbehoud = 1;
@@ -236,15 +238,16 @@ function extractFundaData($HuisText, $verkocht = false) {
 		$HuisPrijs		= '0';
 	}
 	
-	$data['id']			= $id;
-	$data['url']		= trim($HuisURL[0]);
-	$data['adres']	= trim($adres[0]);
-	$data['PC_c']		= trim($postcode[0]);
-	$data['PC_l']		= trim($postcode[1]);
-	$data['plaats']	= end($postcode);
-	$data['thumb']	= trim($foto[0]);
-	$data['prijs']	= $HuisPrijs;
-	$data['vov']		= $voorbehoud;
+	$data['id']				= $id;
+	$data['url']			= trim($HuisURL[0]);
+	$data['adres']		= trim($adres[0]);
+	$data['PC_c']			= trim($postcode[0]);
+	$data['PC_l']			= trim($postcode[1]);
+	$data['plaats']		= end($postcode);
+	$data['thumb']		= trim($foto[0]);
+	$data['makelaar']	= trim($R_naam[0]);
+	$data['prijs']		= $HuisPrijs;
+	$data['vov']			= $voorbehoud;
 	
 	//foreach($data as $key => $value) {
 	//	echo $key .'|'.makeTextBlock($value, 100) .'<br>';
@@ -425,7 +428,7 @@ function newHouse($key, $opdracht) {
 
 
 function saveHouse($data, $moreData) {	
-	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenStart, $HuizenEind;
+	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
 	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
 	
 	connect_db();
@@ -443,9 +446,9 @@ function saveHouse($data, $moreData) {
 	}	
 	
 	$sql  = "INSERT INTO $TableHuizen ";
-	$sql .= "($HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenStart, $HuizenEind) ";
+	$sql .= "($HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind) ";
 	$sql .= "VALUES ";
-	$sql .= "('". $data['id'] ."', '". urlencode($data['url']) ."', '". urlencode($data['adres']) ."', '". urlencode($data['PC_c']) ."', '". urlencode($data['PC_l']) ."', '". urlencode($data['plaats']) ."', '". urlencode($moreData['wijk']) ."', '". urlencode($data['thumb']) ."', '$begin_tijd', '$eind_tijd')";
+	$sql .= "('". $data['id'] ."', '". urlencode($data['url']) ."', '". urlencode($data['adres']) ."', '". urlencode($data['PC_c']) ."', '". urlencode($data['PC_l']) ."', '". urlencode($data['plaats']) ."', '". urlencode($moreData['wijk']) ."', '". urlencode($data['thumb']) ."', '". urlencode($data['makelaar']) ."', '$begin_tijd', '$eind_tijd')";
 		
 	if(!mysql_query($sql)) {
 		$deel[] = false;
@@ -1380,4 +1383,10 @@ function generatePassword ($length = 8) {
   return $password;
 }
 
+function updateMakelaar($data) {
+	global $TableHuizen, $HuizenMakelaar, $HuizenID;
+	
+	$sql = "UPDATE $TableHuizen SET $HuizenMakelaar = '". urlencode($data['makelaar']) ."' WHERE $HuizenID = '". $data['id'] ."'";
+	$result = mysql_query($sql);
+}
 ?>

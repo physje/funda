@@ -106,7 +106,19 @@ foreach($Opdrachten as $OpdrachtID) {
 			# Extraheer hier adres, plaats, prijs, id etc. uit
 			$data = extractFundaData($HuisText);
 			$AdressenArray[] = $data['adres'];
-						
+			
+			if($debug == 1) {
+				$tempItems = array();
+				foreach($data as $key => $value) {
+					$tempItems[] = $key .' -> '. $value;
+				}
+				$block[] = implode('<br>', $tempItems);
+			}
+			
+			# Deze staat er tijdelijk tussen.
+			# Zodra alle opdrachten een keer de revue hebben gepaseerd kan deze regel verwijderd worden
+			updateMakelaar($data);
+								
 			# Huis is nog niet bekend bij het script, dus moet worden toegevoegd
 			if(!knownHouse($data['id'])) {
 				$extraData = extractDetailedFundaData("http://www.funda.nl". $data['url']);				
