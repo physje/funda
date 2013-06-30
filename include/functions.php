@@ -558,7 +558,7 @@ function changedPrice($id, $price, $opdracht) {
 
 function getFundaData($id) {
 	//global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenNdeg, $HuizenNdec, $HuizenOdeg, $HuizenOdec, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht;
-	global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht;
+	global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht;
 	connect_db();
   
   if($id != 0) {
@@ -575,6 +575,7 @@ function getFundaData($id) {
 			$data['plaats']		= urldecode($row[$HuizenPlaats]);
 			$data['wijk']			= urldecode($row[$HuizenWijk]);
 			$data['thumb']		= urldecode($row[$HuizenThumb]);
+			$data['makelaar']	= urldecode($row[$HuizenMakelaar]);
 			//$data['N_deg']		= $row[$HuizenNdeg];
 			//$data['N_dec']		= $row[$HuizenNdec];
 			//$data['O_deg']		= $row[$HuizenOdeg];
