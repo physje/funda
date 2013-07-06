@@ -48,16 +48,20 @@ function getZoekOpdrachten($id, $active) {
 function getOpdrachtData($id) {
 	global $TableZoeken, $ZoekenKey, $ZoekenActive, $ZoekenUser, $ZoekenNaam, $ZoekenURL, $ZoekenMail, $ZoekenAdres;
 	
-	$sql		= "SELECT * FROM $TableZoeken WHERE $ZoekenKey = $id";
-	$result	= mysql_query($sql);
-	$row		= mysql_fetch_array($result);
-		
-	$data['active']	= $row[$ZoekenActive];
-	$data['user']		= $row[$ZoekenUser];
-	//$data['mail']		= $row[$ZoekenMail];
-	//$data['adres']	= $row[$ZoekenAdres];
-	$data['naam']		= urldecode($row[$ZoekenNaam]);
-	$data['url']		= urldecode($row[$ZoekenURL]);
+	$data = array();
+	
+	if($id != '') {
+		$sql		= "SELECT * FROM $TableZoeken WHERE $ZoekenKey = $id";
+		$result	= mysql_query($sql);
+		$row		= mysql_fetch_array($result);
+			
+		$data['active']	= $row[$ZoekenActive];
+		$data['user']		= $row[$ZoekenUser];
+		//$data['mail']		= $row[$ZoekenMail];
+		//$data['adres']	= $row[$ZoekenAdres];
+		$data['naam']		= urldecode($row[$ZoekenNaam]);
+		$data['url']		= urldecode($row[$ZoekenURL]);
+	}
 	
 	return $data;
 }
@@ -265,8 +269,13 @@ function extractFundaData($HuisText, $verkocht = false) {
 
 
 function convertToReadable($string) {
+	$string = str_replace('&nbsp;m&sup2;', '', $string);
+	$string = str_replace('&nbsp;m&sup3;', '', $string);
 	$string = str_replace('&#235;', 'ë', $string);
 	$string = str_replace('&#39;', '', $string);
+	$string = str_replace('&amp;', '&', $string);
+	$string = html_entity_decode($string);
+	
 	return $string;
 }
 

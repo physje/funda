@@ -127,9 +127,9 @@ if(isset($_POST['kolom'])) {
 	$prefix['ID'] = 1;
 	$prefix['url'] = 1;
 	$prefix['Huidige Prijs'] = 1;
-	$prefix['Orginele Prijs'] = 1;
-	$prefix['Makelaar'] = 1;
+	$prefix['Orginele Prijs'] = 1;	
 	$prefix['Status'] = 1;
+	$prefix['Makelaar'] = 1;
 	$prefix['Wijk'] = 1;
 	$prefix['Latitude'] = 1;
 	$prefix['Longitude'] = 1;

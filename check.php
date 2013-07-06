@@ -164,7 +164,7 @@ foreach($Opdrachten as $OpdrachtID) {
 						$ErrorMessage[] = "Updaten van prijs (". $data['prijs'] .") aan ". $data['adres'] ." ging niet goed";
 						toLog('error', $OpdrachtID, $data['id'], "Nieuwe prijs van ". $data['prijs'] ." kon niet worden toegevoegd");
 					} else {
-						toLog('debug', $OpdrachtID, $data['id'], "Prijs geupdate");
+						toLog('debug', $OpdrachtID, $data['id'], "Nieuwe vraagprijs");
 					}
 				}
 				
