@@ -1323,7 +1323,7 @@ function makeSelectionSelection($disableList, $blankOption, $preSelect = 0) {
 			
 	foreach($Opdrachten as $OpdrachtID) {
 		$OpdrachtData = getOpdrachtData($OpdrachtID);
-		$HTML[] = "		<option value='Z$OpdrachtID'". ($OpdrachtID == $preSelect ? ' selected' : '') .">". $OpdrachtData['naam'] ."</option>";
+		$HTML[] = "		<option value='Z$OpdrachtID'". ('Z'.$OpdrachtID == $preSelect ? ' selected' : '') .">". $OpdrachtData['naam'] ."</option>";
 	}
 	
 	$HTML[] = "	</optgroup>";
@@ -1331,7 +1331,7 @@ function makeSelectionSelection($disableList, $blankOption, $preSelect = 0) {
 	
 	foreach($Lijsten as $LijstID) {
 		$LijstData = getLijstData($LijstID);
-		$HTML[] = "		<option value='L$LijstID'". ($LijstID == $preSelect ? ' selected' : '') .">". $LijstData['naam'] ."</option>";
+		$HTML[] = "		<option value='L$LijstID'". ('L'.$LijstID == $preSelect ? ' selected' : '') .">". $LijstData['naam'] ."</option>";
 	}
 	
 	$HTML[] = "	</optgroup>";
@@ -1404,5 +1404,84 @@ function updateMakelaar($data) {
 	
 	$sql = "UPDATE $TableHuizen SET $HuizenMakelaar = '". urlencode($data['makelaar']) ."' WHERE $HuizenID = '". $data['id'] ."'";
 	$result = mysql_query($sql);
+}
+
+function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
+	# Maak de de eerste regel aan
+	if(count($kolomen) > 0 || count($prefixen) > 0) {
+		$CSV_kop = array('');
+	
+		foreach($prefixen as $dummy => $prefix) {
+			$CSV_kop[] = $prefix;
+		}
+		
+		foreach($kolomen as $dummy => $kenmerk) {
+			if($kenmerk == 'Achtertuin' || $kenmerk == 'Voortuin' || $kenmerk == 'Plaats') {
+				$CSV_kop[] = $kenmerk;
+				$CSV_kop[] = $kenmerk .' (diep)';
+				$CSV_kop[] = $kenmerk .' (breed)';
+			} else {
+				$CSV_kop[] = $kenmerk;
+			}
+		}
+		$CSV[] = implode($scheiding, $CSV_kop);
+	}
+	
+	# Doorloop alle huizen en geef de waarde van het kenmerk weer
+	foreach($huizen as $huisID) {
+		$data				= getFundaData($huisID);
+		$kenmerken	= getFundaKenmerken($huisID);
+		
+		if($data['verkocht'] == 1) {
+			$status = 'verkocht';
+		} elseif($data['verkocht'] == 2) {
+			$status = 'onder voorbehoud';
+		} elseif($data['offline'] == 1) {
+			$status = 'offline';	
+		} else {
+			$status = 'beschikbaar';
+		}
+		
+		$CSV_regel = array($data['adres']);		
+		if(in_array('ID', $prefixen))							$CSV_regel[] = $huisID;
+		if(in_array('url', $prefixen))						$CSV_regel[] = 'http://www.funda.nl'.$data['url'];
+		if(in_array('Huidige Prijs', $prefixen))	$CSV_regel[] = getHuidigePrijs($huisID);
+		if(in_array('Orginele Prijs', $prefixen))	$CSV_regel[] = getOrginelePrijs($huisID);
+		if(in_array('Status', $prefixen))					$CSV_regel[] = $status;
+		if(in_array('Makelaar', $prefixen))				$CSV_regel[] = $data['makelaar'];
+		if(in_array('Wijk', $prefixen))						$CSV_regel[] = $data['wijk'];
+		if(in_array('Latitude', $prefixen))				$CSV_regel[] = str_replace('.', ',', $data['lat']);
+		if(in_array('Longitude', $prefixen))			$CSV_regel[] = str_replace('.', ',', $data['long']);
+		
+		foreach($kolomen as $dummy => $kenmerk) {				
+			$string = $kenmerken[$kenmerk];
+			$string = str_replace('&nbsp;m&sup2;', '', $string);
+			$string = str_replace('&nbsp;m&sup3;', '', $string);
+			$string = str_replace('&#235;', 'ë', $string);
+			$string = str_replace('&amp;', '&', $string);
+			$string = html_entity_decode($string);
+			
+			if($kenmerk == 'Achtertuin' || $kenmerk == 'Voortuin' || $kenmerk == 'Plaats') {
+				if(strlen($string) > 10) {
+					$string = str_replace(' mÂ²', '', $string);
+					$temp = getString('', '(', $string, 0);						$CSV_regel[] = trim($temp[0]);
+					$temp = getString('(', 'm diep', $string, 0);			$CSV_regel[] = trim($temp[0]);
+					$temp = getString('en ', 'm breed', $string, 0);	$CSV_regel[] = trim($temp[0]);
+				} else {
+					$CSV_regel[] = '';
+					$CSV_regel[] = '';
+					$CSV_regel[] = '';
+				}
+			} else {					
+				$string = str_replace('m²', '', $string);
+				$string = str_replace('m³', '', $string);
+				$CSV_regel[] = trim($string);
+			}
+			
+		}
+		$CSV[] = implode($scheiding, $CSV_regel);
+	}
+	
+	return implode("\n", $CSV);	
 }
 ?>

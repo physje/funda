@@ -33,7 +33,8 @@ if(!isset($_REQUEST['eDag']) OR !isset($_REQUEST['eMaand']) OR !isset($_REQUEST[
 }
 
 if(isset($_REQUEST['selectie']) AND $_REQUEST['selectie'] != '') {
-	$opdracht = substr($_REQUEST['selectie'], 1);
+	$selectie	= $_REQUEST['selectie'];
+	$opdracht = substr($selectie, 1);
 }
 
 if(isset($_REQUEST['huis']) AND $_REQUEST['huis'] != '') {
@@ -81,9 +82,6 @@ $result	= mysql_query($sql);
 $aantal	= mysql_num_rows($result);
 $row		= mysql_fetch_array($result);
 
-$deel_1 = "<table>";
-$deel_2 = "<table>";
-
 do {
 	$fundaData = getFundaData($row[$LogHuis]);
 	$opdrachtData = getOpdrachtData($row[$LogOpdracht]);	
@@ -93,7 +91,7 @@ do {
 	$rij .= "	<td>". date("d-m H:i:s", $row[$LogTime]) ."</td>";
 	$rij .= "	<td>&nbsp;</td>\n";
 	//$rij .= "	<td><a href='http://www.funda.nl". $fundaData['url'] ."' title='". $opdrachtData['naam'] .'; '. $fundaData['adres'] ."'>". $row[$LogHuis] ."</a></td>";
-	$rij .= "	<td><a href='?selectie=Z". $row[$LogOpdracht] ."&huis=". $row[$LogHuis] ."' title='". $opdrachtData['naam'] .'; '. $fundaData['adres'] ."'>". $row[$LogHuis] ."</a></td>";
+	$rij .= "	<td><a href='?selectie=Z". $row[$LogOpdracht] ."&huis=". $row[$LogHuis] ."&bDag=$bDag&bMaand$bMaand&bJaar=$bJaar&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar' title='". $opdrachtData['naam'] .'; '. $fundaData['adres'] ."'>". $row[$LogHuis] ."</a></td>";
 	$rij .= "	<td>&nbsp;</td>\n";
 	$rij .= "	<td>". $row[$LogMessage] ."</td>";
 	$rij .= "</tr>";
@@ -103,9 +101,6 @@ do {
 		$deel_1 .= $rij;
 	}
 } while($row = mysql_fetch_array($result));
-
-$deel_1 .= "</table>";
-$deel_2 .= "</table>";
 
 $dateSelection = makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar);
 
@@ -117,24 +112,23 @@ $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "	<td><b>Einddatum</b></td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "	<td><b>Zoekopdracht</b></td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
 if(isset($opdracht)) {
-	$zoekScherm[] = "	<td><b>Huis</b></td>";
 	$zoekScherm[] = "	<td>&nbsp;</td>";
+	$zoekScherm[] = "	<td><b>Huis</b></td>";
 }	
 $zoekScherm[] = "	<td>&nbsp;</td>";
-$zoekScherm[] = "	<td rowspan='4'><input type='submit' value='Zoeken' name='submit'></td>";
+$zoekScherm[] = "	<td rowspan='3'><input type='submit' value='Zoeken' name='submit'></td>";
 $zoekScherm[] = "</tr>";
 $zoekScherm[] = "<tr>";
 $zoekScherm[] = "	<td>". $dateSelection[0] ."</td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "	<td>". $dateSelection[1] ."</td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
-$zoekScherm[] = "	<td>". makeSelectionSelection(true, true, $opdracht) ."</td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "	<td>". makeSelectionSelection(true, true, $selectie) ."</td>";
 if(isset($opdracht)) {
 	$Huizen			= getHuizen($opdracht);
 
+	$zoekScherm[] = "	<td>&nbsp;</td>";
 	$zoekScherm[] = "	<td><select name='huis'>";
 	$zoekScherm[] = "	<option value=''>Alle</option>";
 	foreach($Huizen as $huisID) {
@@ -143,16 +137,25 @@ if(isset($opdracht)) {
 	}
 	
 	$zoekScherm[] = "	</select></td>";
-	$zoekScherm[] = "	<td>&nbsp;</td>";
 }
+$zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "</tr>";
 $zoekScherm[] = "<tr>";
-$zoekScherm[] = "	<td colspan='7'>";
+$zoekScherm[] = "	<td colspan='5'>";
 $zoekScherm[] = "	<input type='checkbox' name='error' value='ja' ". ($error == 'ja' ? ' checked' : '') ."> Error&nbsp;&nbsp;&nbsp;";
 $zoekScherm[] = "	<input type='checkbox' name='info' value='ja' ". ($info == 'ja' ? ' checked' : '') ."> Info&nbsp;&nbsp;&nbsp;";
 $zoekScherm[] = "	<input type='checkbox' name='debug' value='ja' ". ($debug == 'ja' ? ' checked' : '') ."> Debug";
 $zoekScherm[] = "	</td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
+if(isset($opdracht)) {
+	if(isset($huis)) {
+		$HuisData = getFundaData($huis);
+		$zoekScherm[] = "	<td><a href='http://www.funda.nl/". $HuisData['url'] ."'>bezoek op funda.nl</a></td>";
+	} else {
+		$zoekScherm[] = "	<td>&nbsp;</td>";	
+	}
+	$zoekScherm[] = "	<td>&nbsp;</td>";	
+}
 $zoekScherm[] = "</tr>";
 $zoekScherm[] = "</table>";
 $zoekScherm[] = "</form>";
@@ -162,8 +165,13 @@ echo "<tr>\n";
 echo "	<td valign='top' align='center' colspan=2>". showBlock(implode("\n", $zoekScherm)) ."</td>\n";
 echo "</tr>\n";
 echo "<tr>\n";
-echo "	<td width='50%' valign='top' align='center'>". showBlock($deel_1) ."</td>\n";
-echo "	<td width='50%' valign='top' align='center'>". showBlock($deel_2) ."</td>\n";
+
+if($deel_1 != '') {
+	echo "	<td width='50%' valign='top' align='center'>". showBlock("<table>". $deel_1 ."</table>") ."</td>\n";
+	echo "	<td width='50%' valign='top' align='center'>". showBlock("<table>". $deel_2 ."</table>") ."</td>\n";
+} else {
+	echo "	<td width='100%' valign='top' align='center'>". showBlock("<table>". $deel_2 ."</table>") ."</td>\n";
+}
 echo "</tr>\n";
 echo $HTMLFooter;
 

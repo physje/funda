@@ -9,80 +9,7 @@ $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 connect_db();
 
-if(isset($_POST['kolom'])) {	
-	# Maak de de eerste regel aan
-	$CSV_kop = array('');
-	
-	foreach($_POST['prefix'] as $prefix => $dummy) {
-		$CSV_kop[] = $prefix;
-	}
-	
-	foreach($_POST['kolom'] as $kenmerk => $dummy) {
-		if($kenmerk == 'Achtertuin' || $kenmerk == 'Voortuin' || $kenmerk == 'Plaats') {
-			$CSV_kop[] = $kenmerk;
-			$CSV_kop[] = $kenmerk .' (diep)';
-			$CSV_kop[] = $kenmerk .' (breed)';
-		} else {
-			$CSV_kop[] = $kenmerk;
-		}
-	}	
-	$CSV[] = implode(';', $CSV_kop);
-	
-	# Doorloop alle huizen en geef de waarde van het kenmerk weer
-	foreach($_POST['huizen'] as $huisID) {
-		$data				= getFundaData($huisID);
-		$kenmerken	= getFundaKenmerken($huisID);
-		
-		if($data['verkocht'] == 1) {
-			$status = 'verkocht';
-		} elseif($data['verkocht'] == 2) {
-			$status = 'onder voorbehoud';
-		} elseif($data['offline'] == 1) {
-			$status = 'offline';	
-		} else {
-			$status = 'beschikbaar';
-		}
-		
-		$CSV_regel = array($data['adres']);		
-		if(array_key_exists('ID', $_POST['prefix']))							$CSV_regel[] = $huisID;
-		if(array_key_exists('url', $_POST['prefix']))							$CSV_regel[] = 'http://www.funda.nl'.$data['url'];
-		if(array_key_exists('Huidige Prijs', $_POST['prefix']))		$CSV_regel[] = getHuidigePrijs($huisID);
-		if(array_key_exists('Orginele Prijs', $_POST['prefix']))	$CSV_regel[] = getOrginelePrijs($huisID);
-		if(array_key_exists('Status', $_POST['prefix']))					$CSV_regel[] = $status;
-		if(array_key_exists('Makelaar', $_POST['prefix']))				$CSV_regel[] = $data['makelaar'];
-		if(array_key_exists('Wijk', $_POST['prefix']))						$CSV_regel[] = $data['wijk'];
-		if(array_key_exists('Latitude', $_POST['prefix']))				$CSV_regel[] = $data['lat'];
-		if(array_key_exists('Longitude', $_POST['prefix']))				$CSV_regel[] = $data['long'];
-		
-		foreach($_POST['kolom'] as $kenmerk => $dummy) {				
-			$string = $kenmerken[$kenmerk];
-			$string = str_replace('&nbsp;m&sup2;', '', $string);
-			$string = str_replace('&nbsp;m&sup3;', '', $string);
-			$string = str_replace('&#235;', 'ë', $string);
-			$string = str_replace('&amp;', '&', $string);
-			$string = html_entity_decode($string);
-			
-			if($kenmerk == 'Achtertuin' || $kenmerk == 'Voortuin' || $kenmerk == 'Plaats') {
-				if(strlen($string) > 10) {
-					$string = str_replace(' mÂ²', '', $string);
-					$temp = getString('', '(', $string, 0);						$CSV_regel[] = trim($temp[0]);
-					$temp = getString('(', 'm diep', $string, 0);			$CSV_regel[] = trim($temp[0]);
-					$temp = getString('en ', 'm breed', $string, 0);	$CSV_regel[] = trim($temp[0]);
-				} else {
-					$CSV_regel[] = '';
-					$CSV_regel[] = '';
-					$CSV_regel[] = '';
-				}
-			} else {					
-				$string = str_replace('m²', '', $string);
-				$string = str_replace('m³', '', $string);
-				$CSV_regel[] = trim($string);
-			}
-			
-		}
-		$CSV[] = implode(';', $CSV_regel);
-	}
-	
+if(isset($_POST['huizen'])) {
 	header("Expires: Mon, 26 Jul 2001 05:00:00 GMT");
 	header("Cache-Control: no-store, no-cache, must-revalidate");
 	header("Cache-Control: post-check=0, pre-check=0", false); 
@@ -90,8 +17,7 @@ if(isset($_POST['kolom'])) {
 	header("Cache-control: private");
 	header('Content-type: application/csv');
 	header('Content-Disposition: attachment; filename="'.  str_replace(' ', '_', strftime ('%Y.%m.%d-%H.%M')) .'-'. $_POST['Name'] .'.txt"');
-	echo implode("\n", $CSV);
-	
+	echo createXLS($_POST['kenmerk'], $_POST['prefix'], $_POST['huizen']);	
 } elseif(isset($_REQUEST['selectie'])) {
 	$groep	= substr($_REQUEST['selectie'], 0, 1);
 	$id			= substr($_REQUEST['selectie'], 1);
@@ -121,18 +47,7 @@ if(isset($_POST['kolom'])) {
 				$kolom[$key] = 1;
 			}
 		}
-	}	
-	
-	# Zaken die wel belangrijk zijn om te weten, anders dan de kenmerken
-	$prefix['ID'] = 1;
-	$prefix['url'] = 1;
-	$prefix['Huidige Prijs'] = 1;
-	$prefix['Orginele Prijs'] = 1;	
-	$prefix['Status'] = 1;
-	$prefix['Makelaar'] = 1;
-	$prefix['Wijk'] = 1;
-	$prefix['Latitude'] = 1;
-	$prefix['Longitude'] = 1;
+	}
 	
 	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
 	$HTML[] = "<input type='hidden' name='Name' value='$Name'>";
@@ -144,8 +59,8 @@ if(isset($_POST['kolom'])) {
 	$HTML[] = "<tr>";
 	$counter = 1;
 	
-	foreach($prefix as $kenmerk => $waarde) {		
-		$HTML[] = "	<td><input type='checkbox' name='prefix[$kenmerk]' value='1' checked> $kenmerk</td>";
+	foreach($cfgPrefixExport as $dummy => $kenmerk) {		
+		$HTML[] = "	<td><input type='checkbox' name='prefix[]' value='$kenmerk' checked> $kenmerk</td>";
 		
 		if($counter > 1) {
 			$HTML[] = "</tr>";
@@ -155,8 +70,8 @@ if(isset($_POST['kolom'])) {
 		$counter++;
 	}
 	
-	foreach($kolom as $kenmerk => $waarde) {		
-		$HTML[] = "	<td><input type='checkbox' name='kolom[$kenmerk]' value='1'". (in_array($kenmerk, $cfgCSVExport) ? ' checked' : '') ."> $kenmerk</td>";
+	foreach($kolom as $waarde => $dummy) {		
+		$HTML[] = "	<td><input type='checkbox' name='kenmerk[]' value='$waarde'". (in_array($waarde, $cfgCSVExport) ? ' checked' : '') ."> $waarde</td>";
 		
 		if($counter > 1) {
 			$HTML[] = "</tr>";

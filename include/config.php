@@ -33,6 +33,17 @@ $cfgCSVExport[] = 'Bouwjaar';
 $cfgCSVExport[] = 'Plaats';
 $cfgCSVExport[] = 'Voortuin';
 
+	# Zaken die wel belangrijk zijn om te weten, anders dan de kenmerken
+$cfgPrefixExport[] = 'ID';
+$cfgPrefixExport[] = 'url';
+$cfgPrefixExport[] = 'Huidige Prijs';
+$cfgPrefixExport[] = 'Orginele Prijs';
+$cfgPrefixExport[] = 'Status';
+$cfgPrefixExport[] = 'Makelaar';
+$cfgPrefixExport[] = 'Wijk';
+$cfgPrefixExport[] = 'Latitude';
+$cfgPrefixExport[] = 'Longitude';
+
 # Strings met meldingen voor het inloggen
 #$strNoAccess          = "Toegang geweigerd";
 $strNoPassword        = "Geen wachtwoord ingevuld";

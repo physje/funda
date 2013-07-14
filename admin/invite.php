@@ -55,7 +55,7 @@ if(isset($_POST['invite'])) {
 		$text[] = "Uitnodiging is verstuurd";
 	}
 } else {
-	$selection = makeSelectionSelection(true, false, $_REQUEST['OpdrachtID']);
+	$selection = makeSelectionSelection(true, false, 'Z'.$_REQUEST['OpdrachtID']);
 
 	$text[] = "<form action='$_SERVER[PHP_SELF]' method='post'>\n";
 	$text[] = "<table>";
