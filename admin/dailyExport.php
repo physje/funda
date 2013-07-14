@@ -19,7 +19,7 @@ foreach($Opdrachten as $opdracht) {
 	}
 }
 
-$fp = fopen(strftime('%Y.%m.%d') .'.xls', "w+");
+$fp = fopen('../extern/export.xls', "w+");
 fwrite($fp, createXLS($cfgCSVExport, $cfgPrefixExport, $HuizenArray, "	"));
 fclose($fp);
 ?>

@@ -1,12 +1,15 @@
 <?php
 include_once('../general_include/general_functions.php');
 include_once('../general_include/general_config.php');
+include_once('../general_include/class.MobileDetect.php');
 include_once('include/functions.php');
 include_once('include/config.php');
 include_once('include/HTML_TopBottom.php');
 $minUserLevel = 1;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");
+
+$detect = new Mobile_Detect;
 
 $UserData = getMemberDetails($_SESSION['UserID']);
 
@@ -50,6 +53,7 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['admin/combine_batch.php']				= 'Voeg hits automatisch samen';
 	$onderhoud['admin/combine_manual.php']			= 'Voeg hits handmatig samen';
 	$onderhoud['admin/cleanUp.php']							= 'Verwijder oude log-items';
+	$onderhoud['extern/export.xls']							= 'Download XLS-file';
 	
 	foreach($onderhoud as $url => $titel) {
 		$blockOnderhoud .= "<a href='$url' target='_blank'>$titel</a><br>\n";
@@ -83,22 +87,34 @@ if(count($Opdrachten) == 0) {
 	$blockOpdrachten .= "<i>Maak je eerste <a href='admin/edit_opdrachten.php?id=0' target='_blank'>zoekopdracht</a> aan.</i>";
 }
 
-echo $HTMLHeader;
-echo "<tr>\n";
-echo "<td width='50%' valign='top' align='center'>\n";
-echo showBlock($blockLinks);
-echo "<p>\n";
-echo showBlock($blockAdmin);
-if($blockOnderhoud != '') {
+if ($detect->isMobile() ) {
+	echo $blockAccount;
 	echo "<p>\n";
-	echo showBlock($blockOnderhoud);
-	
+	echo $blockLinks;
+	echo "<p>\n";
+	echo $blockAdmin;
+	if($blockOnderhoud != '') {
+		echo "<p>\n";
+		echo $blockOnderhoud;
+	}	
+	echo $blockOpdrachten;	
+} else {
+	echo $HTMLHeader;
+	echo "<tr>\n";
+	echo "<td width='50%' valign='top' align='center'>\n";
+	echo showBlock($blockLinks);
+	echo "<p>\n";
+	echo showBlock($blockAdmin);
+	if($blockOnderhoud != '') {
+		echo "<p>\n";
+		echo showBlock($blockOnderhoud);	
+	}
+	echo "</td><td width='50%' valign='top' align='center'>\n";
+	echo showBlock($blockAccount);
+	echo "<p>\n";
+	echo showBlock($blockOpdrachten);
+	echo "</td>\n";
+	echo "</tr>\n";
+	echo $HTMLFooter;
 }
-echo "</td><td width='50%' valign='top' align='center'>\n";
-echo showBlock($blockAccount);
-echo "<p>\n";
-echo showBlock($blockOpdrachten);
-echo "</td>\n";
-echo "</tr>\n";
-echo $HTMLFooter;
 ?>
