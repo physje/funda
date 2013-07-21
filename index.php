@@ -1,7 +1,7 @@
 <?php
 include_once('../general_include/general_functions.php');
 include_once('../general_include/general_config.php');
-include_once('../general_include/class.MobileDetect.php');
+//include_once('../general_include/class.MobileDetect.php');
 include_once('include/functions.php');
 include_once('include/config.php');
 include_once('include/HTML_TopBottom.php');
@@ -9,7 +9,7 @@ $minUserLevel = 1;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");
 
-$detect = new Mobile_Detect;
+//$detect = new Mobile_Detect;
 
 $UserData = getMemberDetails($_SESSION['UserID']);
 
@@ -31,9 +31,10 @@ $links['extern/showKML_prijs.php']	= 'Google Maps (prijs)';
 
 
 # ADMIN
-$admin['admin/combineSelections.php']	= 'Maak combinaties van lijsten & opdrachten';
-$admin['admin/search4Coord.php']			= 'Selecteer huizen obv coordinaten';
-$admin['admin/compareKenmerken.php']	= 'Exporteer kenmerken in CSV-formaat';
+$admin['admin/combineSelections.php']		= 'Maak combinaties van lijsten & opdrachten';
+$admin['admin/search4Coord.php']				= 'Selecteer huizen obv coordinaten';
+$admin['admin/compareKenmerken.php']		= 'Exporteer kenmerken in CSV-formaat';
+$admin['admin/downloadDailyExport.php']	= 'Download XLS-file';
 
 if($_SESSION['level'] > 1) {
 	$admin['admin/HouseDetails.php']			= 'Bekijk details van een huis';
@@ -52,8 +53,7 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['admin/search4Offline.php']			= 'Zet pagina\'s offline';
 	$onderhoud['admin/combine_batch.php']				= 'Voeg hits automatisch samen';
 	$onderhoud['admin/combine_manual.php']			= 'Voeg hits handmatig samen';
-	$onderhoud['admin/cleanUp.php']							= 'Verwijder oude log-items';
-	$onderhoud['extern/export.xls']							= 'Download XLS-file';
+	$onderhoud['admin/cleanUp.php']							= 'Verwijder oude log-items';	
 	
 	foreach($onderhoud as $url => $titel) {
 		$blockOnderhoud .= "<a href='$url' target='_blank'>$titel</a><br>\n";
@@ -87,7 +87,8 @@ if(count($Opdrachten) == 0) {
 	$blockOpdrachten .= "<i>Maak je eerste <a href='admin/edit_opdrachten.php?id=0' target='_blank'>zoekopdracht</a> aan.</i>";
 }
 
-if ($detect->isMobile() ) {
+//if ($detect->isMobile() ) {
+if (false) {
 	echo $blockAccount;
 	echo "<p>\n";
 	echo $blockLinks;

@@ -1409,7 +1409,7 @@ function updateMakelaar($data) {
 function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
 	# Maak de de eerste regel aan
 	if(count($kolomen) > 0 || count($prefixen) > 0) {
-		$CSV_kop = array('');
+		$CSV_kop = array('Adres');
 	
 		foreach($prefixen as $dummy => $prefix) {
 			$CSV_kop[] = $prefix;

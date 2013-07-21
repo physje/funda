@@ -3,7 +3,7 @@
 $ScriptURL				= '';
 $ScriptTitle			= 'Funda Alert';
 $ScriptMailAdress = '';
-$Version					= '3.5';
+$Version					= '3.8';
 $SubjectPrefix		= '[funda] ';
 
 $debug						= 0;
@@ -43,6 +43,8 @@ $cfgPrefixExport[] = 'Makelaar';
 $cfgPrefixExport[] = 'Wijk';
 $cfgPrefixExport[] = 'Latitude';
 $cfgPrefixExport[] = 'Longitude';
+
+$cfgXLSFilename = '../extern/dailyXLSexport.xls';
 
 # Strings met meldingen voor het inloggen
 #$strNoAccess          = "Toegang geweigerd";
