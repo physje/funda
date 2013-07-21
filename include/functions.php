@@ -1445,6 +1445,7 @@ function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
 		$CSV_regel = array($data['adres']);		
 		if(in_array('ID', $prefixen))							$CSV_regel[] = $huisID;
 		if(in_array('url', $prefixen))						$CSV_regel[] = 'http://www.funda.nl'.$data['url'];
+		if(in_array('Kadaster', $prefixen))				$CSV_regel[] = 'http://www.funda.nl/kadaster/?ref='.$huisID;
 		if(in_array('Huidige Prijs', $prefixen))	$CSV_regel[] = getHuidigePrijs($huisID);
 		if(in_array('Orginele Prijs', $prefixen))	$CSV_regel[] = getOrginelePrijs($huisID);
 		if(in_array('Status', $prefixen))					$CSV_regel[] = $status;

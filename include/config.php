@@ -44,7 +44,7 @@ $cfgPrefixExport[] = 'Wijk';
 $cfgPrefixExport[] = 'Latitude';
 $cfgPrefixExport[] = 'Longitude';
 
-$cfgXLSFilename = '../extern/dailyXLSexport.xls';
+$cfgXLSFilename = '../extern/export_'. date('mdy') .'_'. md5(strftime ('%A %e %B %G')) .'.xls';
 
 # Strings met meldingen voor het inloggen
 #$strNoAccess          = "Toegang geweigerd";
