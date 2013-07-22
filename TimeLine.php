@@ -99,7 +99,7 @@ if(isset($_POST['add'])) {
 		echo "	<table width='100%' border=0><tr>\n";
 		echo "		<td width='25%'>";
 		if($showListAdd)	echo "	<input type='checkbox' name='huis[]' value='". $row[$HuizenID] ."'". (in_array($row[$HuizenID], $Huizen) ? ' checked' : '') .">";
-		echo "<a id='". $row[$HuizenID] ."'><a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=". $row[$HuizenID] ."'><img src='http://www.nccfsokotoalumni.com/wp-content/themes/NCCF/images/tags.png' title='Toon opties voor $adres'></a> <a href='http://www.funda.nl". urldecode($row[$HuizenURL]) ."' target='_blank' class='$class' title='Bezoek $adres op funda.nl'>$adres</a></td>\n";
+		echo "<a id='". $row[$HuizenID] ."'><a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=". $row[$HuizenID] ."'><img src='http://www.nccfsokotoalumni.com/wp-content/themes/NCCF/images/tags.png' title='Toon opties voor $adres'></a> <a href='http://funda.nl/". $row[$HuizenID] ."' target='_blank' class='$class' title='Bezoek $adres op funda.nl'>$adres</a></td>\n";
 		if($breedte_1 != 0) { echo "		<td width='". $breedte_1 ."%'>&nbsp;</td>\n"; }
 		echo "		<td width='". $breedte_2 ."%' bgcolor='#FF6D6D' title='In de verkoop van ". date("d-m", $row[$HuizenStart]) .' t/m '. date("d-m", $row[$HuizenEind]) ."'>". getDoorloptijd($row[$HuizenID]) ."</td>\n";
 		if($breedte_3 != 0) { echo "		<td width='". $breedte_3 ."%'>&nbsp;</td>\n"; }
