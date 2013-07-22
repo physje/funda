@@ -271,7 +271,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 function convertToReadable($string) {
 	$string = str_replace('&nbsp;m&sup2;', '', $string);
 	$string = str_replace('&nbsp;m&sup3;', '', $string);
-	$string = str_replace('&#235;', 'ë', $string);
+	$string = str_replace('&#235;', 'ï¿½', $string);
 	$string = str_replace('&#39;', '', $string);
 	$string = str_replace('&amp;', '&', $string);
 	$string = html_entity_decode($string);
@@ -1444,8 +1444,8 @@ function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
 		
 		$CSV_regel = array($data['adres']);		
 		if(in_array('ID', $prefixen))							$CSV_regel[] = $huisID;
-		if(in_array('url', $prefixen))						$CSV_regel[] = 'http://www.funda.nl'.$data['url'];
-		if(in_array('Kadaster', $prefixen))				$CSV_regel[] = 'http://www.funda.nl/kadaster/?ref='.$huisID;
+		if(in_array('url', $prefixen))						$CSV_regel[] = 'http://funda.nl/'.$huisID;
+		if(in_array('Kadaster', $prefixen))				$CSV_regel[] = 'http://funda.nl/kadaster/?ref='.$huisID;
 		if(in_array('Huidige Prijs', $prefixen))	$CSV_regel[] = getHuidigePrijs($huisID);
 		if(in_array('Orginele Prijs', $prefixen))	$CSV_regel[] = getOrginelePrijs($huisID);
 		if(in_array('Status', $prefixen))					$CSV_regel[] = $status;
@@ -1458,7 +1458,7 @@ function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
 			$string = $kenmerken[$kenmerk];
 			$string = str_replace('&nbsp;m&sup2;', '', $string);
 			$string = str_replace('&nbsp;m&sup3;', '', $string);
-			$string = str_replace('&#235;', 'ë', $string);
+			$string = str_replace('&#235;', 'ï¿½', $string);
 			$string = str_replace('&amp;', '&', $string);
 			$string = html_entity_decode($string);
 			
@@ -1474,8 +1474,8 @@ function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
 					$CSV_regel[] = '';
 				}
 			} else {					
-				$string = str_replace('m²', '', $string);
-				$string = str_replace('m³', '', $string);
+				$string = str_replace('mï¿½', '', $string);
+				$string = str_replace('mï¿½', '', $string);
 				$CSV_regel[] = trim($string);
 			}
 			
