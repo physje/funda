@@ -59,7 +59,7 @@ if(isset($_POST['add'])) {
 		$adres			= makeTextBlock(convertToReadable($data['adres']), 24, true);
 		$image			= str_replace('_klein.jpg', '_middel.jpg', changeThumbLocation($data['thumb']));
 		$relPrize		= getFullPriceHistory($huisID);
-		$url				= $data['url'];
+		//$url				= $data['url'];
 	
 		if($data['offline'] == '1') {
 			$TextClass = 'offline';			
@@ -79,7 +79,7 @@ if(isset($_POST['add'])) {
 			# De tekst voor de banner over de foto
 			if($data['verkocht'] == '1') {
 				$description = "verkocht";
-				$url		= changeURLLocation($url);
+				//$url		= changeURLLocation($url);
 			} elseif($data['verkocht'] == '2') {
 				$description = "Onder voorbehoud";
 			} else {
@@ -102,7 +102,7 @@ if(isset($_POST['add'])) {
 		if(!$housAvailable)	$Foto .= "<div class='description'><p class='description_content'>". strtoupper($description) ."</p></div>";
 		$Foto .= "</div><br>\n";		
 		if($showListAdd)	$Foto .= "	<input type='checkbox' name='huis[]' value='$huisID'". (in_array($huisID, $knownHuizen) ? ' checked' : '') .">";
-		$Foto .= "	<div class='float_rechts'>". getDoorloptijd($huisID) ."</div><a href='http://www.funda.nl". $url ."' target='_blank' class='$TextClass' title='Ga naar ". $data['adres'] ." op funda.nl'>$adres</a><br>\n";
+		$Foto .= "	<div class='float_rechts'>". getDoorloptijd($huisID) ."</div><a href='http://funda.nl/". $huisID ."' target='_blank' class='$TextClass' title='Ga naar ". $data['adres'] ." op funda.nl'>$adres</a><br>\n";
 		$Foto .= "	<div class='float_rechts'><b>". formatPercentage($relPrize[5]) ."</b></div><b>". formatPrice(getHuidigePrijs($huisID)) ."</b>\n";
 		
 		echo "	<td align='center'>";
