@@ -3,7 +3,7 @@
 $ScriptURL				= '';
 $ScriptTitle			= 'Funda Alert';
 $ScriptMailAdress = '';
-$Version					= '3.8';
+$Version					= '3.8.2';
 $SubjectPrefix		= '[funda] ';
 
 $debug						= 0;
@@ -36,6 +36,7 @@ $cfgCSVExport[] = 'Voortuin';
 	# Zaken die wel belangrijk zijn om te weten, anders dan de kenmerken
 $cfgPrefixExport[] = 'ID';
 $cfgPrefixExport[] = 'url';
+$cfgPrefixExport[] = 'Kadaster';
 $cfgPrefixExport[] = 'Huidige Prijs';
 $cfgPrefixExport[] = 'Orginele Prijs';
 $cfgPrefixExport[] = 'Status';

@@ -34,6 +34,7 @@ $links['extern/showKML_prijs.php']	= 'Google Maps (prijs)';
 $admin['admin/combineSelections.php']		= 'Maak combinaties van lijsten & opdrachten';
 $admin['admin/search4Coord.php']				= 'Selecteer huizen obv coordinaten';
 $admin['admin/compareKenmerken.php']		= 'Exporteer kenmerken in CSV-formaat';
+$admin['admin/dailyExport.php']					= 'Genereer excel-bestand';
 $admin['admin/downloadDailyExport.php']	= 'Download XLS-file';
 
 if($_SESSION['level'] > 1) {
