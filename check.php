@@ -71,8 +71,8 @@ foreach($Opdrachten as $OpdrachtID) {
 		# Op funda.nl staan huizen van verschillende makkelaars-organisaties (NVM, VBO, etc.)
 		# Voor elke organisatie wordt een andere class uit de style-sheet gebruikt
 		# Deze class geeft precies het begin van een nieuw huis op de overzichtspagina aan
-		# Om zeker te zijn dat ik alle huizen vind doe ik eerst alsof álle huizen van NVM zijn,
-		# dan of álle huizen van VBO zijn, etc.
+		# Om zeker te zijn dat ik alle huizen vind doe ik eerst alsof ï¿½lle huizen van NVM zijn,
+		# dan of ï¿½lle huizen van VBO zijn, etc.
 		$HuizenNVM		= explode(' nvm " >', $contents);			array_shift($HuizenNVM);
 		$HuizenNVMlst	= explode(' nvm lst " >', $contents);	array_shift($HuizenNVMlst);
 		$HuizenVBO		= explode(' vbo " >', $contents);			array_shift($HuizenVBO);
@@ -198,7 +198,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item[] = "	<td colspan='2' align='center'><h1><a href='". $ScriptURL ."extern/redirect.php?id=". $data['id'] ."'>". $data['adres'] ."</a></h1><br>". $fundaData['wijk'] ."<br>\n<br></td>";
 				$Item[] = "</tr>";
 				$Item[] = "<tr>";
-				$Item[] = "	<td align='center' width='60%'><a href='http://www.funda.nl". $fundaData['url'] ."'><img src='". str_replace ('_klein.jpg', '_middel.jpg',  $fundaData['thumb']) ."' alt='klik hier om naar funda.nl te gaan' border='0'></a></td>";
+				$Item[] = "	<td align='center' width='60%'><a href='http://funda.nl/". $data['id'] ."'><img src='". str_replace ('_klein.jpg', '_middel.jpg',  $fundaData['thumb']) ."' alt='klik hier om naar funda.nl te gaan' border='0'></a></td>";
 				$Item[] = "	<td align='left' width='40%'>";
 				$Item[] = "  ". $fundaData['PC_c'] ." ". $fundaData['PC_l'] ." ". $fundaData['plaats'] ."<br>";
 				$Item[] = "  ". $kenmerken['Aantal kamers'] ."<br>";
@@ -355,7 +355,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		$FooterText .= "<a href='". $ScriptURL ."admin/edit_opdrachten.php?id=$OpdrachtID'>Zoekopdracht</a> | ";
 		$FooterText .= "<a href='". $ScriptURL ."admin/edit_opdrachten.php?action=remove&opdracht=$OpdrachtID'>uitschrijven</a> | ";
 		$FooterText .= "<a href='$OpdrachtURL'>funda.nl</a>";
-		$FooterText .= "<div class='float_rechts'>© 2009-". date("Y") ." Matthijs Draijer</div>";			
+		$FooterText .= "<div class='float_rechts'>ï¿½ 2009-". date("Y") ." Matthijs Draijer</div>";			
 		include('include/HTML_TopBottom.php');
 				
 		if(count($HTMLMessage) > 0) {
