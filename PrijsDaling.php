@@ -73,7 +73,7 @@ if(isset($_POST['add'])) {
 			}
 			
 			# De eerste breedte is altijd 0, die skippen we dus
-			# Omdat we wél de keys willen behouden (omdat dat de link is met andere arrays) moeten we de 4de variabele meegeven.
+			# Omdat we wï¿½l de keys willen behouden (omdat dat de link is met andere arrays) moeten we de 4de variabele meegeven.
 			# Omdat ik geen idee heb hoe lang de array is, neem ik 999 voor de 3de variabele
 			$breedte = array_slice($breedte, 1, 999, true);
 			
@@ -100,7 +100,7 @@ if(isset($_POST['add'])) {
 		echo "	<td width='25%'>";
 		if($showListAdd)	echo "	<input type='checkbox' name='huis[]' value='$huisID'". (in_array($huisID, $knownHuizen) ? ' checked' : '') .">";
 		echo "<a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=$huisID'><img src='http://www.nccfsokotoalumni.com/wp-content/themes/NCCF/images/tags.png' title='Toon opties voor $adres'></a>";
-		echo "<a id='$huisID'> <a href='http://www.funda.nl". $data['url'] ."' target='_blank' class='$TextClass' title='Bezoek $adres op funda.nl'>$adres</a></td>\n";
+		echo "<a id='$huisID'> <a href='http://funda.nl/". $huisID ."' target='_blank' class='$TextClass' title='Bezoek $adres op funda.nl'>$adres</a></td>\n";
 		echo "	<td colspan=2>\n";
 		echo "	<table width='100%' border=0><tr>\n";
 		if(array_sum($breedte) > 0) {			
