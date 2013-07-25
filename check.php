@@ -316,7 +316,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item  = "<table width='100%'>\n";
 				$Item .= "<tr>\n";
 				$Item .= "	<td align='center'><img src='". changeThumbLocation($data['thumb']) ."'></td>\n";
-				$Item .= "	<td align='center'><a href='http://funda.nl/". $data['id'] ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
+				$Item .= "	<td align='center'><a href='http://funda.nl/". $fundaID ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
 				$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $data['wijk'] .")<br>\n";
 				$Item .= "	". date("d-m-y", $data['start']) .' t/m '. date("d-m-y", $data['eind']) ." (". getDoorloptijd($fundaID) .")<br>\n";
 				if($LaatsteVraagprijs != $OorspronkelijkeVraagprijs) { $Item .= '<b>'. formatPrice($OorspronkelijkeVraagprijs) .'</b> -> '; }
