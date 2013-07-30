@@ -121,6 +121,7 @@ if(isset($_POST['delete_list'])) {
 			$Page_2 .= "<input type='hidden' name='list' value='$list'>\n";
 		
 			foreach($Huizen as $huis) {
+				$data = getFundaData($huis);
 				$Page_2 .= "<input type='checkbox' name='huis[]' value='$huis' checked> <a href='http://funda.nl/$huis' target='_blank' class='$class'>". $data['adres'] ."</a><br>\n";
 			}
 				
