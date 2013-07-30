@@ -149,8 +149,7 @@ $zoekScherm[] = "	</td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
 if(isset($opdracht)) {
 	if(isset($huis)) {
-		$HuisData = getFundaData($huis);
-		$zoekScherm[] = "	<td><a href='http://www.funda.nl/". $HuisData['url'] ."'>bezoek op funda.nl</a></td>";
+		$zoekScherm[] = "	<td><a href='http://funda.nl/$huis'>bezoek op funda.nl</a></td>";
 	} else {
 		$zoekScherm[] = "	<td>&nbsp;</td>";	
 	}
