@@ -236,7 +236,13 @@ function extractFundaData($HuisText, $verkocht = false) {
 		$voorbehoud = 1;
 	} else {
 		$voorbehoud = 0;
-	}	
+	}
+	
+	if(strpos($HuisText, '<span class="item-open" title="')) {
+		$openhuis = 1;
+	} else {
+		$openhuis = 0;
+	}
 	
 	$postcode = explode(' ', trim($PC[0]));
 		
@@ -258,6 +264,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$data['makelaar']	= trim($R_naam[0]);
 	$data['prijs']		= $HuisPrijs;
 	$data['vov']			= $voorbehoud;
+	$data['openhuis']	= $openhuis;
 	
 	//foreach($data as $key => $value) {
 	//	echo $key .'|'.makeTextBlock($value, 100) .'<br>';
