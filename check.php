@@ -117,7 +117,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			
 			# Deze staat er tijdelijk tussen.
 			# Zodra alle opdrachten een keer de revue hebben gepaseerd kan deze regel verwijderd worden
-			updateMakelaar($data);
+			//updateMakelaar($data);
 								
 			# Huis is nog niet bekend bij het script, dus moet worden toegevoegd
 			if(!knownHouse($data['id'])) {
@@ -175,6 +175,15 @@ foreach($Opdrachten as $OpdrachtID) {
 						mysql_query($sql);
 						toLog('info', $OpdrachtID, $data['id'], 'Onder voorbehoud verkocht');
 					}
+				}
+				
+				# Huis kan openhuis hebben
+				if($data['openhuis'] > 0) {
+					# Moeten we iets leuks doen
+					# Denk :
+					#	opnemen in de eerst volgende mail
+					#	toevoegen aan de Google Calendar
+					toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd');
 				}
 			}
 			
