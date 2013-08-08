@@ -73,6 +73,7 @@ $HuizenStart			= "start";
 $HuizenEind				= "eind";
 $HuizenVerkocht		= "verkocht";
 $HuizenOffline		= "offline";
+$HuizenOpenHuis		= "open_huis";			# Op 8 augustus in gebruik genomen -> changeTable_08-08-2013.php
 
 $TableKenmerken 	= "funda_kenmerken";
 $KenmerkenKey			= "id";
@@ -91,6 +92,7 @@ $ResultaatZoekID	= "zoek_id";
 $ResultaatID			= "funda_id";
 $ResultaatPrijs		= "prijs";
 $ResultaatVerkocht= "verkocht";					# Op 27 april in gebruik genomen -> changeTable_27-04-2013.php
+$ResultaatOpenHuis= "open_huis";				# Op 8 augustus in gebruik genomen -> changeTable_08-08-2013.php
 
 $TableZoeken			= "funda_zoeken";
 $ZoekenKey				= "id";
@@ -132,6 +134,11 @@ $UsersLastLogin		= "lastLogin";				# Op 1 mei in gebruik genomen
 $TableAbo					= "funda_abonnement";	# Op 5 mei in gebruik genomen -> changeTable_05-05-2013.php
 $AboZoekID				= "zoek_id";					# Op 5 mei in gebruik genomen
 $AboUserID				= "member_id";				# Op 5 mei in gebruik genomen
+
+$TableCalendar		= "funda_kalender";
+$CalendarHuis			= "huis";
+$CalendarStart		= "start";
+$CalendarEnd			= "einde";
 
 // http://photos-f.ak.fbcdn.net/photos-ak-snc7/v43/218/226836780678110/app_2_226836780678110_6214.gif
 

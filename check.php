@@ -24,7 +24,7 @@ if(isset($_REQUEST[OpdrachtID])) {
 # Doorloop alle zoekopdrachten
 foreach($Opdrachten as $OpdrachtID) {
 	# Alles initialiseren
-	$HTMLMessage = $UpdatedPrice = $VerkochtHuis = $OnderVoorbehoud = $Subject = $sommatie = array();
+	$HTMLMessage = $UpdatedPrice = $VerkochtHuis = $OnderVoorbehoud = $OpenHuis = $Subject = $sommatie = array();
 	$HTMLMail = "";
 	$nextPage = true;
 	$p = 0;
@@ -114,11 +114,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				}
 				$block[] = implode('<br>', $tempItems);
 			}
-			
-			# Deze staat er tijdelijk tussen.
-			# Zodra alle opdrachten een keer de revue hebben gepaseerd kan deze regel verwijderd worden
-			//updateMakelaar($data);
-								
+							
 			# Huis is nog niet bekend bij het script, dus moet worden toegevoegd
 			if(!knownHouse($data['id'])) {
 				$extraData = extractDetailedFundaData("http://www.funda.nl". $data['url']);				
@@ -178,12 +174,21 @@ foreach($Opdrachten as $OpdrachtID) {
 				}
 				
 				# Huis kan openhuis hebben
-				if($data['openhuis'] > 0) {
-					# Moeten we iets leuks doen
-					# Denk :
-					#	opnemen in de eerst volgende mail
-					#	toevoegen aan de Google Calendar
-					toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd');
+				if($data['openhuis'] == 1) {
+					if(!hasOpenHuis($data['id'])) {
+						toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd');
+						
+						#	toevoegen aan de Google Calendar
+						$tijden = extractOpenHuisData($data['id']);
+						$sql = "INSERT INTO $TableCalendar ($CalendarHuis, $CalendarStart, $CalendarEnd) VALUES (". $data['id'] .", ". $tijden[0] .", ". $tijden[1] .")";
+						mysql_query($sql);
+												
+						#	opnemen in de eerst volgende mail						
+						$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '1' WHERE $HuizenID like '". $data['id'] ."'";
+						mysql_query($sql);
+					}					
+				} else {
+					removeOpenHuis($data['id']);
 				}
 			}
 			
@@ -355,8 +360,35 @@ foreach($Opdrachten as $OpdrachtID) {
 		} while($row = mysql_fetch_array($result));
 	}
 	
-	# Als er een nieuw huis, een huis in prijs gedaald of een huis verkocht is moet er een mail verstuurd worden.
-	if((count($HTMLMessage) > 0 OR count($UpdatedPrice) > 0 OR count($OnderVoorbehoud) > 0 OR count($VerkochtHuis) > 0) AND (count($OpdrachtMembers) > 0)) {
+	# Open huizen ($data['openhuis'] = 1)
+	$sql_open = "SELECT $TableHuizen.$HuizenID FROM $TableResultaat, $TableHuizen WHERE $TableHuizen.$HuizenOpenHuis = '1' AND $TableResultaat.$ResultaatOpenHuis = '0' AND $TableResultaat.$ResultaatZoekID like '$OpdrachtID' AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID";
+	$result = mysql_query($sql_open);
+	
+	if($row = mysql_fetch_array($result)) {
+		do {
+			$fundaID	= $row[$HuizenID];
+			$data			= getFundaData($fundaID);
+			$open			= getNextOpenhuis($fundaID);
+			
+			$Item  = "<table width='100%'>\n";
+			$Item .= "<tr>\n";
+			$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
+			$Item .= "	<td align='center'><a href='http://funda.nl/". $fundaID ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
+			$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $data['wijk'] .")<br>\n";
+			$Item .= '	<b>'. date("d-m H:i", $open[0]) ." - ". date("H:i", $open[1]) ."</b></td>\n";
+			$Item .= "</tr>\n";
+			$Item .= "</table>\n";
+			
+			$OpenHuis[] = showBlock($Item);
+			
+			# Bijhouden dat mail verstuurd is met open huis
+			$sql_update_open = "UPDATE $TableResultaat SET $ResultaatOpenHuis = '1' WHERE $ResultaatZoekID like '$OpdrachtID' AND $ResultaatID like '$fundaID'";
+			mysql_query($sql_update_open);				
+		} while($row = mysql_fetch_array($result));
+	}
+		
+	# Als er een nieuw huis, een huis in prijs gedaald, open huis of een huis verkocht is moet er een mail verstuurd worden.
+	if((count($HTMLMessage) > 0 OR count($UpdatedPrice) > 0 OR count($OnderVoorbehoud) > 0 OR count($VerkochtHuis) > 0 OR count($OpenHuis) > 0) AND (count($OpdrachtMembers) > 0)) {
 		$FooterText  = "Google Maps (";
 		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_mail.php?regio=$OpdrachtID") ."'>vandaag</a>, ";
 		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML.php?selectie=Z$OpdrachtID&datum=1") ."'>wijk</a>, ";
@@ -364,7 +396,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		$FooterText .= "<a href='". $ScriptURL ."admin/edit_opdrachten.php?id=$OpdrachtID'>Zoekopdracht</a> | ";
 		$FooterText .= "<a href='". $ScriptURL ."admin/edit_opdrachten.php?action=remove&opdracht=$OpdrachtID'>uitschrijven</a> | ";
 		$FooterText .= "<a href='$OpdrachtURL'>funda.nl</a>";
-		$FooterText .= "<div class='float_rechts'>� 2009-". date("Y") ." Matthijs Draijer</div>";			
+		$FooterText .= "<div class='float_rechts'>(c) 2009-". date("Y") ." Matthijs Draijer</div>";			
 		include('include/HTML_TopBottom.php');
 				
 		if(count($HTMLMessage) > 0) {
@@ -474,6 +506,32 @@ foreach($Opdrachten as $OpdrachtID) {
 			
 			$Subject[] = count($VerkochtHuis) ." ". (count($VerkochtHuis) == 1 ? 'huis' : 'huizen') . " verkocht";
 		}
+				
+		if(count($OpenHuis) > 0) {
+			$omslag			= round(count($OpenHuis)/2);
+			$KolomEen		= array_slice ($OpenHuis, 0, $omslag);
+			$KolomTwee	= array_slice ($OpenHuis, $omslag, $omslag);
+			
+			$HTMLMail .= "<tr>\n";
+			$HTMLMail .= "	<td colspan='2'><h2>Open huis</h2></td>\n";
+			$HTMLMail .= "</tr>\n";			
+			$HTMLMail .= "<tr>\n";
+			$HTMLMail .= "<td width='50%' valign='top' align='center'>\n";
+			$HTMLMail .= implode("\n<p>\n", $KolomEen);
+			$HTMLMail .= "</td><td width='50%' valign='top' align='center'>\n";
+			if(count($KolomTwee) > 0) {
+				$HTMLMail .= implode("\n<p>\n", $KolomTwee);	
+			} else {
+				$HTMLMail .= "&nbsp;";	
+			}
+			$HTMLMail .= "</td>\n";
+			$HTMLMail .= "</tr>\n";
+			$HTMLMail .= "<tr>\n";
+			$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
+			$HTMLMail .= "</tr>\n";
+			
+			$Subject[] = count($OpenHuis) ." ". (count($OpenHuis) == 1 ? 'huis heeft' : 'huizen hebben') . " open huis";
+		}
 		
 		$FinalHTMLMail = $HTMLHeader.$HTMLMail.$HTMLPreFooter.$HTMLFooter;
 				
@@ -499,7 +557,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				toLog('error', $OpdrachtID, '', "Kon geen mail versturen naar ". $MemberData['mail']);
 				
 				# Als mail versturen niet lukt dan schrijven we de inhoud weg als HTML_pagina incl. datum
-				$bestandsnaam = $OpdrachtData['naam'] .' ('. date("Ymd_Hi") .'}';
+				$bestandsnaam = $OpdrachtData['naam'] .' ('. date("Ymd_Hi") .')';
 				$fp = fopen($bestandsnaam.'.htm', 'w');
 				fwrite($fp, $FinalHTMLMail);
 				fclose($fp);				

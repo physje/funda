@@ -1492,4 +1492,66 @@ function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
 	
 	return implode("\n", $CSV);	
 }
+
+function hasOpenHuis($id) {
+	global $TableHuizen, $HuizenOpenHuis, $HuizenID;
+	
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenOpenHuis = '1' AND $HuizenID = '$id'";
+	$result	= mysql_query($sql);
+	
+	if(mysql_num_rows($result) == 1) {
+		return true;
+	} else {
+		return false;
+	}
+	
+}
+
+function extractOpenHuisData($id) {
+	$data			= getFundaData($id);
+	$contents	= file_get_contents_retry('http://www.funda.nl'.$data['url']);
+	
+	$propertie	= getString('<div class="prop-oh">', '</div>', $contents, 0);
+	$datum			= getString('</strong> ', ' van ', $propertie[0], 0);
+	$tijden			= getString(' van ', ' uur', $datum[1], 0);
+	
+	$temp				= explode('-', guessDate($datum[0]));
+		
+	$dag			= $temp[0];
+	$maand		= $temp[1];
+	$jaar			= $temp[2];	
+	$beginUur	= substr($tijden[0], 0, 2);
+	$beginMin	= substr($tijden[0], 3, 2);
+	$eindUur	= substr($tijden[0], 10, 2);
+	$eindMin	= substr($tijden[0], 13, 2);
+	
+	//echo $dag .'|'. $maand .'|'. $jaar .'|'. $beginUur .'|'. $beginMin .'|'. $eindUur .'|'. $eindMin;
+	
+	$start = mktime($beginUur, $beginMin, 0, $maand, $dag, $jaar);
+	$eind = mktime($eindUur, $eindMin, 0, $maand, $dag, $jaar);
+	
+	return array($start, $eind);
+}
+
+function removeOpenHuis($id) {
+	global $TableHuizen, $HuizenOpenHuis, $HuizenID, $TableResultaat, $ResultaatOpenHuis, $ResultaatID;
+	
+	$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '0' WHERE $HuizenID = '$id'";
+	$result = mysql_query($sql);
+	
+	$sql = "UPDATE $TableResultaat SET $ResultaatOpenHuis = '0' WHERE $ResultaatID = '$id'";
+	$result = mysql_query($sql);	
+}
+
+function getNextOpenhuis($id) {
+	global $TableCalendar, $CalendarHuis, $CalendarStart, $CalendarEnd;
+	
+	$nu			= time();	
+	$sql		= "SELECT * FROM $TableCalendar WHERE $CalendarStart > $nu AND $CalendarHuis = '$id'";
+	$result = mysql_query($sql);
+	$row		= mysql_fetch_array($result);
+	
+	return array($row[$CalendarStart], $row[$CalendarEnd]);
+}
+
 ?>

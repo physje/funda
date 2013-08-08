@@ -10,7 +10,11 @@ include($cfgProgDir. "secure.php");
 connect_db();
 
 if(isset($_POST['ids'])) {
-	$dataset = explode(";", $_POST['ids']);
+	if(strpos($_POST['ids'], ';')) {
+		$dataset = explode(';', $_POST['ids']);
+	} else {
+		$dataset = explode("\n", $_POST['ids']);
+	}
 	$nieuwNaam = 'List_'.date('Y-m-d|H-i-s');
 	
 	if(count($dataset) > 0){		
@@ -31,7 +35,7 @@ if(isset($_POST['ids'])) {
 	$deel_1 .= "	<td>Voer de funda-ID's in gescheiden door een puntkomma (;)</td>\n";
 	$deel_1 .= "</tr>\n";
 	$deel_1 .= "<tr>\n";
-	$deel_1 .= "	<td><input type='text'name='ids' size='75'></td>\n";
+	$deel_1 .= "	<td><textarea 'name='ids' cols='50' rows='5'></textarea></td>\n";
 	$deel_1 .= "</tr>\n";
 	$deel_1 .= "<tr>\n";
 	$deel_1 .= "	<td>&nbsp;</td>\n";
