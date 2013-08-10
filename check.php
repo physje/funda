@@ -375,7 +375,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
 			$Item .= "	<td align='center'><a href='http://funda.nl/". $fundaID ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
 			$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $data['wijk'] .")<br>\n";
-			$Item .= '	<b>'. date("d-m H:i", $open[0]) ." - ". date("H:i", $open[1]) ."</b></td>\n";
+			$Item .= '	<b>'. strftime("%a %e %b %k:%M", $open[0]) ." - ". strftime("%k:%M", $open[1]) ."</b> (<a href='". $ScriptURL ."admin/makeCalendar.php?id=". $fundaID ."'>iCal</a>)</td>\n";
 			$Item .= "</tr>\n";
 			$Item .= "</table>\n";
 			
