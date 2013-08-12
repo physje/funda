@@ -82,7 +82,7 @@ foreach($Users as $user) {
 		$ics[] = "DTSTART:". date("Ymd\THis", $start);
 		$ics[] = "DTEND:". date("Ymd\THis", $einde);	
 		$ics[] = "LAST-MODIFIED:". date("Ymd\THis", time());
-		$ics[] = "SUMMARY:Open Huis '". $data['adres'] ."'";
+		$ics[] = "SUMMARY:Open Huis ['". $data['adres'] ."']";
 		$ics[] = "LOCATION:". $data['adres'] .", ". $data['plaats'];
 		$ics[] = "DESCRIPTION:". implode('\n', $description);
 		$ics[] = "STATUS:CONFIRMED";	
