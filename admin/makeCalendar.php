@@ -46,6 +46,7 @@ if(!isset($_REQUEST['id'])) {
 	$row		= mysql_fetch_array($result);
 	do {
 		removeOpenHuis($row[$CalendarHuis]);	
+		toLog('info', '', $row[$CalendarHuis], "Open Huis verwijderd");
 	} while($row = mysql_fetch_array($result));
 }
 
@@ -117,6 +118,10 @@ foreach($Users as $user) {
 		echo "<a href='$filename'>". $UserData['naam'] ."</a>";
 		echo "\n<p>\n";
 	}
+}
+
+if(!isset($_REQUEST['id'])) {
+	toLog('info', '', '', "Kalender aangemaakt");
 }
 
 function formatAddress($string) {
