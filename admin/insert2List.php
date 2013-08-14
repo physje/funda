@@ -35,7 +35,7 @@ if(isset($_POST['ids'])) {
 	$deel_1 .= "	<td>Voer de funda-ID's in gescheiden door een puntkomma (;)</td>\n";
 	$deel_1 .= "</tr>\n";
 	$deel_1 .= "<tr>\n";
-	$deel_1 .= "	<td><textarea 'name='ids' cols='50' rows='5'></textarea></td>\n";
+	$deel_1 .= "	<td><textarea name='ids' cols='50' rows='5'></textarea></td>\n";
 	$deel_1 .= "</tr>\n";
 	$deel_1 .= "<tr>\n";
 	$deel_1 .= "	<td>&nbsp;</td>\n";
