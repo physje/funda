@@ -103,10 +103,12 @@ if(isset($_REQUEST['id'])) {
 		
 		$sql = "DELETE FROM $TablePrijzen WHERE $PrijzenID = $id";	
 		if(mysql_query($sql)) {
-			foreach($_POST['pDag'] as $key => $value) {
-				$tijd = mktime(0, 0, 0, $_POST['pMaand'][$key], $_POST['pDag'][$key], $_POST['pJaar'][$key]);
-				$prijs = $_POST['pPrijs'][$key];			
-				updatePrice($id, $prijs, $tijd);
+			foreach($_POST['pDag'] as $key => $value) {				
+				if($_POST['pPrijs'][$key] != 'leeg') {
+					$tijd = mktime(0, 0, 0, $_POST['pMaand'][$key], $_POST['pDag'][$key], $_POST['pJaar'][$key]);
+					$prijs = $_POST['pPrijs'][$key];
+					updatePrice($id, $prijs, $tijd);
+				}
 			}
 		}
 	} else {
@@ -131,7 +133,7 @@ if(isset($_REQUEST['id'])) {
 				$Kenmerk[] = "</tr>";
 			}
 		}
-	
+				
 		$Kenmerk[] = "<tr>";
 		$Kenmerk[] = "	<td colspan='2'>&nbsp;</td>";
 		$Kenmerk[] = "</tr>";	

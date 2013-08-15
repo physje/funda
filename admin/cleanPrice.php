@@ -46,6 +46,13 @@ do {
 			# Voeg de gevonden huis-prijs combinatie toe aan de array
 			$huis_array[$huis][] = $prijs;
 			
+			if($tijd < $data['start']) {
+				$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $tijd WHERE $HuizenID like $huis";
+				if(mysql_query($sql_update)) {
+					$melding[] = 'Begintijd <b>'. $data['adres'] .'</b> : '. date("d-m-Y", $tijd)  ." (was ". date("d-m-Y", $data['start']) .")<br>\n";	
+				}
+			}	
+			
 			# Verwijder alle entries van deze huis-prijs combinatie
 			$sql = "DELETE FROM $TablePrijzen WHERE $PrijzenID = $huis AND $PrijzenPrijs = $prijs";
 	
@@ -58,8 +65,8 @@ do {
 					$melding[] = '<b>'. $data['adres'] .'</b> : '. date("d-m-Y", $tijd)  ." -> ". formatPrice($prijs) ."<br>\n";
 				}
 			}
-		}
-	} else {
+		}	
+} else {
 		# Er is een prijs gevonden voor een huis wat niet meer bestaat.
 		# Als het goed is komt dit nooit voor, mocht het vaker voorkomen dan kan checkTables.php gedraaid worden.
 		# Hiermee worden de huizen uit de verschillende tabellen naast elkaar gelegd op zoek naar discrepanties
@@ -72,8 +79,7 @@ do {
 		} else {
 			$error[] = ", maar kon niet worden verwijderd<br>\n";
 		}			
-	}
-	
+	}	
 } while($row = mysql_fetch_array($result));
 
 if(count($error) > 0) {
