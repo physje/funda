@@ -63,7 +63,7 @@ foreach($Users as $user) {
 		$sql		= "SELECT * FROM $TableCalendar WHERE $TableCalendar.$CalendarHuis = ". $_REQUEST['id'] ." AND $CalendarStart > $maandGeleden";
 	} else {
 		$UserData	= getMemberDetails($user);	
-		$sql		= "SELECT * FROM $TableCalendar, $TableResultaat, $TableZoeken WHERE $TableCalendar.$CalendarHuis = $TableResultaat.$ResultaatID AND $TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenUser = $user AND $TableCalendar.$CalendarStart > $maandGeleden";
+		$sql		= "SELECT * FROM $TableCalendar, $TableResultaat, $TableZoeken WHERE $TableCalendar.$CalendarHuis = $TableResultaat.$ResultaatID AND $TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenUser = $user AND $TableZoeken.$ZoekenActive = 1 AND $TableCalendar.$CalendarStart > $maandGeleden";
 	}
 	
 	$result = mysql_query($sql);

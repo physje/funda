@@ -148,6 +148,8 @@ if(isset($_POST['doorgaan'])) {
 				$Page .= "	<td>&nbsp;</td>";
 				$Page .= "	<td><a href='invite.php?OpdrachtID=$OpdrachtID'><img src='http://www.lessthanfour.org/resources/images/icons/16-inviteGroup.png' title=\"Nodig iemand uit voor '". $OpdrachtData['naam'] ."'\"></a></td>";
 				$Page .= "	<td>&nbsp;</td>";
+				$Page .= "	<td><a href='bekijkHuizenZoeker.php?selectie=Z$OpdrachtID'>link</a></td>";
+				$Page .= "	<td>&nbsp;</td>";
 			}
 			if(in_array($_SESSION['account'] ,$Abonnees)) {
 				$Page .= "	<td><a href='". $_SERVER["PHP_SELF"] ."?action=remove&opdracht=$OpdrachtID'><img src='http://alpem.net/appli/includes/classeLogon/img/mail_yes.gif' title=\"Ik wil géén mails meer ontvangen voor '". $OpdrachtData['naam'] ."'\"></a></td>";

@@ -11,12 +11,29 @@ include($cfgProgDir. "secure.php");
 connect_db();
 
 if(isset($_REQUEST['id'])) {
-	$fundaID	= $_REQUEST['id'];
+	$dataset = array($_REQUEST['id']);
+} elseif(isset($_REQUEST['selectie'])) {
+	$groep	= substr($_REQUEST['selectie'], 0, 1);
+	$id			= substr($_REQUEST['selectie'], 1);	
+	
+	if($groep == 'Z') {		
+		$opdrachtData	= getOpdrachtData($id);
+		$Name					= $opdrachtData['naam'];
+		$dataset			= getHuizen($id);
+	} else {
+		$LijstData		= getLijstData($id);
+		$Name					= $LijstData['naam'];
+		$dataset			= getLijstHuizen($id);
+	}
+}
+
+foreach($dataset as $fundaID) {
 	$data			= getFundaData($fundaID);	
 	
-	if($data['plaats'] == 'Deventer' AND $data['offline'] == 0 AND $data['verkocht'] == 0) {
+	if($data['plaats'] == 'Deventer' AND $data['offline'] != 1 AND $data['verkocht'] != 1) {
 		$urlNaam	= str_replace(".", "", str_replace(" ", "-", strtolower($data['adres'])));
 		$url			= "http://www.huizenzoeker.nl/koop/overijssel/deventer/$urlNaam/details.html";		
+		$Links[] = $url;
 		$contents	= file_get_contents_retry($url);
 		$Prijshistorie = getString('<!-- Prijshistorie -->', '<!-- /Prijshistorie -->', $contents, 0);
 		
@@ -43,11 +60,16 @@ if(isset($_REQUEST['id'])) {
 				$Links[] = $price[0] .' voor '. $data['adres'] .' toegevoegd<br>';
 			}
 		}
+	} elseif($data['offline'] == 1) {
+		$Links[] = $data['adres'] .' is offline<br>';
+	} elseif($data['verkocht'] == 1) {
+		$Links[] = $data['adres'] .' is verkocht<br>';
 	} else {
-		$Links[] = 'Dit huis kan helaas niet gevonden worden';
+		$Links[] = $data['adres'] .' geen idee<br>';
 	}
-} else {
-	$Links[] = '';
+//} else {
+//	$Links[] = '';
+	sleep(3);
 }
 
 echo $HTMLHeader;
