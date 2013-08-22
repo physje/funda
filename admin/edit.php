@@ -46,7 +46,7 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td></td>";
-		$HTML[] = "	<td><input type='text' name='PC_cijfers' value='". $data['PC_c'] ."' size='4'> <input type='text' name='PC_letters' value='". $data['PC_l'] ."' size='2'><div class='float_rechts'><a href='http://www.funda.nl". $data['url'] ."' target='_blank'>funda.nl</a></div></td>";
+		$HTML[] = "	<td><input type='text' name='PC_cijfers' value='". $data['PC_c'] ."' size='4'> <input type='text' name='PC_letters' value='". $data['PC_l'] ."' size='2'><div class='float_rechts'><a href='http://funda.nl/$id' target='_blank'>funda.nl</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Plaats</td>";
