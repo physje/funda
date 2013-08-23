@@ -31,7 +31,7 @@ foreach($dataset as $fundaID) {
 	$data			= getFundaData($fundaID);	
 	
 	if($data['plaats'] == 'Deventer' AND $data['offline'] != 1 AND $data['verkocht'] != 1) {
-		$urlNaam	= str_replace("--", "-", str_replace(".", "", str_replace(" ", "-", strtolower($data['adres']))));
+		$urlNaam	= makeHuizenZoekerURL($data['adres']);
 		$url			= "http://www.huizenzoeker.nl/koop/overijssel/deventer/$urlNaam/details.html";		
 		$Links[] = $url;
 		$contents	= file_get_contents_retry($url);
@@ -81,5 +81,15 @@ echo "</td>";
 echo "<td width='25%' valign='top' align='center'>&nbsp;</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
+
+function makeHuizenZoekerURL($string) {
+	$string = strtolower($string);
+	$string = str_replace(".", "", $string)
+	$string = str_replace(" -", "-", $string);
+	$string = str_replace("- ", "-", $string);
+	$string = str_replace(" ", "-", $string)
+	
+	return $string;
+}
 
 ?>
