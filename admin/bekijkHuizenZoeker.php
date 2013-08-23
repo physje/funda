@@ -84,10 +84,10 @@ echo $HTMLFooter;
 
 function makeHuizenZoekerURL($string) {
 	$string = strtolower($string);
-	$string = str_replace(".", "", $string)
+	$string = str_replace(".", "", $string);
 	$string = str_replace(" -", "-", $string);
 	$string = str_replace("- ", "-", $string);
-	$string = str_replace(" ", "-", $string)
+	$string = str_replace(" ", "-", $string);
 	
 	return $string;
 }
