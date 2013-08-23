@@ -31,7 +31,7 @@ foreach($dataset as $fundaID) {
 	$data			= getFundaData($fundaID);	
 	
 	if($data['plaats'] == 'Deventer' AND $data['offline'] != 1 AND $data['verkocht'] != 1) {
-		$urlNaam	= str_replace(".", "", str_replace(" ", "-", strtolower($data['adres'])));
+		$urlNaam	= str_replace("--", "-", str_replace(".", "", str_replace(" ", "-", strtolower($data['adres']))));
 		$url			= "http://www.huizenzoeker.nl/koop/overijssel/deventer/$urlNaam/details.html";		
 		$Links[] = $url;
 		$contents	= file_get_contents_retry($url);
