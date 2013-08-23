@@ -33,7 +33,7 @@ foreach($dataset as $fundaID) {
 	if($data['plaats'] == 'Deventer' AND $data['offline'] != 1 AND $data['verkocht'] != 1) {
 		$urlNaam	= makeHuizenZoekerURL($data['adres']);
 		$url			= "http://www.huizenzoeker.nl/koop/overijssel/deventer/$urlNaam/details.html";		
-		$Links[] = $url;
+		//$Links[] = $url;
 		$contents	= file_get_contents_retry($url);
 		$Prijshistorie = getString('<!-- Prijshistorie -->', '<!-- /Prijshistorie -->', $contents, 0);
 		
