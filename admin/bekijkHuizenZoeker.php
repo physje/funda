@@ -30,12 +30,10 @@ if(isset($_REQUEST['id'])) {
 foreach($dataset as $fundaID) {
 	$data			= getFundaData($fundaID);	
 	
-	if($data['plaats'] == 'Deventer' AND $data['offline'] != 1 AND $data['verkocht'] != 1) {
-		$urlNaam	= makeHuizenZoekerURL($data['adres']);
-		$url			= "http://www.huizenzoeker.nl/koop/overijssel/deventer/$urlNaam/details.html";		
-		//$Links[] = $url;
-		$contents	= file_get_contents_retry($url);
-		$Prijshistorie = getString('<!-- Prijshistorie -->', '<!-- /Prijshistorie -->', $contents, 0);
+	if($data['offline'] != 1 AND $data['verkocht'] != 1) {
+		$url						= makeHuizenZoekerURL($data);
+		$contents				= file_get_contents_retry($url);
+		$Prijshistorie	= getString('<!-- Prijshistorie -->', '<!-- /Prijshistorie -->', $contents, 0);
 		
 		$regels		= explode('</tr>', $Prijshistorie[0]);
 		array_pop($regels);
@@ -67,8 +65,6 @@ foreach($dataset as $fundaID) {
 	} else {
 		$Links[] = $data['adres'] .' geen idee<br>';
 	}
-//} else {
-//	$Links[] = '';
 	sleep(3);
 }
 
@@ -81,15 +77,5 @@ echo "</td>";
 echo "<td width='25%' valign='top' align='center'>&nbsp;</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-
-function makeHuizenZoekerURL($string) {
-	$string = strtolower($string);
-	$string = str_replace(".", "", $string);
-	$string = str_replace(" -", "-", $string);
-	$string = str_replace("- ", "-", $string);
-	$string = str_replace(" ", "-", $string);
-	
-	return $string;
-}
 
 ?>

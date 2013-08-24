@@ -90,6 +90,9 @@ if(isset($_POST['delete_list'])) {
 		$Page_3 .= $InputPage;
 		$Page_3 .= "<input type='submit' value='Voeg huizen toe in prijsdaling'>";
 		$Page_3 .= "</form>";
+
+		$Page_3 .="<a href='bekijkHuizenzoeker.nl?selectie=L$list'>Voer aan HuizenZoeker.nl</a>";
+
 	}
 	
 	# Formulier om lijst-gegevens te wijzigen

@@ -148,7 +148,7 @@ if(isset($_POST['doorgaan'])) {
 				$Page .= "	<td>&nbsp;</td>";
 				$Page .= "	<td><a href='invite.php?OpdrachtID=$OpdrachtID'><img src='http://www.lessthanfour.org/resources/images/icons/16-inviteGroup.png' title=\"Nodig iemand uit voor '". $OpdrachtData['naam'] ."'\"></a></td>";
 				$Page .= "	<td>&nbsp;</td>";
-				$Page .= "	<td><a href='bekijkHuizenZoeker.php?selectie=Z$OpdrachtID'>link</a></td>";
+				$Page .= "	<td><a href='bekijkHuizenZoeker.php?selectie=Z$OpdrachtID'><img src='http://cache.websitegegevens.nl/favicons/www.huizenzoeker.nl.png'></a></td>";
 				$Page .= "	<td>&nbsp;</td>";
 			}
 			if(in_array($_SESSION['account'] ,$Abonnees)) {

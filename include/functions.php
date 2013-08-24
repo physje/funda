@@ -332,7 +332,9 @@ function extractDetailedFundaData($URL) {
 	# Navigatie-gedeelte
 	$navigatie	= getString('<p class="section path-nav">', '</p>', $contents, 0);
 	$stappen		= explode('&gt;', $navigatie[0]);
+	//$provincie	= getString('/">', '</a>', $stappen[(count($stappen)-3)], 0);	
 	$wijk				= getString('/">', '</a>', $stappen[(count($stappen)-1)], 0);
+	//$data['prov']	= trim($provincie[0]);	
 	$data['wijk']	= trim($wijk[0]);	
 	
 	if($contents != "") {		
@@ -1554,4 +1556,107 @@ function getNextOpenhuis($id) {
 	return array($row[$CalendarStart], $row[$CalendarEnd]);
 }
 
+function makeHuizenZoekerURL($data) {	
+	$string	= findProv($data['PC_c']) ."###". $data['plaats'] ."###". $data['adres'];
+	$string = strtolower($string);
+	$string = str_replace(".", "", $string);
+	$string = str_replace("/", "", $string);
+	$string = str_replace(" -", "-", $string);
+	$string = str_replace("- ", "-", $string);
+	$string = str_replace(" ", "-", $string);
+	
+	$string = str_replace("###", "/", $string);
+	
+	return 'http://www.huizenzoeker.nl/koop/'. $string ."/details.html";
+}
+
+function findProv($postcode) {	
+	$maxPostcode[1299] = 'Noord-Holland';
+	$maxPostcode[1379] = 'Flevoland';
+	$maxPostcode[1383] = 'Noord-Holland';
+	$maxPostcode[1393] = 'Utrecht';
+	$maxPostcode[1394] = 'Noord-Holland';
+	$maxPostcode[1396] = 'Utrecht';
+	$maxPostcode[1425] = 'Noord-Holland';
+	$maxPostcode[1427] = 'Utrecht';
+	$maxPostcode[1429] = 'Zuid-Holland';
+	$maxPostcode[2158] = 'Noord-Holland';
+	$maxPostcode[2164] = 'Zuid-Holland';
+	$maxPostcode[2165] = 'Noord-Holland';
+	$maxPostcode[3381] = 'Zuid-Holland';
+	$maxPostcode[3464] = 'Utrecht';
+	$maxPostcode[3466] = 'Zuid-Holland';
+	$maxPostcode[3769] = 'Utrecht';
+	$maxPostcode[3794] = 'Gelderland';
+	$maxPostcode[3836] = 'Utrecht';
+	$maxPostcode[3888] = 'Gelderland';
+	$maxPostcode[3899] = 'Flevoland';
+	$maxPostcode[3999] = 'Utrecht';
+	$maxPostcode[4119] = 'Gelderland';
+	$maxPostcode[4125] = 'Utrecht';
+	$maxPostcode[4129] = 'Zuid-Holland';
+	$maxPostcode[4139] = 'Utrecht';
+	$maxPostcode[4146] = 'Zuid-Holland';
+	$maxPostcode[4162] = 'Gelderland';
+	$maxPostcode[4169] = 'Zuid-Holland';
+	$maxPostcode[4199] = 'Gelderland';
+	$maxPostcode[4209] = 'Zuid-Holland';
+	$maxPostcode[4212] = 'Gelderland';
+	$maxPostcode[4213] = 'Zuid-Holland';
+	$maxPostcode[4219] = 'Gelderland';
+	$maxPostcode[4249] = 'Zuid-Holland';
+	$maxPostcode[4299] = 'Noord-Brabant';
+	$maxPostcode[4599] = 'Zeeland';
+	$maxPostcode[4671] = 'Noord-Brabant';
+	$maxPostcode[4679] = 'Zeeland';
+	$maxPostcode[4681] = 'Noord-Brabant';
+	$maxPostcode[4699] = 'Zeeland';
+	$maxPostcode[5299] = 'Noord-Brabant';
+	$maxPostcode[5335] = 'Gelderland';
+	$maxPostcode[5765] = 'Noord-Brabant';
+	$maxPostcode[5817] = 'Limburg';
+	$maxPostcode[5846] = 'Noord-Brabant';
+	$maxPostcode[6019] = 'Limburg';
+	$maxPostcode[6029] = 'Noord-Brabant';
+	$maxPostcode[6499] = 'Limburg';
+	$maxPostcode[6584] = 'Gelderland';
+	$maxPostcode[6599] = 'Limburg';
+	$maxPostcode[7399] = 'Gelderland';
+	$maxPostcode[7438] = 'Overijssel';
+	$maxPostcode[7439] = 'Gelderland';
+	$maxPostcode[7739] = 'Overijssel';
+	$maxPostcode[7766] = 'Drenthe';
+	$maxPostcode[7799] = 'Overijssel';
+	$maxPostcode[7949] = 'Drenthe';
+	$maxPostcode[7955] = 'Overijssel';
+	$maxPostcode[7999] = 'Drenthe';
+	$maxPostcode[8049] = 'Overijssel';
+	$maxPostcode[8054] = 'Gelderland';
+	$maxPostcode[8069] = 'Overijssel';
+	$maxPostcode[8099] = 'Gelderland';
+	$maxPostcode[8159] = 'Overijssel';
+	$maxPostcode[8195] = 'Gelderland';
+	$maxPostcode[8199] = 'Overijssel';
+	$maxPostcode[8259] = 'Flevoland';
+	$maxPostcode[8299] = 'Overijssel';
+	$maxPostcode[8322] = 'Flevoland';
+	$maxPostcode[8349] = 'Overijssel';
+	$maxPostcode[8354] = 'Drenthe';
+	$maxPostcode[8379] = 'Overijssel';
+	$maxPostcode[8387] = 'Drenthe';
+	$maxPostcode[9299] = 'Friesland';
+	$maxPostcode[9349] = 'Drenthe';
+	$maxPostcode[9399] = 'Groningen';
+	$maxPostcode[9499] = 'Drenthe';
+	$maxPostcode[9999] = 'Groningen';
+	
+	$pc = key($maxPostcode);
+	
+	while($pc <= $postcode) {
+		next($maxPostcode);
+		$pc = key($maxPostcode);
+	}
+	
+	return strtolower($maxPostcode[$pc]);
+}
 ?>
