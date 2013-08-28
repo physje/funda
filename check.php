@@ -73,17 +73,17 @@ foreach($Opdrachten as $OpdrachtID) {
 		# Deze class geeft precies het begin van een nieuw huis op de overzichtspagina aan
 		# Om zeker te zijn dat ik alle huizen vind doe ik eerst alsof �lle huizen van NVM zijn,
 		# dan of �lle huizen van VBO zijn, etc.
-		$HuizenNVM		= explode(' nvm " >', $contents);			array_shift($HuizenNVM);
-		$HuizenNVMlst	= explode(' nvm lst " >', $contents);	array_shift($HuizenNVMlst);
-		$HuizenVBO		= explode(' vbo " >', $contents);			array_shift($HuizenVBO);
-		$HuizenVBOlst	= explode(' vbo lst " >', $contents);	array_shift($HuizenVBOlst);
-		$HuizenLMV		= explode(' lmv " >', $contents);			array_shift($HuizenLMV);
-		$HuizenLMVlst	= explode(' lmv lst " >', $contents);	array_shift($HuizenLMVlst);
-		$HuizenExt		= explode(' ext " >', $contents);			array_shift($HuizenExt);
-		$HuizenExtlst	= explode(' ext lst " >', $contents);	array_shift($HuizenExtlst);
-		$HuizenProject= explode('closed " >', $contents);		array_shift($HuizenProject);
-		$Huizen				= array_merge($HuizenNVM, $HuizenNVMlst, $HuizenVBO, $HuizenVBOlst, $HuizenLMV, $HuizenLMVlst, $HuizenExt, $HuizenExtlst, $HuizenProject);
-		$NrPageHuizen	= count($Huizen);
+		$HuizenNVM			= explode(' nvm " >', $contents);			array_shift($HuizenNVM);
+		$HuizenNVMlst		= explode(' nvm lst " >', $contents);	array_shift($HuizenNVMlst);
+		$HuizenVBO			= explode(' vbo " >', $contents);			array_shift($HuizenVBO);
+		$HuizenVBOlst		= explode(' vbo lst " >', $contents);	array_shift($HuizenVBOlst);
+		$HuizenLMV			= explode(' lmv " >', $contents);			array_shift($HuizenLMV);
+		$HuizenLMVlst		= explode(' lmv lst " >', $contents);	array_shift($HuizenLMVlst);
+		$HuizenExt			= explode(' ext " >', $contents);			array_shift($HuizenExt);
+		$HuizenExtlst		= explode(' ext lst " >', $contents);	array_shift($HuizenExtlst);
+		$HuizenProject	= explode('closed " >', $contents);		array_shift($HuizenProject);
+		$Huizen					= array_merge($HuizenNVM, $HuizenNVMlst, $HuizenVBO, $HuizenVBOlst, $HuizenLMV, $HuizenLMVlst, $HuizenExt, $HuizenExtlst, $HuizenProject);
+		$NrPageHuizen		= count($Huizen);
 		
 		# funda.nl heeft sinds 18-02-2013 de gekke gewoonte om ook verkochte huizen op te nemen.
 		# Op deze manier wordt de teller van gevonden huizen wel kloppend gehouden.
@@ -186,7 +186,8 @@ foreach($Opdrachten as $OpdrachtID) {
 						#	opnemen in de eerst volgende mail						
 						$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '1' WHERE $HuizenID like '". $data['id'] ."'";
 						mysql_query($sql);
-					}					
+					}
+					toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd [bij al bestaande]');				
 				} else {
 					removeOpenHuis($data['id']);
 				}

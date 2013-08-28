@@ -222,7 +222,8 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$foto		= getString('<img src="', '" alt="" title="" class="photo"', $HuisURL[1], 0);
 	$adres	= getString('<a href="'. $HuisURL[0] .'" class="object-street" >', '</a>', $foto[1], 0);
 	$PC			= getString('<li>', '<', $adres[1], 0);
-	
+	$param	= getString('<li>', '</li>', $adres[1], 0);
+		
 	if(strpos($HuisText, '<a class="realtor" href="')) {
 		$R_url	= getString('<a class="realtor" href="', '">', $PC[1], 0);
 		$R_naam	= getString('">', '</a>', $R_url[1], 0);
@@ -231,14 +232,14 @@ function extractFundaData($HuisText, $verkocht = false) {
 		$R_naam	= getString('<span class="realtor">', '</span>', $PC[1], 0);
 	}
 	$prijs	= getString('<span class="price">', '</span>', $R_naam[1], 0);
-	
-	if(strpos($HuisText, 'Verkocht onder voorbehoud')) {
+		
+	if(strpos($param[0], 'Verkocht onder voorbehoud')) {
 		$voorbehoud = 1;
 	} else {
 		$voorbehoud = 0;
 	}
 	
-	if(strpos($HuisText, '<span class="item-open" title="')) {
+	if(strpos($param[0], '<span class="item-open" title="')) {
 		$openhuis = 1;
 	} else {
 		$openhuis = 0;
@@ -1560,6 +1561,7 @@ function makeHuizenZoekerURL($data) {
 	$string	= findProv($data['PC_c']) ."###". $data['plaats'] ."###". $data['adres'];
 	$string = strtolower($string);
 	$string = str_replace(".", "", $string);
+	$string = str_replace(",", "", $string);
 	$string = str_replace("/", "", $string);
 	$string = str_replace(" -", "-", $string);
 	$string = str_replace("- ", "-", $string);
