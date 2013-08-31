@@ -24,7 +24,7 @@ if(isset($_REQUEST[OpdrachtID])) {
 # Doorloop alle zoekopdrachten
 foreach($Opdrachten as $OpdrachtID) {
 	# Alles initialiseren
-	$HTMLMessage = $UpdatedPrice = $VerkochtHuis = $OnderVoorbehoud = $OpenHuis = $Subject = $sommatie = array();
+	$NewHouses = $NewAddress = $UpdatedPrice = $UpdatedAddress = $VerkochtHuis = $VerkochtAddress = $OnderVoorbehoud = $BijnaVerkochtAddress = $OpenHuis = $OpenAddress = $Subject = $sommatie = array();
 	$HTMLMail = "";
 	$nextPage = true;
 	$p = 0;
@@ -74,7 +74,8 @@ foreach($Opdrachten as $OpdrachtID) {
 		# Om zeker te zijn dat ik alle huizen vind doe ik eerst alsof �lle huizen van NVM zijn,
 		# dan of �lle huizen van VBO zijn, etc.
 		$HuizenNVM			= explode(' nvm " >', $contents);			array_shift($HuizenNVM);
-		$HuizenNVMlst		= explode(' nvm lst " >', $contents);	array_shift($HuizenNVMlst);
+		$HuizenNVMlst		= explode(' nvm lst " >', $contents);	array_shift($HuizenNVMlst);		
+		$HuizenNVMfeat	= explode(' nvm object-featured" >', $contents);	array_shift($HuizenNVMfeat);		
 		$HuizenVBO			= explode(' vbo " >', $contents);			array_shift($HuizenVBO);
 		$HuizenVBOlst		= explode(' vbo lst " >', $contents);	array_shift($HuizenVBOlst);
 		$HuizenLMV			= explode(' lmv " >', $contents);			array_shift($HuizenLMV);
@@ -82,7 +83,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		$HuizenExt			= explode(' ext " >', $contents);			array_shift($HuizenExt);
 		$HuizenExtlst		= explode(' ext lst " >', $contents);	array_shift($HuizenExtlst);
 		$HuizenProject	= explode('closed " >', $contents);		array_shift($HuizenProject);
-		$Huizen					= array_merge($HuizenNVM, $HuizenNVMlst, $HuizenVBO, $HuizenVBOlst, $HuizenLMV, $HuizenLMVlst, $HuizenExt, $HuizenExtlst, $HuizenProject);
+		$Huizen					= array_merge($HuizenNVM, $HuizenNVMlst, $HuizenNVMfeat, $HuizenVBO, $HuizenVBOlst, $HuizenLMV, $HuizenLMVlst, $HuizenExt, $HuizenExtlst, $HuizenProject);
 		$NrPageHuizen		= count($Huizen);
 		
 		# funda.nl heeft sinds 18-02-2013 de gekke gewoonte om ook verkochte huizen op te nemen.
@@ -187,7 +188,6 @@ foreach($Opdrachten as $OpdrachtID) {
 						$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '1' WHERE $HuizenID like '". $data['id'] ."'";
 						mysql_query($sql);
 					}
-					toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd [bij al bestaande]');				
 				} else {
 					removeOpenHuis($data['id']);
 				}
@@ -254,7 +254,8 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item[] = "</tr>";
 				$Item[] = "</table>";
 					
-				$HTMLMessage[] = showBlock(implode("\n", $Item));					
+				$NewHouses[] = showBlock(implode("\n", $Item));
+				$NewAddress[] = $data['adres'];
 			} elseif(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {
 				$fundaData			= getFundaData($data['id']);
 				$PriceHistory		= getFullPriceHistory($data['id']);
@@ -272,6 +273,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item .= "</table>\n";
 				
 				$UpdatedPrice[] = showBlock($Item);
+				$UpdatedAddress[] = $data['adres'];
 			}			
 		}
 		if($enkeleOpdracht) {
@@ -340,6 +342,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item .= "</table>\n";
 								
 				$VerkochtHuis[] = showBlock($Item);
+				$VerkochtAddress[] = $data['adres'];
 			} elseif($data['verkocht'] == '2') {
 				$Item  = "<table width='100%'>\n";
 				$Item .= "<tr>\n";
@@ -351,6 +354,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item .= "</table>\n";
 				
 				$OnderVoorbehoud[] = showBlock($Item);
+				$BijnaVerkochtAddress[] = $data['adres'];
 			} else {
 				$ErrorMessage[] = $OpdrachtData['naam'] ."; Zoeken van verkochte huizen geeft ongeldig resultaat";
 			}
@@ -381,6 +385,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			$Item .= "</table>\n";
 			
 			$OpenHuis[] = showBlock($Item);
+			$OpenAddress[] = $data['adres'];
 			
 			# Bijhouden dat mail verstuurd is met open huis
 			$sql_update_open = "UPDATE $TableResultaat SET $ResultaatOpenHuis = '1' WHERE $ResultaatZoekID like '$OpdrachtID' AND $ResultaatID like '$fundaID'";
@@ -389,7 +394,7 @@ foreach($Opdrachten as $OpdrachtID) {
 	}
 		
 	# Als er een nieuw huis, een huis in prijs gedaald, open huis of een huis verkocht is moet er een mail verstuurd worden.
-	if((count($HTMLMessage) > 0 OR count($UpdatedPrice) > 0 OR count($OnderVoorbehoud) > 0 OR count($VerkochtHuis) > 0 OR count($OpenHuis) > 0) AND (count($OpdrachtMembers) > 0)) {
+	if((count($NewHouses) > 0 OR count($UpdatedPrice) > 0 OR count($OnderVoorbehoud) > 0 OR count($VerkochtHuis) > 0 OR count($OpenHuis) > 0) AND (count($OpdrachtMembers) > 0)) {
 		$FooterText  = "Google Maps (";
 		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_mail.php?regio=$OpdrachtID") ."'>vandaag</a>, ";
 		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML.php?selectie=Z$OpdrachtID&datum=1") ."'>wijk</a>, ";
@@ -400,10 +405,10 @@ foreach($Opdrachten as $OpdrachtID) {
 		$FooterText .= "<div class='float_rechts'>(c) 2009-". date("Y") ." Matthijs Draijer</div>";			
 		include('include/HTML_TopBottom.php');
 				
-		if(count($HTMLMessage) > 0) {
-			$omslag			= round(count($HTMLMessage)/2);
-			$KolomEen		= array_slice ($HTMLMessage, 0, $omslag);
-			$KolomTwee	= array_slice ($HTMLMessage, $omslag, $omslag);
+		if(count($NewHouses) > 0) {
+			$omslag			= round(count($NewHouses)/2);
+			$KolomEen		= array_slice ($NewHouses, 0, $omslag);
+			$KolomTwee	= array_slice ($NewHouses, $omslag, $omslag);
 			
 			$HTMLMail .= "<tr>\n";
 			$HTMLMail .= "<td width='50%' valign='top' align='center'>\n";
@@ -420,17 +425,14 @@ foreach($Opdrachten as $OpdrachtID) {
 			$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
 			$HTMLMail .= "</tr>\n";
 			
-			$Subject[] = count($HTMLMessage) ." ". (count($HTMLMessage) == 1 ? 'nieuw huis' : 'nieuwe huizen');
+			if(count($NewHouses) == 1) {
+				$Subject[] = array_shift($NewAddress[0]) .' is nieuw';
+			} else {
+				$Subject[] = count($NewHouses) ." nieuwe huizen";
+			}
 		}
 		
 		if(count($UpdatedPrice) > 0) {
-			//$HTMLMail .= "<tr>\n";
-			//$HTMLMail .= "	<td colspan='2' align='center'>". showBlock("De volgende huizen zijn in prijs gedaald :<p>". implode("<p>", $UpdatedPrice)) ."</td>\n";
-			//$HTMLMail .= "</tr>\n";			
-			//$HTMLMail .= "<tr>\n";
-			//$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
-			//$HTMLMail .= "</tr>\n";
-			
 			$omslag			= round(count($UpdatedPrice)/2);
 			$KolomEen		= array_slice ($UpdatedPrice, 0, $omslag);
 			$KolomTwee	= array_slice ($UpdatedPrice, $omslag, $omslag);
@@ -453,7 +455,11 @@ foreach($Opdrachten as $OpdrachtID) {
 			$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
 			$HTMLMail .= "</tr>\n";			
 			
-			$Subject[] = count($UpdatedPrice) ." ". (count($UpdatedPrice) == 1 ? 'huis' : 'huizen') . " in prijs gedaald";
+			if(count($UpdatedPrice) == 1) {
+				$Subject[] = array_shift($UpdatedAddress[0]) .' is in prijs gedaald ';
+			} else {
+				$Subject[] = count($UpdatedPrice) ." huizen in prijs gedaald";
+			}
 		}
 		
 		if(count($OnderVoorbehoud) > 0) {
@@ -478,8 +484,12 @@ foreach($Opdrachten as $OpdrachtID) {
 			$HTMLMail .= "<tr>\n";
 			$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
 			$HTMLMail .= "</tr>\n";
-			
-			$Subject[] = count($OnderVoorbehoud) ." ". (count($OnderVoorbehoud) == 1 ? 'huis' : 'huizen') . " onder voorbehoud verkocht";
+						
+			if(count($OnderVoorbehoud) == 1) {
+				$Subject[] = array_shift($BijnaVerkochtAddress[0]) ." is onder voorbehoud verkocht";
+			} else {
+				$Subject[] = count($OnderVoorbehoud) ." onder voorbehoud verkocht";
+			}
 		}
 				
 		if(count($VerkochtHuis) > 0) {
@@ -505,7 +515,11 @@ foreach($Opdrachten as $OpdrachtID) {
 			$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
 			$HTMLMail .= "</tr>\n";
 			
-			$Subject[] = count($VerkochtHuis) ." ". (count($VerkochtHuis) == 1 ? 'huis' : 'huizen') . " verkocht";
+			if(count($VerkochtHuis) == 1) {
+				$Subject[] = array_shift($VerkochtAddress[0]) ." is verkocht";
+			} else {
+				$Subject[] = count($VerkochtHuis) ." verkocht";
+			}
 		}
 				
 		if(count($OpenHuis) > 0) {
@@ -531,7 +545,11 @@ foreach($Opdrachten as $OpdrachtID) {
 			$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
 			$HTMLMail .= "</tr>\n";
 			
-			$Subject[] = count($OpenHuis) ." ". (count($OpenHuis) == 1 ? 'huis heeft' : 'huizen hebben') . " open huis";
+			if(count($OpenHuis) == 1) {
+				$Subject[] = array_shift($OpenAddress[0]) ." heeft open huis";
+			} else {
+				$Subject[] = count($OpenHuis) ." hebben open huist";
+			}
 		}
 		
 		$FinalHTMLMail = $HTMLHeader.$HTMLMail.$HTMLPreFooter.$HTMLFooter;

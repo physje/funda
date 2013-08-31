@@ -60,10 +60,10 @@ if(isset($_REQUEST['id'])) {
 
 foreach($Users as $user) {
 	if(isset($_REQUEST['id'])) {
-		$sql		= "SELECT * FROM $TableCalendar WHERE $TableCalendar.$CalendarHuis = ". $_REQUEST['id'] ." AND $CalendarStart > $maandGeleden";
+		$sql	= "SELECT * FROM $TableCalendar WHERE $TableCalendar.$CalendarHuis = ". $_REQUEST['id'] ." AND $CalendarStart > $maandGeleden";
 	} else {
 		$UserData	= getMemberDetails($user);	
-		$sql		= "SELECT * FROM $TableCalendar, $TableResultaat, $TableZoeken WHERE $TableCalendar.$CalendarHuis = $TableResultaat.$ResultaatID AND $TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenUser = $user AND $TableZoeken.$ZoekenActive = 1 AND $TableCalendar.$CalendarStart > $maandGeleden";
+		$sql	= "SELECT * FROM $TableCalendar, $TableResultaat, $TableZoeken WHERE $TableCalendar.$CalendarHuis = $TableResultaat.$ResultaatID AND $TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenUser like '$user' AND $TableZoeken.$ZoekenActive like '1' AND $TableCalendar.$CalendarStart > $maandGeleden GROUP BY $ResultaatID";
 	}
 	
 	$result = mysql_query($sql);

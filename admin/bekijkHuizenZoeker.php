@@ -31,7 +31,7 @@ foreach($dataset as $fundaID) {
 	$data			= getFundaData($fundaID);	
 	
 	if($data['offline'] != 1 AND $data['verkocht'] != 1) {
-		$url						= makeHuizenZoekerURL($data);
+		$url						= makeHuizenZoekerURL($data);		
 		$contents				= file_get_contents_retry($url);
 		$Prijshistorie	= getString('<!-- Prijshistorie -->', '<!-- /Prijshistorie -->', $contents, 0);
 		
@@ -55,7 +55,7 @@ foreach($dataset as $fundaID) {
 			$price[0]	= str_replace(".", "", $price[0]);
 			
 			if(updatePrice($fundaID, $price[0], $Tijdstip)) {
-				$Links[] = $price[0] .' voor '. $data['adres'] .' toegevoegd<br>';
+				$Links[] = formatPrice($price[0], true) ." (". date("d-m-y", $Tijdstip) .") voor <a href='$url'>". $data['adres'] .'</a> toegevoegd<br>';
 			}
 		}
 	} elseif($data['offline'] == 1) {

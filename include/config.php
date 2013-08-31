@@ -3,7 +3,7 @@
 $ScriptURL				= '';
 $ScriptTitle			= 'Funda Alert';
 $ScriptMailAdress = '';
-$Version					= '3.8.2';
+$Version					= '3.9';
 $SubjectPrefix		= '[funda] ';
 
 $debug						= 0;
