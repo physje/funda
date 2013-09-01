@@ -426,7 +426,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			$HTMLMail .= "</tr>\n";
 			
 			if(count($NewHouses) == 1) {
-				$Subject[] = array_shift($NewAddress[0]) .' is nieuw';
+				$Subject[] = array_shift($NewAddress) .' is nieuw';
 			} else {
 				$Subject[] = count($NewHouses) ." nieuwe huizen";
 			}
@@ -456,7 +456,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			$HTMLMail .= "</tr>\n";			
 			
 			if(count($UpdatedPrice) == 1) {
-				$Subject[] = array_shift($UpdatedAddress[0]) .' is in prijs gedaald ';
+				$Subject[] = array_shift($UpdatedAddress) .' is in prijs gedaald ';
 			} else {
 				$Subject[] = count($UpdatedPrice) ." huizen in prijs gedaald";
 			}
@@ -486,7 +486,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			$HTMLMail .= "</tr>\n";
 						
 			if(count($OnderVoorbehoud) == 1) {
-				$Subject[] = array_shift($BijnaVerkochtAddress[0]) ." is onder voorbehoud verkocht";
+				$Subject[] = array_shift($BijnaVerkochtAddress) ." is onder voorbehoud verkocht";
 			} else {
 				$Subject[] = count($OnderVoorbehoud) ." onder voorbehoud verkocht";
 			}
@@ -516,7 +516,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			$HTMLMail .= "</tr>\n";
 			
 			if(count($VerkochtHuis) == 1) {
-				$Subject[] = array_shift($VerkochtAddress[0]) ." is verkocht";
+				$Subject[] = array_shift($VerkochtAddress) ." is verkocht";
 			} else {
 				$Subject[] = count($VerkochtHuis) ." verkocht";
 			}
@@ -546,7 +546,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			$HTMLMail .= "</tr>\n";
 			
 			if(count($OpenHuis) == 1) {
-				$Subject[] = array_shift($OpenAddress[0]) ." heeft open huis";
+				$Subject[] = array_shift($OpenAddress) ." heeft open huis";
 			} else {
 				$Subject[] = count($OpenHuis) ." hebben open huist";
 			}
