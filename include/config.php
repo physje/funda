@@ -1,16 +1,16 @@
 <?php
 
-$ScriptURL				= '';
-$ScriptTitle			= 'Funda Alert';
-$ScriptMailAdress = '';
-$Version					= '3.9';
-$SubjectPrefix		= '[funda] ';
+$ScriptURL				= '';							# Map waar het script staat, bv http://www.example.com/scripts/funda/
+$ScriptTitle			= 'Funda Alert';	# Naam van het script (is naam van afzender in mails)
+$ScriptMailAdress = '';							# Mailadres van het script (is mailadres van afzender in mails)
+$Version					= '3.9';					# Versie nummer
+$SubjectPrefix		= '[funda] ';			# Voorvoegsel bij de onderwerpregel bij het versturen van mails
 
-$debug						= 0;
-$stapPrijs				= 25000;			# Stapjes in prijs in de Google Maps view
-$colPhoto					= 3;					# Aantal kolommen met foto in mail
-$rowPhoto					= 3;					# Aantal rijen met foto in mail
-$aantalCols				= 4;					# Aantal kolommen met foto in fotoalbum
+$debug						= 0;							# Wel (1) of geen (0) debug-info op het scherm tonen
+$stapPrijs				= 25000;					# Stapjes in prijs in de Google Maps view
+$colPhoto					= 3;							# Aantal kolommen met foto in mail
+$rowPhoto					= 3;							# Aantal rijen met foto in mail
+$aantalCols				= 4;							# Aantal kolommen met foto in fotoalbum
 
 $cfgLogDebugTime	= mktime(date('H'), date('i'), date('s'), date('m'), date('d')-7, date('Y'));
 $cfgLogInfoTime		= mktime(date('H'), date('i'), date('s'), date('m')-1, date('d'), date('Y'));
@@ -22,6 +22,7 @@ $cfgUserLevels = array(
 	3 => 'Administrator'	
 );
 
+# Deze zaken zijn standaard aangevinkt bij een export naar EXCEL
 $cfgCSVExport[] = 'Inhoud';
 $cfgCSVExport[] = 'Aantal kamers';
 $cfgCSVExport[] = 'Tuin';
@@ -33,7 +34,7 @@ $cfgCSVExport[] = 'Bouwjaar';
 $cfgCSVExport[] = 'Plaats';
 $cfgCSVExport[] = 'Voortuin';
 
-	# Zaken die wel belangrijk zijn om te weten, anders dan de kenmerken
+# Zaken die wel belangrijk zijn om te weten, anders dan de kenmerken
 $cfgPrefixExport[] = 'ID';
 $cfgPrefixExport[] = 'url';
 $cfgPrefixExport[] = 'Kadaster';
@@ -45,6 +46,7 @@ $cfgPrefixExport[] = 'Wijk';
 $cfgPrefixExport[] = 'Latitude';
 $cfgPrefixExport[] = 'Longitude';
 
+# Default bestandsnaam voor de reguliere export naar EXCEL
 $cfgXLSFilename = '../extern/export_'. date('mdy') .'_'. md5(strftime ('%A %e %B %G')) .'.xls';
 
 # Strings met meldingen voor het inloggen
@@ -53,6 +55,7 @@ $strNoPassword        = "Geen wachtwoord ingevuld";
 $strUserNotAllowed    = "Deze gebruiker heeft geen toegang tot deze pagina";
 $strUserNotExist      = "Onbekende inloggegevens";
 
+# Tabel- en veldnamen voor de verschillende tabellen in MySQL
 $TableHuizen			= "funda_huizen";
 $HuizenID 				= "funda_id";
 $HuizenURL	 			= "url";
