@@ -57,6 +57,10 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "	<td><input type='text' name='latitude' value='". $data['lat'] ."' size='7'>,<input type='text' name='longitude' value='". $data['long'] ."' size=7'><div class='float_rechts'><a href='http://maps.google.nl/maps?q=". $data['lat'] .",". $data['long'] ."' target='_blank'>Google Maps</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
+		$HTML[] = "	<td>Makelaar</td>";
+		$HTML[] = "	<td>". $data['makelaar'] ."</td>";
+		$HTML[] = "</tr>";
+		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Wijk</td>";
 		$HTML[] = "	<td>". $data['wijk'] ."</td>";
 		$HTML[] = "</tr>";

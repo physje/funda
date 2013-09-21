@@ -38,27 +38,26 @@ function getString($start, $end, $string, $offset) {
 	return array($text, $rest);
 }
 
-function getCoordinates($straat, $postcode, $plaats) {
-	$API	= "ABQIAAAAu47B1qoFTFNYK9JqxGBuxhQfNzYv9ePMZnPGoYxKOXwffJ0ddxTfMVDQR2ZJAk6U34HnUZWm1ntUgw";
-	$q		= urlencode($straat) .",+". urlencode($postcode) ."+". urlencode($plaats) .",+Nederland";
-	$url	= "http://maps.google.com/maps/geo?q=$q&output=xml&key=$API";
+function getCoordinates($straat, $postcode, $plaats, $land = 'Nederland') {
+	$q		= urlencode($straat) .",+". urlencode($postcode) ."+". urlencode($plaats) .",+". urlencode($land);
+	$url	= "http://maps.googleapis.com/maps/api/geocode/xml?address=$q&sensor=false";
+		
 	$contents	= file_get_contents($url);
 	
-	$code		= getString('<code>', '</code>', $contents, 0);
-	
-	if($code[0] == 200) {
-		$Accuracy			= getString('AddressDetails Accuracy="', '"', $contents, 0);
-		$coordString	= getString('<coordinates>', '</coordinates>', $contents, 0);
-		$PC						= getString('<PostalCodeNumber>', '</PostalCodeNumber>', $contents, 0);
-		$coordArray		= explode(',', $coordString[0]);
-		$lat					= $coordArray[1];
-		$lon					= $coordArray[0];
-		$latitude			= explode('.', $lat);
-		$longitude		= explode('.', $lon);
+	$status	= getString('<status>', '</status>', $contents, 0);
 
-		return array($latitude[0], $latitude[1], $longitude[0], $longitude[1], $Accuracy[0], $PC[0]);
+	if($status[0] == 'OK') {
+		$location				= getString('<location>', '</location>', $contents, 0);
+		$location_type	= getString('<location_type>', '</location_type>', $contents, 0);
+		
+		$lat					= getString('<lat>', '</lat>', $location[0], 0);;
+		$lon					= getString('<lng>', '</lng>', $location[0], 0);;
+		$latitude			= explode('.', $lat[0]);
+		$longitude		= explode('.', $lon[0]);		
+
+		return array($latitude[0], $latitude[1], $longitude[0], $longitude[1], $location_type[0]);
 	} else {
-		return array(0, 0, 0, 0, 0, 0);
+		return array(0, 0, 0, 0, '');
 	}
 }
 
