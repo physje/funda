@@ -52,80 +52,115 @@ if(!isset($_REQUEST['id'])) {
 
 $maandGeleden	= mktime(0, 0, 0, date('m')-1, date('d'), date('Y'));
 
+$enkelHuis = $enkelZoekopdracht = $gebruiker = false;
+
 if(isset($_REQUEST['id'])) {
-	$Users = array(1);
+	$loop				= 1;
+	$enkelHuis	= true;
 } else {
-	$Users = getUsers();
+	$loop				= 2;
 }
 
-foreach($Users as $user) {
-	if(isset($_REQUEST['id'])) {
-		$sql	= "SELECT * FROM $TableCalendar WHERE $TableCalendar.$CalendarHuis = ". $_REQUEST['id'] ." AND $CalendarStart > $maandGeleden";
-	} else {
-		$UserData	= getMemberDetails($user);	
-		$sql  = "SELECT * FROM ";
-		$sql .= "$TableCalendar, $TableResultaat, $TableZoeken ";
-		$sql .= "WHERE ";
-		$sql .= "$TableCalendar.$CalendarHuis = $TableResultaat.$ResultaatID AND ";
-		$sql .= "$TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND ";
-		$sql .= "$TableZoeken.$ZoekenUser like '$user' AND ";
-		$sql .= "$TableZoeken.$ZoekenActive like '1' AND ";
-		$sql .= "$TableCalendar.$CalendarStart > $maandGeleden ";
-		$sql .= "GROUP BY ";
-		$sql .= "$CalendarHuis, $CalendarStart";
+for($i = 0 ; $i < $loop ; $i++) {	
+	if($i == 0 AND !$enkelHuis) {
+		$opdrachten = true;
+		$gebruikers = false;
+		$dataset = getZoekOpdrachten('', 1);
+	} elseif($i == 1 AND !$enkelHuis) {
+		$opdrachten = false;
+		$gebruikers = true;
+		$dataset = getUsers();
 	}
-	
-	$result = mysql_query($sql);
-	$row		= mysql_fetch_array($result);
-	
-	do {
-		$start		= $row[$CalendarStart];
-		$einde		= $row[$CalendarEnd];
-		$fundaID	= $row[$CalendarHuis];
-		$data		= getFundaData($fundaID);
-	
-		$description	= array();
-		$description[] = 'http://www.funda.nl/'. $fundaID;
-				
-		$ics[] = "BEGIN:VEVENT";	
-		$ics[] = "UID:FUNDA_OPEN_HUIS-". $fundaID .'-'. date("Ymd", $start);
-		$ics[] = "DTSTART:". date("Ymd\THis", $start);
-		$ics[] = "DTEND:". date("Ymd\THis", $einde);	
-		$ics[] = "LAST-MODIFIED:". date("Ymd\THis", time());
-		$ics[] = "SUMMARY:Open Huis '". $data['adres'] ."'";
-		$ics[] = "LOCATION:". $data['adres'] .", ". $data['plaats'];
-		$ics[] = "DESCRIPTION:". implode('\n', $description);
-		$ics[] = "STATUS:CONFIRMED";	
-		$ics[] = "TRANSP:TRANSPARENT";
-		$ics[] = "END:VEVENT";
-	} while($row = mysql_fetch_array($result));
-	
-	if(isset($_REQUEST['id'])) {
-		header("Expires: Mon, 26 Jul 2001 05:00:00 GMT");
-		header("Cache-Control: no-store, no-cache, must-revalidate");
-		header("Cache-Control: post-check=0, pre-check=0", false); 
-		header("Pragma: no-cache");
-		header("Cache-control: private");
-		header('Content-type: application/ics');
-		header('Content-Disposition: attachment; filename="'. formatAddress($data['adres']) .'.ics"');
-		echo implode("\r\n", $header);
-		echo "\r\n";
-		echo implode("\r\n", $ics);
-		echo "\r\n";
-		echo implode("\r\n", $footer);		
-	} else {
-		$filename = '../../../download/'. str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. $UserData['naam'] .'.ics';
-	
-		$file = fopen($filename, 'w+');
-		fwrite($file, implode("\r\n", $header));
-		fwrite($file, "\r\n");
-		fwrite($file, implode("\r\n", $ics));
-		fwrite($file, "\r\n");
-		fwrite($file, implode("\r\n", $footer));
-		fclose ($file);
 		
-		echo "<a href='$filename'>". $UserData['naam'] ."</a>";
-		echo "\n<p>\n";
+	foreach($dataset as $id) {
+		if($enkelHuis) {
+			$sql	= "SELECT * FROM $TableCalendar WHERE $TableCalendar.$CalendarHuis = ". $_REQUEST['id'] ." AND $CalendarStart > $maandGeleden";
+			$dataset[] = 1;
+		}
+		
+		if($opdrachten) {
+			$OpdrachtData = getOpdrachtData($id);
+			$sql  = "SELECT * FROM ";
+			$sql .= "$TableCalendar, $TableResultaat ";
+			$sql .= "WHERE ";
+			$sql .= "$TableCalendar.$CalendarHuis = $TableResultaat.$ResultaatID AND ";
+			$sql .= "$TableResultaat.$ResultaatZoekID like '$id' AND ";
+			$sql .= "$TableCalendar.$CalendarStart > $maandGeleden ";
+		}
+		
+		if($gebruikers) {
+			$UserData	= getMemberDetails($id);	
+			$sql  = "SELECT * FROM ";
+			$sql .= "$TableCalendar, $TableResultaat, $TableZoeken, $TableAbo ";
+			$sql .= "WHERE ";
+			$sql .= "$TableCalendar.$CalendarHuis = $TableResultaat.$ResultaatID AND ";
+			$sql .= "$TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND ";
+			$sql .= "$TableZoeken.$ZoekenActive like '1' AND ";
+			$sql .= "$TableAbo.$AboZoekID = $TableZoeken.$ZoekenKey AND ";
+			$sql .= "$TableAbo.$AboUserID like '$id' AND ";
+			$sql .= "$TableCalendar.$CalendarStart > $maandGeleden ";
+			$sql .= "GROUP BY ";
+			$sql .= "$CalendarHuis, $CalendarStart";
+		}
+	
+		$result = mysql_query($sql);
+		$row		= mysql_fetch_array($result);
+	
+		do {
+			$start		= $row[$CalendarStart];
+			$einde		= $row[$CalendarEnd];
+			$fundaID	= $row[$CalendarHuis];
+			$data		= getFundaData($fundaID);
+	
+			$description	= array();
+			$description[] = 'http://www.funda.nl/'. $fundaID;
+					
+			$ics[] = "BEGIN:VEVENT";	
+			$ics[] = "UID:FUNDA_OPEN_HUIS-". $fundaID .'-'. date("Ymd", $start);
+			$ics[] = "DTSTART:". date("Ymd\THis", $start);
+			$ics[] = "DTEND:". date("Ymd\THis", $einde);	
+			$ics[] = "LAST-MODIFIED:". date("Ymd\THis", time());
+			$ics[] = "SUMMARY:Open Huis '". $data['adres'] ."'";
+			$ics[] = "LOCATION:". $data['adres'] .", ". $data['plaats'];
+			$ics[] = "DESCRIPTION:". implode('\n', $description);
+			$ics[] = "STATUS:CONFIRMED";	
+			$ics[] = "TRANSP:TRANSPARENT";
+			$ics[] = "END:VEVENT";
+		} while($row = mysql_fetch_array($result));
+		
+		if($enkelHuis) {
+			header("Expires: Mon, 26 Jul 2001 05:00:00 GMT");
+			header("Cache-Control: no-store, no-cache, must-revalidate");
+			header("Cache-Control: post-check=0, pre-check=0", false); 
+			header("Pragma: no-cache");
+			header("Cache-control: private");
+			header('Content-type: application/ics');
+			header('Content-Disposition: attachment; filename="'. formatAddress($data['adres']) .'.ics"');
+			echo implode("\r\n", $header);
+			echo "\r\n";
+			echo implode("\r\n", $ics);
+			echo "\r\n";
+			echo implode("\r\n", $footer);		
+		} else {
+			if($opdrachten) {
+				$filename = '../../../download/'. str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. $OpdrachtData['naam'] .'.ics';
+				echo "<a href='$filename'>". $OpdrachtData['naam'] ."</a>";				
+			}
+			
+			if($gebruikers) {
+				$filename = '../../../download/'. str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. $UserData['naam'] .'.ics';
+				echo "<a href='$filename'>". $UserData['naam'] ."</a>";
+			}
+			echo "\n<p>\n";
+		
+			$file = fopen($filename, 'w+');
+			fwrite($file, implode("\r\n", $header));
+			fwrite($file, "\r\n");
+			fwrite($file, implode("\r\n", $ics));
+			fwrite($file, "\r\n");
+			fwrite($file, implode("\r\n", $footer));
+			fclose ($file);			
+		}
 	}
 }
 

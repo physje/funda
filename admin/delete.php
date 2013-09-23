@@ -19,7 +19,7 @@ if(isset($_REQUEST['id'])) {
 		$sql_check_unique = "SELECT * FROM $TableResultaat WHERE $ResultaatID like '$id'";
 		$result	= mysql_query($sql_check_unique);
 		
-		if(mysql_num_rows($result) < 1) {
+		if(mysql_num_rows($result) < 1 OR isset($_REQUEST['heelzeker'])) {
 			$sql = "DELETE FROM $TableHuizen WHERE $HuizenID like '$id'";
 			if(mysql_query($sql)) {
 				$deel_1 .= "Huis is verwijderd<br>";
