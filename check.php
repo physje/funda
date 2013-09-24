@@ -548,7 +548,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			if(count($OpenHuis) == 1) {
 				$Subject[] = array_shift($OpenAddress) ." heeft open huis";
 			} else {
-				$Subject[] = count($OpenHuis) ." hebben open huist";
+				$Subject[] = count($OpenHuis) ." hebben open huis";
 			}
 		}
 		
