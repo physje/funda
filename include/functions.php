@@ -287,6 +287,19 @@ function convertToReadable($string) {
 	return $string;
 }
 
+function removeFilenameCharacters($string) {
+	$string = str_replace('²', '', $string);
+	$string = str_replace(',', '', $string);
+	$string = str_replace('!', '', $string);
+	$string = str_replace('[', '', $string);
+	$string = str_replace(']', '', $string);
+	$string = str_replace(' ', '-', $string);
+	$string = html_entity_decode($string);
+	
+	return $string;
+}
+
+
 
 function makeKMLEntry($id) {
 	global $ScriptURL;

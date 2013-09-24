@@ -143,12 +143,12 @@ for($i = 0 ; $i < $loop ; $i++) {
 			echo implode("\r\n", $footer);		
 		} else {
 			if($opdrachten) {
-				$filename = '../../../download/'. str_replace(' ', '-', $ScriptTitle.'_Open-Huis_'.$OpdrachtData['naam']) .'.ics';
+				$filename = '../../../download/'. str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. removeFilenameCharacters($OpdrachtData['naam']) .'.ics';
 				echo "<a href='$filename'>". $OpdrachtData['naam'] ."</a>";				
 			}
 			
 			if($gebruikers) {
-				$filename = '../../../download/'. str_replace(' ', '-', $ScriptTitle.'_Open-Huis_'.$UserData['naam']) .'.ics';
+				$filename = '../../../download/'. str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. removeFilenameCharacters($UserData['naam']) .'.ics';
 				echo "<a href='$filename'>". $UserData['naam'] ."</a>";
 			}
 			echo "\n<p>\n";
