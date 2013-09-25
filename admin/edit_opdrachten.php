@@ -144,15 +144,18 @@ if(isset($_POST['doorgaan'])) {
 			if($_SESSION['level'] > 1) {
 				$Page .= "	<td><a href='../check.php?OpdrachtID=$OpdrachtID'><img src='http://www.funda.nl/img/favicon/funda.ico' title=\"Voer '". $OpdrachtData['naam'] ."' uit\"></a></td>";
 				$Page .= "	<td>&nbsp;</td>";
-				$Page .= "	<td><a href='getVerkochteHuizen.php?OpdrachtID=$OpdrachtID'><img src='http://www.vanveldhuizenmakelaardij.nl/images/pic_info.gif' title=\"Zoek naar verkochte huizen voor '". $OpdrachtData['naam'] ."'\"></a></td>";				
+				$Page .= "	<td><a href='getVerkochteHuizen.php?OpdrachtID=$OpdrachtID'><img src='http://www.vuister.com/favicon.ico' title=\"Zoek naar verkochte huizen voor '". $OpdrachtData['naam'] ."'\"></a></td>";				
 				$Page .= "	<td>&nbsp;</td>";
 				$Page .= "	<td><a href='invite.php?OpdrachtID=$OpdrachtID'><img src='http://www.lessthanfour.org/resources/images/icons/16-inviteGroup.png' title=\"Nodig iemand uit voor '". $OpdrachtData['naam'] ."'\"></a></td>";
 				$Page .= "	<td>&nbsp;</td>";
-				$Page .= "	<td><a href='bekijkHuizenZoeker.php?selectie=Z$OpdrachtID'><img src='http://cache.websitegegevens.nl/favicons/www.huizenzoeker.nl.png'></a></td>";
+				$Page .= "	<td><a href='bekijkHuizenZoeker.php?selectie=Z$OpdrachtID'><img src='http://cache.websitegegevens.nl/favicons/www.huizenzoeker.nl.png' title=\"Zoek naar ontbrekende gegevens voor '". $OpdrachtData['naam'] ."' op huizenzoeker.nl\"></a></td>";
 				$Page .= "	<td>&nbsp;</td>";
+				$Page .= "	<td><a href='../../../download/". str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. removeFilenameCharacters($OpdrachtData['naam']) .".ics'><img src='http://www.chamilo.org/sites/all/modules/event/images/ical16x16.gif' title=\"Bekijk de huizen met Open Huis in iCal-formaat voor '". $OpdrachtData['naam'] ."'\"></a></td>";
+				$Page .= "	<td>&nbsp;</td>";
+				
 			}
 			if(in_array($_SESSION['account'] ,$Abonnees)) {
-				$Page .= "	<td><a href='". $_SERVER["PHP_SELF"] ."?action=remove&opdracht=$OpdrachtID'><img src='http://alpem.net/appli/includes/classeLogon/img/mail_yes.gif' title=\"Ik wil géén mails meer ontvangen voor '". $OpdrachtData['naam'] ."'\"></a></td>";
+				$Page .= "	<td><a href='". $_SERVER["PHP_SELF"] ."?action=remove&opdracht=$OpdrachtID'><img src='http://alpem.net/appli/includes/classeLogon/img/mail_yes.gif' title=\"Ik wil gï¿½ï¿½n mails meer ontvangen voor '". $OpdrachtData['naam'] ."'\"></a></td>";
 			} else {
 				$Page .= "	<td><a href='". $_SERVER["PHP_SELF"] ."?action=add&opdracht=$OpdrachtID'><img src='http://alpem.net/appli/includes/classeLogon/img/mail_no.gif' title=\"Ik wil mails ontvangen voor '". $OpdrachtData['naam'] ."'\"></a></td>";
 			}
