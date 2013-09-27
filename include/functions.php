@@ -590,7 +590,7 @@ function changedPrice($id, $price, $opdracht) {
 
 function getFundaData($id) {
 	//global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenNdeg, $HuizenNdec, $HuizenOdeg, $HuizenOdec, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht;
-	global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht;
+	global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht, $HuizenOpenHuis;
 	connect_db();
   
   if($id != 0) {
@@ -618,6 +618,7 @@ function getFundaData($id) {
 			$data['eind']			= $row[$HuizenEind];
 			$data['verkocht']	= $row[$HuizenVerkocht];
 			$data['offline']	= $row[$HuizenOffline];
+			$data['openhuis']	= $row[$HuizenOpenHuis];
 			
 			return $data;
 		} else {
