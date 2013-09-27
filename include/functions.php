@@ -1472,6 +1472,7 @@ function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
 		if(in_array('Huidige Prijs', $prefixen))	$CSV_regel[] = getHuidigePrijs($huisID);
 		if(in_array('Orginele Prijs', $prefixen))	$CSV_regel[] = getOrginelePrijs($huisID);
 		if(in_array('Status', $prefixen))					$CSV_regel[] = $status;
+		if(in_array('Open Huis', $prefixen))				$CSV_regel[] = $data['openhuis'];
 		if(in_array('Makelaar', $prefixen))				$CSV_regel[] = $data['makelaar'];
 		if(in_array('Wijk', $prefixen))						$CSV_regel[] = $data['wijk'];
 		if(in_array('Latitude', $prefixen))				$CSV_regel[] = str_replace('.', ',', $data['lat']);
