@@ -41,6 +41,7 @@ $cfgPrefixExport[] = 'Kadaster';
 $cfgPrefixExport[] = 'Huidige Prijs';
 $cfgPrefixExport[] = 'Orginele Prijs';
 $cfgPrefixExport[] = 'Status';
+$cfgPrefixExport[] = 'Open Huis';
 $cfgPrefixExport[] = 'Makelaar';
 $cfgPrefixExport[] = 'Wijk';
 $cfgPrefixExport[] = 'Latitude';
