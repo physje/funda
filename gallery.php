@@ -70,7 +70,7 @@ if(isset($_POST['add'])) {
 		}
 		
 		# funda.nl verplaatst de thumbs als huizen offline of verkocht zijn
-		if($data['verkocht'] == '1' || $data['verkocht'] == '2' || $data['offline'] == '1') {
+		if($data['verkocht'] == '1' || $data['verkocht'] == '2' || $data['offline'] == '1' || $data['openhuis'] == '1') {
 			//$image	= changeThumbLocation($image);			
 			
 			$imageClass = 'imageUnavailable';
@@ -81,7 +81,9 @@ if(isset($_POST['add'])) {
 				$description = "verkocht";
 				//$url		= changeURLLocation($url);
 			} elseif($data['verkocht'] == '2') {
-				$description = "Onder voorbehoud";
+				$description = "onder voorbehoud";
+			} elseif($data['openhuis'] == '1') {
+				$description = "open huis";
 			} else {
 				$description = "offline";
 			}
