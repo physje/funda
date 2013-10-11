@@ -7,9 +7,13 @@ include_once('../include/functions.php');
 include_once('../include/config.php');
 connect_db();
 
+$manual = false;
+$HTMLMessageNeg = $HTMLMessage = array();
+
 if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	$key_1[0] = $_REQUEST['id_1'];
 	$key_2[0] = $_REQUEST['id_2'];
+	$manual = true;
 } else {
 	$i = 1;
 	$KeyArray			= array();
@@ -53,7 +57,7 @@ if(is_array($key_1)) {
 		$data_new = getFundaData($id_new);
 
 		# Huizen die niet een paar dagen offline zijn geweest zijn 'verdacht' en worden dus niet automatisch samengevoegd
-		if(($data_new['start'] - $data_oud['eind']) > 0) {
+		if(($data_new['start'] - $data_oud['eind']) > 0 OR $manual) {
 			# Actie-lijst :
 			#		Vervang begintijd_2 door begintijd_1		
 			#		Vervang ID_1 door ID_2 in prijzen- en lijsten-tabel
@@ -115,7 +119,7 @@ if(is_array($key_1)) {
 			}
 			$verwijderd = true;
 		}
-		
+				
 		$Item  = "<table width='100%'>\n";
 		if(!$verwijderd) {
 			$Item .= "<tr>\n";
@@ -134,6 +138,13 @@ if(is_array($key_1)) {
 		$Item .= "	<td align='center'>". date("d-m-y", $data_oud['start']) .' t/m '. date("d-m-y", $data_oud['eind']) ."</td>\n";
 		$Item .= "	<td align='center'>". date("d-m-y", $data_new['start']) .' t/m '. date("d-m-y", $data_new['eind']) ."</td>\n";
 		$Item .= "</tr>\n";
+		
+		if(!$verwijderd) {
+			$Item .= "<tr>\n";
+			$Item .= "	<td align='center'><a href='". $ScriptURL ."admin/combine_manual.php?id_1=$id_oud&id_2=$id_new'>$id_new is master</a></td>\n";
+			$Item .= "	<td align='center'><a href='". $ScriptURL ."admin/combine_manual.php?id_1=$id_new&id_2=$id_oud'>$id_oud is master</a></td>\n";
+			$Item .= "</tr>\n";
+		}
 		$Item .= "</table>\n";
 		
 		if(!$verwijderd) {

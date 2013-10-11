@@ -17,10 +17,15 @@ $i = 1;
 $KeyArray = array();
 
 do {
-	$option[] = "<option value='". $row[$HuizenID] ."'>". urldecode($row[$HuizenAdres]) ."; ". urldecode($row[$HuizenPlaats]) ." (". $row[$HuizenID] .")</option>";
+	$huisID = $row[$HuizenID];
+	$adres = urldecode($row[$HuizenAdres])."; ". urldecode($row[$HuizenPlaats]);
+		
+	$option_1[] = "<option value='$huisID'". ($huisID == $_REQUEST['id_1'] ? ' selected' : '') .">$adres ($huisID)</option>";
+	$option_2[] = "<option value='$huisID'". ($huisID == $_REQUEST['id_2'] ? ' selected' : '') .">$adres ($huisID)</option>";
 } while($row = mysql_fetch_array($result));
 
 $HTML[] = "<form method='post' action='combine_batch.php'>\n";
+$HTML[] = "<input type='hidden' name='thijs' value='ja'>\n";
 $HTML[] = "<table>\n";
 $HTML[] = "<tr>";
 $HTML[] = "	<td>Verwijderen</td>";
@@ -29,11 +34,11 @@ $HTML[] = "	<td>Master</td>";
 $HTML[] = "</tr>";	
 $HTML[] = "<tr>";
 $HTML[] = "	<td><select name='id_1'>";
-$HTML[] = implode("\n", $option);
+$HTML[] = implode("\n", $option_1);
 $HTML[] = "	</td>";
 $HTML[] = "	<td> -> </td>";
 $HTML[] = "	<td><select name='id_2'>";
-$HTML[] = implode("\n", $option);
+$HTML[] = implode("\n", $option_2);
 $HTML[] = "	</td>";	
 $HTML[] = "</tr>";
 $HTML[] = "</table>\n";
