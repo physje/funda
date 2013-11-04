@@ -144,6 +144,12 @@ $CalendarHuis			= "huis";
 $CalendarStart		= "start";
 $CalendarEnd			= "einde";
 
+$TablePBK					= "funda_PBK";				# Op 5 nov in gebruik genomen -> changeTable_05-11-2013.php
+$PBKStart					= "start";						# Op 5 nov in gebruik genomen
+$PBKEind					= "eind";							# Op 5 nov in gebruik genomen
+$PBKWaarde				= "waarde";						# Op 5 nov in gebruik genomen
+$PBKComment				= "comment";					# Op 5 nov in gebruik genomen
+
 // http://photos-f.ak.fbcdn.net/photos-ak-snc7/v43/218/226836780678110/app_2_226836780678110_6214.gif
 
 ?>

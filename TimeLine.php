@@ -76,7 +76,7 @@ if(isset($_POST['add'])) {
 	do {
 		$breedte_1	= round(70*($row[$HuizenStart] - $start_tijd)/$fullWidth);
 		$breedte_2	= round(70*($row[$HuizenEind] - $row[$HuizenStart])/$fullWidth);
-		$breedte_3	= 70 - $breedte_1 - $breedte_2;;
+		$breedte_3	= 70 - $breedte_1 - $breedte_2;
 		$adres			= convertToReadable(urldecode($row[$HuizenAdres]));
 		
 		$relPrijzen			= getFullPriceHistory($row[$HuizenID]);
@@ -103,7 +103,7 @@ if(isset($_POST['add'])) {
 		if($breedte_1 != 0) { echo "		<td width='". $breedte_1 ."%'>&nbsp;</td>\n"; }
 		echo "		<td width='". $breedte_2 ."%' bgcolor='#FF6D6D' title='In de verkoop van ". date("d-m", $row[$HuizenStart]) .' t/m '. date("d-m", $row[$HuizenEind]) ."'>". getDoorloptijd($row[$HuizenID]) ."</td>\n";
 		if($breedte_3 != 0) { echo "		<td width='". $breedte_3 ."%'>&nbsp;</td>\n"; }
-		echo "		<td width='5%' align='right'><a href='PrijsDaling.php?selectie=". $_REQUEST['selectie'] ."#". $row[$HuizenID] ."' title='Bekijk de prijsdaling van $adres'>". number_format($percentageAll, 0) ."%</a></td>\n";
+		echo "		<td width='5%' align='right'><a href='PrijsDaling.php?selectie=". $_REQUEST['selectie'] ."#". $row[$HuizenID] ."' title='Bekijk de prijsdaling van $adres\nVraagprijs ". formatPrice(getOrginelePrijs($row[$HuizenID])) ." | Gecorrigeerde prijs ". formatPrice(corrigeerPrice($row[$HuizenStart], getOrginelePrijs($row[$HuizenID]))) ."'>". number_format($percentageAll, 0) ."%</a></td>\n";
 		echo "	</tr></table>\n";
 		echo "</td></tr>\n";
 	} while($row = mysql_fetch_array($result));

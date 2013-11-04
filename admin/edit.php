@@ -121,6 +121,13 @@ if(isset($_REQUEST['id'])) {
 		$Kenmerk[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
 		$Kenmerk[] = "<input type='hidden' name='id' value='$id'>";
 		$Kenmerk[] = "<table>";
+		$Kenmerk[] = "<tr>";
+		$Kenmerk[] = "	<td>Datum</td>";
+		$Kenmerk[] = "	<td>&nbsp;</td>";
+		$Kenmerk[] = "	<td>Prijs</td>";
+		$Kenmerk[] = "	<td>&nbsp;</td>";
+		$Kenmerk[] = "	<td>Correctie</td>";
+		$Kenmerk[] = "</tr>";
 		
 		foreach($Prijzen as $key => $value)	{
 			if($key != 0) {
@@ -134,6 +141,8 @@ if(isset($_REQUEST['id'])) {
 				$Kenmerk[] = "	</select></td>\n";
 				$Kenmerk[] = "<td> -> </td>";
 				$Kenmerk[] = "<td><input type='text' size='5' name='pPrijs[]' value='$value'></td>";
+				$Kenmerk[] = "<td>&nbsp;</td>";
+				$Kenmerk[] = "<td>". formatPrice(corrigeerPrice($key, $value)) ."</td>";				
 				$Kenmerk[] = "</tr>";
 			}
 		}
