@@ -1684,18 +1684,11 @@ function corrigeerPrice($t1, $p1, $t2 = '') {
 		$t2 = time();
 	}
 	
-	$sql_1 = "SELECT * FROM $TablePBK WHERE $t1 BETWEEN $PBKStart AND $PBKEind";
-	$result_1 = mysql_query($sql_1);
-	if(mysql_num_rows($result_1) == 1) {
-		$row = mysql_fetch_array($result_1);
-    $factor_1 = $row[$PBKWaarde];
-	}
-	
 	$sql_2 = "SELECT * FROM $TablePBK WHERE $t2 BETWEEN $PBKStart AND $PBKEind";
 	$result_2 = mysql_query($sql_2);
 	if(mysql_num_rows($result_2) == 1) {
 		$row = mysql_fetch_array($result_2);
-    $factor_2 = $row[$PBKWaarde];
+    		$factor_2 = $row[$PBKWaarde];
 	} else {
 		$sql_3 = "SELECT * FROM $TablePBK ORDER BY $PBKStart DESC LIMIT 0,1";
 		$result_3 = mysql_query($sql_3);
@@ -1704,6 +1697,16 @@ function corrigeerPrice($t1, $p1, $t2 = '') {
 		if($t2 > $row[$PBKEind]) {
 			$factor_2 = $row[$PBKWaarde];
 		}		
+	}
+	
+	
+	$sql_1 = "SELECT * FROM $TablePBK WHERE $t1 BETWEEN $PBKStart AND $PBKEind";
+	$result_1 = mysql_query($sql_1);
+	if(mysql_num_rows($result_1) == 1) {
+		$row = mysql_fetch_array($result_1);
+    		$factor_1 = $row[$PBKWaarde];
+	} else {
+		$factor_1 = $factor_2;	
 	}
 	
 	//echo date("d-m-y", $t1) .' -> '. $factor_1 .'|'. date("d-m-y", $t2) .' -> '. $factor_2;	
