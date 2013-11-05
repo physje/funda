@@ -71,7 +71,7 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "	</select><select name='bMaand'>\n";
 		for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $data['start']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
 		$HTML[] = "	</select><select name='bJaar'>\n";
-		for($j=(date('Y') - 3) ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['start']) ? ' selected' : '') .">$j</option>\n";	}
+		for($j=(date('Y') - 5) ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['start']) ? ' selected' : '') .">$j</option>\n";	}
 		$HTML[] = "	</select></td>\n";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";	
@@ -81,7 +81,7 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "	</select><select name='eMaand'>\n";
 		for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $data['eind']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
 		$HTML[] = "	</select><select name='eJaar'>\n";
-		for($j=(date('Y') - 3) ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['eind']) ? ' selected' : '') .">$j</option>\n";	}
+		for($j=(date('Y') - 5) ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['eind']) ? ' selected' : '') .">$j</option>\n";	}
 		$HTML[] = "	</select></td>\n";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
