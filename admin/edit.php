@@ -137,7 +137,7 @@ if(isset($_REQUEST['id'])) {
 				$Kenmerk[] = "	</select><select name='pMaand[]'>\n";
 				for($m=1 ; $m<=12 ; $m++)	{	$Kenmerk[] = "<option value='$m'". ($m == date("m", $key) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
 				$Kenmerk[] = "	</select><select name='pJaar[]'>\n";
-				for($j=(date('Y') - 3) ; $j<=(date('Y')) ; $j++)	{	$Kenmerk[] = "<option value='$j'". ($j == date("Y", $key) ? ' selected' : '') .">$j</option>\n";	}
+				for($j=(date('Y') - 5) ; $j<=(date('Y')) ; $j++)	{	$Kenmerk[] = "<option value='$j'". ($j == date("Y", $key) ? ' selected' : '') .">$j</option>\n";	}
 				$Kenmerk[] = "	</select></td>\n";
 				$Kenmerk[] = "<td> -> </td>";
 				$Kenmerk[] = "<td><input type='text' size='5' name='pPrijs[]' value='$value'></td>";
