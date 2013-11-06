@@ -142,7 +142,7 @@ if(isset($_POST['doorgaan'])) {
 			$Page .= "	<td>&nbsp;</td>";
 			
 			if($_SESSION['level'] > 1) {
-				$Page .= "	<td><a href='../check.php?OpdrachtID=$OpdrachtID'><img src='http://www.funda.nl/img/favicon/funda.ico' title=\"Voer '". $OpdrachtData['naam'] ."' uit\"></a></td>";
+				$Page .= "	<td><a href='../check.php?OpdrachtID=$OpdrachtID'><img src='http://www.funda.nl/img/favicon/funda.ico' width='16' height='16' title=\"Voer '". $OpdrachtData['naam'] ."' uit\"></a></td>";
 				$Page .= "	<td>&nbsp;</td>";
 				$Page .= "	<td><a href='getVerkochteHuizen.php?OpdrachtID=$OpdrachtID'><img src='http://www.vuister.com/favicon.ico' title=\"Zoek naar verkochte huizen voor '". $OpdrachtData['naam'] ."'\"></a></td>";				
 				$Page .= "	<td>&nbsp;</td>";
