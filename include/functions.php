@@ -279,9 +279,6 @@ function extractFundaData($HuisText, $verkocht = false) {
 function convertToReadable($string) {
 	$string = str_replace('&nbsp;m&sup2;', '', $string);
 	$string = str_replace('&nbsp;m&sup3;', '', $string);
-	$string = str_replace('&#235;', '�', $string);
-	$string = str_replace('&#39;', '', $string);
-	$string = str_replace('&amp;', '&', $string);
 	$string = html_entity_decode($string);
 	
 	return $string;
@@ -1444,6 +1441,8 @@ function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
 				$CSV_kop[] = $kenmerk;
 				$CSV_kop[] = $kenmerk .' (diep)';
 				$CSV_kop[] = $kenmerk .' (breed)';
+			} elseif($kenmerk == 'Wonen (= woonoppervlakte)') {
+				$CSV_kop[] = 'Woonoppervlakte';
 			} else {
 				$CSV_kop[] = $kenmerk;
 			}
@@ -1466,27 +1465,22 @@ function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
 			$status = 'beschikbaar';
 		}
 		
-		$CSV_regel = array($data['adres']);		
+		$CSV_regel = array();											$CSV_regel[] = convertToReadable($data['adres']);				
 		if(in_array('ID', $prefixen))							$CSV_regel[] = $huisID;
 		if(in_array('url', $prefixen))						$CSV_regel[] = 'http://funda.nl/'.$huisID;
 		if(in_array('Kadaster', $prefixen))				$CSV_regel[] = 'http://funda.nl/kadaster/?ref='.$huisID;
 		if(in_array('Huidige Prijs', $prefixen))	$CSV_regel[] = getHuidigePrijs($huisID);
 		if(in_array('Orginele Prijs', $prefixen))	$CSV_regel[] = getOrginelePrijs($huisID);
 		if(in_array('Status', $prefixen))					$CSV_regel[] = $status;
-		if(in_array('Open Huis', $prefixen))				$CSV_regel[] = $data['openhuis'];
+		if(in_array('Open Huis', $prefixen))			$CSV_regel[] = $data['openhuis'];
 		if(in_array('Makelaar', $prefixen))				$CSV_regel[] = $data['makelaar'];
 		if(in_array('Wijk', $prefixen))						$CSV_regel[] = $data['wijk'];
 		if(in_array('Latitude', $prefixen))				$CSV_regel[] = str_replace('.', ',', $data['lat']);
 		if(in_array('Longitude', $prefixen))			$CSV_regel[] = str_replace('.', ',', $data['long']);
 		
 		foreach($kolomen as $dummy => $kenmerk) {				
-			$string = $kenmerken[$kenmerk];
-			$string = str_replace('&nbsp;m&sup2;', '', $string);
-			$string = str_replace('&nbsp;m&sup3;', '', $string);
-			$string = str_replace('&#235;', '�', $string);
-			$string = str_replace('&amp;', '&', $string);
-			$string = html_entity_decode($string);
-			
+			$string = convertToReadable($kenmerken[$kenmerk]);
+						
 			if($kenmerk == 'Achtertuin' || $kenmerk == 'Voortuin' || $kenmerk == 'Plaats') {
 				if(strlen($string) > 10) {
 					$string = str_replace(' m²', '', $string);
