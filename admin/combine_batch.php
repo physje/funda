@@ -7,6 +7,9 @@ include_once('../include/functions.php');
 include_once('../include/config.php');
 connect_db();
 
+# Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
+# Iedereen kan deze pagina dus in principe openen.
+
 $manual = false;
 $HTMLMessageNeg = $HTMLMessage = array();
 

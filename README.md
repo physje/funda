@@ -10,6 +10,7 @@ De tijdstippen kan je zelf varieëren, maar ik heb de volgende jobs draaien :
 - 2 	2 				* 	* 	* 			wget -q -O /dev/null http://www.example.com/funda/admin/search4Offline.php
 - 12 	9,15,21 	* 	* 	* 			wget -q -O /dev/null http://www.example.com/funda/admin/getVerkochteHuizen.php
 - 21 	9,15,21 	* 	* 	* 			wget -q -O /dev/null http://www.example.com/funda/check.php
+- 24 	23 				22 	* 	* 			wget -q -O /dev/null http://www.example.com/funda/admin/readPBK.php
 - 42 	2 				* 	* 	1,3,5 	wget -q -O /dev/null http://www.example.com/funda/admin/combine_batch.php
 - 42 	2 				* 	* 	0 			wget -q -O /dev/null http://www.example.com/funda/admin/cleanUp.php
 

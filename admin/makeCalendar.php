@@ -6,6 +6,9 @@ include_once('../include/config.php');
 include_once('../include/HTML_TopBottom.php');
 connect_db();
 
+# Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
+# Iedereen kan deze pagina dus in principe openen.
+
 $header[] = "BEGIN:VCALENDAR";
 //$header[] = "PRODID:-//Google Inc//Google Calendar 70.9054//EN";
 $header[] = "VERSION:2.0";
