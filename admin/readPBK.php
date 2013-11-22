@@ -74,4 +74,6 @@ foreach($rijen as $rij) {
 	mysql_query($sql);
 }
 
+toLog('info', , , 'Kadaster PBK-ingelezen');
+
 ?>
