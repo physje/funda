@@ -39,6 +39,7 @@ $admin['admin/downloadDailyExport.php']	= 'Download XLS-file';
 
 if($_SESSION['level'] > 1) {
 	$admin['admin/HouseDetails.php']			= 'Bekijk details van een huis';
+	$admin['../teKoopVerkocht.php']				= 'Overzicht van nieuwe/verkochte huizen per periode';
 }
 
 
