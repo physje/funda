@@ -27,7 +27,53 @@ if(isset($_REQUEST['selectie'])) {
 		$from					= "$TableListResult, $TableHuizen";
 		$where				= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $id";
 	}
+}
+
+if(isset($_REQUEST['detail'])) {
+	echo "<table width='100%' border=0>\n";
+	echo "<tr>\n";
+	echo "	<td align='center' colspan='5'><h1>Balans '$Name' tussen ". date("d-m-Y", $_REQUEST['start']) ." & ". date("d-m-Y", $_REQUEST['eind']) ."</h1></td>\n";
+	echo "</tr>\n";
+	echo "<tr>\n";
+	echo "	<td colspan='5'>&nbsp;</td>\n";
+	echo "</tr>\n";
+	echo "<tr>\n";
+	echo "	<td width='30%'><h2>Te koop</h2></td>\n";
+	echo "	<td width='5%'>&nbsp;</td>\n";
+	echo "	<td width='30%'><h2>Verkocht</h2></td>\n";
+	echo "	<td width='5%'>&nbsp;</td>\n";
+	echo "	<td width='30%'><h2>Offline</h2></td>\n";
+	echo "</tr>\n";
+	echo "<tr>\n";
 	
+	for($i=0 ; $i<3 ; $i++) {
+		if($i == 0) {				## Te koop
+			$sql = "SELECT * FROM $from WHERE $where AND ($TableHuizen.$HuizenStart BETWEEN ". $_REQUEST['start'] ." AND ". $_REQUEST['eind'] .")";
+		} elseif($i == 1) {	## Verkocht
+			echo "	<td>&nbsp;</td>\n";			
+			$sql		= "SELECT * FROM $from WHERE $where AND $TableHuizen.$HuizenVerkocht = '1' AND ($TableHuizen.$HuizenEind BETWEEN ". $_REQUEST['start'] ." AND ". $_REQUEST['eind'] .")";
+		} elseif($i == 2) {	## Offline
+			echo "	<td>&nbsp;</td>\n";			
+			$sql		= "SELECT * FROM $from WHERE $where AND $TableHuizen.$HuizenOffline = '1' AND ($TableHuizen.$HuizenEind BETWEEN ". $_REQUEST['start'] ." AND ". $_REQUEST['eind'] .")";
+		}
+	
+		echo "	<td valign='top'>";
+		
+		$result	= mysql_query($sql);		
+		if($row = mysql_fetch_array($result)) {
+			do {
+				$data = getFundaData($row[$HuizenID]);
+				echo "<a href='admin/edit.php?id=". $data['id'] ."'>". $data['adres'] ."</a><br>\n";				
+			} while($row = mysql_fetch_array($result));
+		} else {
+			echo "&nbsp;";
+		}
+		echo "	</td>";
+	}		
+
+	echo "</tr>\n";
+	echo "</table>\n";			
+} elseif(isset($_REQUEST['selectie'])) {
 	switch ($_REQUEST['periode']) {
 		case 0:
 			$periode = 'week';
@@ -100,9 +146,7 @@ if(isset($_REQUEST['selectie'])) {
 		$result	= mysql_query($sql);
 		$row		= mysql_fetch_array($result);
 		$offline[$i] = $row[0];
-		$sql_2[$i] = $sql;
-		
-		
+		$sql_2[$i] = $sql;		
 		
 		if($periode == 'week') {
 			$titel[$i] = 'week '. date('W', ($start+(24*60*60)));
@@ -119,6 +163,9 @@ if(isset($_REQUEST['selectie'])) {
 		if($periode == 'jaar') {
 			$titel[$i] = date('Y', $start);
 		}
+		
+		$start_array[$i] = $start;
+		$eind_array[$i] = $eind;
 		
 		//echo date('d-m-Y', $start) .' -> '. date('d-m-Y', $eind) .'<br>';
 		
@@ -149,7 +196,7 @@ if(isset($_REQUEST['selectie'])) {
 		
 		# Nieuwe huizen
 		echo "<tr>\n";
-		echo "	<td rowspan='3' width='15%' align='right'>$value</td>\n";
+		echo "	<td rowspan='3' width='15%' align='right'><a href='?detail=true&selectie=". $_REQUEST['selectie'] ."&start=". $start_array[$key] ."&eind=". $eind_array[$key] ."'>$value</a></td>\n";
 		echo "	<td>";
 		echo "	<table width='100%' border=0><tr>\n";
 		if($breedte_tekoop > 0) {

@@ -597,6 +597,7 @@ function getFundaData($id) {
 		if(mysql_num_rows($result) > 0) {
 			$row = mysql_fetch_array($result);
 			
+			$data['id']			= urldecode($row[$HuizenID]);
 			$data['url']			= urldecode($row[$HuizenURL]);
 			$data['adres']		= urldecode($row[$HuizenAdres]);
 			$data['PC_c']			= $row[$HuizenPC_c];	
