@@ -53,8 +53,8 @@ foreach($Opdrachten as $OpdrachtID) {
 		# Op funda.nl staan huizen van verschillende makkelaars-organisaties (NVM, VBO, etc.)
 		# Voor elke organisatie wordt een andere class uit de style-sheet gebruikt
 		# Deze class geeft precies het begin van een nieuw huis op de overzichtspagina aan
-		# Om zeker te zijn dat ik alle huizen vind doe ik eerst alsof álle huizen van NVM zijn,
-		# dan of álle huizen van VBO zijn, etc.
+		# Om zeker te zijn dat ik alle huizen vind doe ik eerst alsof ï¿½lle huizen van NVM zijn,
+		# dan of ï¿½lle huizen van VBO zijn, etc.
 		$HuizenNVM		= explode(' nvm sold " >', $contents);			array_shift($HuizenNVM);
 		$HuizenNVMlst	= explode(' nvm sold lst " >', $contents);	array_shift($HuizenNVMlst);
 		$HuizenVBO		= explode(' vbo sold " >', $contents);			array_shift($HuizenVBO);
@@ -73,6 +73,9 @@ foreach($Opdrachten as $OpdrachtID) {
 			$url			= "http://www.funda.nl". urldecode($data['url']);
 			$new			= false;
 						
+			/*
+			# Deze if-loop is alleen nodig indien het script voor de eerste keer gebruikt wordt.
+			# Daarna zijn alle huizen bekend en kan het worden gedisabled
 			if(!knownHouse($fundaID)) {
 				$extraData = extractDetailedFundaData($url);
 				saveHouse($data, $extraData);
@@ -83,8 +86,12 @@ foreach($Opdrachten as $OpdrachtID) {
 				$HTML[] = '-> toegevoegd<br>';
 				$new = true;
 			}
+			*/
 			
-			if(knownHouse($fundaID) AND !soldHouse($fundaID)) {
+			# Dit AND if-statement is alleen nodig indien het script voor de eerste keer gebruikt wordt.
+			# Daarna zijn alle huizen bekend en hoeft niet meer op knownHouse() gecheckt te worden.
+			# if(knownHouse($fundaID) AND !soldHouse($fundaID)) {
+			if(!soldHouse($fundaID)) {
 				$FundaData	= getFundaData($data['id']);			
 				if(!$new) {
 					$HTML[] = '<b>'. urldecode($data['adres']) ."</b> (<a href='$url'>url</a>, ". urldecode($FundaData['plaats']) .")<br>";
