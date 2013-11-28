@@ -172,6 +172,11 @@ foreach($Opdrachten as $OpdrachtID) {
 						mysql_query($sql);
 						toLog('info', $OpdrachtID, $data['id'], 'Onder voorbehoud verkocht');
 					}
+				# Theoretische geval dat onder voorbehoud wordt teruggedraaid
+				} elseif(soldHouseTentative($data['id'])) {
+					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."'";
+					mysql_query($sql);
+					toLog('info', $OpdrachtID, $data['id'], 'Niet meer onder voorbehoud verkocht');
 				}
 				
 				# Huis kan openhuis hebben
