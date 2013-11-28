@@ -24,7 +24,7 @@ if(isset($_REQUEST[OpdrachtID])) {
 # Doorloop alle zoekopdrachten
 foreach($Opdrachten as $OpdrachtID) {
 	# Alles initialiseren
-	$NewHouses = $NewAddress = $UpdatedPrice = $UpdatedAddress = $VerkochtHuis = $VerkochtAddress = $OnderVoorbehoud = $BijnaVerkochtAddress = $OpenHuis = $OpenAddress = $Subject = $sommatie = array();
+	$NewHouses = $NewAddress = $UpdatedPrice = $UpdatedAddress = $VerkochtHuis = $VerkochtAddress = $OnderVoorbehoud = $BijnaVerkochtAddress = $OpenHuis = $OpenAddress = $Beschikbaar = $beschikbaarAddress = $Subject = $sommatie = array();
 	$HTMLMail = "";
 	$nextPage = true;
 	$p = 0;
@@ -172,7 +172,7 @@ foreach($Opdrachten as $OpdrachtID) {
 						mysql_query($sql);
 						toLog('info', $OpdrachtID, $data['id'], 'Onder voorbehoud verkocht');
 					}
-				# Theoretische geval dat onder voorbehoud wordt teruggedraaid
+				# Het geval dat onder voorbehoud wordt teruggedraaid
 				} elseif(soldHouseTentative($data['id'])) {
 					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."'";
 					mysql_query($sql);
@@ -360,6 +360,17 @@ foreach($Opdrachten as $OpdrachtID) {
 				
 				$OnderVoorbehoud[] = showBlock($Item);
 				$BijnaVerkochtAddress[] = $data['adres'];
+			} elseif($data['verkocht'] == '0') {
+				$Item  = "<table width='100%'>\n";
+				$Item .= "<tr>\n";
+				$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
+				$Item .= "	<td align='center'><a href='http://funda.nl/". $fundaID ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
+				$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $data['wijk'] .")<br>\n";
+				$Item .= '	<b>'. formatPrice($LaatsteVraagprijs) ."</b></td>\n";
+				$Item .= "</tr>\n";
+				$Item .= "</table>\n";
+				$Beschikbaar[] = showBlock($Item);
+				$beschikbaarAddress[] = $data['adres'];
 			} else {
 				$ErrorMessage[] = $OpdrachtData['naam'] ."; Zoeken van verkochte huizen geeft ongeldig resultaat";
 			}
@@ -399,7 +410,7 @@ foreach($Opdrachten as $OpdrachtID) {
 	}
 		
 	# Als er een nieuw huis, een huis in prijs gedaald, open huis of een huis verkocht is moet er een mail verstuurd worden.
-	if((count($NewHouses) > 0 OR count($UpdatedPrice) > 0 OR count($OnderVoorbehoud) > 0 OR count($VerkochtHuis) > 0 OR count($OpenHuis) > 0) AND (count($OpdrachtMembers) > 0)) {
+	if((count($NewHouses) > 0 OR count($UpdatedPrice) > 0 OR count($OnderVoorbehoud) > 0 OR count($VerkochtHuis) > 0 OR count($OpenHuis) > 0 OR count($Beschikbaar) > 0) AND (count($OpdrachtMembers) > 0)) {
 		$FooterText  = "Google Maps (";
 		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_mail.php?regio=$OpdrachtID") ."'>vandaag</a>, ";
 		$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML.php?selectie=Z$OpdrachtID&datum=1") ."'>wijk</a>, ";
@@ -463,7 +474,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			if(count($UpdatedPrice) == 1) {
 				$Subject[] = array_shift($UpdatedAddress) .' is in prijs gedaald ';
 			} else {
-				$Subject[] = count($UpdatedPrice) ." huizen in prijs gedaald";
+				$Subject[] = count($UpdatedPrice) ." in prijs gedaald";
 			}
 		}
 		
@@ -494,6 +505,36 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Subject[] = array_shift($BijnaVerkochtAddress) ." is onder voorbehoud verkocht";
 			} else {
 				$Subject[] = count($OnderVoorbehoud) ." onder voorbehoud verkocht";
+			}
+		}
+		
+		if(count($Beschikbaar) > 0) {
+			$omslag			= round(count($Beschikbaar)/2);
+			$KolomEen		= array_slice ($Beschikbaar, 0, $omslag);
+			$KolomTwee	= array_slice ($Beschikbaar, $omslag, $omslag);
+			
+			$HTMLMail .= "<tr>\n";
+			$HTMLMail .= "	<td colspan='2'><h2>Weer beschikbaar</h2></td>\n";
+			$HTMLMail .= "</tr>\n";			
+			$HTMLMail .= "<tr>\n";
+			$HTMLMail .= "<td width='50%' valign='top' align='center'>\n";
+			$HTMLMail .= implode("\n<p>\n", $KolomEen);
+			$HTMLMail .= "</td><td width='50%' valign='top' align='center'>\n";
+			if(count($KolomTwee) > 0) {
+				$HTMLMail .= implode("\n<p>\n", $KolomTwee);	
+			} else {
+				$HTMLMail .= "&nbsp;";	
+			}
+			$HTMLMail .= "</td>\n";
+			$HTMLMail .= "</tr>\n";
+			$HTMLMail .= "<tr>\n";
+			$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
+			$HTMLMail .= "</tr>\n";
+						
+			if(count($Beschikbaar) == 1) {
+				$Subject[] = array_shift($beschikbaarAddress) ." is weer beschikbaar";
+			} else {
+				$Subject[] = count($Beschikbaar) ." weer beschikbaar";
 			}
 		}
 				
