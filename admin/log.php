@@ -11,22 +11,29 @@ include($cfgProgDir. "secure.php");
 
 connect_db();
 
-if(!isset($_REQUEST['bDag']) OR !isset($_REQUEST['bMaand']) OR !isset($_REQUEST['bJaar'])) {
-	$logShift = 24*60*60;
-	$bDag = date('d', time() - $logShift);
-	$bMaand = date('m', time() - $logShift);
-	$bJaar = date('Y', time() - $logShift);
+if(!isset($_REQUEST['bDag']) OR !isset($_REQUEST['bMaand']) OR !isset($_REQUEST['bJaar']) OR !isset($_REQUEST['bUur']) OR !isset($_REQUEST['bMin'])) {
+	$bMin = 0;
+	$bUur = 0;
+	$bDag = date('d');
+	$bMaand = date('m');
+	$bJaar = date('Y');	
 } else {
+	$bMin = $_REQUEST['bMin'];
+	$bUur = $_REQUEST['bUur'];
 	$bDag = $_REQUEST['bDag'];
 	$bMaand = $_REQUEST['bMaand'];
 	$bJaar = $_REQUEST['bJaar'];
 }
 
-if(!isset($_REQUEST['eDag']) OR !isset($_REQUEST['eMaand']) OR !isset($_REQUEST['eJaar'])) {
+if(!isset($_REQUEST['eDag']) OR !isset($_REQUEST['eMaand']) OR !isset($_REQUEST['eJaar']) OR !isset($_REQUEST['eUur']) OR !isset($_REQUEST['eMin'])) {
+	$eMin = date('i');
+	$eUur = date('H');
 	$eDag = date('d');
 	$eMaand = date('m');
 	$eJaar = date('Y');	
 } else {
+	$eMin = $_REQUEST['eMin'];
+	$eUur = $_REQUEST['eUur'];
 	$eDag = $_REQUEST['eDag'];
 	$eMaand = $_REQUEST['eMaand'];
 	$eJaar = $_REQUEST['eJaar'];
@@ -63,8 +70,8 @@ if(isset($_REQUEST['error']) AND $_REQUEST['error'] != '') {
 	$error = 'nee';
 }
 
-$begin	= mktime(0, 0, 0, $bMaand, $bDag, $bJaar);
-$eind		= mktime(23, 59, 59, $eMaand, $eDag, $eJaar);
+$begin	= mktime($bUur, $bMin, 0, $bMaand, $bDag, $bJaar);
+$eind		= mktime($eUur, $eMin, 59, $eMaand, $eDag, $eJaar);
 
 
 $sql		= "SELECT * FROM $TableLog WHERE $LogTime BETWEEN $begin AND $eind";
@@ -90,7 +97,6 @@ do {
 	$rij = "<tr>";
 	$rij .= "	<td>". date("d-m H:i:s", $row[$LogTime]) ."</td>";
 	$rij .= "	<td>&nbsp;</td>\n";
-	//$rij .= "	<td><a href='http://www.funda.nl". $fundaData['url'] ."' title='". $opdrachtData['naam'] .'; '. $fundaData['adres'] ."'>". $row[$LogHuis] ."</a></td>";
 	$rij .= "	<td><a href='?selectie=Z". $row[$LogOpdracht] ."&huis=". $row[$LogHuis] ."&bDag=$bDag&bMaand$bMaand&bJaar=$bJaar&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar' title='". $opdrachtData['naam'] .'; '. $fundaData['adres'] ."'>". $row[$LogHuis] ."</a></td>";
 	$rij .= "	<td>&nbsp;</td>\n";
 	$rij .= "	<td>". $row[$LogMessage] ."</td>";
@@ -102,7 +108,7 @@ do {
 	}
 } while($row = mysql_fetch_array($result));
 
-$dateSelection = makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar);
+$dateSelection = makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $eDag, $eMaand, $eJaar);
 
 $zoekScherm[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
 $zoekScherm[] = "<table border=0 align='center'>";

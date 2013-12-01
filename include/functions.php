@@ -1297,7 +1297,7 @@ function extractAndUpdateVerkochtData($fundaID) {
 }
 
 
-function makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar) {
+function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $eDag, $eMaand, $eJaar) {
 	$maandNamen = array(1 => 'Jan', 2 => 'Feb', 3 => 'Mrt', 4 => 'Apr', 5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Dec');
 		
 	$begin[] = "<select name='bDag'>";
@@ -1309,6 +1309,12 @@ function makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar) {
 	$begin[] = "	<select name='bJaar'>";
 	for($j=2004 ; $j<=date("Y") ; $j++)	$begin[] = "	<option value='$j'". ($j == $bJaar ? ' selected' : '') .">$j</option>";
 	$begin[] = "	</select>";
+	$begin[] = "	<select name='bUur'>";
+	for($u=0 ; $u<=23 ; $u++)	$begin[] = "	<option value='$u'". ($u == $bUur ? ' selected' : '') .">". substr('0'.$u, -2) ."</option>";
+	$begin[] = "	</select>:";
+	$begin[] = "	<select name='bMin'>";
+	for($m=0 ; $m<=59 ; $m++)	$begin[] = "	<option value='$m'". ($m == $bMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
+	$begin[] = "	</select>";
 	
 	$eind[] = "<select name='eDag'>";
 	for($d=1 ; $d<=31 ; $d++)	$eind[] = "	<option value='$d'". ($d == $eDag ? ' selected' : '') .">$d</option>";
@@ -1318,6 +1324,12 @@ function makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar) {
 	$eind[] = "	</select>";
 	$eind[] = "	<select name='eJaar'>";
 	for($j=2004 ; $j<=date("Y") ; $j++)	$eind[] = "	<option value='$j'". ($j == $eJaar ? ' selected' : '') .">$j</option>";
+	$eind[] = "	</select>";
+	$eind[] = "	<select name='eUur'>";
+	for($u=0 ; $u<=23 ; $u++)	$eind[] = "	<option value='$u'". ($u == $eUur ? ' selected' : '') .">". substr('0'.$u, -2) ."</option>";
+	$eind[] = "	</select>:";
+	$eind[] = "	<select name='eMin'>";
+	for($m=0 ; $m<=59 ; $m++)	$eind[] = "	<option value='$m'". ($m == $eMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
 	$eind[] = "	</select>";
 	
 	return array(implode("\n", $begin), implode("\n", $eind));
