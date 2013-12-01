@@ -56,11 +56,13 @@ if(isset($_POST['add'])) {
 	# Doorloop alle huizen
 	foreach($dataset as $huisID) {
 		$data 			= getFundaData($huisID);
-		$adres			= makeTextBlock(convertToReadable($data['adres']), 24, true);
+		$kenmerken	= getFundaKenmerken($huisID);
+		$adres			= convertToReadable($data['adres']);
+		$adresShort	= makeTextBlock($adres, 24, true);
 		$image			= str_replace('_klein.jpg', '_middel.jpg', changeThumbLocation($data['thumb']));
 		$relPrize		= getFullPriceHistory($huisID);
 		//$url				= $data['url'];
-	
+			
 		if($data['offline'] == '1') {
 			$TextClass = 'offline';			
 		} elseif($data['verkocht'] == '1') {
@@ -101,14 +103,20 @@ if(isset($_POST['add'])) {
 			$image = 'http://www.fundalandelijk.nl/img/thumbs/thumb-geen-foto-middel.gif';
 		}
 		
+		$hoverText = '';
+		$hoverText .= "Woonoppervlakte : ". $kenmerken['Wonen (= woonoppervlakte)'] ."\n";
+		$hoverText .= "Perceeloppervlakte : ". $kenmerken['Perceeloppervlakte'] ."\n";
+		$hoverText .= "Inhoud : ". $kenmerken['Inhoud'] ."\n";
+		$hoverText .= "Bouwjaar : ". $kenmerken['Bouwjaar'];
+		
 		# De HTML van een huis
 		# Let op dat de <div class='float_rechts'> eerst staan, en pas daarna de linkertekst.
 		# Deze hack zorgt dat het in IE ook werkt
-		$Foto  = "	<a href='". $ScriptURL ."extern/redirect.php?id=$huisID' target='_blank' title='Toon ". $data['adres'] ." op Google Maps'><div class='wrapper'><img src='$image' class='$imageClass'></a>";
+		$Foto  = "	<a href='". $ScriptURL ."extern/redirect.php?id=$huisID' target='_blank' title='$hoverText'><div class='wrapper'><img src='$image' class='$imageClass'></a>";
 		if(!$housAvailable)	$Foto .= "<div class='description'><p class='description_content'>". strtoupper($description) ."</p></div>";
 		$Foto .= "</div><br>\n";		
 		if($showListAdd)	$Foto .= "	<input type='checkbox' name='huis[]' value='$huisID'". (in_array($huisID, $knownHuizen) ? ' checked' : '') .">";
-		$Foto .= "	<div class='float_rechts'>". getDoorloptijd($huisID) ."</div><a href='http://funda.nl/". $huisID ."' target='_blank' class='$TextClass' title='Ga naar ". $data['adres'] ." op funda.nl'>$adres</a><br>\n";
+		$Foto .= "	<div class='float_rechts'>". getDoorloptijd($huisID) ."</div><a href='http://funda.nl/$huisID' target='_blank' class='$TextClass' title='Ga naar $adres op funda.nl'>$adresShort</a><br>\n";
 		$Foto .= "	<div class='float_rechts'><b>". formatPercentage($relPrize[5]) ."</b></div><b>". formatPrice(getHuidigePrijs($huisID)) ."</b>\n";
 		
 		echo "	<td align='center'>";

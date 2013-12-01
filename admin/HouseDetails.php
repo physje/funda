@@ -17,14 +17,15 @@ if(isset($_REQUEST['id'])) {
 
 if($id != '') {	
 	$data = getFundaData($id);
-	$deel_2 = $data['adres'];
+	$adres = convertToReadable($data['adres']);
+	$deel_2	= $adres;
 	
-	$links['http://www.funda.nl'.$data['url']] 	= 'Bekijk '. $data['adres'] .' op funda.nl';
-	$links['checkOudeHuizen.php?id='. $id] 			= 'Haal verkoop-gegevens van '. $data['adres'] .' op';
-	$links['edit.php?id='. $id]									= 'Wijzig de gegevens van '. $data['adres'];	
-	$links['bekijkHuizenZoeker.php?id='. $id]		= 'Zoek '. $data['adres'] .' op HuizenZoeker.nl';
-	$links['delete.php?id='. $id]								= 'Verwijder '. $data['adres'] .' uit de database';
-	$links['cleanPrice.php?id='. $id]						= 'Prijzen van '. $data['adres'] .' opschonen';
+	$links['http://www.funda.nl/'.$id] 				= "Bekijk $adres op funda.nl";
+	$links['checkOudeHuizen.php?id='. $id] 		= "Haal verkoop-gegevens van $adres op";
+	$links['edit.php?id='. $id]								= "Wijzig de gegevens van $adres";	
+	$links['bekijkHuizenZoeker.php?id='. $id]	= "Zoek $adres op HuizenZoeker.nl";
+	$links['delete.php?id='. $id]							= "Verwijder $adres uit de database";
+	$links['cleanPrice.php?id='. $id]					= "Prijzen van $adres opschonen";
 	
 	if(isset($_REQUEST['selectie'])) {
 		$selectie = $_REQUEST['selectie'];

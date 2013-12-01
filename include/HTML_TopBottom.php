@@ -20,7 +20,7 @@ if($autocomplete) {
 	$row		= mysql_fetch_array($result);
 	
 	do {
-		$return_arr[] = urldecode($row[$HuizenAdres]).', '.urldecode($row[$HuizenPlaats]).' ['.urldecode($row[$HuizenID]) .']';
+		$return_arr[] = convertToReadable(urldecode($row[$HuizenAdres]).', '.urldecode($row[$HuizenPlaats]).' ['.urldecode($row[$HuizenID]) .']');
 	} while($row = mysql_fetch_array($result));
 			
 	$HTMLHeader .= '		var availableTags = ["'. implode('","', $return_arr).'"];'.NL;	
