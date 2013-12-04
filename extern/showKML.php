@@ -62,8 +62,8 @@ if($_REQUEST['datum'] == 0) {
 	$url="Location: ". $redirect;
 	header($url);
 } else {
-	$BeginTijd	= mktime(0, 0, 1, $bMaand, $bDag, $bJaar);
-	$EindTijd		= mktime(23, 59, 59, $eMaand, $eDag, $eJaar);
+        $BeginTijd        = mktime($bUur, $bMin, 0, $bMaand, $bDag, $bJaar);
+        $EindTijd                = mktime($eUur, $eMin, 59, $eMaand, $eDag, $eJaar);
 	
 	$groep	= substr($selectie, 0, 1);
 	$id			= substr($selectie, 1);
