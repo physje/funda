@@ -6,16 +6,21 @@ include_once('../include/config.php');
 include_once('../include/HTML_TopBottom.php');
 connect_db();
 
-$bDag			= getParam('bDag', date("d"));
+$bUur		= getParam('bDag', 0);
+$bMin		= getParam('bDag', 0);
+$bDag		= getParam('bDag', date("d"));
 $bMaand		= getParam('bMaand', date("m"));
 $bJaar		= getParam('bJaar', date("Y"));
-$eDag			= getParam('eDag', date("d"));
+$eUur		= getParam('bDag', 23);
+$eMin		= getParam('bDag', 59);
+$eDag		= getParam('eDag', date("d"));
 $eMaand 	= getParam('eMaand', date("m"));
 $eJaar		= getParam('eJaar', date("Y"));
 $selectie	= getParam('selectie', '');
 
 if($_REQUEST['datum'] == 0) {	
-	$dateSelection = makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar);
+	//$dateSelection = makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar);
+	$dateSelection = makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $eDag, $eMaand, $eJaar);
 	
 	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
 	$HTML[] = "<input type='hidden' name='datum' value='1'>";
@@ -57,8 +62,8 @@ if($_REQUEST['datum'] == 0) {
 	$url="Location: ". $redirect;
 	header($url);
 } else {	
-	$BeginTijd	= mktime(0, 0, 0, $bMaand, $bDag, $bJaar);
-	$EindTijd		= mktime(23, 59, 59, $eMaand, $eDag, $eJaar);
+	$BeginTijd	= mktime($bUur, $bMin, 0, $bMaand, $bDag, $bJaar);
+	$EindTijd		= mktime($eUur, $eMin, 59, $eMaand, $eDag, $eJaar);
 		
 	$groep	= substr($selectie, 0, 1);
 	$id			= substr($selectie, 1);
