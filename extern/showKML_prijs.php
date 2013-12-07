@@ -19,7 +19,10 @@ $eJaar		= getParam('eJaar', date("Y"));
 $selectie	= getParam('selectie', '');
 
 if($_REQUEST['datum'] == 0) {	
-	//$dateSelection = makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar);
+	$minUserLevel = 1;
+	$cfgProgDir = '../auth/';
+	include($cfgProgDir. "secure.php");
+	
 	$dateSelection = makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $eDag, $eMaand, $eJaar);
 	
 	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";

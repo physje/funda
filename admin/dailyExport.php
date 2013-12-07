@@ -7,7 +7,7 @@ include_once('../include/HTML_TopBottom.php');
 connect_db();
 
 $HuizenArray = array();
-$Opdrachten = getZoekOpdrachten('', 1);
+$Opdrachten = getZoekOpdrachten(1, '');
 
 foreach($Opdrachten as $opdracht) {
 	$Huizen = getHuizen($opdracht);

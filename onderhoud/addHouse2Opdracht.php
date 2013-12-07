@@ -17,7 +17,7 @@ if(isset($_REQUEST['huis']) AND isset($_REQUEST['opdracht'])) {
 		echo "mislukt";
 	}
 } else {	
-	$opdrachten = getZoekOpdrachten('');
+	$opdrachten = getZoekOpdrachten(1, '');
 	
 	echo "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
 	echo "<table>\n";

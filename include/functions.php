@@ -7,6 +7,7 @@
 #
 # OUTPUT
 #		array met ids van zoekopdracht 
+/*
 function getZoekOpdrachten($id, $active) {
 	global $TableZoeken, $ZoekenUser, $ZoekenKey, $ZoekenActive;
 	$Opdrachten = array();
@@ -36,7 +37,56 @@ function getZoekOpdrachten($id, $active) {
 	
 	return $Opdrachten;
 }
+*/
 
+function getZoekOpdrachten($user, $uur, $active = true) {
+	global $TableZoeken, $TableVerdeling, $VerdelingOpdracht, $VerdelingUur, $ZoekenKey, $ZoekenUser;
+	$where = $Opdrachten = array();
+	
+	$sql = "SELECT $TableZoeken.$ZoekenKey";
+		
+	if($user != '') {
+		$from = $TableZoeken;
+		$where[] = "$TableZoeken.$ZoekenUser = '$user'";
+	}
+	
+	if($uur != '') {
+		$from = "$TableVerdeling, $TableZoeken";
+		$where[] = "$TableVerdeling.$VerdelingOpdracht = $TableZoeken.$ZoekenKey";
+		$where[] = "$TableVerdeling.$VerdelingUur = '$uur'";
+	}
+	
+	$sql .= ' FROM '. $from .' WHERE '. implode(" AND ", $where);
+	
+	//echo $sql;
+	
+	$result = mysql_query($sql);	
+	if($row = mysql_fetch_array($result)) {
+		do {
+			if(($active AND count(getOpdrachtUren($row[$ZoekenKey])) > 0) OR !$active) {
+				$Opdrachten[] = $row[$ZoekenKey];
+			}
+		} while($row = mysql_fetch_array($result));
+	}
+	
+	return $Opdrachten;
+}
+
+function getOpdrachtUren($opdracht) {
+	global $TableVerdeling, $VerdelingUur, $VerdelingOpdracht;
+	
+	$Uren = array();
+	
+	$sql = "SELECT * FROM $TableVerdeling WHERE $VerdelingOpdracht = $opdracht";
+	$result = mysql_query($sql);	
+	if($row = mysql_fetch_array($result)) {
+		do {
+			$Uren[] = $row[$VerdelingUur];
+		} while($row = mysql_fetch_array($result));
+	}
+	
+	return $Uren;
+}
 
 # Zoek de gegevens van een zoekopdracht op basis van id
 #
@@ -1339,7 +1389,7 @@ function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $
 function makeSelectionSelection($disableList, $blankOption, $preSelect = 0) {
 	# Vraag alle actieve opdrachten en lijsten op en zet die in een pull-down menu
 	# De value is Z... voor een zoekopdracht en L... voor een lijst		
-	$Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
+	$Opdrachten = getZoekOpdrachten($_SESSION['account'], '', true);
 	$Lijsten		= getLijsten($_SESSION['UserID'], 1);
 	$Lijsten_2	= getLijsten($_SESSION['account'], 1);
 	

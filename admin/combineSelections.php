@@ -100,7 +100,7 @@ if(isset($_POST['combine'])) {
 		$deel_1 = "<p>Selectie bevat geen huizen";
 	}	
 } else {	
-	$Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
+	$Opdrachten = getZoekOpdrachten($_SESSION['account'], '');
 	$Lijsten		= getLijsten($_SESSION['UserID'], 1, true);
 
 	$list[] = "	<optgroup label='Zoekopdrachten'>";	

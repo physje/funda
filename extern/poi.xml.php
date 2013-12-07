@@ -16,7 +16,7 @@ while($row = mysql_fetch_array($result)) {
 	$userID = $row[$ZoekenUser];          
 	$data = getMemberDetails($userID);
 	
-	$Opdrachten = getZoekOpdrachten($userID,1);
+	$Opdrachten = getZoekOpdrachten($userID,'');
 	
 	foreach($Opdrachten as $OpdrachtID) {
 		$OpdrachtData = getOpdrachtData($OpdrachtID);

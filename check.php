@@ -17,7 +17,8 @@ if(isset($_REQUEST[OpdrachtID])) {
 	$Opdrachten = array($_REQUEST[OpdrachtID]);
 	$enkeleOpdracht = true;
 } else {
-	$Opdrachten = getZoekOpdrachten('', 1);
+	$Opdrachten = getZoekOpdrachten('', date('H'));
+	//$Opdrachten = getZoekOpdrachtenByHour(date('H'));
 	$enkeleOpdracht = false;
 }
 

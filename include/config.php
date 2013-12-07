@@ -1,9 +1,9 @@
 <?php
 
-$ScriptURL				= '';							# Map waar het script staat, bv http://www.example.com/scripts/funda/
+$ScriptURL				= 'http://localhost/funda/';							# Map waar het script staat, bv http://www.example.com/scripts/funda/
 $ScriptTitle			= 'Funda Alert';	# Naam van het script (is naam van afzender in mails)
 $ScriptMailAdress = '';							# Mailadres van het script (is mailadres van afzender in mails)
-$Version					= '3.9';					# Versie nummer
+$Version					= '4.0';					# Versie nummer
 $SubjectPrefix		= '[funda] ';			# Voorvoegsel bij de onderwerpregel bij het versturen van mails
 
 $debug						= 0;							# Wel (1) of geen (0) debug-info op het scherm tonen
@@ -149,6 +149,10 @@ $PBKStart					= "start";						# Op 5 nov in gebruik genomen
 $PBKEind					= "eind";							# Op 5 nov in gebruik genomen
 $PBKWaarde				= "waarde";						# Op 5 nov in gebruik genomen
 $PBKComment				= "comment";					# Op 5 nov in gebruik genomen
+
+$TableVerdeling		= "funda_verdeling";				# Op 5 nov in gebruik genomen -> changeTable_05-11-2013.php
+$VerdelingUur			= "uur";						# Op 5 nov in gebruik genomen
+$VerdelingOpdracht= "opdracht";					# Op 5 nov in gebruik genomen
 
 // http://photos-f.ak.fbcdn.net/photos-ak-snc7/v43/218/226836780678110/app_2_226836780678110_6214.gif
 

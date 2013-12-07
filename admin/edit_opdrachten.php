@@ -23,16 +23,25 @@ if(isset($_REQUEST['action'])) {
 
 if(isset($_POST['doorgaan'])) {
 	if(isset($_REQUEST['id']) AND $_REQUEST['id'] != 0) {
-		$sql = "UPDATE $TableZoeken SET $ZoekenActive = '". ($_POST['actief'] == '1' ? '1' : '0') ."', $ZoekenUser = '". $_SESSION['account'] ."', $ZoekenNaam = '". urlencode($_POST['naam']) ."', $ZoekenURL = '". urlencode($_POST['url']) ."' WHERE $ZoekenKey = ". $_POST['id'];
+		$sql_opdracht = "UPDATE $TableZoeken SET $ZoekenUser = '". $_SESSION['account'] ."', $ZoekenNaam = '". urlencode($_POST['naam']) ."', $ZoekenURL = '". urlencode($_POST['url']) ."' WHERE $ZoekenKey = ". $_POST['id'];
+		mysql_query("DELETE FROM $TableVerdeling WHERE $VerdelingOpdracht = ". $_REQUEST['id']);
 	} else {
-		$sql = "INSERT INTO $TableZoeken ($ZoekenUser, $ZoekenActive, $ZoekenNaam, $ZoekenURL) VALUES ('". $_SESSION['account'] ."', '". ($_POST['actief'] == '1' ? '1' : '0') ."', '". urlencode($_POST['naam']) ."', '". urlencode($_POST['url']) ."')";
+		$sql_opdracht = "INSERT INTO $TableZoeken ($ZoekenUser, $ZoekenNaam, $ZoekenURL) VALUES ('". $_SESSION['account'] ."', '". urlencode($_POST['naam']) ."', '". urlencode($_POST['url']) ."')";
 	}
 			
-	if(!mysql_query($sql)) {
-		$Page .= $sql;
+	if(!mysql_query($sql_opdracht)) {
+		$Page .= $sql_opdracht;
 	} else {
 		$OpdrachtID = mysql_insert_id();
 		addMember2Opdracht($OpdrachtID, $_SESSION['account']);
+	}
+	
+	if(isset($_REQUEST['lichting'])) {
+		foreach($_REQUEST['lichting'] as $key => $value) {
+			if($value == 1) {
+				mysql_query("INSERT INTO $TableVerdeling ($VerdelingUur, $VerdelingOpdracht) VALUES ($key, ". $_REQUEST['id'] .")");
+			}
+		}
 	}
 	
 	$Page .= "<p><a href='". $_SERVER["PHP_SELF"] ."'>Start</a>";
@@ -87,6 +96,7 @@ if(isset($_POST['doorgaan'])) {
 	}
 } elseif(isset($_REQUEST['id'])) {
 	$id = $_REQUEST['id'];
+	$uren = getOpdrachtUren($id);
 	
 	$Page ="<form method='post' action='$_SERVER[PHP_SELF]'>\n";
 	
@@ -95,32 +105,53 @@ if(isset($_POST['doorgaan'])) {
 		$Page .= "<input type='hidden' name='id' value='$id'>\n";
 	}
 		
-	$Page .= "<table>\n";
-	$Page .= "<tr>\n";
-	$Page .= "	<td><input type='checkbox' name='actief' value='1' ". ($data['active'] == 1 || !isset($data['active']) ? ' checked' : '') ."></td>\n";
-	$Page .= "	<td>Actief</td>\n";
-	$Page .= "</tr>\n";
+	$Page .= "<table border=0>\n";
+	//$Page .= "<tr>\n";
+	//$Page .= "	<td><input type='checkbox' name='actief' value='1' ". ($data['active'] == 1 || !isset($data['active']) ? ' checked' : '') ."></td>\n";
+	//$Page .= "	<td colspan='6'>Actief</td>\n";
+	//$Page .= "</tr>\n";
 	$Page .= "<tr>\n";
 	$Page .= "	<td>Naam :</td>\n";
-	$Page .= "	<td><input type='text' name='naam' value='". $data['naam'] ."'></td>\n";
+	$Page .= "	<td colspan='6'><input type='text' name='naam' value='". $data['naam'] ."'></td>\n";
 	$Page .= "</tr>\n";
 	$Page .= "<tr>\n";
 	$Page .= "	<td>URL :</td>\n";
-	$Page .= "	<td><input type='text' name='url' value='". $data['url'] ."' size='125'></td>\n";
+	$Page .= "	<td colspan='6'><input type='text' name='url' value='". $data['url'] ."' size='125'></td>\n";
 	$Page .= "</tr>\n";
 	$Page .= "<tr>\n";
-	$Page .= "	<td colspan='2'>&nbsp;</td>\n";
+	$Page .= "	<td colspan='7'>&nbsp;</td>\n";
 	$Page .= "</tr>\n";
 	$Page .= "<tr>\n";
-	$Page .= "	<td colspan='2'><table width='100%'><tr><td><input type='submit' name='doorgaan' value='Opslaan'></td><td align='right'><input type='submit' name='delete_opdracht' value='Verwijderen'></td></tr></table></td>\n";
+	$Page .= "	<td>&nbsp;</td>\n";
+	$Page .= "	<td colspan='6'>Pagina controleren om :</td>\n";
+	$Page .= "</tr>\n";
+	$Page .= "<tr>\n";
+	$Page .= "	<td>&nbsp;</td>\n";
+	$Page .= "	<td>";
+	
+	for($h=0; $h<24; $h++) {
+		$Page .= "<input type='checkbox' name='lichting[$h]' value='1'". (in_array($h, $uren) ? ' checked' : '') ."> $h uur<br>\n";
+		
+		if(fmod(($h+1),4) == 0) {
+			$Page .= "</td><td>";
+		}
+	}
+	
+	$Page .= "</td>\n";
+	$Page .= "</tr>\n";
+	$Page .= "<tr>\n";
+	$Page .= "	<td colspan='7'>&nbsp;</td>\n";
+	$Page .= "</tr>\n";
+	$Page .= "<tr>\n";
+	$Page .= "	<td colspan='7'><table width='100%'><tr><td><input type='submit' name='doorgaan' value='Opslaan'></td><td align='right'><input type='submit' name='delete_opdracht' value='Verwijderen'></td></tr></table></td>\n";
 	$Page .= "</tr>\n";
 	$Page .= "</table>\n";
 	$Page .= "</form>\n";
 } else  {
 	if($_SESSION['level'] > 1) {
-		$Opdrachten = getZoekOpdrachten($_SESSION['account'], '');
+		$Opdrachten = getZoekOpdrachten($_SESSION['account'], '', false);
 	} else {
-		$Opdrachten = getZoekOpdrachten($_SESSION['account'], 1);
+		$Opdrachten = getZoekOpdrachten($_SESSION['account'], '');
 	}
 	
 	$Page .= "<table>\n";
@@ -128,17 +159,19 @@ if(isset($_POST['doorgaan'])) {
 	foreach($Opdrachten as $OpdrachtID) {
 		$OpdrachtData = getOpdrachtData($OpdrachtID);
 		$Abonnees = getMembers4Opdracht($OpdrachtID);
-		
-		if($OpdrachtData['active'] == 0) {
+						
+		if(count(getOpdrachtUren($OpdrachtID)) == 0) {
+			$active = false;
 			$class = 'offline';
 		} else {
+			$active = true;
 			$class = 'online';
 		}
 		
 		$Page .= "<tr>\n";
 		$Page .= "	<td>". ($_SESSION['level'] > 1 ? "<a href='?id=$OpdrachtID' title=\"wijzig '". $OpdrachtData['naam'] ."'\" class='$class'>" : '' ) . $OpdrachtData['naam'] . ($_SESSION['level'] > 1 ? "</a>" : '') ."</td>";
 				
-		if($OpdrachtData['active'] == 1) {
+		if($active) {
 			$Page .= "	<td>&nbsp;</td>";
 			
 			if($_SESSION['level'] > 1) {

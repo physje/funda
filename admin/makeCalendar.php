@@ -68,7 +68,7 @@ for($i = 0 ; $i < $loop ; $i++) {
 	if($i == 0 AND !$enkelHuis) {
 		$opdrachten = true;
 		$gebruikers = false;
-		$dataset = getZoekOpdrachten('', 1);
+		$dataset = getZoekOpdrachten(1, '');
 	} elseif($i == 1 AND !$enkelHuis) {
 		$opdrachten = false;
 		$gebruikers = true;
