@@ -29,17 +29,17 @@ $links['extern/showKML.php']				= 'Google Maps (wijk)';
 $links['extern/showKML_prijs.php']	= 'Google Maps (prijs)';
 
 
-
 # ADMIN
 $admin['admin/combineSelections.php']		= 'Maak combinaties van lijsten & opdrachten';
 $admin['admin/search4Coord.php']				= 'Selecteer huizen obv coordinaten';
 $admin['admin/compareKenmerken.php']		= 'Exporteer kenmerken in CSV-formaat';
-$admin['admin/dailyExport.php']					= 'Genereer excel-bestand';
 $admin['admin/downloadDailyExport.php']	= 'Download XLS-file';
 
 if($_SESSION['level'] > 1) {
+	$admin['admin/dailyExport.php']				= 'Genereer excel-bestand';
 	$admin['admin/HouseDetails.php']			= 'Bekijk details van een huis';
 	$admin['teKoopVerkocht.php']					= 'Overzicht van nieuwe/verkochte huizen per periode';
+	$admin['admin/showVerdeling.php']			= 'Overzicht van welke opdracht wanneer wordt uitgevoerd';
 }
 
 

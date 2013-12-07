@@ -50,16 +50,14 @@ function getZoekOpdrachten($user, $uur, $active = true) {
 		$where[] = "$TableZoeken.$ZoekenUser = '$user'";
 	}
 	
-	if($uur != '') {
+	if($uur != '' OR $uur == 0) {
 		$from = "$TableVerdeling, $TableZoeken";
 		$where[] = "$TableVerdeling.$VerdelingOpdracht = $TableZoeken.$ZoekenKey";
 		$where[] = "$TableVerdeling.$VerdelingUur = '$uur'";
 	}
 	
 	$sql .= ' FROM '. $from .' WHERE '. implode(" AND ", $where);
-	
-	//echo $sql;
-	
+			
 	$result = mysql_query($sql);	
 	if($row = mysql_fetch_array($result)) {
 		do {
