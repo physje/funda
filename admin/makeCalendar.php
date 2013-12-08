@@ -98,7 +98,7 @@ for($i = 0 ; $i < $loop ; $i++) {
 			$sql .= "WHERE ";
 			$sql .= "$TableCalendar.$CalendarHuis = $TableResultaat.$ResultaatID AND ";
 			$sql .= "$TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND ";
-			$sql .= "$TableZoeken.$ZoekenActive like '1' AND ";
+			//$sql .= "$TableZoeken.$ZoekenActive like '1' AND ";
 			$sql .= "$TableAbo.$AboZoekID = $TableZoeken.$ZoekenKey AND ";
 			$sql .= "$TableAbo.$AboUserID like '$id' AND ";
 			$sql .= "$TableCalendar.$CalendarStart > $maandGeleden ";
