@@ -94,11 +94,12 @@ for($i = 0 ; $i < $loop ; $i++) {
 		if($gebruikers) {
 			$UserData	= getMemberDetails($id);	
 			$sql  = "SELECT * FROM ";
-			$sql .= "$TableCalendar, $TableResultaat, $TableZoeken, $TableAbo ";
+			$sql .= "$TableCalendar, $TableResultaat, $TableZoeken, $TableAbo, $TableVerdeling ";
 			$sql .= "WHERE ";
 			$sql .= "$TableCalendar.$CalendarHuis = $TableResultaat.$ResultaatID AND ";
 			$sql .= "$TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND ";
 			//$sql .= "$TableZoeken.$ZoekenActive like '1' AND ";
+			$sql .= "$TableVerdeling.$VerdelingOpdracht = $TableZoeken.$ZoekenKey AND ";
 			$sql .= "$TableAbo.$AboZoekID = $TableZoeken.$ZoekenKey AND ";
 			$sql .= "$TableAbo.$AboUserID like '$id' AND ";
 			$sql .= "$TableCalendar.$CalendarStart > $maandGeleden ";
