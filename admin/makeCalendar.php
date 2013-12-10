@@ -93,18 +93,20 @@ for($i = 0 ; $i < $loop ; $i++) {
 		
 		if($gebruikers) {
 			$UserData	= getMemberDetails($id);	
-			$sql  = "SELECT * FROM ";
+			$sql  = "SELECT $TableCalendar.$CalendarHuis, $TableCalendar.$CalendarStart FROM ";
 			$sql .= "$TableCalendar, $TableResultaat, $TableZoeken, $TableAbo, $TableVerdeling ";
 			$sql .= "WHERE ";
+			//$sql .= "$TableZoeken.$ZoekenActive like '1' AND ";
+			//$sql .= "$TableHuizen.$HuizenID = $TableZoeken.$ZoekenKey AND ";
+			//$sql .= "$TableHuizen.$HuizenOpenHuis like '1' AND ";
 			$sql .= "$TableCalendar.$CalendarHuis = $TableResultaat.$ResultaatID AND ";
 			$sql .= "$TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND ";
-			//$sql .= "$TableZoeken.$ZoekenActive like '1' AND ";
 			$sql .= "$TableVerdeling.$VerdelingOpdracht = $TableZoeken.$ZoekenKey AND ";
-			$sql .= "$TableAbo.$AboZoekID = $TableZoeken.$ZoekenKey AND ";
-			$sql .= "$TableAbo.$AboUserID like '$id' AND ";
+			$sql .= "$TableAbo.$AboZoekID = $TableZoeken.$ZoekenKey AND ";			
+			$sql .= "$TableAbo.$AboUserID like '$id' AND ";			
 			$sql .= "$TableCalendar.$CalendarStart > $maandGeleden ";
 			$sql .= "GROUP BY ";
-			$sql .= "$CalendarHuis, $CalendarStart";
+			$sql .= "$TableCalendar.$CalendarHuis, $TableCalendar.$CalendarStart";
 		}
 	
 		$result = mysql_query($sql);
