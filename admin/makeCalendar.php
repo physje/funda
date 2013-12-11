@@ -10,12 +10,8 @@ connect_db();
 # Iedereen kan deze pagina dus in principe openen.
 
 $header[] = "BEGIN:VCALENDAR";
-//$header[] = "PRODID:-//Google Inc//Google Calendar 70.9054//EN";
 $header[] = "VERSION:2.0";
-//$header[] = "CALSCALE:GREGORIAN";
-//$header[] = "METHOD:PUBLISH";
 $header[] = "X-WR-CALNAME:". $ScriptTitle;
-//$header[] = "X-WR-TIMEZONE:Europe/Amsterdam";
 $header[] = "X-WR-CALDESC:Kalender met daarin de tijdstippen waarop huizen van funda.nl open huis hebben.";
 $header[] = "BEGIN:VTIMEZONE";
 $header[] = "TZID:Europe/Amsterdam";
@@ -92,47 +88,51 @@ for($i = 0 ; $i < $loop ; $i++) {
 		}
 		
 		if($gebruikers) {
-			$UserData	= getMemberDetails($id);	
-			$sql  = "SELECT $TableCalendar.$CalendarHuis, $TableCalendar.$CalendarStart FROM ";
-			$sql .= "$TableCalendar, $TableResultaat, $TableZoeken, $TableAbo, $TableVerdeling ";
-			$sql .= "WHERE ";
-			//$sql .= "$TableZoeken.$ZoekenActive like '1' AND ";
-			//$sql .= "$TableHuizen.$HuizenID = $TableZoeken.$ZoekenKey AND ";
-			//$sql .= "$TableHuizen.$HuizenOpenHuis like '1' AND ";
-			$sql .= "$TableCalendar.$CalendarHuis = $TableResultaat.$ResultaatID AND ";
-			$sql .= "$TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND ";
-			$sql .= "$TableVerdeling.$VerdelingOpdracht = $TableZoeken.$ZoekenKey AND ";
-			$sql .= "$TableAbo.$AboZoekID = $TableZoeken.$ZoekenKey AND ";			
-			$sql .= "$TableAbo.$AboUserID like '$id' AND ";			
+			$UserData	= getMemberDetails($id);
+			
+			$sql  = "SELECT * ";
+			$sql .= "FROM $TableCalendar, $TableResultaat, $TableAbo, $TableVerdeling ";
+			$sql .= "WHERE $TableCalendar.$CalendarHuis = $TableResultaat.$ResultaatID AND ";
+			$sql .= "$TableResultaat.$ResultaatZoekID = $TableAbo.$AboZoekID AND ";
+			$sql .= "$TableVerdeling.$VerdelingOpdracht = $TableAbo.$AboZoekID AND ";
+			$sql .= "$TableAbo.$AboUserID = $id AND ";
 			$sql .= "$TableCalendar.$CalendarStart > $maandGeleden ";
-			$sql .= "GROUP BY ";
-			$sql .= "$TableCalendar.$CalendarHuis, $TableCalendar.$CalendarStart";
+			$sql .= "GROUP BY $TableCalendar.$CalendarHuis, $TableCalendar.$CalendarStart";
+		
+			//SELECT * FROM  `funda_kalender`, `funda_resultaat`, `funda_abonnement`, `funda_verdeling` WHERE
+			//`funda_kalender`.huis = `funda_resultaat`.funda_id AND
+			//`funda_resultaat`.zoek_id = `funda_abonnement`.zoek_id AND
+			//`funda_verdeling`.opdracht = `funda_abonnement`.zoek_id AND
+			//`funda_abonnement`.member_id = 1 AND
+			//`start` > 1386406800
 		}
 	
+		$ics = array();
 		$result = mysql_query($sql);
-		$row		= mysql_fetch_array($result);
-	
-		do {
-			$start		= $row[$CalendarStart];
-			$einde		= $row[$CalendarEnd];
-			$fundaID	= $row[$CalendarHuis];
-			$data		= getFundaData($fundaID);
-	
-			$description	= array();
-			$description[] = 'http://www.funda.nl/'. $fundaID;
-					
-			$ics[] = "BEGIN:VEVENT";	
-			$ics[] = "UID:FUNDA_OPEN_HUIS-". $fundaID .'-'. date("Ymd", $start);
-			$ics[] = "DTSTART:". date("Ymd\THis", $start);
-			$ics[] = "DTEND:". date("Ymd\THis", $einde);	
-			$ics[] = "LAST-MODIFIED:". date("Ymd\THis", time());
-			$ics[] = "SUMMARY:Open Huis '". convertToReadable($data['adres']) ."'";
-			$ics[] = "LOCATION:". convertToReadable($data['adres']) .", ". $data['plaats'];
-			$ics[] = "DESCRIPTION:". implode('\n', $description);
-			$ics[] = "STATUS:CONFIRMED";	
-			$ics[] = "TRANSP:TRANSPARENT";
-			$ics[] = "END:VEVENT";
-		} while($row = mysql_fetch_array($result));
+		
+		if($row = mysql_fetch_array($result)) {	
+			do {
+				$start		= $row[$CalendarStart];
+				$einde		= $row[$CalendarEnd];
+				$fundaID	= $row[$CalendarHuis];
+				$data		= getFundaData($fundaID);
+	  	
+				$description	= array();
+				$description[] = 'http://www.funda.nl/'. $fundaID;
+						
+				$ics[] = "BEGIN:VEVENT";	
+				$ics[] = "UID:FUNDA_OPEN_HUIS-". $fundaID .'-'. date("Ymd", $start);
+				$ics[] = "DTSTART:". date("Ymd\THis", $start);
+				$ics[] = "DTEND:". date("Ymd\THis", $einde);	
+				$ics[] = "LAST-MODIFIED:". date("Ymd\THis", time());
+				$ics[] = "SUMMARY:Open Huis '". convertToReadable($data['adres']) ."'";
+				$ics[] = "LOCATION:". convertToReadable($data['adres']) .", ". $data['plaats'];
+				$ics[] = "DESCRIPTION:". implode('\n', $description);
+				$ics[] = "STATUS:CONFIRMED";	
+				$ics[] = "TRANSP:TRANSPARENT";
+				$ics[] = "END:VEVENT";
+			} while($row = mysql_fetch_array($result));
+		}
 		
 		if($enkelHuis) {
 			header("Expires: Mon, 26 Jul 2001 05:00:00 GMT");
