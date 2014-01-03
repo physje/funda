@@ -143,9 +143,9 @@ if(isset($_REQUEST['id'])) {
 				$Kenmerk[] = "<td><input type='text' size='5' name='pPrijs[]' value='$value'></td>";
 				$Kenmerk[] = "<td>&nbsp;</td>";
 				if($data['verkocht'] == '1' || $data['offline'] == '1') {
-					$Kenmerk[] = "<td><i>". formatPrice(corrigeerPrice($key, $value, $data['eind'])) ."</i></td>";
+					$Kenmerk[] = "<td><i>". formatPrice(corrigeerPrice($key, $value, $data['eind'])) ."</i> (". number_format ((100*(corrigeerPrice($key, $value)-$value)/$value), 1) ."%)</td>";
 				} else {
-					$Kenmerk[] = "<td>". formatPrice(corrigeerPrice($key, $value)) ."</i></td>";
+					$Kenmerk[] = "<td>". formatPrice(corrigeerPrice($key, $value)) ." (". number_format ((100*(corrigeerPrice($key, $value)-$value)/$value), 1) ."%)</td>";
 				}
 				$Kenmerk[] = "</tr>";
 			}

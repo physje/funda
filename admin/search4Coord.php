@@ -20,7 +20,7 @@ connect_db();
 # 	http://www.tytai.com/gmap/
 
 if($_POST[search]) {	
-	$sql = "SELECT $TableHuizen.$HuizenID, (6371*acos(cos(radians($_POST[latitude]))*cos(radians($HuizenLat))*cos(radians($HuizenLon) - radians($_POST[longitude]))+sin(radians($_POST[latitude])) * sin(radians($HuizenLat)))) AS distance FROM $TableHuizen, $TableResultaat, $TableZoeken WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenActive like '1' HAVING distance < $_POST[afstand] ORDER BY distance";
+	$sql = "SELECT $TableHuizen.$HuizenID, (6371*acos(cos(radians($_POST[latitude]))*cos(radians($HuizenLat))*cos(radians($HuizenLon) - radians($_POST[longitude]))+sin(radians($_POST[latitude])) * sin(radians($HuizenLat)))) AS distance FROM $TableHuizen, $TableZoeken, $TableResultaat, $TableVerdeling WHERE $TableZoeken.$ZoekenKey = $TableResultaat.$ResultaatZoekID AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableVerdeling.$VerdelingOpdracht = $TableZoeken.$ZoekenKey HAVING distance < $_POST[afstand] ORDER BY distance";
 	$result = mysql_query($sql);
 		
 	if($row = mysql_fetch_array($result)) {
@@ -35,7 +35,7 @@ if($_POST[search]) {
 		$deel_1 = "<p>Selectie bevat geen huizen";
 	}	
 } else {
-	$sql		= "SELECT AVG($TableHuizen.$HuizenLat) as mean_lat, AVG($TableHuizen.$HuizenLon) as mean_lon FROM $TableHuizen, $TableResultaat, $TableZoeken WHERE $TableHuizen.$HuizenID = $TableResultaat.$ResultaatID AND $TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenUser = ". $_SESSION['account'] ." AND $TableZoeken.$ZoekenActive like '1'";
+	$sql		= "SELECT AVG($TableHuizen.$HuizenLat) as mean_lat, AVG($TableHuizen.$HuizenLon) as mean_lon FROM $TableHuizen, $TableZoeken, $TableResultaat, $TableVerdeling WHERE $TableZoeken.$ZoekenKey = $TableResultaat.$ResultaatZoekID AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableVerdeling.$VerdelingOpdracht = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenUser = ". $_SESSION['account'];
 	$result = mysql_query($sql);
 	$row		= mysql_fetch_array($result);
 	
