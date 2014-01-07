@@ -270,7 +270,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$key_parts = explode("-", $key);
 	$id			= $key_parts[1];
 	$foto		= getString('<img src="', '" alt="" title="" class="', $HuisURL[1], 0);
-	$adres	= getString('<a href="'. $HuisURL[0] .'" class="object-street" >', '</a>', $foto[1], 0);
+	$adres	= getString('<a href="'. $HuisURL[0] .'" class="object-street " >', '</a>', $foto[1], 0);
 	$PC			= getString('<li>', '<', $adres[1], 0);
 	$param	= getString('<li>', '</li>', $adres[1], 0);
 		
@@ -1359,12 +1359,15 @@ function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $
 	$begin[] = "	<select name='bJaar'>";
 	for($j=2004 ; $j<=date("Y") ; $j++)	$begin[] = "	<option value='$j'". ($j == $bJaar ? ' selected' : '') .">$j</option>";
 	$begin[] = "	</select>";
-	$begin[] = "	<select name='bUur'>";
-	for($u=0 ; $u<=23 ; $u++)	$begin[] = "	<option value='$u'". ($u == $bUur ? ' selected' : '') .">". substr('0'.$u, -2) ."</option>";
-	$begin[] = "	</select>:";
-	$begin[] = "	<select name='bMin'>";
-	for($m=0 ; $m<=59 ; $m++)	$begin[] = "	<option value='$m'". ($m == $bMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
-	$begin[] = "	</select>";
+	
+	if($bUur != '' AND $bMin != '') {
+		$begin[] = "	<select name='bUur'>";
+		for($u=0 ; $u<=23 ; $u++)	$begin[] = "	<option value='$u'". ($u == $bUur ? ' selected' : '') .">". substr('0'.$u, -2) ."</option>";
+		$begin[] = "	</select>:";
+		$begin[] = "	<select name='bMin'>";
+		for($m=0 ; $m<=59 ; $m++)	$begin[] = "	<option value='$m'". ($m == $bMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
+		$begin[] = "	</select>";
+	}
 	
 	$eind[] = "<select name='eDag'>";
 	for($d=1 ; $d<=31 ; $d++)	$eind[] = "	<option value='$d'". ($d == $eDag ? ' selected' : '') .">$d</option>";
@@ -1375,12 +1378,15 @@ function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $
 	$eind[] = "	<select name='eJaar'>";
 	for($j=2004 ; $j<=date("Y") ; $j++)	$eind[] = "	<option value='$j'". ($j == $eJaar ? ' selected' : '') .">$j</option>";
 	$eind[] = "	</select>";
-	$eind[] = "	<select name='eUur'>";
-	for($u=0 ; $u<=23 ; $u++)	$eind[] = "	<option value='$u'". ($u == $eUur ? ' selected' : '') .">". substr('0'.$u, -2) ."</option>";
-	$eind[] = "	</select>:";
-	$eind[] = "	<select name='eMin'>";
-	for($m=0 ; $m<=59 ; $m++)	$eind[] = "	<option value='$m'". ($m == $eMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
-	$eind[] = "	</select>";
+	
+	if($eUur != '' AND $eMin != '') {
+		$eind[] = "	<select name='eUur'>";
+		for($u=0 ; $u<=23 ; $u++)	$eind[] = "	<option value='$u'". ($u == $eUur ? ' selected' : '') .">". substr('0'.$u, -2) ."</option>";
+		$eind[] = "	</select>:";
+		$eind[] = "	<select name='eMin'>";
+		for($m=0 ; $m<=59 ; $m++)	$eind[] = "	<option value='$m'". ($m == $eMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
+		$eind[] = "	</select>";
+	}
 	
 	return array(implode("\n", $begin), implode("\n", $eind));
 }
