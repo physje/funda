@@ -1,6 +1,7 @@
 <?php
 include_once('../../general_include/general_functions.php');
 include_once('../../general_include/general_config.php');
+include_once('../../general_include/class.phpmailer.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
 include_once('../include/HTML_TopBottom.php');
@@ -21,6 +22,7 @@ if(count($rijen) > 100) {
 }	
 
 $first = true;
+$second = false;
 
 foreach($rijen as $rij) {
 	$tijd	= getString('" align="left">', '</td>', $rij, 0);
@@ -72,8 +74,14 @@ foreach($rijen as $rij) {
 	$sql = "INSERT INTO $TablePBK ($PBKStart, $PBKEind, $PBKWaarde, $PBKComment) VALUES ('". mktime(0,0,0,$Mnd,1,$jaar[0]) ."', '". mktime(23,59,59,($Mnd+1),0,$jaar[0]) ."', '". $perc[0] ."', '". $maand[0] .' '. $jaar[0] ."')";
 	mysql_query($sql);
 	
+	if($second) {
+		$second = false;
+		$oud_perc	= $perc[0];
+	}
+	
 	if($first) {
 		$first = false;
+		$second = true;
 		$mailMaand	= $maand[0];
 		$mailMnd		= $Mnd;
 		$mailJaar 	= $jaar[0];
@@ -84,17 +92,16 @@ foreach($rijen as $rij) {
 toLog('info', '', '', 'Kadaster PBK-ingelezen');
 
 # Als het verschil minder dan 45 dagen is, is er nieuwe data en moet er een mail worden gestuurd.
-$verschil = time() - mktime(23,59,59,($Mnd+1),0,$jaar[0]);
-if($verschil < (45*24*60*60)) {	
-	$melding[] = "Prijsindex Bestaande Woningen is ingelezen.";
+$verschil = time() - mktime(23,59,59,($mailMnd+1),0,$mailJaar);
+if($verschil < (30*24*60*60)) {	
+	$melding[] = "<a href='$url'>Prijsindex Bestaande Woningen</a> is ingelezen.";
 	$melding[] = "";
-	$melding[] = "<b>$mailMaand $mailJaar</b>";
-	$melding[] = $percentage
+	$melding[] = "<b>$mailMaand $mailJaar</b> : $percentage, was $oud_perc (". number_format ((100*($percentage-$oud_perc))/$percentage,1) ."%)";	
 	$melding[] = "";
 	$melding[] = "<img src='https://app.kpilibrary.com/a/graph/graph.asp?ki=6049725&chk=iWpX%2BqRZUD2CIGQykk2MrVuxLIh7oWNOXM%2BF3ykTHVo%3Did=6049725&tc=wr%2FjQMkX18DQka%2FMt1cM82KsdarjlBs9SHeykeXeBco%3D&db=171667&print=1&pr0=1&mode=print'>";
 	
 	# Stuur even een mail met de nieuwe cijfers
-	include('include/HTML_TopBottom.php');
+	include('../include/HTML_TopBottom.php');
 	$HTMLMail = $HTMLHeader;
 	$HTMLMail .= "<tr>\n";
 	$HTMLMail .= "	<td width='25%'>&nbsp;</td>\n";
@@ -107,7 +114,7 @@ if($verschil < (45*24*60*60)) {
 	$mail->From     = $ScriptMailAdress;
 	$mail->FromName = $ScriptTitle;
 	$mail->AddAddress($ScriptMailAdress, 'Matthijs');
-	$mail->Subject	= $SubjectPrefix."inlezen PBK";
+	$mail->Subject	= $SubjectPrefix."PBK van $oud_perc naar $percentage";
 	$mail->IsHTML(true);
 	$mail->Body			= $HTMLMail;
 	$mail->Send();	
