@@ -270,7 +270,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$key_parts = explode("-", $key);
 	$id			= $key_parts[1];
 	$foto		= getString('<img src="', '" alt="" title="" class="', $HuisURL[1], 0);
-	$adres	= getString('<a href="'. $HuisURL[0] .'" class="object-street " >', '</a>', $foto[1], 0);
+	$adres	= getString('<a href="'. $HuisURL[0] .'"class="object-street " >', '</a>', $foto[1], 0);
 	$PC			= getString('<li>', '<', $adres[1], 0);
 	$param	= getString('<li>', '</li>', $adres[1], 0);
 		
