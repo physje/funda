@@ -142,11 +142,25 @@ if(isset($_REQUEST['id'])) {
 				$Kenmerk[] = "<td> -> </td>";
 				$Kenmerk[] = "<td><input type='text' size='5' name='pPrijs[]' value='$value'></td>";
 				$Kenmerk[] = "<td>&nbsp;</td>";
+				
+				$prijs	= $value;
+				$bDag		= date('d', $key);
+				$bMaand = date('m', $key);
+				$bJaar	= date('Y', $key);				
 				if($data['verkocht'] == '1' || $data['offline'] == '1') {
-					$Kenmerk[] = "<td><i>". formatPrice(corrigeerPrice($key, $value, $data['eind'])) ."</i> (". number_format ((100*(corrigeerPrice($key, $value)-$value)/$value), 1) ."%)</td>";
+					$nieuwePrijs	= corrigeerPrice($key, $value, $data['eind']);					
+					$eDag		= date('d', $data['eind']);
+					$eMaand	= date('m', $data['eind']);
+					$eJaar	= date('Y', $data['eind']);
 				} else {
-					$Kenmerk[] = "<td>". formatPrice(corrigeerPrice($key, $value)) ." (". number_format ((100*(corrigeerPrice($key, $value)-$value)/$value), 1) ."%)</td>";
+					$nieuwePrijs	= corrigeerPrice($key, $value);
+					$eDag		= date('d');
+					$eMaand	= date('m');
+					$eJaar	= date('Y');
 				}
+				
+				$percentage		= number_format ((100*($nieuwePrijs-$value)/$value), 1);				
+				$Kenmerk[] = "<td><a href='determineCorrectPrice.php?prijs=$prijs&bDag=$bDag&bMaand=$bMaand&bJaar=$bJaar&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar' target='_blank'>". ($data['verkocht'] == '1' || $data['offline'] == '1' ? '<i>' : '') . formatPrice($nieuwePrijs) . ($data['verkocht'] == '1' || $data['offline'] == '1' ? '</i>' : '') . "</a> ($percentage %)</td>";
 				$Kenmerk[] = "</tr>";
 			}
 		}

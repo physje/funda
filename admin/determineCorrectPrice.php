@@ -13,8 +13,7 @@ if(!isset($_REQUEST['bDag']) OR !isset($_REQUEST['bMaand']) OR !isset($_REQUEST[
 	$bDag = date('d');
 	$bMaand = date('m');
 	$bJaar = date('Y');	
-} else {
-	
+} else {	
 	$bDag = $_REQUEST['bDag'];
 	$bMaand = $_REQUEST['bMaand'];
 	$bJaar = $_REQUEST['bJaar'];
@@ -55,7 +54,7 @@ $zoekScherm[] = "	<td>". $dateSelection[1] ."</td>";
 //$zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "</tr>";
 $zoekScherm[] = "<tr>";
-$zoekScherm[] = "	<td><input type='number' name='prijs' value='". $_REQUEST['prijs'] ."'></td>";
+$zoekScherm[] = "	<td><input type='text' name='prijs' value='". $_REQUEST['prijs'] ."'></td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "	<td>$price_2</td>";
