@@ -9,13 +9,18 @@ connect_db();
 
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
 # Iedereen kan deze pagina dus in principe openen.
-	
+
 $url = "https://app.kpilibrary.com/a/governanceobserver/perf-kpi-modal.asp?id=6049725&tc=wr%2FjQMkX18DQka%2FMt1cM82KsdarjlBs9SHeykeXeBco%3D&db=171667&print=1";
 
 $content = file_get_contents_retry($url);
 $tabel	= getString('align="left">Note</th></tr>', '</table></td></tr></table><br />', $content, 0);
 $rijen = explode('"><td class="d-tbl-', $tabel[0]);
 $rijen = array_slice ($rijen, 1);
+
+$sql = "SELECT * FROM $TablePBK ORDER BY $PBKEind DESC LIMIT 0,1";
+$result = mysql_query($sql);
+$row = mysql_fetch_array($result);
+$lastMonthInDB = $row[$PBKEind];
 
 if(count($rijen) > 100) {
 	mysql_query("TRUNCATE TABLE $TablePBK");
@@ -91,9 +96,8 @@ foreach($rijen as $rij) {
 
 toLog('info', '', '', 'Kadaster PBK-ingelezen');
 
-# Als het verschil minder dan 45 dagen is, is er nieuwe data en moet er een mail worden gestuurd.
-$verschil = time() - mktime(23,59,59,($mailMnd+1),0,$mailJaar);
-if($verschil < (30*24*60*60)) {	
+# Als de ingelezen data "nieuwer" is dan de data in de dB, is er nieuwe data en moet er een mail worden gestuurd.
+if(mktime(23,59,59,($mailMnd+1),0,$mailJaar) > $lastMonthInDB) {
 	$melding[] = "<a href='$url'>Prijsindex Bestaande Woningen</a> is ingelezen.";
 	$melding[] = "";
 	$melding[] = "<b>$mailMaand $mailJaar</b> : $percentage, was $oud_perc (". number_format ((100*($percentage-$oud_perc))/$percentage,1) ."%)";	
@@ -117,6 +121,6 @@ if($verschil < (30*24*60*60)) {
 	$mail->Subject	= $SubjectPrefix."PBK van $oud_perc naar $percentage";
 	$mail->IsHTML(true);
 	$mail->Body			= $HTMLMail;
-	$mail->Send();	
+	$mail->Send();
 }
 ?>
