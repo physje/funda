@@ -40,6 +40,7 @@ if($_SESSION['level'] > 1) {
 	$admin['admin/HouseDetails.php']			= 'Bekijk details van een huis';
 	$admin['teKoopVerkocht.php']					= 'Overzicht van nieuwe/verkochte huizen per periode';
 	$admin['admin/showVerdeling.php']			= 'Overzicht van welke opdracht wanneer wordt uitgevoerd';
+	$admin['admin/determineCorrectPrice.php']			= 'Bepaal gecorrigeerde prijs op specifieke datum';
 }
 
 
