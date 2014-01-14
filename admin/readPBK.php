@@ -73,9 +73,8 @@ foreach($rijen as $rij) {
 		case "January";
 			$Mnd = 1;
 			break;
-	}		
-			
-	//echo  date("d-m-Y", mktime(0,0,0,$Mnd,1,$jaar[0])) .'|'. date("d-m-Y", ) .' -> '. $perc[0] .'<br>';
+	}
+	
 	$sql = "INSERT INTO $TablePBK ($PBKStart, $PBKEind, $PBKWaarde, $PBKComment) VALUES ('". mktime(0,0,0,$Mnd,1,$jaar[0]) ."', '". mktime(23,59,59,($Mnd+1),0,$jaar[0]) ."', '". $perc[0] ."', '". $maand[0] .' '. $jaar[0] ."')";
 	mysql_query($sql);
 	

@@ -1360,7 +1360,7 @@ function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $
 	for($j=2004 ; $j<=date("Y") ; $j++)	$begin[] = "	<option value='$j'". ($j == $bJaar ? ' selected' : '') .">$j</option>";
 	$begin[] = "	</select>";
 	
-	if($bUur != '' AND $bMin != '') {
+	if(is_numeric($bUur) AND is_numeric($bMin)) {
 		$begin[] = "	<select name='bUur'>";
 		for($u=0 ; $u<=23 ; $u++)	$begin[] = "	<option value='$u'". ($u == $bUur ? ' selected' : '') .">". substr('0'.$u, -2) ."</option>";
 		$begin[] = "	</select>:";
@@ -1379,7 +1379,7 @@ function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $
 	for($j=2004 ; $j<=date("Y") ; $j++)	$eind[] = "	<option value='$j'". ($j == $eJaar ? ' selected' : '') .">$j</option>";
 	$eind[] = "	</select>";
 	
-	if($eUur != '' AND $eMin != '') {
+	if(is_numeric($eUur) AND is_numeric($eMin)) {
 		$eind[] = "	<select name='eUur'>";
 		for($u=0 ; $u<=23 ; $u++)	$eind[] = "	<option value='$u'". ($u == $eUur ? ' selected' : '') .">". substr('0'.$u, -2) ."</option>";
 		$eind[] = "	</select>:";
