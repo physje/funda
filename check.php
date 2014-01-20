@@ -74,16 +74,16 @@ foreach($Opdrachten as $OpdrachtID) {
 		# Deze class geeft precies het begin van een nieuw huis op de overzichtspagina aan
 		# Om zeker te zijn dat ik alle huizen vind doe ik eerst alsof �lle huizen van NVM zijn,
 		# dan of �lle huizen van VBO zijn, etc.
-		$HuizenNVM			= explode(' nvm " >', $contents);			array_shift($HuizenNVM);
-		$HuizenNVMlst		= explode(' nvm lst " >', $contents);	array_shift($HuizenNVMlst);		
+		$HuizenNVM			= explode(' nvm" >', $contents);			array_shift($HuizenNVM);
+		$HuizenNVMlst		= explode(' nvm lst" >', $contents);	array_shift($HuizenNVMlst);		
 		$HuizenNVMfeat	= explode(' nvm object-featured" >', $contents);	array_shift($HuizenNVMfeat);		
-		$HuizenVBO			= explode(' vbo " >', $contents);			array_shift($HuizenVBO);
-		$HuizenVBOlst		= explode(' vbo lst " >', $contents);	array_shift($HuizenVBOlst);
-		$HuizenLMV			= explode(' lmv " >', $contents);			array_shift($HuizenLMV);
-		$HuizenLMVlst		= explode(' lmv lst " >', $contents);	array_shift($HuizenLMVlst);
-		$HuizenExt			= explode(' ext " >', $contents);			array_shift($HuizenExt);
-		$HuizenExtlst		= explode(' ext lst " >', $contents);	array_shift($HuizenExtlst);
-		$HuizenProject	= explode('closed " >', $contents);		array_shift($HuizenProject);
+		$HuizenVBO			= explode(' vbo" >', $contents);			array_shift($HuizenVBO);
+		$HuizenVBOlst		= explode(' vbo lst" >', $contents);	array_shift($HuizenVBOlst);
+		$HuizenLMV			= explode(' lmv" >', $contents);			array_shift($HuizenLMV);
+		$HuizenLMVlst		= explode(' lmv lst" >', $contents);	array_shift($HuizenLMVlst);
+		$HuizenExt			= explode(' ext" >', $contents);			array_shift($HuizenExt);
+		$HuizenExtlst		= explode(' ext lst" >', $contents);	array_shift($HuizenExtlst);
+		$HuizenProject	= explode('closed" >', $contents);		array_shift($HuizenProject);
 		$Huizen					= array_merge($HuizenNVM, $HuizenNVMlst, $HuizenNVMfeat, $HuizenVBO, $HuizenVBOlst, $HuizenLMV, $HuizenLMVlst, $HuizenExt, $HuizenExtlst, $HuizenProject);
 		$NrPageHuizen		= count($Huizen);
 		
