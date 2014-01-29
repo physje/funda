@@ -23,7 +23,16 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	$beginGrens		= mktime(0, 0, 0, date("n")-7, date("j"), date("Y"));	# Huizen die langer dan 7 maanden van funda zijn afgeweest zie ik als "nieuw"
 	$eindGrens		= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));	# Huizen moeten 2 dagen van funda zijn verdwenen wil ik aanmerken als "van funda af"
 		
-	$sql		= "SELECT * FROM $TableHuizen, $TableZoeken, $TableResultaat WHERE $TableZoeken.$ZoekenActive = '1' AND $TableZoeken.$ZoekenKey = $TableResultaat.$ResultaatZoekID AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ($TableHuizen.$HuizenEind BETWEEN $beginGrens AND $eindGrens) AND $TableHuizen.$HuizenVerkocht like '0' GROUP BY $TableHuizen.$HuizenID ORDER BY $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenStart";
+	//$sql		= "SELECT * FROM $TableHuizen, $TableZoeken, $TableResultaat WHERE $TableZoeken.$ZoekenActive = '1' AND $TableZoeken.$ZoekenKey = $TableResultaat.$ResultaatZoekID AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ($TableHuizen.$HuizenEind BETWEEN $beginGrens AND $eindGrens) AND $TableHuizen.$HuizenVerkocht like '0' GROUP BY $TableHuizen.$HuizenID ORDER BY $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenStart";
+	
+	$sql  = "SELECT * ";
+	$sql .= "FROM $TableVerdeling, $TableHuizen, $TableResultaat ";
+	$sql .= "WHERE ";
+	$sql .= "$TableResultaat.$ResultaatZoekID = $TableVerdeling.$VerdelingOpdracht AND ";
+	$sql .= "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ";
+	$sql .= "($TableHuizen.$HuizenEind BETWEEN $beginGrens AND $eindGrens) AND ";
+	$sql .= "$TableHuizen.$HuizenVerkocht like '0'";
+	
 	$result	= mysql_query($sql);
 	$row = mysql_fetch_array($result);
 
