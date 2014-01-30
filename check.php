@@ -72,8 +72,8 @@ foreach($Opdrachten as $OpdrachtID) {
 		# Op funda.nl staan huizen van verschillende makkelaars-organisaties (NVM, VBO, etc.)
 		# Voor elke organisatie wordt een andere class uit de style-sheet gebruikt
 		# Deze class geeft precies het begin van een nieuw huis op de overzichtspagina aan
-		# Om zeker te zijn dat ik alle huizen vind doe ik eerst alsof �lle huizen van NVM zijn,
-		# dan of �lle huizen van VBO zijn, etc.
+		# Om zeker te zijn dat ik alle huizen vind doe ik eerst alsof alle huizen van NVM zijn,
+		# dan of alle huizen van VBO zijn, etc.
 		$HuizenNVM			= explode(' nvm" >', $contents);			array_shift($HuizenNVM);
 		$HuizenNVMlst		= explode(' nvm lst" >', $contents);	array_shift($HuizenNVMlst);		
 		$HuizenNVMfeat	= explode(' nvm object-featured" >', $contents);	array_shift($HuizenNVMfeat);		
@@ -310,9 +310,17 @@ foreach($Opdrachten as $OpdrachtID) {
 		toLog('debug', $OpdrachtID, '', "Einde pagina $p (". count($AdressenArray) ." huizen)");
 		
 		# Niet de laatste pagina en minder dan 15 huizen => niet goed
-		if((count($AdressenArray) + count($AdressenArray)) < 15 AND $nextPage) {
-			$ErrorMessage[] = $OpdrachtData['naam'] ."; Script vond maar ". (count($AdressenArray) + count($VerlopenArray)) .' huizen op pagina '. $p;
-			toLog('error', $OpdrachtID, '', "script vond maar ". (count($AdressenArray) + count($VerlopenArray)) ." huizen; pag. $p");
+		if((count($AdressenArray) + count($AdressenArray)) < 15 AND $nextPage) {			
+			# funda.nl laat soms wel de optie zien om naar de volgende pagina te gaan tewijl die er eigenlijk niet is
+			# de volgende pagina is namelijk leeg. Mochten er dus te weinig huizen op een pagina staan,
+			# dan check ik eerst even of er op de volgende pagina wel huizen staan.
+			$PageURL = $OpdrachtURL.'p'.($p+1).'/';
+			$contents	= file_get_contents_retry($PageURL, 5);
+			
+			if(!is_numeric(strpos($contents, "<h3>Geen koopwoningen gevonden die voldoen aan uw zoekopdracht</h3>"))) {
+				$ErrorMessage[] = $OpdrachtData['naam'] ."; Script vond maar ". (count($AdressenArray) + count($VerlopenArray)) .' huizen op pagina '. $p;
+				toLog('error', $OpdrachtID, '', "script vond maar ". (count($AdressenArray) + count($VerlopenArray)) ." huizen; pag. $p");
+			}
 		}
 		
 		# Om funda.nl niet helemaal murw te beuken wachten we even 3 seconden voordat we de volgende pagina opvragen
