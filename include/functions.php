@@ -1444,7 +1444,7 @@ function makeSelectionSelection($disableList, $blankOption, $preSelect = 0) {
 	return implode("\n", $HTML);
 }
 
-
+/*
 function generatePassword ($length = 8) {
 	// start with a blank password
 	$password = "";
@@ -1488,6 +1488,7 @@ function generatePassword ($length = 8) {
   // done!
   return $password;
 }
+*/
 
 function updateMakelaar($data) {
 	global $TableHuizen, $HuizenMakelaar, $HuizenID;
