@@ -40,7 +40,7 @@ foreach($Opdrachten as $OpdrachtID) {
 	
 	$NrHuizen	= getString('<span class="hits"> (', ')', $contents, 0);
 
-	if(!is_numeric($NrHuizen[0])) {
+	if(!is_numeric($NrHuizen[0]) AND !strpos($contents, '<div class="no-results">')) {
 		$ErrorMessage[] = $OpdrachtData['naam'] ."; Het totaal aantal huizen klopt niet : ". $NrHuizen[0];	
 		toLog('error', $OpdrachtID, '', 'Ongeldig aantal huizen');
 	}
