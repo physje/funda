@@ -143,12 +143,16 @@ if(is_array($key_1)) {
 		$Item .= "	<td align='center'><img src='". changeThumbLocation(urldecode($data_new['thumb'])) ."'></td>\n";
 		$Item .= "</tr>\n";
 		$Item .= "<tr>\n";
-		$Item .= "	<td align='center'><a href='http://www.funda.nl". $data_oud['url'] ."'>". urldecode($data_oud['adres']) ."</a>, ". $data_oud['plaats'] ."<br>$id_oud (verwijderd)</td>\n";
-		$Item .= "	<td align='center'><a href='http://www.funda.nl". $data_new['url'] ."'>". urldecode($data_new['adres']) ."</a>, ". $data_new['plaats'] ."<br>$id_new (master)</td>\n";
+		$Item .= "	<td align='center'><a href='http://www.funda.nl/". $id_oud ."'>". urldecode($data_oud['adres']) ."</a><br>$id_oud (verwijderd)</td>\n";
+		$Item .= "	<td align='center'><a href='http://www.funda.nl/". $id_new ."'>". urldecode($data_new['adres']) ."</a><br>$id_new (master)</td>\n";
 		$Item .= "</tr>\n";
 		$Item .= "<tr>\n";
 		$Item .= "	<td align='center'>". date("d-m-y", $data_oud['start']) .' t/m '. date("d-m-y", $data_oud['eind']) ."</td>\n";
 		$Item .= "	<td align='center'>". date("d-m-y", $data_new['start']) .' t/m '. date("d-m-y", $data_new['eind']) ."</td>\n";
+		$Item .= "</tr>\n";
+		$Item .= "<tr>\n";
+		$Item .= "	<td align='center'>". $data_oud['makelaar'] ."</td>\n";
+		$Item .= "	<td align='center'>". $data_new['makelaar'] ."</td>\n";
 		$Item .= "</tr>\n";
 		
 		if(!$verwijderd) {
