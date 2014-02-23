@@ -7,38 +7,6 @@
 #
 # OUTPUT
 #		array met ids van zoekopdracht 
-/*
-function getZoekOpdrachten($id, $active) {
-	global $TableZoeken, $ZoekenUser, $ZoekenKey, $ZoekenActive;
-	$Opdrachten = array();
-	
-	connect_db();
-	
-	$sql = "SELECT $ZoekenKey FROM $TableZoeken";
-	
-	if($active != '') {
-		$where[] = "$ZoekenActive = '$active'";
-	}
-	
-	if($id != '') {
-		$where[] = "$ZoekenUser = '$id'";
-	}
-	
-	if(count($where) > 0) {
-		$sql .= ' WHERE '. implode(" AND ", $where);
-	}
-	
-	$result = mysql_query($sql);	
-	if($row = mysql_fetch_array($result)) {
-		do {
-			$Opdrachten[] = $row[$ZoekenKey];
-		} while($row = mysql_fetch_array($result));
-	}
-	
-	return $Opdrachten;
-}
-*/
-
 function getZoekOpdrachten($user, $uur, $active = true) {
 	global $TableZoeken, $TableVerdeling, $VerdelingOpdracht, $VerdelingUur, $ZoekenKey, $ZoekenUser;
 	$where = $Opdrachten = array();
@@ -57,8 +25,6 @@ function getZoekOpdrachten($user, $uur, $active = true) {
 	}
 	
 	$sql .= ' FROM '. $from .' WHERE '. implode(" AND ", $where);
-	
-	//echo $sql;
 		
 	$result = mysql_query($sql);	
 	if($row = mysql_fetch_array($result)) {
@@ -107,8 +73,6 @@ function getOpdrachtData($id) {
 			
 		$data['active']	= $row[$ZoekenActive];
 		$data['user']		= $row[$ZoekenUser];
-		//$data['mail']		= $row[$ZoekenMail];
-		//$data['adres']	= $row[$ZoekenAdres];
 		$data['naam']		= urldecode($row[$ZoekenNaam]);
 		$data['url']		= urldecode($row[$ZoekenURL]);
 	}
@@ -194,7 +158,6 @@ function addKnowCoordinates($coord, $huisID) {
 		$lat = $coord[0].'.'.$coord[1];
 		$lng = $coord[2].'.'.$coord[3]; 
 		$sql = "UPDATE $TableHuizen SET $HuizenLat = '$lat', $HuizenLon = '$lng' WHERE $HuizenID = '$huisID'";
-		//$sql = "UPDATE $TableHuizen SET $HuizenNdeg = '$coord[0]', $HuizenNdec = '$coord[1]', $HuizenOdeg = '$coord[2]', $HuizenOdec = '$coord[3]' WHERE $HuizenID = '$huisID'";
 		if(!mysql_query($sql)) {
 			return false;
 		} else {
@@ -378,7 +341,6 @@ function makeKMLEntry($id) {
 	$KML_file[] = '		]]></description>';		
 	$KML_file[] = '		<styleUrl>#style1</styleUrl>';
 	$KML_file[] = '		<Point>';
-	//$KML_file[] = '			<coordinates>'. $data['O_deg'] .'.'. $data['O_dec'] .','. $data['N_deg'] .'.'. $data['N_dec'] .',0</coordinates>';
 	$KML_file[] = '			<coordinates>'. $data['long'] .','. $data['lat'] .',0</coordinates>';
 	$KML_file[] = '		</Point>';
 	$KML_file[] = '	</Placemark>';
@@ -636,7 +598,6 @@ function changedPrice($id, $price, $opdracht) {
 
 
 function getFundaData($id) {
-	//global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenNdeg, $HuizenNdec, $HuizenOdeg, $HuizenOdec, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht;
 	global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht, $HuizenOpenHuis;
 	connect_db();
   
@@ -656,10 +617,6 @@ function getFundaData($id) {
 			$data['wijk']			= urldecode($row[$HuizenWijk]);
 			$data['thumb']		= urldecode($row[$HuizenThumb]);
 			$data['makelaar']	= urldecode($row[$HuizenMakelaar]);
-			//$data['N_deg']		= $row[$HuizenNdeg];
-			//$data['N_dec']		= $row[$HuizenNdec];
-			//$data['O_deg']		= $row[$HuizenOdeg];
-			//$data['O_dec']		= $row[$HuizenOdec];
 			$data['lat']			= $row[$HuizenLat];
 			$data['long']			= $row[$HuizenLon];
 			$data['start']		= $row[$HuizenStart];
@@ -845,27 +802,40 @@ function getDoorloptijd($id) {
 		$maand = $maand + 12;
 		$jaar = $jaar - 1;
 	}
-		
-	# Druk het niet uit in jaren maar in maanden
-	if($jaar > 0) {
-		$maand	= $maand + (12*$jaar);
-		$jaar		= 0;
-	}
 	
 	# Druk het uit in weken
-	if($dag > 7) {
+	if($dag >= 7) {
 		$week = floor($dag/7);
 		$dag = 0;
 	}
-
-	if($jaar > 0)		$output[] = $jaar ."j";
-	if($maand > 0)	$output[] = $maand ."m";
-	if($week > 0)		$output[] = $week ."wk";
 	
-	if(($jaar == 0 AND $maand == 0 AND $week == 0) OR ($dag > 0)) {
+	# De doorlooptijd wordt maximaal uitgedrukt in 2 'eenheden'.
+	# Dus niet 1j & 8m & 3wk & 1d maar gewoon 1j & 9m
+	if($jaar != 0) {
+		$output[] = $jaar ."j";		
+		if($maand != 0 AND $week >= 2) {
+			$output[] = ($maand+1) ."m";
+		} elseif($maand != 0) {
+			$output[] = $maand ."m";
+		} elseif($week != 0) {
+			$output[] = $week ."wk";
+		}
+	} elseif($maand != 0) {
+		$output[] = $maand ."m";		
+		if($week != 0) {
+			$output[] = $week ."wk";
+		} elseif($dag != 0) {
+			$output[] = $dag ."d";
+		}
+	} elseif($week != 0) {
+		$output[] = $week ."wk";		
+		if($dag != 0) {
+			$output[] = $dag ."d";
+		}
+	} else {
 		$output[] = $dag ."d";
 	}
-	
+			
 	return implode(" & ", $output);
 }
 
