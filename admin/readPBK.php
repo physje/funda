@@ -22,9 +22,11 @@ $result = mysql_query($sql);
 $row = mysql_fetch_array($result);
 $lastMonthInDB = $row[$PBKEind];
 
+/*
 if(count($rijen) > 100) {
 	mysql_query("TRUNCATE TABLE $TablePBK");
-}	
+}
+*/
 
 $first = true;
 $second = false;
@@ -74,6 +76,9 @@ foreach($rijen as $rij) {
 			$Mnd = 1;
 			break;
 	}
+	
+	$sql_delete = "DELETE * FROM $TablePBK WHERE $PBKComment like '". $maand[0] .' '. $jaar[0] ."'";
+	mysql_query($sql_delete);
 	
 	$sql = "INSERT INTO $TablePBK ($PBKStart, $PBKEind, $PBKWaarde, $PBKComment) VALUES ('". mktime(0,0,0,$Mnd,1,$jaar[0]) ."', '". mktime(23,59,59,($Mnd+1),0,$jaar[0]) ."', '". $perc[0] ."', '". $maand[0] .' '. $jaar[0] ."')";
 	mysql_query($sql);
