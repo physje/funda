@@ -77,7 +77,7 @@ foreach($rijen as $rij) {
 			break;
 	}
 	
-	$sql_delete = "DELETE * FROM $TablePBK WHERE $PBKComment like '". $maand[0] .' '. $jaar[0] ."'";
+	$sql_delete = "DELETE FROM $TablePBK WHERE $PBKComment like '". $maand[0] .' '. $jaar[0] ."'";
 	mysql_query($sql_delete);
 	
 	$sql = "INSERT INTO $TablePBK ($PBKStart, $PBKEind, $PBKWaarde, $PBKComment) VALUES ('". mktime(0,0,0,$Mnd,1,$jaar[0]) ."', '". mktime(23,59,59,($Mnd+1),0,$jaar[0]) ."', '". $perc[0] ."', '". $maand[0] .' '. $jaar[0] ."')";
