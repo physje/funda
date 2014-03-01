@@ -17,19 +17,13 @@ $tabel	= getString('align="left">Note</th></tr>', '</table></td></tr></table><br
 $rijen = explode('"><td class="d-tbl-', $tabel[0]);
 $rijen = array_slice ($rijen, 1);
 
-$sql = "SELECT * FROM $TablePBK ORDER BY $PBKEind DESC LIMIT 0,1";
-$result = mysql_query($sql);
-$row = mysql_fetch_array($result);
-$lastMonthInDB = $row[$PBKEind];
-
-/*
-if(count($rijen) > 100) {
-	mysql_query("TRUNCATE TABLE $TablePBK");
-}
-*/
-
+# Omdat ik het verloop wil weten moet ik de laatste en een-na-laatste weten.
+# Om dat bij te houden definieer ik even 2 variabelen.
 $first = true;
 $second = false;
+
+# Wel of geen mail sturen, that's the question
+$newEntry = false;
 
 foreach($rijen as $rij) {
 	$tijd	= getString('" align="left">', '</td>', $rij, 0);
@@ -77,11 +71,13 @@ foreach($rijen as $rij) {
 			break;
 	}
 	
-	$sql_delete = "DELETE FROM $TablePBK WHERE $PBKComment like '". $maand[0] .' '. $jaar[0] ."'";
-	mysql_query($sql_delete);
-	
-	$sql = "INSERT INTO $TablePBK ($PBKStart, $PBKEind, $PBKWaarde, $PBKComment) VALUES ('". mktime(0,0,0,$Mnd,1,$jaar[0]) ."', '". mktime(23,59,59,($Mnd+1),0,$jaar[0]) ."', '". $perc[0] ."', '". $maand[0] .' '. $jaar[0] ."')";
-	mysql_query($sql);
+	$sql_check = "SELECT * FROM $TablePBK WHERE $PBKComment like '". $maand[0] .' '. $jaar[0] ."'";
+	$result = mysql_query($sql_check);
+	if(mysql_num_rows($result) == 0) {
+		$sql = "INSERT INTO $TablePBK ($PBKStart, $PBKEind, $PBKWaarde, $PBKComment) VALUES ('". mktime(0,0,0,$Mnd,1,$jaar[0]) ."', '". mktime(23,59,59,($Mnd+1),0,$jaar[0]) ."', '". $perc[0] ."', '". $maand[0] .' '. $jaar[0] ."')";
+		mysql_query($sql);
+		$newEntry = true;
+	}
 	
 	if($second) {
 		$second = false;
@@ -101,7 +97,7 @@ foreach($rijen as $rij) {
 toLog('info', '', '', 'Kadaster PBK-ingelezen');
 
 # Als de ingelezen data "nieuwer" is dan de data in de dB, is er nieuwe data en moet er een mail worden gestuurd.
-if(mktime(23,59,59,($mailMnd+1),0,$mailJaar) > $lastMonthInDB) {
+if($newEntry) {
 	$melding[] = "<a href='$url'>Prijsindex Bestaande Woningen</a> is ingelezen.";
 	$melding[] = "";
 	$melding[] = "<b>$mailMaand $mailJaar</b> : $percentage, was $oud_perc (". number_format ((100*($percentage-$oud_perc))/$percentage,1) ."%)";	
