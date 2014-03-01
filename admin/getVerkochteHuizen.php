@@ -56,14 +56,14 @@ foreach($Opdrachten as $OpdrachtID) {
 		# Deze class geeft precies het begin van een nieuw huis op de overzichtspagina aan
 		# Om zeker te zijn dat ik alle huizen vind doe ik eerst alsof �lle huizen van NVM zijn,
 		# dan of �lle huizen van VBO zijn, etc.
-		$HuizenNVM		= explode(' nvm sold " >', $contents);			array_shift($HuizenNVM);
-		$HuizenNVMlst	= explode(' nvm sold lst " >', $contents);	array_shift($HuizenNVMlst);
-		$HuizenVBO		= explode(' vbo sold " >', $contents);			array_shift($HuizenVBO);
-		$HuizenVBOlst	= explode(' vbo sold lst " >', $contents);	array_shift($HuizenVBOlst);
-		$HuizenLMV		= explode(' lmv sold " >', $contents);			array_shift($HuizenLMV);
-		$HuizenLMVlst	= explode(' lmv sold lst " >', $contents);	array_shift($HuizenLMVlst);
-		$HuizenExt		= explode(' ext sold " >', $contents);			array_shift($HuizenExt);
-		$HuizenExtlst	= explode(' ext sold lst " >', $contents);	array_shift($HuizenExtlst);
+		$HuizenNVM		= explode(' nvm sold" >', $contents);			array_shift($HuizenNVM);
+		$HuizenNVMlst	= explode(' nvm sold lst" >', $contents);	array_shift($HuizenNVMlst);
+		$HuizenVBO		= explode(' vbo sold" >', $contents);			array_shift($HuizenVBO);
+		$HuizenVBOlst	= explode(' vbo sold lst" >', $contents);	array_shift($HuizenVBOlst);
+		$HuizenLMV		= explode(' lmv sold" >', $contents);			array_shift($HuizenLMV);
+		$HuizenLMVlst	= explode(' lmv sold lst" >', $contents);	array_shift($HuizenLMVlst);
+		$HuizenExt		= explode(' ext sold" >', $contents);			array_shift($HuizenExt);
+		$HuizenExtlst	= explode(' ext sold lst" >', $contents);	array_shift($HuizenExtlst);
 		$Huizen				= array_merge($HuizenNVM, $HuizenNVMlst, $HuizenVBO, $HuizenVBOlst, $HuizenLMV, $HuizenLMVlst, $HuizenExt, $HuizenExtlst);
 				
 		# Doorloop nu alle gevonden huizen op de overzichtspagina
