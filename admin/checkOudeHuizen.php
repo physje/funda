@@ -34,12 +34,12 @@ $eMaand 	= getParam('eMaand', date("m", $einddag));
 $eJaar		= getParam('eJaar', date("Y", $einddag));
 $selectie	= getParam('selectie', '');
 
-// Als hij een pagina opvraagt die niet bestaat krijg je veel errors/warnings.
-// Die wil ik onderdrukken
+# Als hij een pagina opvraagt die niet bestaat krijg je veel errors/warnings.
+# Dat is niet handig, dus even onderdrukken
 error_reporting(0);
 
 if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
-	$dateSelection = makeDateSelection($bDag, $bMaand, $bJaar, $eDag, $eMaand, $eJaar);
+	$dateSelection = makeDateSelection('','',$bDag,$bMaand,$bJaar , '','',$eDag,$eMaand,$eJaar);
 		
 	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
 	$HTML[] = "<input type='hidden' name='datum' value='1'>";
@@ -75,21 +75,20 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 		$beginGrens = mktime(0, 0, 0, $_POST['bMaand'], $_POST['bDag'], $_POST['bJaar']);
 		$eindGrens	= mktime(23, 59, 59, $_POST['eMaand'], $_POST['eDag'], $_POST['eJaar']);
 		$titel = 'Huizen voor het laatst gezien tussen '. date('d-m-y', $beginGrens) .' en '. date('d-m-y', $eindGrens);
-		
-		$sql_array[] = "SELECT";
-		$sql_array[] = "$TableHuizen.$HuizenID, $TableHuizen.$HuizenURL, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenPlaats, $TableHuizen.$HuizenStart, $TableHuizen.$HuizenEind";
-		$sql_array[] = "FROM";
-		$sql_array[] = "$TableResultaat, $TableHuizen, $TableZoeken";
-		$sql_array[] = "WHERE";
-		$sql_array[] = "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND";
-		$sql_array[] = "$TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND";
-		$sql_array[] = "$TableZoeken.$ZoekenActive like '1' AND";
+				
+		$sql_array[] = "SELECT * ";
+		$sql_array[] = "FROM $TableVerdeling, $TableHuizen, $TableResultaat ";
+		$sql_array[] = "WHERE ";
+		$sql_array[] = "$TableResultaat.$ResultaatZoekID = $TableVerdeling.$VerdelingOpdracht AND ";
+		$sql_array[] = "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ";
+		//$sql_array[] = "($TableHuizen.$HuizenEind BETWEEN $beginGrens AND $eindGrens) AND ";
+		//$sql_array[] = "$TableHuizen.$HuizenVerkocht like '0' AND";
 		$sql_array[] = "$TableHuizen.$HuizenVerkocht NOT like '1' AND";
 		$sql_array[] = "$TableHuizen.$HuizenOffline like '0' AND";
-
+		
 		if($_REQUEST['selectie'] != '') {
 			$OpdrachtData = getOpdrachtData($opdracht);
-			$sql_array[] = "$TableZoeken.$ZoekenKey like '$opdracht' AND";
+			$sql_array[] = "$TableResultaat.$ResultaatZoekID like '$opdracht' AND";
 			$titel .= " voor ". $OpdrachtData['naam'];
 		}
 		
@@ -99,8 +98,11 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 		$HTML[] = "<h1>$titel</h1><br>\n";
 	}
 	
-	$sql = implode(" ", $sql_array);
-	$Debug[] = $sql ."<br>\n";  
+	$sql = implode(" ", $sql_array);	
+	$result	= mysql_query($sql);
+	
+	$Debug[] = implode("<br>\n", $sql_array) ."<br>\n";  
+	$Debug[] = mysql_num_rows($result) ." resultaten<br>\n";  
 		
 	$result	= mysql_query($sql);	
 	if($row = mysql_fetch_array($result)) {

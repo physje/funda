@@ -9,10 +9,22 @@ connect_db();
 # Iedereen kan deze pagina dus in principe openen.
 
 $grens	= time() - (2*24*60*60);
-$sql		= "SELECT $TableHuizen.$HuizenID, $TableHuizen.$HuizenURL, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenPlaats, $TableHuizen.$HuizenEind FROM $TableResultaat, $TableHuizen, $TableZoeken WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenActive like '1' AND $TableHuizen.$HuizenOffline = '0' AND $TableHuizen.$HuizenVerkocht = '0' AND $TableHuizen.$HuizenEind < $grens GROUP BY $TableHuizen.$HuizenID";
+//$sql		= "SELECT $TableHuizen.$HuizenID, $TableHuizen.$HuizenURL, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenPlaats, $TableHuizen.$HuizenEind FROM $TableResultaat, $TableHuizen, $TableZoeken WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenActive like '1' AND $TableHuizen.$HuizenOffline = '0' AND $TableHuizen.$HuizenVerkocht = '0' AND $TableHuizen.$HuizenEind < $grens GROUP BY $TableHuizen.$HuizenID";
+
+$sql_array[] = "SELECT * ";
+$sql_array[] = "FROM $TableVerdeling, $TableHuizen, $TableResultaat ";
+$sql_array[] = "WHERE ";
+$sql_array[] = "$TableResultaat.$ResultaatZoekID = $TableVerdeling.$VerdelingOpdracht AND ";
+$sql_array[] = "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ";
+$sql_array[] = "$TableHuizen.$HuizenVerkocht like '0' AND";
+$sql_array[] = "$TableHuizen.$HuizenOffline like '0' AND";
+$sql_array[] = "$TableHuizen.$HuizenEind < $grens";
+$sql_array[] = "GROUP BY $TableHuizen.$HuizenID";
+
+$sql = implode(" ", $sql_array);
 $result	= mysql_query($sql);
 
-//echo $sql;
+//echo implode("<br>\n", $sql_array);
 
 toLog('info', '', '', "Start controle offline huizen");
 
@@ -36,4 +48,4 @@ if($row = mysql_fetch_array($result)) {
 		echo "\n<br>\n";		
 	} while($row = mysql_fetch_array($result));
 }
-		
+?>		
