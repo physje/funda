@@ -112,7 +112,11 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 			$HTML[] = '<b>'. urldecode($row[$HuizenAdres]) ."</b> (<a href='$url'>url</a>, ". urldecode($row[$HuizenPlaats]) .")<br>";
 			$HTML[] = "[van ". date("d-m-Y", $row[$HuizenStart]) ." tot ". date("d-m-Y", $row[$HuizenEind]) ."]<br>";
 			
-			$HTML_temp = extractAndUpdateVerkochtData($row[$HuizenID]);
+			if($row[$HuizenOffline] == 0) {
+				$HTML_temp = extractAndUpdateVerkochtData($row[$HuizenID]);				
+			} else {
+				$HTML_temp[] = ' -> niet aan begonnen, is offline<br>';
+			}
 			$HTML = array_merge($HTML, $HTML_temp);
 		} while($row = mysql_fetch_array($result));
 	}

@@ -1123,20 +1123,20 @@ function removeMember4Opdracht($opdracht, $user) {
 
 
 function extractAndUpdateVerkochtData($fundaID) {
-	global $TableHuizen, $HuizenStart, $HuizenEind, $HuizenVerkocht, $HuizenID;
+	global $TableHuizen, $HuizenStart, $HuizenEind, $HuizenVerkocht, $HuizenOffline, $HuizenID;
 	
 	# Alles weer opnieuw initialiseren.
 	unset($prijs, $naam);
 	unset($Aanmelddatum, $Verkoopdatum, $AangebodenSinds, $startdata);
 	unset($OorspronkelijkeVraagprijs, $LaatsteVraagprijs, $Vraagprijs);
-	$verkocht = false;
+	$verkocht = $offline = false;
 	
 	$FundaData = getFundaData($fundaID);
 	$url			= "http://www.funda.nl". urldecode($FundaData['url']);
 	
 	# Via de kenmerkenpagina
 	$data			= extractDetailedFundaData($url);
-	
+		
 	# Als de array 'data' groter is dan 3 is er data gevonden in de kenmerken-pagina
 	if(count($data) > 3) {
 		# Reeds verkochte huizen
@@ -1198,8 +1198,16 @@ function extractAndUpdateVerkochtData($fundaID) {
 		if($data['Vraagprijs'] != '') {
 			$prijzen						= explode(" ", $data['Vraagprijs']);				
 			$Vraagprijs	= str_ireplace('.', '' , substr($prijzen[0], 5));
-		}			
-	} else {
+		}
+		
+		if($data['Status'] == 'Verkocht onder voorbehoud') {
+			$sql_update = "UPDATE $TableHuizen SET $HuizenVerkocht = '2' WHERE $HuizenID like $fundaID";
+			if(mysql_query($sql_update)) {
+				$HTML[] = " -> onder voorbehoud verkocht<br>";
+			}			
+		}
+		
+	} else {		
 		# De "standaard"-pagina... maar daar staat niet alles op.
 		# Aan de andere kant, de kenmerken-pagina werkt niet overal
 		$contents = file_get_contents_retry($url);
@@ -1224,6 +1232,13 @@ function extractAndUpdateVerkochtData($fundaID) {
 	  	
 			$prijzen						= explode(" ", strip_tags($tempLaatstevraagprijs[0]));
 			$LaatsteVraagprijs	= str_ireplace('.', '' , substr($prijzen[0], 12));
+		} elseif(!is_string($contents)) {			
+			$sql_update = "UPDATE $TableHuizen SET $HuizenOffline = '1' WHERE $HuizenID like $fundaID";
+		
+			if(mysql_query($sql_update)) {
+				$HTML[] = " -> is offline<br>";
+			}
+			$offline = true;			
 		}
 	}
 	
@@ -1280,7 +1295,7 @@ function extractAndUpdateVerkochtData($fundaID) {
 	}
 	
 	# Als er een startdatum gevonden is die verder terugligt dan die bekend was => invoegen
-	if($startDatum != $FundaData['start']) {
+	if($startDatum != $FundaData['start'] AND !$offline) {
 		$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $startDatum WHERE $HuizenID like $fundaID";
 		
 		if(mysql_query($sql_update)) {
@@ -1291,7 +1306,7 @@ function extractAndUpdateVerkochtData($fundaID) {
 	}
 
 	# Als er geen verkoopdatum bekend is, is hij niet verkocht en dus nog online
-	if($Verkoopdatum == '') {
+	if($Verkoopdatum == '' AND !$offline) {
 		$sql_update = "UPDATE $TableHuizen SET $HuizenEind = ". time() ." WHERE $HuizenID like $fundaID";
 		
 		if(mysql_query($sql_update)) {

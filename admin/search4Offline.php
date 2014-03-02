@@ -16,8 +16,8 @@ $sql_array[] = "FROM $TableVerdeling, $TableHuizen, $TableResultaat ";
 $sql_array[] = "WHERE ";
 $sql_array[] = "$TableResultaat.$ResultaatZoekID = $TableVerdeling.$VerdelingOpdracht AND ";
 $sql_array[] = "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ";
-$sql_array[] = "$TableHuizen.$HuizenVerkocht like '0' AND";
-$sql_array[] = "$TableHuizen.$HuizenOffline like '0' AND";
+$sql_array[] = "$TableHuizen.$HuizenVerkocht NOT like '1' AND";
+$sql_array[] = "$TableHuizen.$HuizenOffline NOT like '1' AND";
 $sql_array[] = "$TableHuizen.$HuizenEind < $grens";
 $sql_array[] = "GROUP BY $TableHuizen.$HuizenID";
 
