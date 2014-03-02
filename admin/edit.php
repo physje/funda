@@ -183,8 +183,8 @@ if(isset($_REQUEST['id'])) {
 	$Resultaten[] = "<ul>\n";
 	
 	do {
-		$data = getOpdrachtData($row[$ResultaatZoekID]);
-		$Resultaten[] = '<li>'. $data['naam'] ."</li>\n";
+		$opdrachtData = getOpdrachtData($row[$ResultaatZoekID]);
+		$Resultaten[] = '<li>'. $opdrachtData['naam'] ."</li>\n";
 	} while($row =	mysql_fetch_array($result));
 	$Resultaten[] = "</ul>\n";
 	
