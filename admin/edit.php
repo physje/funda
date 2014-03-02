@@ -175,6 +175,19 @@ if(isset($_REQUEST['id'])) {
 		$Kenmerk[] = "</form>";
 	}
 	
+	$sql		= "SELECT $ResultaatZoekID FROM $TableResultaat WHERE $ResultaatID like $id";
+	$result	= mysql_query($sql);
+	$row		=	mysql_fetch_array($result);
+	
+	$Resultaten[] = "Gevonden met :\n";
+	$Resultaten[] = "<ul>\n";
+	
+	do {
+		$data = getOpdrachtData($row[$ResultaatZoekID]);
+		$Resultaten[] = '<li>'. $data['naam'] ."</li>\n";
+	} while($row =	mysql_fetch_array($result));
+	$Resultaten[] = "</ul>\n";
+	
 	if($data['offline'] == 1 || $data['verkocht'] == 1) {
 		$Foto[] = "<img src='". changeThumbLocation($data['thumb']) ."'>";
 	} else {
@@ -189,6 +202,8 @@ echo showBlock(implode("\n", $HTML));
 echo "</td>";
 echo "<td width='50%' valign='top' align='center'>\n";
 echo showBlock(implode("\n", $Foto));
+echo "<p>";
+echo showBlock(implode("\n", $Resultaten));
 echo "<p>";
 echo showBlock(implode("\n", $Kenmerk));
 echo "</td>";
