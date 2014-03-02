@@ -28,6 +28,10 @@ $result	= mysql_query($sql);
 
 toLog('info', '', '', "Start controle offline huizen");
 
+# Als hij een pagina opvraagt die niet bestaat krijg je veel errors/warnings.
+# Dat is niet handig, dus even onderdrukken
+error_reporting(0);
+
 if($row = mysql_fetch_array($result)) {
 	do {
 		$fundaID	= $row[$HuizenID];
