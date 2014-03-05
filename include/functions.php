@@ -1342,7 +1342,7 @@ function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $
 	for($m=1 ; $m<=12 ; $m++)	$begin[] = "	<option value='$m'". ($m == $bMaand ? ' selected' : '') .">". $maandNamen[$m] ."</option>";
 	$begin[] = "	</select>";
 	$begin[] = "	<select name='bJaar'>";
-	for($j=2004 ; $j<=date("Y") ; $j++)	$begin[] = "	<option value='$j'". ($j == $bJaar ? ' selected' : '') .">$j</option>";
+	for($j=1995 ; $j<=date("Y") ; $j++)	$begin[] = "	<option value='$j'". ($j == $bJaar ? ' selected' : '') .">$j</option>";
 	$begin[] = "	</select>";
 	
 	if(is_numeric($bUur) AND is_numeric($bMin)) {
@@ -1361,7 +1361,7 @@ function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $
 	for($m=1 ; $m<=12 ; $m++)	$eind[] = "	<option value='$m'". ($m == $eMaand ? ' selected' : '') .">". $maandNamen[$m] ."</option>";
 	$eind[] = "	</select>";
 	$eind[] = "	<select name='eJaar'>";
-	for($j=2004 ; $j<=date("Y") ; $j++)	$eind[] = "	<option value='$j'". ($j == $eJaar ? ' selected' : '') .">$j</option>";
+	for($j=1995 ; $j<=date("Y") ; $j++)	$eind[] = "	<option value='$j'". ($j == $eJaar ? ' selected' : '') .">$j</option>";
 	$eind[] = "	</select>";
 	
 	if(is_numeric($eUur) AND is_numeric($eMin)) {
