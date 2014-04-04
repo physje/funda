@@ -78,7 +78,7 @@ if(is_array($key_1)) {
 			# 	Verwijder key_1 in huizen-, kenmerken- en resultaten-tabel
 						
 			# De begin- en eindtijd voor het nieuwe huis in tabel met huizen updaten
-			$sql_update_1 = "UPDATE $TableHuizen SET $HuizenStart = ". $data_oud['start'] .", $HuizenEind = ". $data_new['eind'] ." WHERE $HuizenID like '". $id_new ."'";
+			$sql_update_1 = "UPDATE $TableHuizen SET $HuizenStart = ". min($data_oud['start'], $data_new['start']) .", $HuizenEind = ". max($data_oud['eind'], $data_new['eind']) ." WHERE $HuizenID like '". $id_new ."'";
 			if(!mysql_query($sql_update_1)) {
 				echo "[$sql_update]<br>";		
 				toLog('error', '', $id_oud, "Error verplaatsen data van $id_oud naar $id_new");
