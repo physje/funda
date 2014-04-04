@@ -18,10 +18,10 @@ $KeyArray = array();
 
 do {
 	$huisID = $row[$HuizenID];
-	$adres = urldecode($row[$HuizenAdres])."; ". urldecode($row[$HuizenPlaats]);
+	$adres = urldecode($row[$HuizenAdres])."; ". urldecode($row[$HuizenPlaats]) ." | ". date("d.m.y", $row[$HuizenStart]) .' - '. date("d.m.y", $row[$HuizenEind]);
 		
-	$option_1[] = "<option value='$huisID'". ($huisID == $_REQUEST['id_1'] ? ' selected' : '') .">$adres ($huisID)</option>";
-	$option_2[] = "<option value='$huisID'". ($huisID == $_REQUEST['id_2'] ? ' selected' : '') .">$adres ($huisID)</option>";
+	$option_1[] = "<option value='$huisID'". ($huisID == $_REQUEST['id_1'] ? ' selected' : '') .">$adres</option>";
+	$option_2[] = "<option value='$huisID'". ($huisID == $_REQUEST['id_2'] ? ' selected' : '') .">$adres</option>";
 } while($row = mysql_fetch_array($result));
 
 $HTML[] = "<form method='post' action='combine_batch.php'>\n";
