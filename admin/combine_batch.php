@@ -20,7 +20,7 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 } else {
 	$i = 1;
 	$KeyArray			= array();
-	$beginGrens		= mktime(0, 0, 0, date("n"), date("j"), date("Y")-1);	# Huizen die langer dan 1 jaar van funda zijn afgeweest zie ik als "nieuw"
+	//$beginGrens		= mktime(0, 0, 0, date("n"), date("j"), date("Y")-1);	# Huizen die langer dan 1 jaar van funda zijn afgeweest zie ik als "nieuw"
 	$eindGrens		= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));	# Huizen moeten 2 dagen van funda zijn verdwenen wil ik aanmerken als "van funda af"
 		
 	//$sql		= "SELECT * FROM $TableHuizen, $TableZoeken, $TableResultaat WHERE $TableZoeken.$ZoekenActive = '1' AND $TableZoeken.$ZoekenKey = $TableResultaat.$ResultaatZoekID AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ($TableHuizen.$HuizenEind BETWEEN $beginGrens AND $eindGrens) AND $TableHuizen.$HuizenVerkocht like '0' GROUP BY $TableHuizen.$HuizenID ORDER BY $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenStart";
@@ -30,8 +30,10 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	$sql .= "WHERE ";
 	$sql .= "$TableResultaat.$ResultaatZoekID = $TableVerdeling.$VerdelingOpdracht AND ";
 	$sql .= "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ";
-	$sql .= "($TableHuizen.$HuizenEind BETWEEN $beginGrens AND $eindGrens) AND ";
-	$sql .= "$TableHuizen.$HuizenVerkocht like '0'";
+	//$sql .= "($TableHuizen.$HuizenEind BETWEEN $beginGrens AND $eindGrens) AND ";
+	//$sql .= "$TableHuizen.$HuizenVerkocht like '0'";
+	$sql .= "$TableHuizen.$HuizenEind < $eindGrens AND ";
+	$sql .= "$TableHuizen.$HuizenOffline like '1'";
 	
 	$result	= mysql_query($sql);
 	$row = mysql_fetch_array($result);
@@ -39,14 +41,14 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	do {
 		$adres		= $row[$HuizenAdres];
 		$PC				= $row[$HuizenPC_c];
-		$id_oud		= $row[$HuizenID];
-		$sql_2		= "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '$adres' AND $HuizenPC_c like '$PC' AND $HuizenID NOT like '$id_oud' AND $HuizenVerkocht like '0'";
+		$id_oud		= $row[$HuizenID];		
+		$sql_2		= "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '$adres' AND $HuizenPC_c like '$PC' AND $HuizenID NOT like '$id_oud'";
 		$result_2	= mysql_query($sql_2);
 		
 		if(mysql_num_rows($result_2) >= 1 AND !in_array($id_oud, $KeyArray)) {
 			$row_2	= mysql_fetch_array($result_2);
 			$id_new	= $row_2[$HuizenID];
-		
+				
 			if(!in_array($id_new, $KeyArray)) {
 				$key_1[$i] = $id_oud;
 				$key_2[$i] = $id_new;
@@ -67,14 +69,14 @@ if(is_array($key_1)) {
 		
 		$data_oud = getFundaData($id_oud);
 		$data_new = getFundaData($id_new);
-
+						
 		# Huizen die niet een paar dagen offline zijn geweest zijn 'verdacht' en worden dus niet automatisch samengevoegd
 		if(($data_new['start'] - $data_oud['eind']) > 0 OR $manual) {
 			# Actie-lijst :
 			#		Vervang begintijd_2 door begintijd_1		
 			#		Vervang ID_1 door ID_2 in prijzen- en lijsten-tabel
 			# 	Verwijder key_1 in huizen-, kenmerken- en resultaten-tabel
-								
+						
 			# De begin- en eindtijd voor het nieuwe huis in tabel met huizen updaten
 			$sql_update_1 = "UPDATE $TableHuizen SET $HuizenStart = ". $data_oud['start'] .", $HuizenEind = ". $data_new['eind'] ." WHERE $HuizenID like '". $id_new ."'";
 			if(!mysql_query($sql_update_1)) {
@@ -131,7 +133,7 @@ if(is_array($key_1)) {
 			}
 			$verwijderd = true;
 		}
-				
+		
 		$Item  = "<table width='100%'>\n";
 		if(!$verwijderd) {
 			$Item .= "<tr>\n";
