@@ -22,16 +22,10 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	$KeyArray			= array();
 	//$beginGrens		= mktime(0, 0, 0, date("n"), date("j"), date("Y")-1);	# Huizen die langer dan 1 jaar van funda zijn afgeweest zie ik als "nieuw"
 	$eindGrens		= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));	# Huizen moeten 2 dagen van funda zijn verdwenen wil ik aanmerken als "van funda af"
-		
-	//$sql		= "SELECT * FROM $TableHuizen, $TableZoeken, $TableResultaat WHERE $TableZoeken.$ZoekenActive = '1' AND $TableZoeken.$ZoekenKey = $TableResultaat.$ResultaatZoekID AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ($TableHuizen.$HuizenEind BETWEEN $beginGrens AND $eindGrens) AND $TableHuizen.$HuizenVerkocht like '0' GROUP BY $TableHuizen.$HuizenID ORDER BY $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenStart";
 	
 	$sql  = "SELECT * ";
-	$sql .= "FROM $TableVerdeling, $TableHuizen, $TableResultaat ";
+	$sql .= "FROM $TableHuizen ";
 	$sql .= "WHERE ";
-	$sql .= "$TableResultaat.$ResultaatZoekID = $TableVerdeling.$VerdelingOpdracht AND ";
-	$sql .= "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ";
-	//$sql .= "($TableHuizen.$HuizenEind BETWEEN $beginGrens AND $eindGrens) AND ";
-	//$sql .= "$TableHuizen.$HuizenVerkocht like '0'";
 	$sql .= "$TableHuizen.$HuizenEind < $eindGrens AND ";
 	$sql .= "$TableHuizen.$HuizenOffline like '1'";
 	
