@@ -147,18 +147,20 @@ if(isset($opdracht)) {
 $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "</tr>";
 $zoekScherm[] = "<tr>";
-$zoekScherm[] = "	<td colspan='5'>";
+$zoekScherm[] = "	<td colspan='4'>";
 $zoekScherm[] = "	<input type='checkbox' name='error' value='ja' ". ($error == 'ja' ? ' checked' : '') ."> Error&nbsp;&nbsp;&nbsp;";
 $zoekScherm[] = "	<input type='checkbox' name='info' value='ja' ". ($info == 'ja' ? ' checked' : '') ."> Info&nbsp;&nbsp;&nbsp;";
 $zoekScherm[] = "	<input type='checkbox' name='debug' value='ja' ". ($debug == 'ja' ? ' checked' : '') ."> Debug";
 $zoekScherm[] = "	</td>";
 if(isset($opdracht)) {
 	if(isset($huis)) {
-		$zoekScherm[] = "	<td colspan='2' valign='right'><a href='http://funda.nl/$huis'>op funda.nl</a> | <a href='edit.php?id=$huis'>lokaal</a></td>";
+		$zoekScherm[] = "	<td colspan='3' align='right'>huis op <a href='http://funda.nl/$huis'>funda.nl</a> | <a href='edit.php?id=$huis'>lokaal</a></td>";
 	} else {
-		$zoekScherm[] = "	<td colspan='2'>&nbsp;</td>";	
+		$zoekScherm[] = "	<td colspan='3'>&nbsp;</td>";	
 	}
 	$zoekScherm[] = "	<td>&nbsp;</td>";	
+} else {
+	$zoekScherm[] = "	<td colspan='2'>&nbsp;</td>";	
 }
 $zoekScherm[] = "</tr>";
 $zoekScherm[] = "</table>";
