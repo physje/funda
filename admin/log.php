@@ -155,7 +155,7 @@ $zoekScherm[] = "	</td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
 if(isset($opdracht)) {
 	if(isset($huis)) {
-		$zoekScherm[] = "	<td><a href='http://funda.nl/$huis'>bezoek op funda.nl</a></td>";
+		$zoekScherm[] = "	<td><a href='http://funda.nl/$huis'>op funda.nl</a> | <a href='edit.php?id=$huis'>lokaal</a></td>";
 	} else {
 		$zoekScherm[] = "	<td>&nbsp;</td>";	
 	}
