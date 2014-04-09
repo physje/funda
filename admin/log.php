@@ -152,12 +152,11 @@ $zoekScherm[] = "	<input type='checkbox' name='error' value='ja' ". ($error == '
 $zoekScherm[] = "	<input type='checkbox' name='info' value='ja' ". ($info == 'ja' ? ' checked' : '') ."> Info&nbsp;&nbsp;&nbsp;";
 $zoekScherm[] = "	<input type='checkbox' name='debug' value='ja' ". ($debug == 'ja' ? ' checked' : '') ."> Debug";
 $zoekScherm[] = "	</td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
 if(isset($opdracht)) {
 	if(isset($huis)) {
-		$zoekScherm[] = "	<td><a href='http://funda.nl/$huis'>op funda.nl</a> | <a href='edit.php?id=$huis'>lokaal</a></td>";
+		$zoekScherm[] = "	<td colspan='2' valign='right'><a href='http://funda.nl/$huis'>op funda.nl</a> | <a href='edit.php?id=$huis'>lokaal</a></td>";
 	} else {
-		$zoekScherm[] = "	<td>&nbsp;</td>";	
+		$zoekScherm[] = "	<td colspan='2'>&nbsp;</td>";	
 	}
 	$zoekScherm[] = "	<td>&nbsp;</td>";	
 }
