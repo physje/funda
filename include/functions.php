@@ -534,12 +534,12 @@ function addHouse($data, $id) {
 
 
 function updateAvailability($id) {
-	global $TableHuizen, $HuizenEind, $HuizenID;
+	global $TableHuizen, $HuizenEind, $HuizenOffline, $HuizenID;
 	connect_db();
 	
 	$eind_tijd = mktime(23, 59, 59);
 	
-	$sql = "UPDATE $TableHuizen SET $HuizenEind = $eind_tijd WHERE $HuizenID like '$id'";
+	$sql = "UPDATE $TableHuizen SET $HuizenEind = $eind_tijd, $HuizenOffline = '0' WHERE $HuizenID like '$id'";
 	
 	if(!mysql_query($sql)) {
 		return false;
