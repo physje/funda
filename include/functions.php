@@ -1122,7 +1122,7 @@ function removeMember4Opdracht($opdracht, $user) {
 }
 
 
-function extractAndUpdateVerkochtData($fundaID) {
+function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 	global $TableHuizen, $HuizenStart, $HuizenEind, $HuizenVerkocht, $HuizenOffline, $HuizenID;
 	
 	# Alles weer opnieuw initialiseren.
@@ -1288,9 +1288,9 @@ function extractAndUpdateVerkochtData($fundaID) {
 	foreach($prijs as $key => $value) {				
 		if(updatePrice($fundaID, $value, $key)) {
 			$HTML[] = " -> ". $naam[$key] ." toegevoegd ($value / ". date("d-m-y", $key) .")<br>";
-			toLog('debug', '', $fundaID, $naam[$key] ." toegevoegd");
+			toLog('debug', $opdrachtID, $fundaID, $naam[$key] ." toegevoegd");
 		} else {
-			toLog('error', '', $fundaID, "Error met toevoegen $value als ". $naam[$key]);
+			toLog('error', $opdrachtID, $fundaID, "Error met toevoegen $value als ". $naam[$key]);
 		}
 	}
 	
@@ -1301,7 +1301,7 @@ function extractAndUpdateVerkochtData($fundaID) {
 		if(mysql_query($sql_update)) {
 			$HTML[] = " -> begintijd aangepast<br>";
 		} else {
-			toLog('error', '', $fundaID, "Error met verwerken begintijd");
+			toLog('error', $opdrachtID, $fundaID, "Error met verwerken begintijd");
 		}				
 	}
 
@@ -1312,7 +1312,7 @@ function extractAndUpdateVerkochtData($fundaID) {
 		if(mysql_query($sql_update)) {
 			$HTML[] = " -> eindtijd aangepast<br>";
 		} else {
-			toLog('error', '', $fundaID, "Error met verwerken begintijd");
+			toLog('error', $opdrachtID, $fundaID, "Error met verwerken begintijd");
 		}				
 	}
 		
@@ -1322,9 +1322,9 @@ function extractAndUpdateVerkochtData($fundaID) {
 				
 		if(mysql_query($sql_update)) {
 			$HTML[] = " -> begin- en eindtijd aangepast (verkocht)<br>";
-			toLog('info', '', $fundaID, "Huis is verkocht");
+			toLog('info', $opdrachtID, $fundaID, "Huis is verkocht");
 		} else {
-			toLog('error', '', $fundaID, "Error met verwerken verkocht huis");
+			toLog('error', $opdrachtID, $fundaID, "Error met verwerken verkocht huis");
 		}			
 	}
 	
