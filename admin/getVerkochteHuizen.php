@@ -98,7 +98,7 @@ foreach($Opdrachten as $OpdrachtID) {
 					$HTML[] = '<b>'. urldecode($data['adres']) ."</b> (<a href='$url'>url</a>, ". urldecode($FundaData['plaats']) .")<br>";
 					$HTML[] = "[van ". date("d-m-Y", $FundaData['start']) ." tot ". date("d-m-Y", $FundaData['eind']) ."]<br>";
 				}
-				$HTML_temp = extractAndUpdateVerkochtData($data['id']);
+				$HTML_temp = extractAndUpdateVerkochtData($data['id'], $OpdrachtID);
 				$HTML = array_merge($HTML, $HTML_temp);
 				$HTML[] = "<br>\n";
 			}
