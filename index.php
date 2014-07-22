@@ -50,6 +50,7 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['check.php']											= 'Check funda';	
 	$onderhoud['admin/getVerkochteHuizen.php']	= 'Werk verkochte huizen bij';
 	$onderhoud['admin/checkOudeHuizen.php']			= 'Zoek naar gegevens van vermiste huizen';
+	//$onderhoud['admin/bekijkHuizenZoeker.php']	= 'Zoek naar gegevens op HuizenZoeker.nl';
 	$onderhoud['admin/readPBK.php']							= 'Lees de prijs-index van het Kadaster in';
 	$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met openhuizen';
 	$onderhoud['admin/cleanPrice.php']					= 'Prijzen opschonen';

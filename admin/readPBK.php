@@ -10,87 +10,86 @@ connect_db();
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
 # Iedereen kan deze pagina dus in principe openen.
 
-$url = "https://app.kpilibrary.com/a/governanceobserver/perf-kpi-modal.asp?id=6049725&tc=wr%2FjQMkX18DQka%2FMt1cM82KsdarjlBs9SHeykeXeBco%3D&db=171667&print=1";
+//$url = "https://app.kpilibrary.com/a/governanceobserver/perf-kpi-modal.asp?id=6049725&tc=wr%2FjQMkX18DQka%2FMt1cM82KsdarjlBs9SHeykeXeBco%3D&db=171667&print=1";
+$url = "http://statline.cbs.nl/StatWeb/publication/?DM=SLNL&PA=81884NED";
 
 $content = file_get_contents_retry($url);
-$tabel	= getString('align="left">Note</th></tr>', '</table></td></tr></table><br />', $content, 0);
-$rijen = explode('"><td class="d-tbl-', $tabel[0]);
-$rijen = array_slice ($rijen, 1);
-
-# Omdat ik het verloop wil weten moet ik de laatste en een-na-laatste weten.
-# Om dat bij te houden definieer ik even 2 variabelen.
-$first = true;
-$second = false;
+$tabel	= getString('<table Class=', '</table></span>', $content, 0);
+$rijen = explode('<Tr>', $tabel[0]);
+$rijen = array_slice ($rijen, 4);
+array_pop($rijen);
 
 # Wel of geen mail sturen, that's the question
 $newEntry = false;
 
-foreach($rijen as $rij) {
-	$tijd	= getString('" align="left">', '</td>', $rij, 0);
-	$perc	= getString('" align="right">', '</td>', $rij, 0);
+foreach($rijen as $key => $rij) {
+	# Even opslaan voor zometeen
+	$oud_perc	= $perc[0];
 	
-	$maand = getString('', ', ', $tijd[0], 0);
-	$jaar	= getString(', ', '', $tijd[0], 0);
+	$tijd	= getString('<Th Class="PubGridStubItem">', '</Th>', $rij, 0);
+	$perc	= getString('<Td Class="PubGridCell">', '</Td>', str_replace(',', '.', $rij), 0);
+		
+	if(strlen($tijd[0]) > 4) {
+		$jaar	= getString('', ' ', $tijd[0], 0);
+		$maand = getString(' ', '', $tijd[0], 0);		
 	
-	switch ($maand[0]) {
-		case "December";
-			$Mnd = 12;
-			break;
-		case "November";
-			$Mnd = 11;
-			break;
-		case "October";
-			$Mnd = 10;
-			break;
-		case "September";
-			$Mnd = 9;
-			break;
-		case "August";
-			$Mnd = 8;
-			break;
-		case "July";
-			$Mnd = 7;
-			break;
-		case "June";
-			$Mnd = 6;
-			break;
-		case "May";
-			$Mnd = 5;
-			break;
-		case "April";
-			$Mnd = 4;
-			break;
-		case "March";
-			$Mnd = 3;
-			break;
-		case "February";
-			$Mnd = 2;
-			break;
-		case "January";
-			$Mnd = 1;
-			break;
-	}
-	
-	$sql_check = "SELECT * FROM $TablePBK WHERE $PBKComment like '". $maand[0] .' '. $jaar[0] ."'";
-	$result = mysql_query($sql_check);
-	if(mysql_num_rows($result) == 0) {
-		$sql = "INSERT INTO $TablePBK ($PBKStart, $PBKEind, $PBKWaarde, $PBKComment) VALUES ('". mktime(0,0,0,$Mnd,1,$jaar[0]) ."', '". mktime(23,59,59,($Mnd+1),0,$jaar[0]) ."', '". $perc[0] ."', '". $maand[0] .' '. $jaar[0] ."')";
-		mysql_query($sql);
-		$newEntry = true;
-	}
-	
-	if($second) {
-		$second = false;
-		$oud_perc	= $perc[0];
-	}
-	
-	if($first) {
-		$first = false;
-		$second = true;
+		switch ($maand[0]) {
+			case "december";
+				$Mnd = 12;
+				break;
+			case "november";
+				$Mnd = 11;
+				break;
+			case "oktober";
+				$Mnd = 10;
+				break;
+			case "september";
+				$Mnd = 9;
+				break;
+			case "augustus";
+				$Mnd = 8;
+				break;
+			case "juli";
+				$Mnd = 7;
+				break;
+			case "juni";
+				$Mnd = 6;
+				break;
+			case "mei";
+				$Mnd = 5;
+				break;
+			case "april";
+				$Mnd = 4;
+				break;
+			case "maart";
+				$Mnd = 3;
+				break;
+			case "februari";
+				$Mnd = 2;
+				break;
+			case "januari";
+				$Mnd = 1;
+				break;
+		}
+		
+		$sql_check = "SELECT * FROM $TablePBK WHERE $PBKComment like '". $maand[0] .' '. $jaar[0] ."'";
+		$result = mysql_query($sql_check);
+		if(mysql_num_rows($result) == 0) {
+			$sql = "DELETE FROM $TablePBK WHERE $PBKStart = '". mktime(0,0,0,$Mnd,1,$jaar[0]) ."'";			
+			mysql_query($sql);
+			
+			$sql = "INSERT INTO $TablePBK ($PBKStart, $PBKEind, $PBKWaarde, $PBKComment) VALUES ('". mktime(0,0,0,$Mnd,1,$jaar[0]) ."', '". mktime(23,59,59,($Mnd+1),0,$jaar[0]) ."', '". $perc[0] ."', '". $maand[0] .' '. $jaar[0] ."')";
+			mysql_query($sql);
+			$newEntry = true;
+		}
+
 		$mailMaand	= $maand[0];
 		$mailMnd		= $Mnd;
 		$mailJaar 	= $jaar[0];
 		$percentage	= $perc[0];
+		
+		echo $mailMaand .' '. $mailJaar .' -> '. $percentage ."<br>\n";
+		
 	}
 }
 
@@ -101,8 +100,8 @@ if($newEntry) {
 	$melding[] = "<a href='$url'>Prijsindex Bestaande Woningen</a> is ingelezen.";
 	$melding[] = "";
 	$melding[] = "<b>$mailMaand $mailJaar</b> : $percentage, was $oud_perc (". number_format ((100*($percentage-$oud_perc))/$percentage,1) ."%)";	
-	$melding[] = "";
-	$melding[] = "<img src='https://app.kpilibrary.com/a/graph/graph.asp?ki=6049725&chk=iWpX%2BqRZUD2CIGQykk2MrVuxLIh7oWNOXM%2BF3ykTHVo%3Did=6049725&tc=wr%2FjQMkX18DQka%2FMt1cM82KsdarjlBs9SHeykeXeBco%3D&db=171667&print=1&pr0=1&mode=print'>";
+	//$melding[] = "";
+	//$melding[] = "<img src='https://app.kpilibrary.com/a/graph/graph.asp?ki=6049725&chk=iWpX%2BqRZUD2CIGQykk2MrVuxLIh7oWNOXM%2BF3ykTHVo%3Did=6049725&tc=wr%2FjQMkX18DQka%2FMt1cM82KsdarjlBs9SHeykeXeBco%3D&db=171667&print=1&pr0=1&mode=print'>";
 	
 	# Stuur even een mail met de nieuwe cijfers
 	include('../include/HTML_TopBottom.php');
