@@ -483,7 +483,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			if(count($UpdatedPrice) == 1) {
 				$Subject[] = array_shift($UpdatedAddress) .' is in prijs gedaald ';
 			} else {
-				$Subject[] = count($UpdatedPrice) ." in prijs gedaald";
+				$Subject[] = count($UpdatedPrice) ." in prijs gedaalde huizen";
 			}
 		}
 		
@@ -513,7 +513,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			if(count($OnderVoorbehoud) == 1) {
 				$Subject[] = array_shift($BijnaVerkochtAddress) ." is onder voorbehoud verkocht";
 			} else {
-				$Subject[] = count($OnderVoorbehoud) ." onder voorbehoud verkocht";
+				$Subject[] = count($OnderVoorbehoud) ." onder voorbehoud verkochte huizen";
 			}
 		}
 		
@@ -543,7 +543,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			if(count($Beschikbaar) == 1) {
 				$Subject[] = array_shift($beschikbaarAddress) ." is weer beschikbaar";
 			} else {
-				$Subject[] = count($Beschikbaar) ." weer beschikbaar";
+				$Subject[] = count($Beschikbaar) ." weer beschikbare huizen";
 			}
 		}
 				
@@ -573,7 +573,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			if(count($VerkochtHuis) == 1) {
 				$Subject[] = array_shift($VerkochtAddress) ." is verkocht";
 			} else {
-				$Subject[] = count($VerkochtHuis) ." verkocht";
+				$Subject[] = count($VerkochtHuis) ." verkochte huizen";
 			}
 		}
 				
@@ -603,7 +603,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			if(count($OpenHuis) == 1) {
 				$Subject[] = array_shift($OpenAddress) ." heeft open huis";
 			} else {
-				$Subject[] = count($OpenHuis) ." hebben open huis";
+				$Subject[] = count($OpenHuis) ." open huizen";
 			}
 		}
 		
