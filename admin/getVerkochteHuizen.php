@@ -86,9 +86,14 @@ foreach($Opdrachten as $OpdrachtID) {
 				$HTML[] = '<b>'. urldecode($data['adres']) ."</b> (<a href='". $data['url'] ."'>url</a>, ". urldecode($data['plaats']) .")<br>";
 				$HTML[] = '-> toegevoegd<br>';
 				$new = true;
+			} elseif(newHouse($fundaID, $OpdrachtID)) {				
+				if(!addHouse($data, $OpdrachtID)) {
+					$HTML[] = "Toevoegen van ". $data['adres'] ." aan opdracht $OpdrachtID ging niet goed";
+					toLog('error', $OpdrachtID, $data['id'], 'Huis toekennen aan opdracht mislukt');
+				}
 			}
 			*/
-			
+									
 			# Dit AND if-statement is alleen nodig indien het script voor de eerste keer gebruikt wordt.
 			# Daarna zijn alle huizen bekend en hoeft niet meer op knownHouse() gecheckt te worden.
 			# if(knownHouse($fundaID) AND !soldHouse($fundaID)) {
