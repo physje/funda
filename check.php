@@ -22,6 +22,8 @@ if(isset($_REQUEST[OpdrachtID])) {
 	$enkeleOpdracht = false;
 }
 
+$block = array();
+
 # Doorloop alle zoekopdrachten
 foreach($Opdrachten as $OpdrachtID) {
 	# Alles initialiseren
