@@ -356,7 +356,8 @@ function extractDetailedFundaData($URL) {
 	$navigatie	= getString('<p class="section path-nav">', '</p>', $contents, 0);
 	$stappen		= explode('&gt;', $navigatie[0]);
 	//$provincie	= getString('/">', '</a>', $stappen[(count($stappen)-3)], 0);	
-	$wijk				= getString('/">', '</a>', $stappen[(count($stappen)-1)], 0);
+	//$wijk				= getString('/">', '</a>', $stappen[(count($stappen)-1)], 0);
+	$wijk				= getString('<span itemprop="title">', '</span>', $stappen[(count($stappen)-1)], 0);
 	//$data['prov']	= trim($provincie[0]);	
 	$data['wijk']	= trim($wijk[0]);	
 	
