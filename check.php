@@ -121,7 +121,9 @@ foreach($Opdrachten as $OpdrachtID) {
 							
 			# Huis is nog niet bekend bij het script, dus moet worden toegevoegd
 			if(!knownHouse($data['id'])) {
-				$extraData = extractDetailedFundaData("http://www.funda.nl". $data['url']);				
+				$allData = extractDetailedFundaData("http://www.funda.nl". $data['url'], false);				
+				$data	= array_merge($data, $allData[0]);
+				$extraData = $allData[1];
 				# Gegevens over het huis opslaan
 				if(!saveHouse($data, $extraData)) {
 					$ErrorMessage[] = "Toevoegen van ". $data['adres'] ." aan het script ging niet goed";
@@ -200,7 +202,6 @@ foreach($Opdrachten as $OpdrachtID) {
 					removeOpenHuis($data['id']);
 				}
 			}
-			
 			
 			# Kijk of dit huis al vaker gevonden is voor deze opdracht
 			if(newHouse($data['id'], $OpdrachtID)) {				

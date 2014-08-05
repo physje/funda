@@ -1,8 +1,5 @@
 <?php
 
-// 6.5641251875
-// 52.2357641300
-
 include_once('../../general_include/general_functions.php');
 include_once('../../general_include/general_config.php');
 include_once('../include/functions.php');
@@ -38,12 +35,6 @@ if($_POST[search]) {
 	$sql		= "SELECT AVG($TableHuizen.$HuizenLat) as mean_lat, AVG($TableHuizen.$HuizenLon) as mean_lon FROM $TableHuizen, $TableZoeken, $TableResultaat, $TableVerdeling WHERE $TableZoeken.$ZoekenKey = $TableResultaat.$ResultaatZoekID AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableVerdeling.$VerdelingOpdracht = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenUser = ". $_SESSION['account'];
 	$result = mysql_query($sql);
 	$row		= mysql_fetch_array($result);
-	
-	//$deel_2 = $sql;
-	
-	//$deel_2 .= "Gemiddelde lokatie van je huizen : <br>";
-	//$deel_2 .= substr($row['mean_lat'], 0, 9) .'<br>';
-	//$deel_2 .= substr($row['mean_lon'], 0, 9) .'<br>';
 		
 	$deel_1 .= "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
 	$deel_1 .= "<table border=0>\n";

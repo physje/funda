@@ -78,7 +78,8 @@ foreach($Opdrachten as $OpdrachtID) {
 			# Mochten huizen verkocht zijn die nog niet bekend zijn in de dB.
 			# Voeg deze dan toe als addSoldHouses = true
 			if(!knownHouse($fundaID) AND $addSoldHouses) {
-				$extraData = extractDetailedFundaData($url);
+				$allData = extractDetailedFundaData($url, false);
+				$extraData = $allData[1];
 				saveHouse($data, $extraData);
 				addHouse($data, $OpdrachtID);				
 				addCoordinates($data['adres'], $data['PC_c'], $data['plaats'], $fundaID);

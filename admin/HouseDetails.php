@@ -22,6 +22,7 @@ if($id != '') {
 	
 	$links['http://www.funda.nl/'.$id] 				= "Bekijk $adres op funda.nl";
 	$links['checkOudeHuizen.php?id='. $id] 		= "Haal verkoop-gegevens van $adres op";
+	$links['renewData.php?id='. $id]					= "Haal de gegevens van $adres opnieuw van funda.nl";	
 	$links['edit.php?id='. $id]								= "Wijzig de gegevens van $adres";	
 	$links['bekijkHuizenZoeker.php?id='. $id]	= "Zoek $adres op HuizenZoeker.nl";
 	$links['delete.php?id='. $id]							= "Verwijder $adres uit de database";

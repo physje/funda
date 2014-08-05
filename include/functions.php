@@ -349,17 +349,64 @@ function makeKMLEntry($id) {
 }
 
 
-function extractDetailedFundaData($URL) {
+function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	$contents		= file_get_contents_retry($URL);
 	
 	# Navigatie-gedeelte
 	$navigatie	= getString('<p class="section path-nav">', '</p>', $contents, 0);
 	$stappen		= explode('&gt;', $navigatie[0]);
-	//$provincie	= getString('/">', '</a>', $stappen[(count($stappen)-3)], 0);	
-	//$wijk				= getString('/">', '</a>', $stappen[(count($stappen)-1)], 0);
 	$wijk				= getString('<span itemprop="title">', '</span>', $stappen[(count($stappen)-1)], 0);
-	//$data['prov']	= trim($provincie[0]);	
-	$data['wijk']	= trim($wijk[0]);	
+	$data['wijk']			= trim($wijk[0]);
+	
+	# Moeten gegevens die al bekend zijn opnieuw opgevraagd worden
+	# Meestal niet, maar soms is dat nodig
+	if($alreadyKnown) {
+		$adres			= getString('<h1>', '</h1>', $navigatie[1], 0);
+		
+		# Als een huis verkocht is, ziet de lay-out er iets anders uit.
+		if(strpos($contents, '<span class="item-sold">')) {
+			$PC					= getString('<p>', '<span class="item-sold">', $adres[1], 0);
+			$verkocht = 2;
+		} else {
+			$PC					= getString('<p>', '</p>', $adres[1], 0);
+			
+			# Als er een class item-sold-label-large is, is hij verkocht => $verkocht = 1
+			if(strpos($contents, '<span class="item-sold-label-large" title="Verkocht">')) {
+				$verkocht		= 1;
+			} else {
+				$verkocht		= 0;
+			}			
+		}
+		
+		$prijs			= getString('<span class="price">', '</span>', $PC[1], 0);
+		
+		# Thumbnail bij verkochte huizen ziet er iets anders uit dan bij de rest
+		if($verkocht == 1) {
+			$foto				=	getString('" src="http://', '" title="" width="68"></img>', $prijs[1], 0);
+		} else {
+			$foto				=	getString('" src="http://', '" title=""></img></a>', $prijs[1], 0);
+		}
+				
+		$rel_info		= getString('<h3>', '</h3>', $contents, 0);
+	
+		$postcode		= explode(" ", trim($PC[0]));
+	
+		$HuisPrijs	= $prijs[0];			
+		$HuisPrijs	= str_ireplace('&euro;&nbsp;', '' , $HuisPrijs);
+		$HuisPrijs	= str_ireplace('.', '' , $HuisPrijs);
+		
+		$makelaar	= getString('">', '</a>', $rel_info[0], 0);
+		
+		$data['adres']		= trim(str_replace('<span class="item-sold-label-large" title="Verkocht">VERKOCHT</span>', '', $adres[0]));
+		$data['PC_c']			= trim($postcode[0]);
+		$data['PC_l']			= trim($postcode[1]);
+		$data['plaats']		= end($postcode);
+		$data['thumb']		= 'http://'.trim($foto[0]);
+		$data['makelaar']	= trim($makelaar[0]);
+		$data['prijs']		= $HuisPrijs;
+		$data['verkocht']	= $verkocht;
+		//$data['openhuis']	= $openhuis;	
+	}
 	
 	if($contents != "") {		
 		# Omschrijving
@@ -372,9 +419,9 @@ function extractDetailedFundaData($URL) {
 			$omschrijving = getString('<p id="PVolledigeOmschrijving" style="display:none">', '<a id="linkKorteOmschrijving"', $contents, 0);
 		}
 		
-		$data['descr']	= trim($omschrijving[0]);	
+		$KenmerkData['descr']	= trim($omschrijving[0]);	
 	} else {
-		$data['descr']	= '';
+		$KenmerkData['descr']	= '';
 	}
 
 	# Kenmerken
@@ -390,7 +437,7 @@ function extractDetailedFundaData($URL) {
 		$Waarde = getString('<span class="specs-val">', '</span>', $kenmerk, 0);
 		
 		$key = trim($Record[0]);
-		$data[$key] = trim(strip_tags($Waarde[0]));
+		$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
 	}
 	
 	# Foto	
@@ -406,12 +453,12 @@ function extractDetailedFundaData($URL) {
 			$picture[] = trim($thumb[0]);
 		}
 		
-		$data['foto']		= implode('|', $picture);
+		$KenmerkData['foto']		= implode('|', $picture);
 	}	else {
-		$data['foto']		= '';
+		$KenmerkData['foto']		= '';
 	}
 	
-	return $data;
+	return array($data, $KenmerkData);
 }
 
 
@@ -496,27 +543,69 @@ function saveHouse($data, $moreData) {
 	$sql  = "INSERT INTO $TableHuizen ";
 	$sql .= "($HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind) ";
 	$sql .= "VALUES ";
-	$sql .= "('". $data['id'] ."', '". urlencode($data['url']) ."', '". urlencode($data['adres']) ."', '". urlencode($data['PC_c']) ."', '". urlencode($data['PC_l']) ."', '". urlencode($data['plaats']) ."', '". urlencode($moreData['wijk']) ."', '". urlencode($data['thumb']) ."', '". urlencode($data['makelaar']) ."', '$begin_tijd', '$eind_tijd')";
+	$sql .= "('". $data['id'] ."', '". urlencode($data['url']) ."', '". urlencode($data['adres']) ."', '". urlencode($data['PC_c']) ."', '". urlencode($data['PC_l']) ."', '". urlencode($data['plaats']) ."', '". urlencode($data['wijk']) ."', '". urlencode($data['thumb']) ."', '". urlencode($data['makelaar']) ."', '$begin_tijd', '$eind_tijd')";
 		
 	if(!mysql_query($sql)) {
-		$deel[] = false;
-	} else {
-		$deel[] = true;
+		return false;
 	}
 	
 	foreach($moreData as $key => $value) {
-		if($key != 'wijk') {
-			$sql = "INSERT INTO $TableKenmerken ($KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue) VALUES ('". $data['id'] ."', '". urlencode($key) ."', '". urlencode($value) ."')";
+		$sql = "INSERT INTO $TableKenmerken ($KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue) VALUES ('". $data['id'] ."', '". urlencode($key) ."', '". urlencode($value) ."')";
 						
-			if(!mysql_query($sql)) {
-				$deel[] = false;
-			} else {
-				$deel[] = true;
-			}
+		if(!mysql_query($sql)) {
+			return false;
 		}
 	}
 	
-	return true;	
+	return true;
+}
+
+
+function updateHouse($data, $kenmerken, $erase = false) {
+	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
+	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
+	
+	connect_db();
+	
+	$velden = array(
+		'id'				=> $HuizenID,       
+		'url'				=> $HuizenURL,    
+		'adres'			=> $HuizenAdres,  
+		'PC_c'			=> $HuizenPC_c,   
+		'PC_l'			=> $HuizenPC_l,   
+		'plaats'		=> $HuizenPlaats, 
+		'wijk'			=> $HuizenWijk,  
+		'thumb'			=> $HuizenThumb,  
+		'makelaar'	=> $HuizenMakelaar
+		);
+		
+	foreach($data as $key => $value) {
+		if(array_key_exists($key, $velden)) {
+			$sql[] = $velden[$key] ." = '". urlencode($value) ."'";
+		}
+	}
+	$query = "UPDATE $TableHuizen SET ". implode(', ', $sql) ." WHERE $HuizenID like '". $data['id'] ."'";
+	
+	if(!mysql_query($query)) {
+		echo $query ."<br>\n";
+	}	
+	
+	if($erase) {
+		$query = "DELETE FROM $TableKenmerken WHERE $KenmerkenID like '". $data['id'] ."'";
+		
+		if(!mysql_query($query)) {
+			echo $query ."<br>\n";
+		}	
+	}
+	
+	foreach($kenmerken as $key => $value) {
+		mysql_query("DELETE FROM $TableKenmerken WHERE $KenmerkenID like '". $data['id'] ."' AND $KenmerkenKenmerk like '". urlencode($key) ."'");
+		$query = "INSERT INTO $TableKenmerken ($KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue) VALUES ('". $data['id'] ."', '". urlencode($key) ."', '". urlencode($value) ."')";
+		
+		if(!mysql_query($query)) {
+			echo $query ."<br>\n";
+		}
+	}
 }
 
 
@@ -1136,8 +1225,9 @@ function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 	$url			= "http://www.funda.nl". urldecode($FundaData['url']);
 	
 	# Via de kenmerkenpagina
-	$data			= extractDetailedFundaData($url);
-		
+	$allData	= extractDetailedFundaData($url);
+	$data			= $allData[1];
+			
 	# Als de array 'data' groter is dan 3 is er data gevonden in de kenmerken-pagina
 	if(count($data) > 3) {
 		# Reeds verkochte huizen
@@ -1430,52 +1520,6 @@ function makeSelectionSelection($disableList, $blankOption, $preSelect = 0) {
 	return implode("\n", $HTML);
 }
 
-/*
-function generatePassword ($length = 8) {
-	// start with a blank password
-	$password = "";
-	$possible = "";
-	
-	// define possible characters - any character in this string can be
-	// picked for use in the password, so if you want to put vowels back in
-  // or add special characters such as exclamation marks, this is where
-  // you should do it
-  //$possible = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&";
-  $possible .= "1234567890";
-  $possible .= "bcdfghjkmnpqrtvwxyz";
-  $possible .= "BCDFGHJKLMNPQRTVWXYZ";
-  $possible .= "!#$%&";
-  
-  // we refer to the length of $possible a few times, so let's grab it now
-  $maxlength = strlen($possible);
-  
-  // check for length overflow and truncate if necessary
-  if ($length > $maxlength) {
-  	$length = $maxlength;
-  }
-  
-  // set up a counter for how many characters are in the password so far
-  $i = 0;
-  
-  // add random characters to $password until $length is reached
-  while ($i < $length) { 
-  	// pick a random character from the possible ones
-  	$char = substr($possible, mt_rand(0, $maxlength-1), 1);
-  	
-  	// have we already used this character in $password?
-  	if (!strstr($password, $char)) {
-  		// no, so it's OK to add it onto the end of whatever we've already got...
-  		$password .= $char;
-      // ... and increase the counter by one
-      $i++;
-    }
-  }
-  
-  // done!
-  return $password;
-}
-*/
-
 function updateMakelaar($data) {
 	global $TableHuizen, $HuizenMakelaar, $HuizenID;
 	
@@ -1572,7 +1616,6 @@ function hasOpenHuis($id) {
 	} else {
 		return false;
 	}
-	
 }
 
 function extractOpenHuisData($id) {

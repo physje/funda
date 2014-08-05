@@ -3,7 +3,7 @@
 $ScriptURL				= '';							# Map waar het script staat, bv http://www.example.com/scripts/funda/
 $ScriptTitle			= 'Funda Alert';	# Naam van het script (is naam van afzender in mails)
 $ScriptMailAdress = '';							# Mailadres van het script (is mailadres van afzender in mails)
-$Version					= '4.0.1';				# Versie nummer
+$Version					= '4.0.4';				# Versie nummer
 $SubjectPrefix		= '[funda] ';			# Voorvoegsel bij de onderwerpregel bij het versturen van mails
 
 $debug						= 0;							# Wel (1) of geen (0) debug-info op het scherm tonen
@@ -11,7 +11,8 @@ $stapPrijs				= 25000;					# Stapjes in prijs in de Google Maps view
 $colPhoto					= 3;							# Aantal kolommen met foto in mail
 $rowPhoto					= 3;							# Aantal rijen met foto in mail
 $aantalCols				= 4;							# Aantal kolommen met foto in fotoalbum
-$addSoldHouses				= false;
+$addSoldHouses		= false;					# Wel (true) of geen (false) verkochte nieuwe huizen toevoegen
+$updateKnowHouses	= true;					# Wel (true) of geen (false) data van bekende huizen updaten.
 
 $cfgLogDebugTime	= mktime(date('H'), date('i'), date('s'), date('m'), date('d')-7, date('Y'));
 $cfgLogInfoTime		= mktime(date('H'), date('i'), date('s'), date('m')-1, date('d'), date('Y'));
@@ -67,18 +68,18 @@ $HuizenPC_l				= "PC_letters";
 $HuizenPlaats			= "plaats";
 $HuizenWijk				= "wijk";
 $HuizenThumb			= "thumb";
-$HuizenMakelaar		= "makelaar";				# Op 1 juli in gebruik genomen -> changeTable_01-07-2013.php
+$HuizenMakelaar		= "makelaar";					# Op 1 juli in gebruik genomen -> changeTable_01-07-2013.php
 # $HuizenNdeg 			= "N_deg";					# Op 24 april buiten gebruik gesteld -> changeTable_24-04-2013.php
 # $HuizenNdec 			= "N_dec";					# Op 24 april buiten gebruik gesteld
 # $HuizenOdeg 			= "O_deg";					# Op 24 april buiten gebruik gesteld
 # $HuizenOdec				= "O_dec";					# Op 24 april buiten gebruik gesteld
-$HuizenLat				= "latitude";				# Op 24 april in gebruik genomen
-$HuizenLon				= "longitude";			# Op 24 april in gebruik genomen
+$HuizenLat				= "latitude";					# Op 24 april in gebruik genomen
+$HuizenLon				= "longitude";				# Op 24 april in gebruik genomen
 $HuizenStart			= "start";
 $HuizenEind				= "eind";
 $HuizenVerkocht		= "verkocht";
 $HuizenOffline		= "offline";
-$HuizenOpenHuis		= "open_huis";			# Op 8 augustus in gebruik genomen -> changeTable_08-08-2013.php
+$HuizenOpenHuis		= "open_huis";				# Op 8 augustus in gebruik genomen -> changeTable_08-08-2013.php
 
 $TableKenmerken 	= "funda_kenmerken";
 $KenmerkenKey			= "id";
@@ -103,7 +104,7 @@ $TableZoeken			= "funda_zoeken";
 $ZoekenKey				= "id";
 $ZoekenUser				= "user";							# Op 1 mei in gebruik genomen -> changeTable_01-05-2013.php
 $ZoekenActive 		= "active";
-# $ZoekenMail				= "mail";							# Op 5 mei buiten gebruik gesteld
+# $ZoekenMail				= "mail";						# Op 5 mei buiten gebruik gesteld
 $ZoekenAdres			= "adres";						# Op 5 mei buiten gebruik gesteld
 $ZoekenNaam				= "naam";
 $ZoekenURL				= "url";
@@ -151,8 +152,8 @@ $PBKEind					= "eind";							# Op 5 nov in gebruik genomen
 $PBKWaarde				= "waarde";						# Op 5 nov in gebruik genomen
 $PBKComment				= "comment";					# Op 5 nov in gebruik genomen
 
-$TableVerdeling		= "funda_verdeling";				# Op 5 nov in gebruik genomen -> changeTable_05-11-2013.php
-$VerdelingUur			= "uur";						# Op 5 nov in gebruik genomen
+$TableVerdeling		= "funda_verdeling";	# Op 5 nov in gebruik genomen -> changeTable_05-11-2013.php
+$VerdelingUur			= "uur";							# Op 5 nov in gebruik genomen
 $VerdelingOpdracht= "opdracht";					# Op 5 nov in gebruik genomen
 
 ?>
