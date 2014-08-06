@@ -747,14 +747,17 @@ function getFundaKenmerken($id) {
 }
 
 
-function getHuizen($opdracht, $excludeVerkocht = false) {
+function getHuizen($opdracht, $excludeVerkocht = false, $excludeOffline = false) {
 	global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenAdres, $HuizenVerkocht, $HuizenOffline;
 	global $TableResultaat, $ResultaatID, $ResultaatZoekID;
 	connect_db();
 	
 	$sql .= "SELECT * FROM $TableHuizen, $TableResultaat WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID like '$opdracht' ";
 	if($excludeVerkocht) {
-		$sql .= "AND $TableHuizen.$HuizenVerkocht NOT like '1' AND $HuizenOffline NOT like '1' ";
+		$sql .= "AND $TableHuizen.$HuizenVerkocht NOT like '1' ";
+	}
+	if($excludeVerkocht) {
+		$sql .= "AND $TableHuizen.$HuizenOffline NOT like '1' ";
 	}
 	$sql .= "ORDER BY $TableHuizen.$HuizenAdres";
 	
