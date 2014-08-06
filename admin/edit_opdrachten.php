@@ -177,6 +177,8 @@ if(isset($_POST['doorgaan'])) {
 			if($_SESSION['level'] > 1) {
 				$Page .= "	<td><a href='../check.php?OpdrachtID=$OpdrachtID'><img src='http://www.funda.nl/img/favicon/funda.ico' width='16' height='16' title=\"Voer '". $OpdrachtData['naam'] ."' uit\"></a></td>";
 				$Page .= "	<td>&nbsp;</td>";
+				$Page .= "	<td><a href='renewData.php?OpdrachtID=$OpdrachtID'><img src='http://www.marinusjansen.nl/images/icon-funda.png' width='16' height='16' title=\"Voer '". $OpdrachtData['naam'] ."' uit\"></a></td>";
+				$Page .= "	<td>&nbsp;</td>";
 				$Page .= "	<td><a href='getVerkochteHuizen.php?OpdrachtID=$OpdrachtID'><img src='http://www.vuister.com/favicon.ico' title=\"Zoek naar verkochte huizen voor '". $OpdrachtData['naam'] ."'\"></a></td>";				
 				$Page .= "	<td>&nbsp;</td>";
 				$Page .= "	<td><a href='invite.php?OpdrachtID=$OpdrachtID'><img src='http://www.lessthanfour.org/resources/images/icons/16-inviteGroup.png' title=\"Nodig iemand uit voor '". $OpdrachtData['naam'] ."'\"></a></td>";
