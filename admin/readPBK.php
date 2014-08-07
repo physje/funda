@@ -10,13 +10,12 @@ connect_db();
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
 # Iedereen kan deze pagina dus in principe openen.
 
-//$url = "https://app.kpilibrary.com/a/governanceobserver/perf-kpi-modal.asp?id=6049725&tc=wr%2FjQMkX18DQka%2FMt1cM82KsdarjlBs9SHeykeXeBco%3D&db=171667&print=1";
 $url = "http://statline.cbs.nl/StatWeb/publication/?DM=SLNL&PA=81884NED";
 
-$content = file_get_contents_retry($url);
-$tabel	= getString('<table Class=', '</table></span>', $content, 0);
-$rijen = explode('<Tr>', $tabel[0]);
-$rijen = array_slice ($rijen, 4);
+$content	= file_get_contents_retry($url);
+$tabel		= getString('<table Class=', '</table></span>', $content, 0);
+$rijen		= explode('<Tr>', $tabel[0]);
+$rijen		= array_slice ($rijen, 4);
 array_pop($rijen);
 
 # Wel of geen mail sturen, that's the question
@@ -100,8 +99,6 @@ if($newEntry) {
 	$melding[] = "<a href='$url'>Prijsindex Bestaande Woningen</a> is ingelezen.";
 	$melding[] = "";
 	$melding[] = "<b>$mailMaand $mailJaar</b> : $percentage, was $oud_perc (". number_format ((100*($percentage-$oud_perc))/$percentage,1) ."%)";	
-	//$melding[] = "";
-	//$melding[] = "<img src='https://app.kpilibrary.com/a/graph/graph.asp?ki=6049725&chk=iWpX%2BqRZUD2CIGQykk2MrVuxLIh7oWNOXM%2BF3ykTHVo%3Did=6049725&tc=wr%2FjQMkX18DQka%2FMt1cM82KsdarjlBs9SHeykeXeBco%3D&db=171667&print=1&pr0=1&mode=print'>";
 	
 	# Stuur even een mail met de nieuwe cijfers
 	include('../include/HTML_TopBottom.php');

@@ -8,24 +8,22 @@ connect_db();
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
 # Iedereen kan deze pagina dus in principe openen.
 
-$grens	= time() - (2*24*60*60);
-//$sql		= "SELECT $TableHuizen.$HuizenID, $TableHuizen.$HuizenURL, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenPlaats, $TableHuizen.$HuizenEind FROM $TableResultaat, $TableHuizen, $TableZoeken WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenActive like '1' AND $TableHuizen.$HuizenOffline = '0' AND $TableHuizen.$HuizenVerkocht = '0' AND $TableHuizen.$HuizenEind < $grens GROUP BY $TableHuizen.$HuizenID";
+# Huizen die 2 dagen niet gezien zijn staan op de nominatie om mogelijk offline te zijn
+$grens_offline	= time() - (2*24*60*60);
+
+# Hetzelfde geldt voor verkochte huizen die langer dan 13 maanden geleden verkocht zijn
+$grens_verkocht	= mktime(0,0,0,(date("n")-13),date("j"),date("Y"));
 
 $sql_array[] = "SELECT * ";
-//$sql_array[] = "FROM $TableVerdeling, $TableHuizen, $TableResultaat ";
 $sql_array[] = "FROM $TableHuizen, $TableResultaat ";
 $sql_array[] = "WHERE ";
-//$sql_array[] = "$TableResultaat.$ResultaatZoekID = $TableVerdeling.$VerdelingOpdracht AND ";
 $sql_array[] = "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ";
-$sql_array[] = "$TableHuizen.$HuizenVerkocht NOT like '1' AND";
-$sql_array[] = "$TableHuizen.$HuizenOffline NOT like '1' AND";
-$sql_array[] = "$TableHuizen.$HuizenEind < $grens";
+$sql_array[] = "(($TableHuizen.$HuizenVerkocht NOT like '1' AND $TableHuizen.$HuizenOffline NOT like '1' AND $TableHuizen.$HuizenEind < $grens_offline) OR ";
+$sql_array[] = "($TableHuizen.$HuizenVerkocht like '1' AND $TableHuizen.$HuizenOffline NOT like '1' AND $TableHuizen.$HuizenEind < $grens_verkocht))";
 $sql_array[] = "GROUP BY $TableHuizen.$HuizenID";
 
 $sql = implode(" ", $sql_array);
 $result	= mysql_query($sql);
-
-//echo implode("<br>\n", $sql_array);
 
 toLog('info', '', '', "Start controle offline huizen");
 
@@ -37,10 +35,11 @@ if($row = mysql_fetch_array($result)) {
 	do {
 		$fundaID	= $row[$HuizenID];
 		$url			= "http://www.funda.nl". urldecode($row[$HuizenURL]);
-		$contents = file_get_contents_retry($url);
 		
 		echo date("d-m-Y H:i", $row[$HuizenEind]). ' <b>'. urldecode($row[$HuizenAdres]) ."</b>, ". $row[$HuizenPlaats] ." (<a href='HouseDetails.php?id=$fundaID' target='_blank'>edit</a>, <a href='$url' target='_blank'>funda</a>)<br>";
-		
+				
+		$contents = file_get_contents_retry($url);
+				
 		if(!is_string($contents)) {
 			$sql_update = "UPDATE $TableHuizen SET $HuizenOffline = '1' WHERE $HuizenID like $fundaID";
 			if(mysql_query($sql_update)) {
@@ -51,6 +50,7 @@ if($row = mysql_fetch_array($result)) {
 			}
 		}		
 		echo "\n<br>\n";		
+		
 	} while($row = mysql_fetch_array($result));
 }
 ?>		

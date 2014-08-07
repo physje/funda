@@ -106,10 +106,6 @@ if(isset($_POST['doorgaan'])) {
 	}
 		
 	$Page .= "<table border=0>\n";
-	//$Page .= "<tr>\n";
-	//$Page .= "	<td><input type='checkbox' name='actief' value='1' ". ($data['active'] == 1 || !isset($data['active']) ? ' checked' : '') ."></td>\n";
-	//$Page .= "	<td colspan='6'>Actief</td>\n";
-	//$Page .= "</tr>\n";
 	$Page .= "<tr>\n";
 	$Page .= "	<td>Naam :</td>\n";
 	$Page .= "	<td colspan='6'><input type='text' name='naam' value='". $data['naam'] ."'></td>\n";

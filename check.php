@@ -120,7 +120,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			}
 							
 			# Huis is nog niet bekend bij het script, dus moet worden toegevoegd
-			if(!knownHouse($data['id'])) {
+			if(!knownHouse($data['id'])) {				
 				$allData = extractDetailedFundaData("http://www.funda.nl". $data['url'], false);				
 				$data	= array_merge($data, $allData[0]);
 				$extraData = $allData[1];
@@ -146,7 +146,7 @@ foreach($Opdrachten as $OpdrachtID) {
 					toLog('error', $OpdrachtID, $data['id'], 'Prijs toevoegen mislukt');
 				} else {
 					toLog('debug', $OpdrachtID, $data['id'], "Prijs toegevoegd");
-				}				
+				}	
 			} else {				
 				# Huis is al bekend bij het script
 				# We moeten dus aangeven dat hij nog steeds op de markt is
@@ -211,10 +211,18 @@ foreach($Opdrachten as $OpdrachtID) {
 				} else {
 					toLog('debug', $OpdrachtID, $data['id'], 'Huis toegekend aan opdracht');
 				}
-				
+								
 				$fundaData	= getFundaData($data['id']);
 				$kenmerken	= getFundaKenmerken($data['id']);
 				$fotos			= explode('|', $kenmerken['foto']);
+				
+				$soldBefore = soldBefore($data['id']);
+				if(is_numeric($soldBefore)) {
+					$extraData = getFundaData($soldBefore);					
+					$extraString = "<a href='http://funda.nl/$soldBefore'>Eerder verkocht op ". date("d-m-Y", $extraData['eind']) ."</a>";
+				} else {
+					$extraString = '&nbsp;'
+				}
 
 				$Item = array();				
 				$Item[] = "<table width='100%'>";
@@ -222,12 +230,15 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item[] = "	<td colspan='2' align='center'><h1><a href='". $ScriptURL ."extern/redirect.php?id=". $data['id'] ."'>". $data['adres'] ."</a></h1><br>". $fundaData['wijk'] ."<br>\n<br></td>";
 				$Item[] = "</tr>";
 				$Item[] = "<tr>";
-				$Item[] = "	<td align='center' width='60%'><a href='http://funda.nl/". $data['id'] ."'><img src='". str_replace ('_klein.jpg', '_middel.jpg',  $fundaData['thumb']) ."' alt='klik hier om naar funda.nl te gaan' border='0'></a></td>";
-				$Item[] = "	<td align='left' width='40%'>";
+				$Item[] = "	<td align='center' width='55%' rowspan='2'><a href='http://funda.nl/". $data['id'] ."'><img src='". str_replace ('_klein.jpg', '_middel.jpg',  $fundaData['thumb']) ."' alt='klik hier om naar funda.nl te gaan' border='0'></a></td>";
+				$Item[] = "	<td align='left' width='45%'>";
 				$Item[] = "  ". $fundaData['PC_c'] ." ". $fundaData['PC_l'] ." ". $fundaData['plaats'] ."<br>";
 				$Item[] = "  ". $kenmerken['Aantal kamers'] ."<br>";
 				$Item[] = "  ". $kenmerken['Wonen (= woonoppervlakte)'] ." (". $kenmerken['Perceeloppervlakte'] .'/'. $kenmerken['Inhoud'] .")<br>";
 				$Item[] = "  <b>". formatPrice($data['prijs']) ."</b></td>";
+				$Item[] = "</tr>";
+				$Item[] = "<tr>";
+				$Item[] = "	<td align='left'>$extraString</td>";
 				$Item[] = "</tr>";
 				$Item[] = "<tr>";
 				$Item[] = "	<td colspan='2'>&nbsp;</td>";

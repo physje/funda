@@ -10,18 +10,6 @@ $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 connect_db();
 
-# TE KOOP
-//$fundaID = 48897942;
-//$fundaID = 48910466;
-
-# ONDER VOORBEHOUD
-//$fundaID = 48913386;
-//$fundaID = 48740762;
-
-# VERKOCHT
-//$fundaID = 48939000;
-//$fundaID = 48616705;
-
 if(isset($_REQUEST['id'])) {
 	$dataset = array($_REQUEST['id']);
 	$showDetails = true;
@@ -33,22 +21,22 @@ if(isset($_REQUEST['id'])) {
 	if($groep == 'Z') {		
 		$opdrachtData	= getOpdrachtData($id);
 		$Name					= $opdrachtData['naam'];
-		$dataset			= getHuizen($id);
+		$dataset			= getHuizen($id, false, true);
 	} else {
 		$LijstData		= getLijstData($id);
 		$Name					= $LijstData['naam'];
-		$dataset			= getLijstHuizen($id);
+		$dataset			= getLijstHuizen($id, false, true);
 	}
 }
 
 foreach($dataset as $fundaID) {
-	$oldData = getFundaData($fundaID);
+	$oldData			= getFundaData($fundaID);
 	$oldExtraData = getFundaKenmerken($fundaID);
-	$URL = "http://www.funda.nl". $oldData['url'];
-	$allData = extractDetailedFundaData($URL, true);
+	$URL					= "http://www.funda.nl". $oldData['url'];
+	$allData			= extractDetailedFundaData($URL, true);
 	
-	$newData	= $allData[0];
-	$newExtraData = $allData[1];
+	$newData			= $allData[0];
+	$newExtraData	= $allData[1];
 	$newData['id'] = $fundaID;
 	
 	$HTML[] = "<a href='$URL'>". $oldData['adres'] ."</a><br>";

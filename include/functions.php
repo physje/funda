@@ -352,6 +352,11 @@ function makeKMLEntry($id) {
 function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	$contents		= file_get_contents_retry($URL);
 	
+	# Als het geen string is, is de pagina offline
+	if(!is_string($contents)) {
+		return array(array(), array());
+	}
+	
 	# Navigatie-gedeelte
 	$navigatie	= getString('<p class="section path-nav">', '</p>', $contents, 0);
 	$stappen		= explode('&gt;', $navigatie[0]);
@@ -363,20 +368,22 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	if($alreadyKnown) {
 		$adres			= getString('<h1>', '</h1>', $navigatie[1], 0);
 		
-		# Als een huis verkocht is, ziet de lay-out er iets anders uit.
-		if(strpos($contents, '<span class="item-sold">')) {
-			$PC					= getString('<p>', '<span class="item-sold">', $adres[1], 0);
-			$verkocht = 2;
+		# Als een huis verkocht, gewijzigd etc is, ziet de lay-out er iets anders uit.
+		if(strpos($contents, '<span class="item')) {
+			$PC					= getString('<p>', '<span class="item', $adres[1], 0);							
 		} else {
 			$PC					= getString('<p>', '</p>', $adres[1], 0);
-			
-			# Als er een class item-sold-label-large is, is hij verkocht => $verkocht = 1
-			if(strpos($contents, '<span class="item-sold-label-large" title="Verkocht">')) {
-				$verkocht		= 1;
-			} else {
-				$verkocht		= 0;
-			}			
 		}
+				
+		# Als er een class item-sold-label-large is, is hij verkocht => $verkocht = 1
+		# Als er een class item-sold is, is hij onder voorbehoud verkocht => $verkocht = 2
+		if(strpos($contents, '<span class="item-sold">')) {
+			$verkocht		= 2;
+		}elseif(strpos($contents, '<span class="item-sold-label-large" title="Verkocht">')) {
+			$verkocht		= 1;
+		} else {
+			$verkocht		= 0;
+		}			
 		
 		$prijs			= getString('<span class="price">', '</span>', $PC[1], 0);
 		
@@ -608,6 +615,22 @@ function updateHouse($data, $kenmerken, $erase = false) {
 	}
 }
 
+function soldBefore($id) {
+	global $TableHuizen, $HuizenAdres, $HuizenPC_c, $HuizenID, $HuizenVerkocht;
+	connect_db();
+	
+	$data = getFundaData($id);
+	
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '". urlencode($data['adres']) ."' AND $HuizenPC_c like '". $data['PC_c'] ."' AND $HuizenVerkocht like '1' AND $HuizenID not like '$id'";
+		
+	$result	= mysql_query($sql);
+	if(mysql_num_rows($result) == 0) {
+		return false;
+	} else {
+		$row = mysql_fetch_array($result);
+		return $row[$HuizenID];
+	}	
+}
 
 function addHouse($data, $id) {
 	global $TableResultaat, $ResultaatZoekID, $ResultaatID, $ResultaatPrijs;
@@ -769,8 +792,7 @@ function getHuizen($opdracht, $excludeVerkocht = false, $excludeOffline = false)
 	} while($row = mysql_fetch_array($result));
 	
 	return $output;
-}		
-
+}
 
 function getPriceHistory($input) {
 	global $TablePrijzen, $PrijzenTijd, $PrijzenID, $PrijzenPrijs;	
@@ -1049,14 +1071,16 @@ function getLijstData($id) {
 }
 
 
-function getLijstHuizen($list, $excludeVerkocht = false) {
+function getLijstHuizen($list, $excludeVerkocht = false, $excludeOffline = false) {
 	global $TableListResult, $TableHuizen, $ListResultHuis, $ListResultList, $HuizenID, $HuizenAdres, $HuizenVerkocht, $HuizenOffline;
 	
 	$from		= "$TableListResult, $TableHuizen";
 	$where	= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $list";
 	if($excludeVerkocht) {
-		$where .= " AND $TableHuizen.$HuizenVerkocht NOT like '1' AND $HuizenOffline NOT like '1'";
-		
+		$where .= " AND $TableHuizen.$HuizenVerkocht NOT like '1'";
+	}	
+	if($excludeOffline ) {
+		$where .= " AND $HuizenOffline NOT like '1'";
 	}	
 	$sql		= "SELECT $TableHuizen.$HuizenID FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
 	$result = mysql_query($sql);

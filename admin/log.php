@@ -79,11 +79,8 @@ if($debug == 'ja')		$sql_OR[] = "$LogType = 'debug'";
 if($info == 'ja')			$sql_OR[] = "$LogType = 'info'";
 if($error == 'ja')		$sql_OR[] = "$LogType = 'error'";
 if(is_array($sql_OR))	$sql .= " AND (". implode(" OR ", $sql_OR) .")";
-//if(isset($opdracht) AND !isset($huis))	$sql .= " AND $LogOpdracht = '$opdracht'";
 if(isset($opdracht))	$sql .= " AND $LogOpdracht = '$opdracht'";
 if(isset($huis))			$sql .= " AND $LogHuis = '$huis'";
-
-//echo $sql;
 
 $result	= mysql_query($sql);
 $aantal	= mysql_num_rows($result);

@@ -3,7 +3,7 @@
 $ScriptURL				= '';							# Map waar het script staat, bv http://www.example.com/scripts/funda/
 $ScriptTitle			= 'Funda Alert';	# Naam van het script (is naam van afzender in mails)
 $ScriptMailAdress = '';							# Mailadres van het script (is mailadres van afzender in mails)
-$Version					= '4.0.4';				# Versie nummer
+$Version					= '4.1';					# Versie nummer
 $SubjectPrefix		= '[funda] ';			# Voorvoegsel bij de onderwerpregel bij het versturen van mails
 
 $debug						= 0;							# Wel (1) of geen (0) debug-info op het scherm tonen
@@ -12,7 +12,7 @@ $colPhoto					= 3;							# Aantal kolommen met foto in mail
 $rowPhoto					= 3;							# Aantal rijen met foto in mail
 $aantalCols				= 4;							# Aantal kolommen met foto in fotoalbum
 $addSoldHouses		= false;					# Wel (true) of geen (false) verkochte nieuwe huizen toevoegen
-$updateKnowHouses	= true;					# Wel (true) of geen (false) data van bekende huizen updaten.
+$updateKnowHouses	= true;						# Wel (true) of geen (false) data van bekende huizen updaten.
 
 $cfgLogDebugTime	= mktime(date('H'), date('i'), date('s'), date('m'), date('d')-7, date('Y'));
 $cfgLogInfoTime		= mktime(date('H'), date('i'), date('s'), date('m')-1, date('d'), date('Y'));
@@ -68,18 +68,14 @@ $HuizenPC_l				= "PC_letters";
 $HuizenPlaats			= "plaats";
 $HuizenWijk				= "wijk";
 $HuizenThumb			= "thumb";
-$HuizenMakelaar		= "makelaar";					# Op 1 juli in gebruik genomen -> changeTable_01-07-2013.php
-# $HuizenNdeg 			= "N_deg";					# Op 24 april buiten gebruik gesteld -> changeTable_24-04-2013.php
-# $HuizenNdec 			= "N_dec";					# Op 24 april buiten gebruik gesteld
-# $HuizenOdeg 			= "O_deg";					# Op 24 april buiten gebruik gesteld
-# $HuizenOdec				= "O_dec";					# Op 24 april buiten gebruik gesteld
-$HuizenLat				= "latitude";					# Op 24 april in gebruik genomen
-$HuizenLon				= "longitude";				# Op 24 april in gebruik genomen
+$HuizenMakelaar		= "makelaar";
+$HuizenLat				= "latitude";
+$HuizenLon				= "longitude";
 $HuizenStart			= "start";
 $HuizenEind				= "eind";
 $HuizenVerkocht		= "verkocht";
 $HuizenOffline		= "offline";
-$HuizenOpenHuis		= "open_huis";				# Op 8 augustus in gebruik genomen -> changeTable_08-08-2013.php
+$HuizenOpenHuis		= "open_huis";
 
 $TableKenmerken 	= "funda_kenmerken";
 $KenmerkenKey			= "id";
@@ -97,15 +93,14 @@ $TableResultaat 	= "funda_resultaat";
 $ResultaatZoekID	= "zoek_id";
 $ResultaatID			= "funda_id";
 $ResultaatPrijs		= "prijs";
-$ResultaatVerkocht= "verkocht";					# Op 27 april in gebruik genomen -> changeTable_27-04-2013.php
-$ResultaatOpenHuis= "open_huis";				# Op 8 augustus in gebruik genomen -> changeTable_08-08-2013.php
+$ResultaatVerkocht= "verkocht";
+$ResultaatOpenHuis= "open_huis";
 
 $TableZoeken			= "funda_zoeken";
 $ZoekenKey				= "id";
-$ZoekenUser				= "user";							# Op 1 mei in gebruik genomen -> changeTable_01-05-2013.php
+$ZoekenUser				= "user";
 $ZoekenActive 		= "active";
-# $ZoekenMail				= "mail";						# Op 5 mei buiten gebruik gesteld
-$ZoekenAdres			= "adres";						# Op 5 mei buiten gebruik gesteld
+$ZoekenAdres			= "adres";
 $ZoekenNaam				= "naam";
 $ZoekenURL				= "url";
 
@@ -119,7 +114,7 @@ $LogMessage				= "message";
 
 $TableList				= "funda_lists";
 $ListID						= "id";
-$ListUser					= "user";							# Op 1 mei in gebruik genomen -> changeTable_01-05-2013.php
+$ListUser					= "user";
 $ListActive 			= "active";
 $ListNaam					= "name";
 
@@ -127,33 +122,33 @@ $TableListResult	= "funda_list_resultaat";
 $ListResultList		= "list";
 $ListResultHuis		= "huis";
 
-$TableUsers				= "funda_members";		# Op 1 mei in gebruik genomen -> changeTable_01-05-2013.php
-$UsersID					= "id";								# Op 1 mei in gebruik genomen
-$UsersName				= "name";							# Op 1 mei in gebruik genomen
-$UsersUsername		= "username";					# Op 1 mei in gebruik genomen
-$UsersPassword		= "password";					# Op 1 mei in gebruik genomen
-$UsersLevel				= "level";						# Op 1 mei in gebruik genomen
-$UsersAdres				= "mail";							# Op 1 mei in gebruik genomen
-$UsersAccount			= "account";					# Op 1 mei in gebruik genomen
-$UsersLastLogin		= "lastLogin";				# Op 1 mei in gebruik genomen
+$TableUsers				= "funda_members";
+$UsersID					= "id";
+$UsersName				= "name";
+$UsersUsername		= "username";
+$UsersPassword		= "password";
+$UsersLevel				= "level";
+$UsersAdres				= "mail";
+$UsersAccount			= "account";
+$UsersLastLogin		= "lastLogin";
 
-$TableAbo					= "funda_abonnement";	# Op 5 mei in gebruik genomen -> changeTable_05-05-2013.php
-$AboZoekID				= "zoek_id";					# Op 5 mei in gebruik genomen
-$AboUserID				= "member_id";				# Op 5 mei in gebruik genomen
+$TableAbo					= "funda_abonnement";
+$AboZoekID				= "zoek_id";
+$AboUserID				= "member_id";
 
 $TableCalendar		= "funda_kalender";
 $CalendarHuis			= "huis";
 $CalendarStart		= "start";
 $CalendarEnd			= "einde";
 
-$TablePBK					= "funda_PBK";				# Op 5 nov in gebruik genomen -> changeTable_05-11-2013.php
-$PBKStart					= "start";						# Op 5 nov in gebruik genomen
-$PBKEind					= "eind";							# Op 5 nov in gebruik genomen
-$PBKWaarde				= "waarde";						# Op 5 nov in gebruik genomen
-$PBKComment				= "comment";					# Op 5 nov in gebruik genomen
+$TablePBK					= "funda_PBK";
+$PBKStart					= "start";
+$PBKEind					= "eind";
+$PBKWaarde				= "waarde";
+$PBKComment				= "comment";
 
-$TableVerdeling		= "funda_verdeling";	# Op 5 nov in gebruik genomen -> changeTable_05-11-2013.php
-$VerdelingUur			= "uur";							# Op 5 nov in gebruik genomen
-$VerdelingOpdracht= "opdracht";					# Op 5 nov in gebruik genomen
+$TableVerdeling		= "funda_verdeling";
+$VerdelingUur			= "uur";
+$VerdelingOpdracht= "opdracht";
 
 ?>
