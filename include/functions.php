@@ -353,6 +353,7 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	$contents		= file_get_contents_retry($URL);
 	
 	# Als het geen string is, is de pagina offline
+	# Dan kan gelijk een twee-tal lege arrays teruggegeven worden
 	if(!is_string($contents)) {
 		return array(array(), array());
 	}
@@ -366,15 +367,6 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	# Moeten gegevens die al bekend zijn opnieuw opgevraagd worden
 	# Meestal niet, maar soms is dat nodig
 	if($alreadyKnown) {
-		$adres			= getString('<h1>', '</h1>', $navigatie[1], 0);
-		
-		# Als een huis verkocht, gewijzigd etc is, ziet de lay-out er iets anders uit.
-		if(strpos($contents, '<span class="item')) {
-			$PC					= getString('<p>', '<span class="item', $adres[1], 0);							
-		} else {
-			$PC					= getString('<p>', '</p>', $adres[1], 0);
-		}
-				
 		# Als er een class item-sold-label-large is, is hij verkocht => $verkocht = 1
 		# Als er een class item-sold is, is hij onder voorbehoud verkocht => $verkocht = 2
 		if(strpos($contents, '<span class="item-sold">')) {
@@ -383,18 +375,18 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 			$verkocht		= 1;
 		} else {
 			$verkocht		= 0;
-		}			
-		
-		$prijs			= getString('<span class="price">', '</span>', $PC[1], 0);
-		
-		# Thumbnail bij verkochte huizen ziet er iets anders uit dan bij de rest
-		if($verkocht == 1) {
-			$foto				=	getString('" src="http://', '" title="" width="68"></img>', $prijs[1], 0);
-		} else {
-			$foto				=	getString('" src="http://', '" title=""></img></a>', $prijs[1], 0);
 		}
-				
+		
+		$adres			= getString('<h1>', '</h1>', $navigatie[1], 0);
+		$PC					= getString('<p>', '</p>', $adres[1], 0);
+		$prijs			= getString('<span class="price">', '</span>', $PC[1], 0);
+		$foto				=	getString('" src="http:', '"', $prijs[1], 0);								
 		$rel_info		= getString('<h3>', '</h3>', $contents, 0);
+	
+		if(strpos($PC[0], '<span class="item')) {
+			$dummy_PC	= getString('', '<span class="item', $PC[0], 0);
+			$PC[0] = $dummy_PC[0];							
+		}
 	
 		$postcode		= explode(" ", trim($PC[0]));
 	
@@ -408,7 +400,7 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 		$data['PC_c']			= trim($postcode[0]);
 		$data['PC_l']			= trim($postcode[1]);
 		$data['plaats']		= end($postcode);
-		$data['thumb']		= 'http://'.trim($foto[0]);
+		$data['thumb']		= 'http:'.trim($foto[0]);
 		$data['makelaar']	= trim($makelaar[0]);
 		$data['prijs']		= $HuisPrijs;
 		$data['verkocht']	= $verkocht;
