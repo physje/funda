@@ -776,7 +776,7 @@ function getHuizen($opdracht, $excludeVerkocht = false, $excludeOffline = false)
 	if($excludeVerkocht) {
 		$sql .= "AND $TableHuizen.$HuizenVerkocht NOT like '1' ";
 	}
-	if($excludeVerkocht) {
+	if($excludeOffline) {
 		$sql .= "AND $TableHuizen.$HuizenOffline NOT like '1' ";
 	}
 	$sql .= "ORDER BY $TableHuizen.$HuizenAdres";
