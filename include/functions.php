@@ -380,8 +380,13 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 		$adres			= getString('<h1>', '</h1>', $navigatie[1], 0);
 		$PC					= getString('<p>', '</p>', $adres[1], 0);
 		$prijs			= getString('<span class="price">', '</span>', $PC[1], 0);
-		$foto				=	getString('" src="http:', '"', $prijs[1], 0);								
 		$rel_info		= getString('<h3>', '</h3>', $contents, 0);
+		
+		if($verkocht == 1) {
+			$foto				=	getString('" src="http:', '"', $adres[1], 0);
+		} else {
+			$foto				=	getString('" src="http:', '"', $prijs[1], 0);
+		}
 	
 		if(strpos($PC[0], '<span class="item')) {
 			$dummy_PC	= getString('', '<span class="item', $PC[0], 0);
