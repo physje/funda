@@ -71,7 +71,7 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "	</select><select name='bMaand'>\n";
 		for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $data['start']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
 		$HTML[] = "	</select><select name='bJaar'>\n";
-		for($j=(date('Y') - 5) ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['start']) ? ' selected' : '') .">$j</option>\n";	}
+		for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['start']) ? ' selected' : '') .">$j</option>\n";	}
 		$HTML[] = "	</select></td>\n";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";	
@@ -81,7 +81,7 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "	</select><select name='eMaand'>\n";
 		for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $data['eind']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
 		$HTML[] = "	</select><select name='eJaar'>\n";
-		for($j=(date('Y') - 5) ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['eind']) ? ' selected' : '') .">$j</option>\n";	}
+		for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['eind']) ? ' selected' : '') .">$j</option>\n";	}
 		$HTML[] = "	</select></td>\n";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
@@ -137,7 +137,7 @@ if(isset($_REQUEST['id'])) {
 				$Kenmerk[] = "	</select><select name='pMaand[]'>\n";
 				for($m=1 ; $m<=12 ; $m++)	{	$Kenmerk[] = "<option value='$m'". ($m == date("m", $key) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
 				$Kenmerk[] = "	</select><select name='pJaar[]'>\n";
-				for($j=(date('Y') - 5) ; $j<=(date('Y')) ; $j++)	{	$Kenmerk[] = "<option value='$j'". ($j == date("Y", $key) ? ' selected' : '') .">$j</option>\n";	}
+				for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$Kenmerk[] = "<option value='$j'". ($j == date("Y", $key) ? ' selected' : '') .">$j</option>\n";	}
 				$Kenmerk[] = "	</select></td>\n";
 				$Kenmerk[] = "<td> -> </td>";
 				$Kenmerk[] = "<td><input type='text' size='5' name='pPrijs[]' value='$value'></td>";

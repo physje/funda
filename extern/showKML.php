@@ -60,7 +60,6 @@ if($_REQUEST['datum'] == 0) {
 	echo "</tr>\n";
 	echo $HTMLFooter;
 } elseif($_REQUEST['link'] == '1') {
-	//echo "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL .'extern/showKML.php?datum=1&regio='. $_POST[regio] .'&bDag='. $_POST[bDag] .'&bMaand='. $_POST[bMaand] .'&bJaar='. $_POST[bJaar] .'&eDag='. $_POST[eDag] .'&eMaand='. $_POST[eMaand] .'&eJaar='. $_POST[eJaar]) ."'>link</a>";
 	$redirect = "http://maps.google.nl/maps?q=". urlencode($ScriptURL .'extern/showKML.php?datum=1&selectie='. $_POST[selectie] .'&bDag='. $_POST[bDag] .'&bMaand='. $_POST[bMaand] .'&bJaar='. $_POST[bJaar] .'&eDag='. $_POST[eDag] .'&eMaand='. $_POST[eMaand] .'&eJaar='. $_POST[eJaar]);
 	$url="Location: ". $redirect;
 	header($url);
@@ -75,18 +74,23 @@ if($_REQUEST['datum'] == 0) {
 		$opdrachtData	= getOpdrachtData($id);
 		$Name					= $opdrachtData['naam'];
 		$from					= "$TableResultaat, $TableHuizen";
-		$where				= "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $id AND (($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd))";
+		$where[]			= "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID";
+		$where[]			= "$TableResultaat.$ResultaatZoekID = $id";
+		$where[]			= "(($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd))";
 	} else {
 		$LijstData		= getLijstData($id);
 		$Name					= $LijstData['naam'];
 		$from					= "$TableListResult, $TableHuizen";
-		$where				= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $id AND (($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd))";
+		$where[]				= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID";
+		$where[]				= "$TableListResult.$ListResultList = $id";
+		$where[]				= "(($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd))";
 	}
 	
 	$KMLTitle = "Nieuwe huizen in $Name van ". date("d-m-Y", $BeginTijd) .' t/m '. date("d-m-Y", $EindTijd);
 	include('../include/KML_TopBottom.php');
 
-	$sql_wijk		= "SELECT * FROM $from WHERE $where GROUP BY $TableHuizen.$HuizenWijk ORDER BY $TableHuizen.$HuizenPC_c, $TableHuizen.$HuizenPC_l";
+	$sql_wijk		= "SELECT * FROM $from WHERE ". implode(" AND ", $where) ." GROUP BY $TableHuizen.$HuizenWijk ORDER BY $TableHuizen.$HuizenPC_c, $TableHuizen.$HuizenPC_l";
+
 	$result_wijk= mysql_query($sql_wijk);
 	$row_wijk		= mysql_fetch_array($result_wijk);
 	
@@ -97,7 +101,7 @@ if($_REQUEST['datum'] == 0) {
 		$KML_file[] = '<open>0</open>';
 		$KML_file[] = '	<name>'. urldecode($wijk) .'</name>';
 			
-		$sql_huis			= "SELECT * FROM $from WHERE $where AND $TableHuizen.$HuizenWijk like '$wijk' ORDER BY $TableHuizen.$HuizenPC_c, $TableHuizen.$HuizenPC_l";
+		$sql_huis			= "SELECT * FROM $from WHERE ". implode(" AND ", $where) ." AND $TableHuizen.$HuizenWijk like '$wijk' ORDER BY $TableHuizen.$HuizenPC_c, $TableHuizen.$HuizenPC_l";
 				
 		$result_huis	= mysql_query($sql_huis);
 		$row_huis			= mysql_fetch_array($result_huis);

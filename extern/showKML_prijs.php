@@ -60,7 +60,6 @@ if($_REQUEST['datum'] == 0) {
 	echo "</tr>\n";
 	echo $HTMLFooter;
 } elseif($_REQUEST['link'] == '1') {
-	//echo "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL .'extern/showKML_prijs.php?datum=1&regio='. $_POST[regio] .'&bDag='. $_POST[bDag] .'&bMaand='. $_POST[bMaand] .'&bJaar='. $_POST[bJaar] .'&eDag='. $_POST[eDag] .'&eMaand='. $_POST[eMaand] .'&eJaar='. $_POST[eJaar]) ."'>link</a>";
 	$redirect = "http://maps.google.nl/maps?q=". urlencode($ScriptURL .'extern/showKML_prijs.php?datum=1&selectie='. $_POST[selectie] .'&bDag='. $_POST[bDag] .'&bMaand='. $_POST[bMaand] .'&bJaar='. $_POST[bJaar] .'&eDag='. $_POST[eDag] .'&eMaand='. $_POST[eMaand] .'&eJaar='. $_POST[eJaar]);
 	$url="Location: ". $redirect;
 	header($url);
@@ -75,15 +74,19 @@ if($_REQUEST['datum'] == 0) {
 		$opdrachtData	= getOpdrachtData($id);
 		$Name					= $opdrachtData['naam'];
 		$from					= "$TableResultaat, $TableHuizen";
-		$where				= "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $id AND (($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd))";
+		$where[]			= "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID";
+		$where[]			= "$TableResultaat.$ResultaatZoekID = $id";
+		$where[]			= "(($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd))";
 	} else {
 		$LijstData		= getLijstData($id);
 		$Name					= $LijstData['naam'];
 		$from					= "$TableListResult, $TableHuizen";
-		$where				= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $id AND (($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd))";
+		$where[]			= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID";
+		$where[]			= "$TableListResult.$ListResultList = $id";
+		$where[]			= "(($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd))";
 	}
 	
-	$sql		= "SELECT * FROM $from WHERE $where";
+	$sql		= "SELECT * FROM $from WHERE ". implode(" AND ", $where);
 	$result	= mysql_query($sql);
 	
 	if($row = mysql_fetch_array($result)) {
