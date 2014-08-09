@@ -29,7 +29,7 @@ if(isset($_REQUEST['id'])) {
 	}
 }
 
-foreach($dataset as $fundaID) {
+foreach($dataset as $fundaID) {	
 	$oldData			= getFundaData($fundaID);
 	$oldExtraData = getFundaKenmerken($fundaID);
 	$URL					= "http://www.funda.nl". $oldData['url'];
@@ -69,6 +69,7 @@ foreach($dataset as $fundaID) {
 	
 	updateHouse($newData, $newExtraData);
 	addCoordinates($newData['adres'], $newData['PC_c'], $newData['plaats'], $newData['id']);
+	toLog('info', '', $fundaID, 'Data opnieuw ingeladen');
 }
 
 echo $HTMLHeader;

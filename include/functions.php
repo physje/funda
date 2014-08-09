@@ -854,7 +854,11 @@ function getFullPriceHistory($input) {
 	$vorige			= $OriginelePrijs[0];
 	current($prijzenRev);
 	
-	foreach($prijzenRev as $key => $prijs) {		
+	if($vorige == 0) {
+		toLog('error', '', $input, 'Onjuiste prijs-historie');
+	}
+	
+	foreach($prijzenRev as $key => $prijs) {	
 		$afname[$key]			= 100*($vorige - $prijs)/$vorige;
 		$percentage[$key]	= 100*$prijs/$vorige;
 		$vorige				= $prijs;
@@ -1055,7 +1059,7 @@ function getLijsten($id, $active, $extended = false) {
 
 function getLijstData($id) {
 	global $TableList, $ListID, $ListActive, $ListNaam;
-	
+		
 	$sql = "SELECT * FROM $TableList WHERE $ListID = '$id'";
 	$result = mysql_query($sql);
 	$row = mysql_fetch_array($result);
@@ -1128,8 +1132,6 @@ function saveUpdateList($id, $user, $actief, $naam) {
 	} else {
 		$sql = "UPDATE $TableList SET $ListActive = '". ($actief == '1' ? '1' : '0') ."', $ListUser = '$user', $ListNaam = '". urlencode($naam) ."' WHERE $ListID = ". $id;
 	}
-	
-	//echo $sql;
 	
 	$result = mysql_query($sql);
 	

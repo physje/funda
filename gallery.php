@@ -61,41 +61,31 @@ if(isset($_POST['add'])) {
 		$adresShort	= makeTextBlock($adres, 24, true);
 		$image			= str_replace('_klein.jpg', '_middel.jpg', changeThumbLocation($data['thumb']));
 		$relPrize		= getFullPriceHistory($huisID);
-		//$url				= $data['url'];
-			
-		if($data['offline'] == '1') {
-			$TextClass = 'offline';			
-		} elseif($data['verkocht'] == '1') {
-			$TextClass = 'onlineVerkocht';
-		} else {
-			$TextClass = 'online';
-		}
-		
-		# funda.nl verplaatst de thumbs als huizen offline of verkocht zijn
-		if($data['verkocht'] == '1' || $data['verkocht'] == '2' || $data['offline'] == '1') {
-			//$image	= changeThumbLocation($image);			
-			
+				
+		$balk = false;
+		$TextClass = 'online';
+		$imageClass = 'imageAvailable';
+				
+		# Even de juiste teksten & kleuren instellen
+		# Huizen die van de markt af zijn worden in zwart-wit getoond met onderaan een balk met juiste tekst.
+		# Open huizen hebben ook een balk met tekst, maar zijn in kleur
+		if($data['verkocht'] == '1' || $data['verkocht'] == '2' || $data['offline'] == '1' || $data['openhuis'] == '1') {
 			$imageClass = 'imageUnavailable';
-			$housAvailable = false;
+			$balk = true;
 			
 			# De tekst voor de banner over de foto
 			if($data['verkocht'] == '1') {
 				$description = "verkocht";
-				//$url		= changeURLLocation($url);
+				$TextClass = 'onlineVerkocht';
 			} elseif($data['verkocht'] == '2') {
 				$description = "onder voorbehoud";
+			} elseif($data['openhuis'] == '1') {
+				$imageClass = 'imageAvailable';
+				$description = "open huis";
 			} else {
 				$description = "offline";
-			}
-		} else {
-			$imageClass = 'imageAvailable';
-			
-			if($data['openhuis'] == '1') {
-				$description = "open huis";
-				$housAvailable = false;
-			} else {
-				$housAvailable = true;
-			}
+				$TextClass = 'offline';
+			}			
 		}
 		
 		# Als er geen thumb is dat plaatje van funda laten zien
@@ -112,8 +102,8 @@ if(isset($_POST['add'])) {
 		# De HTML van een huis
 		# Let op dat de <div class='float_rechts'> eerst staan, en pas daarna de linkertekst.
 		# Deze hack zorgt dat het in IE ook werkt
-		$Foto  = "	<a href='". $ScriptURL ."extern/redirect.php?id=$huisID' target='_blank' title='$hoverText'><div class='wrapper'><img src='$image' class='$imageClass'></a>";
-		if(!$housAvailable)	$Foto .= "<div class='description'><p class='description_content'>". strtoupper($description) ."</p></div>";
+		$Foto  = "	<a href='". $ScriptURL ."admin/HouseDetails.php?id=$huisID' target='_blank' title='$hoverText'><div class='wrapper'><img src='$image' class='$imageClass'></a>";
+		if($balk)	$Foto .= "<div class='description'><p class='description_content'>". strtoupper($description) ."</p></div>";
 		$Foto .= "</div><br>\n";		
 		if($showListAdd)	$Foto .= "	<input type='checkbox' name='huis[]' value='$huisID'". (in_array($huisID, $knownHuizen) ? ' checked' : '') .">";
 		$Foto .= "	<div class='float_rechts'>". getDoorloptijd($huisID) ."</div><a href='http://funda.nl/$huisID' target='_blank' class='$TextClass' title='Ga naar $adres op funda.nl'>$adresShort</a><br>\n";

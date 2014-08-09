@@ -1,16 +1,11 @@
--- phpMyAdmin SQL Dump
--- version 4.0.5
--- http://www.phpmyadmin.net
---
--- Machine: localhost
--- Genereertijd: 21 sep 2013 om 14:05
--- Serverversie: 5.5.29
--- PHP-versie: 5.3.17
+-- Generation Time: Aug 08, 2014 at 09:25 AM
+-- Server version: 5.5.29
+-- PHP Version: 5.4.23
 
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `funda_abonnement`
+-- Table structure for table `funda_abonnement`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_abonnement` (
@@ -21,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `funda_abonnement` (
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `funda_huizen`
+-- Table structure for table `funda_huizen`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_huizen` (
@@ -42,12 +37,12 @@ CREATE TABLE IF NOT EXISTS `funda_huizen` (
   `offline` set('0','1') NOT NULL DEFAULT '0',
   `open_huis` set('0','1') NOT NULL DEFAULT '0',
   UNIQUE KEY `funda_id` (`funda_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `funda_kalender`
+-- Table structure for table `funda_kalender`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_kalender` (
@@ -59,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `funda_kalender` (
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `funda_kenmerken`
+-- Table structure for table `funda_kenmerken`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_kenmerken` (
@@ -68,13 +63,13 @@ CREATE TABLE IF NOT EXISTS `funda_kenmerken` (
   `omschrijving` text NOT NULL,
   `kenmerk` text NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `key` (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `funda_lists`
+-- Table structure for table `funda_lists`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_lists` (
@@ -88,18 +83,18 @@ CREATE TABLE IF NOT EXISTS `funda_lists` (
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `funda_list_resultaat`
+-- Table structure for table `funda_list_resultaat`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_list_resultaat` (
   `list` int(2) NOT NULL,
   `huis` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `funda_log`
+-- Table structure for table `funda_log`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_log` (
@@ -116,7 +111,7 @@ CREATE TABLE IF NOT EXISTS `funda_log` (
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `funda_members`
+-- Table structure for table `funda_members`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_members` (
@@ -138,9 +133,21 @@ INSERT INTO `funda_members` (`id`, `name`, `username`, `password`, `level`, `mai
 
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `funda_PBK`
+--
+
+CREATE TABLE IF NOT EXISTS `funda_PBK` (
+  `start` int(11) NOT NULL,
+  `eind` int(11) NOT NULL,
+  `waarde` decimal(4,1) NOT NULL,
+  `comment` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `funda_prijzen`
+-- Table structure for table `funda_prijzen`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_prijzen` (
@@ -154,7 +161,7 @@ CREATE TABLE IF NOT EXISTS `funda_prijzen` (
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `funda_resultaat`
+-- Table structure for table `funda_resultaat`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_resultaat` (
@@ -168,13 +175,23 @@ CREATE TABLE IF NOT EXISTS `funda_resultaat` (
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `funda_zoeken`
+-- Table structure for table `funda_verdeling`
+--
+
+CREATE TABLE IF NOT EXISTS `funda_verdeling` (
+  `uur` int(2) NOT NULL,
+  `opdracht` int(3) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `funda_zoeken`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_zoeken` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user` int(3) NOT NULL,
-  `active` set('0','1') NOT NULL,
   `naam` text NOT NULL,
   `url` text NOT NULL,
   UNIQUE KEY `id` (`id`)
