@@ -38,6 +38,7 @@ function getZoekOpdrachten($user, $uur, $active = true) {
 	return $Opdrachten;
 }
 
+
 function getOpdrachtUren($opdracht) {
 	global $TableVerdeling, $VerdelingUur, $VerdelingOpdracht;
 	
@@ -151,7 +152,6 @@ function addCoordinates($straat, $postcode, $plaats, $huisID) {
 # OUTPUT
 #		boolean of het wel of niet gelukt is
 function addKnowCoordinates($coord, $huisID) {
-	//global $TableHuizen, $HuizenNdeg, $HuizenNdec, $HuizenOdeg, $HuizenOdec, $HuizenID;
 	global $TableHuizen, $HuizenLat, $HuizenLon, $HuizenID;
 			
 	if(is_numeric($coord[1])) {
@@ -280,10 +280,12 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$data['vov']			= $voorbehoud;
 	$data['openhuis']	= $openhuis;
 	
-	//foreach($data as $key => $value) {
-	//	echo $key .'|'.makeTextBlock($value, 100) .'<br>';
-	//}
-	//echo '------------------------------';
+	/*
+	foreach($data as $key => $value) {
+		echo $key .'|'.makeTextBlock($value, 100) .'<br>';
+	}
+	echo '------------------------------';
+	*/
 	
 	return $data;
 }
@@ -297,6 +299,7 @@ function convertToReadable($string) {
 	return $string;
 }
 
+
 function removeFilenameCharacters($string) {
 	$string = str_replace('²', '', $string);
 	$string = str_replace(',', '', $string);
@@ -308,7 +311,6 @@ function removeFilenameCharacters($string) {
 	
 	return $string;
 }
-
 
 
 function makeKMLEntry($id) {
@@ -409,7 +411,6 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 		$data['makelaar']	= trim($makelaar[0]);
 		$data['prijs']		= $HuisPrijs;
 		$data['verkocht']	= $verkocht;
-		//$data['openhuis']	= $openhuis;	
 	}
 	
 	if($contents != "") {		
@@ -612,6 +613,7 @@ function updateHouse($data, $kenmerken, $erase = false) {
 	}
 }
 
+
 function soldBefore($id) {
 	global $TableHuizen, $HuizenAdres, $HuizenPC_c, $HuizenID, $HuizenVerkocht;
 	connect_db();
@@ -628,6 +630,43 @@ function soldBefore($id) {
 		return $row[$HuizenID];
 	}	
 }
+
+
+function onlineBefore($id) {
+	global $TableHuizen, $HuizenAdres, $HuizenPC_c, $HuizenID, $HuizenOffline, $HuizenVerkocht;
+	connect_db();
+	
+	$data = getFundaData($id);
+	
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '". urlencode($data['adres']) ."' AND $HuizenPC_c like '". $data['PC_c'] ."' AND $HuizenOffline like '1' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";
+		
+	$result	= mysql_query($sql);
+	if(mysql_num_rows($result) == 0) {
+		return false;
+	} else {
+		$row = mysql_fetch_array($result);
+		return $row[$HuizenID];
+	}	
+}
+
+
+function alreadyOnline($id) {
+	global $TableHuizen, $HuizenAdres, $HuizenPC_c, $HuizenID, $HuizenOffline, $HuizenVerkocht;
+	connect_db();
+	
+	$data = getFundaData($id);
+	
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '". urlencode($data['adres']) ."' AND $HuizenPC_c like '". $data['PC_c'] ."' AND $HuizenOffline like '0' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";
+		
+	$result	= mysql_query($sql);
+	if(mysql_num_rows($result) == 0) {
+		return false;
+	} else {
+		$row = mysql_fetch_array($result);
+		return $row[$HuizenID];
+	}	
+}
+
 
 function addHouse($data, $id) {
 	global $TableResultaat, $ResultaatZoekID, $ResultaatID, $ResultaatPrijs;
@@ -790,6 +829,7 @@ function getHuizen($opdracht, $excludeVerkocht = false, $excludeOffline = false)
 	
 	return $output;
 }
+
 
 function getPriceHistory($input) {
 	global $TablePrijzen, $PrijzenTijd, $PrijzenID, $PrijzenPrijs;	
@@ -1026,15 +1066,11 @@ function guessDate($string) {
 }
 
 
-function getLijsten($id, $active, $extended = false) {
-	global $TableList, $ListID, $ListUser, $ListActive;
+function getLijsten($id, $active) {
+	global $TableList, $ListID, $ListUser, $ListActive, $ListNaam;
 	$Lijsten = array();
 	connect_db();
-	
-	$data = getMemberDetails($id);
-	
-	$sql = "SELECT $ListID FROM $TableList";
-	
+			
 	if($active != '') {
 		$where[] = "$ListActive = '$active'";
 	}
@@ -1043,7 +1079,7 @@ function getLijsten($id, $active, $extended = false) {
 		$where[] = "$ListUser = '$id'";
 	}
 	
-	$sql .= ' WHERE '. implode(" AND ", $where);
+	$sql = "SELECT $ListID FROM $TableList WHERE ". implode(" AND ", $where) ." ORDER BY $ListNaam";
 			
 	$result = mysql_query($sql);
 	
@@ -1160,6 +1196,7 @@ function getUsers() {
 	return $Users;	
 }
 
+
 function getMemberDetails($id) {
 	global $TableUsers, $UsersID, $UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres, $UsersAccount, $UsersLastLogin;
 	
@@ -1229,6 +1266,7 @@ function addMember2Opdracht($opdracht, $user) {
 	$sql = "INSERT INTO $TableAbo ($AboZoekID, $AboUserID) VALUES ($opdracht, $user)";
 	return mysql_query($sql);
 }
+
 
 function removeMember4Opdracht($opdracht, $user) {
 	global $TableAbo, $AboZoekID, $AboUserID;
@@ -1338,7 +1376,6 @@ function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 			$transaction_date_lst = getString('transaction-date lst', '</span>', $contents, 0);
 			$tempVerkoopdatum			= getString('<strong>', '</strong>', $transaction_date_lst[0], 0);
 								
-			//$transaction_price	= getString('transaction-price', '', $prop_transaction[0], 0);
 			$tempLaatstevraagprijs			= getString('<span class="price-wrapper">', '</span>', $contents, 0);
 	  	
 			$sDatum				= explode("-", $tempAanmelddatum[0]);
@@ -1369,7 +1406,6 @@ function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 	# Soms wordt een huis erafgehaald en dan paar dagen later er weer opgezet.
 	# Om te zorgen dat de 'valse' informatie op de site de data in de dB niet overschrijft wordt de check gedaan.
 	if($OorspronkelijkeVraagprijs > 0 AND $Aanmelddatum  == $startDatum) {
-		//echo date('d-m-Y', $Aanmelddatum ) .' : '. $OorspronkelijkeVraagprijs ."<br>\n";
 		$tijdstip = $Aanmelddatum;
 		$prijs[$tijdstip]	= $OorspronkelijkeVraagprijs;
 		$naam[$tijdstip]	= 'Oorspronkelijke vraagprijs';
@@ -1379,7 +1415,6 @@ function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 	# Om te zorgen dat bij een huis wat al twee jaar te koop staat en 9 maanden geleden in prijs is gedaald,
 	# niet de oorspronkelijke vraagprijs wordt ingevoerd even de check.
 	if($OorspronkelijkeVraagprijs > 0 AND $AangebodenSinds  == $startDatum) {
-		//echo date('d-m-Y', $AangebodenSinds ) .' : '. $OorspronkelijkeVraagprijs ."<br>\n";
 		$tijdstip = $AangebodenSinds;
 		$prijs[$tijdstip]	= $OorspronkelijkeVraagprijs;
 		$naam[$tijdstip]	= 'Oorspronkelijke vraagprijs';
@@ -1387,7 +1422,6 @@ function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 			
 	# We gaan er vanuit dat de laatste vraagprijs ook de verkoopdatum is
 	if($LaatsteVraagprijs > 0 AND $Verkoopdatum > 10) {
-		//echo date('d-m-Y', $Verkoopdatum) .' : '. $LaatsteVraagprijs ."<br>\n";
 		$tijdstip = $Verkoopdatum;
 		$prijs[$tijdstip]	= $LaatsteVraagprijs;
 		$naam[$tijdstip]	= 'Laatste vraagprijs';				
@@ -1395,7 +1429,6 @@ function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 			
 	# Sommige huizen verdwijnen van de radar, als ze nog wel online zijn het prijsverloop monitoren.
 	if($Vraagprijs > 0) {
-		//echo date('d-m-Y') .' : '. $Vraagprijs ."<br>\n";
 		$tijdstip = time();
 		$prijs[$tijdstip]	= $Vraagprijs;
 		$naam[$tijdstip]	= 'Vraagprijs';	
@@ -1546,12 +1579,14 @@ function makeSelectionSelection($disableList, $blankOption, $preSelect = 0) {
 	return implode("\n", $HTML);
 }
 
+
 function updateMakelaar($data) {
 	global $TableHuizen, $HuizenMakelaar, $HuizenID;
 	
 	$sql = "UPDATE $TableHuizen SET $HuizenMakelaar = '". urlencode($data['makelaar']) ."' WHERE $HuizenID = '". $data['id'] ."'";
 	$result = mysql_query($sql);
 }
+
 
 function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
 	# Maak de de eerste regel aan
@@ -1631,6 +1666,7 @@ function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
 	return implode("\n", $CSV);	
 }
 
+
 function hasOpenHuis($id) {
 	global $TableHuizen, $HuizenOpenHuis, $HuizenID;
 	
@@ -1643,6 +1679,7 @@ function hasOpenHuis($id) {
 		return false;
 	}
 }
+
 
 function extractOpenHuisData($id) {
 	$data			= getFundaData($id);
@@ -1661,14 +1698,13 @@ function extractOpenHuisData($id) {
 	$beginMin	= substr($tijden[0], 3, 2);
 	$eindUur	= substr($tijden[0], 10, 2);
 	$eindMin	= substr($tijden[0], 13, 2);
-	
-	//echo $dag .'|'. $maand .'|'. $jaar .'|'. $beginUur .'|'. $beginMin .'|'. $eindUur .'|'. $eindMin;
-	
+		
 	$start = mktime($beginUur, $beginMin, 0, $maand, $dag, $jaar);
 	$eind = mktime($eindUur, $eindMin, 0, $maand, $dag, $jaar);
 	
 	return array($start, $eind);
 }
+
 
 function removeOpenHuis($id) {
 	global $TableHuizen, $HuizenOpenHuis, $HuizenID, $TableResultaat, $ResultaatOpenHuis, $ResultaatID;
@@ -1680,6 +1716,7 @@ function removeOpenHuis($id) {
 	$result = mysql_query($sql);	
 }
 
+
 function getNextOpenhuis($id) {
 	global $TableCalendar, $CalendarHuis, $CalendarStart, $CalendarEnd;
 	
@@ -1690,6 +1727,7 @@ function getNextOpenhuis($id) {
 	
 	return array($row[$CalendarStart], $row[$CalendarEnd]);
 }
+
 
 function makeHuizenZoekerURL($data) {	
 	$string	= findProv($data['PC_c']) ."###". $data['plaats'] ."###". $data['adres'];
@@ -1705,6 +1743,7 @@ function makeHuizenZoekerURL($data) {
 	
 	return 'http://www.huizenzoeker.nl/koop/'. $string ."/details.html";
 }
+
 
 function findProv($postcode) {	
 	$maxPostcode[1299] = 'Noord-Holland';
@@ -1796,6 +1835,7 @@ function findProv($postcode) {
 	return strtolower($maxPostcode[$pc]);
 }
 
+
 function corrigeerPrice($t1, $p1, $t2 = '') {
 	global $TablePBK, $PBKStart, $PBKEind, $PBKWaarde;
 	
@@ -1827,9 +1867,7 @@ function corrigeerPrice($t1, $p1, $t2 = '') {
 	} else {
 		$factor_1 = $factor_2;	
 	}
-	
-	//echo date("d-m-y", $t1) .' -> '. $factor_1 .'|'. date("d-m-y", $t2) .' -> '. $factor_2;	
-	
+		
 	return (($factor_2/$factor_1)*$p1);
 }
 

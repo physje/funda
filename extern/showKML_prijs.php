@@ -8,7 +8,7 @@ connect_db();
 
 $bUur		= getParam('bDag', 0);
 $bMin		= getParam('bDag', 0);
-$bDag		= getParam('bDag', date("d"));
+$bDag		= getParam('bDag', date("d")-2);
 $bMaand		= getParam('bMaand', date("m"));
 $bJaar		= getParam('bJaar', date("Y"));
 $eUur		= getParam('bDag', 23);

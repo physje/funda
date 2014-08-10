@@ -216,12 +216,21 @@ foreach($Opdrachten as $OpdrachtID) {
 				$kenmerken	= getFundaKenmerken($data['id']);
 				$fotos			= explode('|', $kenmerken['foto']);
 				
-				$soldBefore = soldBefore($data['id']);
+				$soldBefore			= soldBefore($data['id']);
+				$alreadyOnline	= alreadyOnline($data['id']);
+				$onlineBefore		= onlineBefore($data['id']);
+				
 				if(is_numeric($soldBefore)) {
-					$extraData = getFundaData($soldBefore);					
-					$extraString = "<a href='http://funda.nl/$soldBefore'>Eerder verkocht op ". date("d-m-Y", $extraData['eind']) ."</a>";
+					$extraData = getFundaData($soldBefore);
+					$extraString = "<a href='http://funda.nl/$soldBefore'>Verkocht op ". date("d-m-Y", $extraData['eind']) ."</a>";
+				} elseif(is_numeric($alreadyOnline)) {
+					$extraData = getFundaData($alreadyOnline);
+					$extraString = "<a href='http://funda.nl/$alreadyOnline'>Al online bij ". $extraData['makelaar'] ."</a>";
+				} elseif(is_numeric($onlineBefore)) {
+					$extraData = getFundaData($onlineBefore);					
+					$extraString = "<a href='". $ScriptURL ."/admin/combine_batch.php?id_1=$onlineBefore&id_2=". $data['id'] ."'>Online geweest tot ". date("d-m-Y", $extraData['eind']) ."</a>";
 				} else {
-					$extraString = '&nbsp;'
+					$extraString = '&nbsp;';
 				}
 
 				$Item = array();				
