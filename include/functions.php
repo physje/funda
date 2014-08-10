@@ -359,6 +359,23 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	if(!is_string($contents)) {
 		return array(array(), array());
 	}
+
+	# Als er een class item-sold is, is hij onder voorbehoud verkocht => $verkocht = 2
+	# Als er een class item-sold-label-large is, is hij verkocht => $verkocht = 1
+	# Als geen van beide het geval is, is hij nog beschikbaar => $verkocht = 0
+	if(strpos($contents, '<span class="item-sold">')) {
+		$verkocht		= 2;
+	}elseif(strpos($contents, '<span class="item-sold-label-large" title="Verkocht">')) {
+		$verkocht		= 1;
+	} else {
+		$verkocht		= 0;
+	}
+	
+	if($verkocht == 1) {
+		$afmeld			= getString('<span class="txt-sft">&nbsp;|&nbsp;Afmelddatum: ','</span>', $contents, 0);
+		$delen = explode('-', $afmeld[0]);
+		$data['afmeld'] = mktime(12,0,0,$delen[1],$delen[0],$delen[2]);
+	}
 	
 	# Navigatie-gedeelte
 	$navigatie	= getString('<p class="section path-nav">', '</p>', $contents, 0);
@@ -366,19 +383,11 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	$wijk				= getString('<span itemprop="title">', '</span>', $stappen[(count($stappen)-1)], 0);
 	$data['wijk']			= trim($wijk[0]);
 	
+	
+	
 	# Moeten gegevens die al bekend zijn opnieuw opgevraagd worden
 	# Meestal niet, maar soms is dat nodig
 	if($alreadyKnown) {
-		# Als er een class item-sold-label-large is, is hij verkocht => $verkocht = 1
-		# Als er een class item-sold is, is hij onder voorbehoud verkocht => $verkocht = 2
-		if(strpos($contents, '<span class="item-sold">')) {
-			$verkocht		= 2;
-		}elseif(strpos($contents, '<span class="item-sold-label-large" title="Verkocht">')) {
-			$verkocht		= 1;
-		} else {
-			$verkocht		= 0;
-		}
-		
 		$adres			= getString('<h1>', '</h1>', $navigatie[1], 0);
 		$PC					= getString('<p>', '</p>', $adres[1], 0);
 		$prijs			= getString('<span class="price">', '</span>', $PC[1], 0);
@@ -567,7 +576,7 @@ function saveHouse($data, $moreData) {
 
 
 function updateHouse($data, $kenmerken, $erase = false) {
-	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
+	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenAfmeld;
 	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
 	
 	connect_db();
@@ -581,7 +590,8 @@ function updateHouse($data, $kenmerken, $erase = false) {
 		'plaats'		=> $HuizenPlaats, 
 		'wijk'			=> $HuizenWijk,  
 		'thumb'			=> $HuizenThumb,  
-		'makelaar'	=> $HuizenMakelaar
+		'makelaar'	=> $HuizenMakelaar,
+		'afmeld'		=> $HuizenAfmeld
 		);
 		
 	foreach($data as $key => $value) {
@@ -1277,7 +1287,7 @@ function removeMember4Opdracht($opdracht, $user) {
 
 
 function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
-	global $TableHuizen, $HuizenStart, $HuizenEind, $HuizenVerkocht, $HuizenOffline, $HuizenID;
+	global $TableHuizen, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenVerkocht, $HuizenOffline, $HuizenID;
 	
 	# Alles weer opnieuw initialiseren.
 	unset($prijs, $naam);
@@ -1290,7 +1300,15 @@ function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 	
 	# Via de kenmerkenpagina
 	$allData	= extractDetailedFundaData($url);
+	$generalData = $allData[0];
 	$data			= $allData[1];
+	
+	if($generalData['afmeld'] != "") {
+		$sql_update = "UPDATE $TableHuizen SET $HuizenAfmeld = ". $generalData['afmeld'] ." WHERE $HuizenID like $fundaID";
+		if(mysql_query($sql_update)) {
+			$HTML[] = " -> afgemeld<br>";
+		}			
+	}
 			
 	# Als de array 'data' groter is dan 3 is er data gevonden in de kenmerken-pagina
 	if(count($data) > 3) {
@@ -1360,8 +1378,7 @@ function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 			if(mysql_query($sql_update)) {
 				$HTML[] = " -> onder voorbehoud verkocht<br>";
 			}			
-		}
-		
+		}		
 	} else {		
 		# De "standaard"-pagina... maar daar staat niet alles op.
 		# Aan de andere kant, de kenmerken-pagina werkt niet overal

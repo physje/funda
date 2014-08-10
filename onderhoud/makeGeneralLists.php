@@ -12,11 +12,11 @@ $tijdGrens = mktime(0,0,0,date("n")-1, date("d"), date("Y"));
 $langTeKoopGrens = mktime(0,0,0,date("n"), date("d"), date("Y")-3);
 
 $IDs = array(999, 998, 997, 996);
-$namen = array('Open huizen', 'Afgelopen maand online', 'Afgelopen maand offline', 'Al lang te koop');
+$namen = array('Open huizen', 'Afgelopen maand online', 'Afgelopen maand afgemeld', 'Al lang te koop');
 $query = array(
 	"SELECT * FROM $TableHuizen WHERE $HuizenOpenHuis like '1'",
 	"SELECT * FROM $TableHuizen WHERE $HuizenStart > $tijdGrens",
-	"SELECT * FROM $TableHuizen WHERE $HuizenEind > $tijdGrens AND $HuizenOffline like '1'",
+	"SELECT * FROM $TableHuizen WHERE $HuizenAfmeld > $tijdGrens AND $HuizenOffline like '1'",
 	"SELECT * FROM $TableHuizen WHERE $HuizenStart < $langTeKoopGrens AND $HuizenOffline NOT like '1' AND $HuizenVerkocht NOT like '1'"
 );
 

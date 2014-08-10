@@ -11,7 +11,7 @@ $stapPrijs		= 25000;		# Stapjes in prijs in de Google Maps view
 $colPhoto		= 3;			# Aantal kolommen met foto in mail
 $rowPhoto		= 3;			# Aantal rijen met foto in mail
 $aantalCols		= 4;			# Aantal kolommen met foto in fotoalbum
-$addSoldHouses		= false;		# Wel (true) of geen (false) verkochte nieuwe huizen toevoegen
+$addSoldHouses		= true;		# Wel (true) of geen (false) verkochte nieuwe huizen toevoegen
 
 $cfgLogDebugTime	= mktime(date('H'), date('i'), date('s'), date('m'), date('d')-7, date('Y'));
 $cfgLogInfoTime		= mktime(date('H'), date('i'), date('s'), date('m')-1, date('d'), date('Y'));
@@ -76,6 +76,7 @@ $HuizenLat		= "latitude";
 $HuizenLon		= "longitude";
 $HuizenStart		= "start";
 $HuizenEind		= "eind";
+$HuizenAfmeld		= "afgemeld";
 $HuizenVerkocht		= "verkocht";
 $HuizenOffline		= "offline";
 $HuizenOpenHuis		= "open_huis";
