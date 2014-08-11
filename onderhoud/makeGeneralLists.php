@@ -16,7 +16,7 @@ $namen = array('Open huizen', 'Afgelopen maand online', 'Afgelopen maand afgemel
 $query = array(
 	"SELECT * FROM $TableHuizen WHERE $HuizenOpenHuis like '1'",
 	"SELECT * FROM $TableHuizen WHERE $HuizenStart > $tijdGrens",
-	"SELECT * FROM $TableHuizen WHERE $HuizenAfmeld > $tijdGrens AND $HuizenOffline like '1'",
+	"SELECT * FROM $TableHuizen WHERE $HuizenAfmeld > $tijdGrens AND $HuizenOffline like '0'",
 	"SELECT * FROM $TableHuizen WHERE $HuizenStart < $langTeKoopGrens AND $HuizenOffline NOT like '1' AND $HuizenVerkocht NOT like '1'"
 );
 
