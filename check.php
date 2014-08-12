@@ -228,7 +228,8 @@ foreach($Opdrachten as $OpdrachtID) {
 					$extraString = "<a href='http://funda.nl/$alreadyOnline'>Al online bij ". $extraData['makelaar'] ."</a>";
 				} elseif(is_numeric($onlineBefore)) {
 					$extraData = getFundaData($onlineBefore);					
-					$extraString = "<a href='". $ScriptURL ."/admin/combine_batch.php?id_1=$onlineBefore&id_2=". $data['id'] ."'>Online geweest tot ". date("d-m-Y", $extraData['eind']) ."</a>";
+					//$extraString = "<a href='". $ScriptURL ."/admin/combine_batch.php?id_1=$onlineBefore&id_2=". $data['id'] ."'>Online geweest tot ". date("d-m-Y", $extraData['eind']) ."</a>";
+					$extraString = "Eerder online geweest<br>tot ". date("d-m-Y", $extraData['eind']);
 				} else {
 					$extraString = '&nbsp;';
 				}
