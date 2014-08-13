@@ -47,6 +47,12 @@ if(isset($_POST['combine'])) {
 		$exclVerkochtOV = false;
 	}
 	
+	if($_POST['exclOffline'] == '1') {
+		$exclOffline = true;
+	} else {
+		$exclOffline = false;
+	}
+	
 	$newDataset = array();
 	
 	# Huis zowel in selectie 1 als in selectie 2
@@ -54,7 +60,7 @@ if(isset($_POST['combine'])) {
 		foreach($dataset_1 as $huisID_1) {
 			if(in_array($huisID_1, $dataset_2)) {
 				$data = getFundaData($huisID_1);
-				if(($data['verkocht'] == 0) OR ($data['verkocht'] == 1 AND !$exclVerkocht) OR ($data['verkocht'] == 2 AND !$exclVerkochtOV)) {
+				if(!(($data['verkocht'] == 1 AND $exclVerkocht) OR ($data['verkocht'] == 2 AND $exclVerkochtOV) OR ($data['offline'] == 1 AND $exclOffline))) {
 					$newDataset[] = $huisID_1;
 				}
 			}			
@@ -62,12 +68,12 @@ if(isset($_POST['combine'])) {
 		$nieuwNaam = "zowel $Name_1 als $Name_2";
 	}
 	
-	# Huis w閘 in selectie 1 maar n韊t in selectie 2
+	# Huis w茅l in selectie 1 maar n铆et in selectie 2
 	if($_POST['combineType'] == '2') {
 		foreach($dataset_1 as $huisID_1) {
 			if(!in_array($huisID_1, $dataset_2)) {
 				$data = getFundaData($huisID_1);
-				if(($data['verkocht'] == 0) OR ($data['verkocht'] == 1 AND !$exclVerkocht) OR ($data['verkocht'] == 2 AND !$exclVerkochtOV)) {
+				if(!(($data['verkocht'] == 1 AND $exclVerkocht) OR ($data['verkocht'] == 2 AND $exclVerkochtOV) OR ($data['offline'] == 1 AND $exclOffline))) {
 					$newDataset[] = $huisID_1;
 				}
 			}	
@@ -75,14 +81,20 @@ if(isset($_POST['combine'])) {
 		$nieuwNaam = "wel $Name_1 niet $Name_2";
 	}
 	
-	# Huis 骹 in selectie 1 骹 in selectie 2
+	# Huis 贸f in selectie 1 贸f in selectie 2
 	if($_POST['combineType'] == '3') {
-		$newDataset = $dataset_1;
-				
+		foreach($dataset_1 as $huisID_1) {
+			$data = getFundaData($huisID_1);
+			if(!(($data['verkocht'] == 1 AND $exclVerkocht) OR ($data['verkocht'] == 2 AND $exclVerkochtOV) OR ($data['offline'] == 1 AND $exclOffline))) {
+				$newDataset[] = $huisID_1;
+			}
+		}
+						
 		foreach($dataset_2 as $huisID_2) {
-			if(!in_array($huisID_2, $newDataset)) {
+			if(!(($data['verkocht'] == 1 AND $exclVerkocht) OR in_array($huisID_2, $newDataset) OR ($data['verkocht'] == 2 AND $exclVerkochtOV) OR ($data['offline'] == 1 AND $exclOffline))) {
+			
 				$newDataset[] = $huisID_2;
-			}			
+			}
 		}
 		
 		$nieuwNaam = "$Name_1 of $Name_2";
@@ -160,13 +172,14 @@ if(isset($_POST['combine'])) {
 	$deel_1 .= "<tr>\n";
 	$deel_1 .= "	<td>\n";
 	$deel_1 .= " 		<input type='radio' name='combineType' value='1'> Huis zowel in selectie 1 als in selectie 2<br>\n";
-	$deel_1 .= "		<input type='radio' name='combineType' value='2'> Huis w閘 in selectie 1 maar n韊t in selectie 2<br>\n";
-	$deel_1 .= "		<input type='radio' name='combineType' value='3'> Huis 骹 in selectie 1 骹 in selectie 2<br>\n";
+	$deel_1 .= "		<input type='radio' name='combineType' value='2'> Huis w茅l in selectie 1 maar n铆et in selectie 2<br>\n";
+	$deel_1 .= "		<input type='radio' name='combineType' value='3'> Huis 贸f in selectie 1 贸f in selectie 2<br>\n";
 	$deel_1 .= "	</td>\n";	
 	$deel_1 .= "	<td>&nbsp;</td>\n";
 	$deel_1 .= "	<td valign='top'>\n";
 	$deel_1 .= "		<input type='checkbox' name='exclVerkocht' value='1' checked> Verkochte huizen excluderen<br>\n";
 	$deel_1 .= "		<input type='checkbox' name='exclVerkochtOV' value='1'> Onder voorbehoud verkochte huizen excluderen<br>\n";
+	$deel_1 .= "		<input type='checkbox' name='exclOffline' value='1'> Offline huizen excluderen<br>\n";
 	$deel_1 .= "	</td>\n";
 	$deel_1 .= "</tr>\n";
 	$deel_1 .= "<tr>\n";
