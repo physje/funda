@@ -49,7 +49,7 @@ if(isset($_POST['add'])) {
 	$row		= mysql_fetch_array($result);
 	$eind_tijd = $row[0];
 	
-	$sql		= "SELECT $TableHuizen.$HuizenOffline, $TableHuizen.$HuizenVerkocht, $TableHuizen.$HuizenStart, $TableHuizen.$HuizenEind, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenID, $TableHuizen.$HuizenURL, ($TableHuizen.$HuizenEind - $TableHuizen.$HuizenStart) as tijdsduur FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
+	$sql		= "SELECT $TableHuizen.$HuizenOffline, $TableHuizen.$HuizenVerkocht, $TableHuizen.$HuizenAfmeld, $TableHuizen.$HuizenStart, $TableHuizen.$HuizenEind, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenID, $TableHuizen.$HuizenURL, ($TableHuizen.$HuizenEind - $TableHuizen.$HuizenStart) as tijdsduur FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
 	$result	= mysql_query($sql);
 	$row		= mysql_fetch_array($result); 
 	
@@ -76,7 +76,13 @@ if(isset($_POST['add'])) {
 	do {
 		$breedte_1	= round(70*($row[$HuizenStart] - $start_tijd)/$fullWidth);
 		$breedte_2	= round(70*($row[$HuizenEind] - $row[$HuizenStart])/$fullWidth);
-		$breedte_3	= 70 - $breedte_1 - $breedte_2;
+		if($row[$HuizenVerkocht] == '1') {
+			$breedte_3	= round(70*($row[$HuizenAfmeld] - $row[$HuizenEind])/$fullWidth);
+		} else {
+			$breedte_3	= 0;
+		} 
+		$breedte_4	= 70 - $breedte_1 - $breedte_2 - $breedte_3;
+		
 		$adres			= convertToReadable(urldecode($row[$HuizenAdres]));
 		
 		$relPrijzen			= getFullPriceHistory($row[$HuizenID]);
@@ -101,8 +107,9 @@ if(isset($_POST['add'])) {
 		if($showListAdd)	echo "	<input type='checkbox' name='huis[]' value='". $row[$HuizenID] ."'". (in_array($row[$HuizenID], $Huizen) ? ' checked' : '') .">";
 		echo "<a id='". $row[$HuizenID] ."'><a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=". $row[$HuizenID] ."'><img src='http://www.nccfsokotoalumni.com/wp-content/themes/NCCF/images/tags.png' title='Toon opties voor $adres'></a> <a href='http://funda.nl/". $row[$HuizenID] ."' target='_blank' class='$class' title='Bezoek $adres op funda.nl'>$adres</a></td>\n";
 		if($breedte_1 != 0) { echo "		<td width='". $breedte_1 ."%'>&nbsp;</td>\n"; }
-		echo "		<td width='". $breedte_2 ."%' bgcolor='#FF6D6D' title='In de verkoop van ". date("d-m", $row[$HuizenStart]) .' t/m '. date("d-m", $row[$HuizenEind]) ."'>". getDoorloptijd($row[$HuizenID]) ."</td>\n";
-		if($breedte_3 != 0) { echo "		<td width='". $breedte_3 ."%'>&nbsp;</td>\n"; }
+		echo "		<td width='". $breedte_2 ."%' bgcolor='#FF6D6D' title='". getDoorloptijd($row[$HuizenID]) ." in de verkoop. Van ". date("d-m-y", $row[$HuizenStart]) .' t/m '. date("d-m-y", $row[$HuizenEind]) ."'>&nbsp;</td>\n";
+		if($breedte_3 != 0) { echo "		<td width='". $breedte_3 ."%' bgcolor='#FFA0A0'>&nbsp;</td>\n"; }
+		if($breedte_4 != 0) { echo "		<td width='". $breedte_4 ."%'>&nbsp;</td>\n"; }
 		echo "		<td width='5%' align='right'><a href='PrijsDaling.php?selectie=". $_REQUEST['selectie'] ."#". $row[$HuizenID] ."' title='Bekijk de prijsdaling van $adres\nVraagprijs ". formatPrice(getOrginelePrijs($row[$HuizenID])) ." | Gecorrigeerde prijs ". formatPrice(corrigeerPrice($row[$HuizenStart], getOrginelePrijs($row[$HuizenID]))) ."'>". number_format($percentageAll, 0) ."%</a></td>\n";
 		echo "	</tr></table>\n";
 		echo "</td></tr>\n";
