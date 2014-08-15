@@ -76,7 +76,11 @@ if(isset($_POST['add'])) {
 			# De tekst voor de banner over de foto
 			if($data['verkocht'] == '1') {
 				$description = "verkocht";
-				$TextClass = 'onlineVerkocht';
+				if($data['offline'] == '1') {
+					$TextClass = 'offlineVerkocht';
+				} else {
+					$TextClass = 'onlineVerkocht';	
+				}
 			} elseif($data['verkocht'] == '2') {
 				$description = "onder voorbehoud";
 			} elseif($data['openhuis'] == '1') {
