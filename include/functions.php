@@ -1633,12 +1633,14 @@ function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
 		$data				= getFundaData($huisID);
 		$kenmerken	= getFundaKenmerken($huisID);
 		
-		if($data['verkocht'] == 1) {
+		if($data['offline'] == 1 AND $data['verkocht'] == 1) {
+			$status = 'verkocht, offline';
+		} elseif($data['offline'] == 1) {
+			$status = 'offline';
+		} elseif($data['verkocht'] == 1) {
 			$status = 'verkocht';
 		} elseif($data['verkocht'] == 2) {
 			$status = 'onder voorbehoud';
-		} elseif($data['offline'] == 1) {
-			$status = 'offline';	
 		} else {
 			$status = 'beschikbaar';
 		}
