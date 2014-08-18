@@ -134,10 +134,10 @@ if(isset($_POST['delete_list'])) {
 					} else {
 						$TextClass = 'onlineVerkocht';	
 					}
-				}
-				
-				if($data['offline'] == '1') {
+				} elseif($data['offline'] == '1') {
 					$TextClass = 'offline';
+				} else {
+					$TextClass = 'online';
 				}
 				
 				$Page_2 .= "<input type='checkbox' name='huis[]' value='$huis' checked> <a href='http://funda.nl/$huis' target='_blank' class='$TextClass'>". $data['adres'] ."</a><br>\n";
