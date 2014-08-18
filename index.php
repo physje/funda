@@ -38,9 +38,9 @@ $admin['admin/downloadDailyExport.php']	= 'Download XLS-file';
 if($_SESSION['level'] > 1) {
 	$admin['admin/dailyExport.php']				= 'Genereer excel-bestand';
 	$admin['admin/HouseDetails.php']			= 'Bekijk details van een huis';
-	$admin['teKoopVerkocht.php']					= 'Overzicht van nieuwe/verkochte huizen per periode';
+	$admin['teKoopVerkocht.php']				= 'Overzicht van nieuwe/verkochte huizen per periode';
 	$admin['admin/showVerdeling.php']			= 'Overzicht van welke opdracht wanneer wordt uitgevoerd';
-	$admin['admin/determineCorrectPrice.php']			= 'Bepaal gecorrigeerde prijs op specifieke datum';
+	$admin['admin/determineCorrectPrice.php']		= 'Bepaal gecorrigeerde prijs op specifieke datum';
 }
 
 
@@ -51,6 +51,7 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['admin/getVerkochteHuizen.php']	= 'Werk verkochte huizen bij';
 	$onderhoud['admin/checkOudeHuizen.php']			= 'Zoek naar gegevens van vermiste huizen';
 	//$onderhoud['admin/bekijkHuizenZoeker.php']	= 'Zoek naar gegevens op HuizenZoeker.nl';
+	$onderhoud['onderhoud/makeGeneralLists.php']						= 'Maak algemene lijsten aan';
 	$onderhoud['admin/readPBK.php']							= 'Lees de prijs-index van het Kadaster in';
 	$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met openhuizen';
 	$onderhoud['admin/cleanPrice.php']					= 'Prijzen opschonen';
