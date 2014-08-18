@@ -127,7 +127,20 @@ if(isset($_POST['delete_list'])) {
 		
 			foreach($Huizen as $huis) {
 				$data = getFundaData($huis);
-				$Page_2 .= "<input type='checkbox' name='huis[]' value='$huis' checked> <a href='http://funda.nl/$huis' target='_blank' class='$class'>". $data['adres'] ."</a><br>\n";
+				
+				if($data['verkocht'] == '1') {
+					if($data['offline'] == '1') {
+						$TextClass = 'offlineVerkocht';
+					} else {
+						$TextClass = 'onlineVerkocht';	
+					}
+				}
+				
+				if($data['offline'] == '1') {
+					$TextClass = 'offline';
+				}
+				
+				$Page_2 .= "<input type='checkbox' name='huis[]' value='$huis' checked> <a href='http://funda.nl/$huis' target='_blank' class='$TextClass'>". $data['adres'] ."</a><br>\n";
 			}
 				
 			$Page_2 .= "<br>\n";
