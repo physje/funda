@@ -941,12 +941,7 @@ function toLog($type, $opdracht, $huis, $message) {
 }
 
 
-function getDoorloptijd($id) {	
-	$data = getFundaData($id);
-	
-	$start = $data['start'];
-	$einde = $data['eind'];
-	
+function getTimeBetween($start, $einde) {
 	$dagE		= date("d", $einde);
 	$maandE	= date("m", $einde);
 	$jaarE	= date("Y", $einde);
@@ -1001,6 +996,15 @@ function getDoorloptijd($id) {
 	} else {
 		$output[] = $dag ."d";
 	}
+	
+	return $output;
+}
+
+
+function getDoorloptijd($id) {	
+	$data = getFundaData($id);
+	
+	$output = getTimeBetween($data['start'], $data['eind']);
 			
 	return implode(" & ", $output);
 }
