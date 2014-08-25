@@ -166,7 +166,7 @@ if(is_array($key_1)) {
 		}
 	}
 	
-	if(count($HTMLMessage) > 0) {
+	if(count($HTMLMessage) > 0 AND !$manual) {
 		$HTMLMessage = array_merge($HTMLMessage, $HTMLMessageNeg);
 		
 		$FooterText = "<a href='http://www.funda.nl/'>funda.nl</a>";
