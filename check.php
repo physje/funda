@@ -229,7 +229,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				} elseif(is_numeric($onlineBefore)) {
 					$extraData = getFundaData($onlineBefore);					
 					//$extraString = "<a href='". $ScriptURL ."/admin/combine_batch.php?id_1=$onlineBefore&id_2=". $data['id'] ."'>Online geweest tot ". date("d-m-Y", $extraData['eind']) ."</a>";
-					$extraString = "Eerder online geweest<br>tot ". date("d-m-Y", $extraData['eind']);
+					$extraString = implode(" & ", getTimeBetween($extraData['eind'], time())) ." geleden offline gegaan";
 				} else {
 					$extraString = '&nbsp;';
 				}
