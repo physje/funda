@@ -116,32 +116,33 @@ if(isset($_REQUEST['id'])) {
 			}
 		}
 	} else {
+		# Prijshistorie
 		$Prijzen = getPriceHistory($id);
 	
-		$Kenmerk[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
-		$Kenmerk[] = "<input type='hidden' name='id' value='$id'>";
-		$Kenmerk[] = "<table>";
-		$Kenmerk[] = "<tr>";
-		$Kenmerk[] = "	<td>Datum</td>";
-		$Kenmerk[] = "	<td>&nbsp;</td>";
-		$Kenmerk[] = "	<td>Prijs</td>";
-		$Kenmerk[] = "	<td>&nbsp;</td>";
-		$Kenmerk[] = "	<td>Correctie</td>";
-		$Kenmerk[] = "</tr>";
+		$PrijsHistory[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+		$PrijsHistory[] = "<input type='hidden' name='id' value='$id'>";
+		$PrijsHistory[] = "<table>";
+		$PrijsHistory[] = "<tr>";
+		$PrijsHistory[] = "	<td>Datum</td>";
+		$PrijsHistory[] = "	<td>&nbsp;</td>";
+		$PrijsHistory[] = "	<td>Prijs</td>";
+		$PrijsHistory[] = "	<td>&nbsp;</td>";
+		$PrijsHistory[] = "	<td>Correctie</td>";
+		$PrijsHistory[] = "</tr>";
 		
 		foreach($Prijzen as $key => $value)	{
 			if($key != 0) {
-				$Kenmerk[] = "<tr>";
-				$Kenmerk[] = "	<td><select name='pDag[]'>\n";
-				for($d=1 ; $d<=31 ; $d++)	{	$Kenmerk[] = "<option value='$d'". ($d == date("d", $key) ? ' selected' : '') .">$d</option>\n";	}
-				$Kenmerk[] = "	</select><select name='pMaand[]'>\n";
-				for($m=1 ; $m<=12 ; $m++)	{	$Kenmerk[] = "<option value='$m'". ($m == date("m", $key) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
-				$Kenmerk[] = "	</select><select name='pJaar[]'>\n";
-				for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$Kenmerk[] = "<option value='$j'". ($j == date("Y", $key) ? ' selected' : '') .">$j</option>\n";	}
-				$Kenmerk[] = "	</select></td>\n";
-				$Kenmerk[] = "<td> -> </td>";
-				$Kenmerk[] = "<td><input type='text' size='5' name='pPrijs[]' value='$value'></td>";
-				$Kenmerk[] = "<td>&nbsp;</td>";
+				$PrijsHistory[] = "<tr>";
+				$PrijsHistory[] = "	<td><select name='pDag[]'>\n";
+				for($d=1 ; $d<=31 ; $d++)	{	$PrijsHistory[] = "<option value='$d'". ($d == date("d", $key) ? ' selected' : '') .">$d</option>\n";	}
+				$PrijsHistory[] = "	</select><select name='pMaand[]'>\n";
+				for($m=1 ; $m<=12 ; $m++)	{	$PrijsHistory[] = "<option value='$m'". ($m == date("m", $key) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
+				$PrijsHistory[] = "	</select><select name='pJaar[]'>\n";
+				for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$PrijsHistory[] = "<option value='$j'". ($j == date("Y", $key) ? ' selected' : '') .">$j</option>\n";	}
+				$PrijsHistory[] = "	</select></td>\n";
+				$PrijsHistory[] = "<td> -> </td>";
+				$PrijsHistory[] = "<td><input type='text' size='5' name='pPrijs[]' value='$value'></td>";
+				$PrijsHistory[] = "<td>&nbsp;</td>";
 				
 				$prijs	= $value;
 				$bDag		= date('d', $key);
@@ -159,26 +160,30 @@ if(isset($_REQUEST['id'])) {
 					$eJaar	= date('Y');
 				}
 				
+				# Percentage berekenen en even een + teken voor het percentage indien de prijs gestegen is
 				$percentage		= number_format ((100*($nieuwePrijs-$value)/$value), 1);				
-				$Kenmerk[] = "<td><a href='determineCorrectPrice.php?prijs=$prijs&bDag=$bDag&bMaand=$bMaand&bJaar=$bJaar&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar' target='_blank'>". ($data['verkocht'] == '1' || $data['offline'] == '1' ? '<i>' : '') . formatPrice($nieuwePrijs) . ($data['verkocht'] == '1' || $data['offline'] == '1' ? '</i>' : '') . "</a> ($percentage %)</td>";
-				$Kenmerk[] = "</tr>";
+				if($percentage > 0)	$percentage = '+'.$percentage;
+				
+				$PrijsHistory[] = "<td><a href='determineCorrectPrice.php?prijs=$prijs&bDag=$bDag&bMaand=$bMaand&bJaar=$bJaar&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar' target='_blank'>". ($data['verkocht'] == '1' || $data['offline'] == '1' ? '<i>' : '') . formatPrice($nieuwePrijs) . ($data['verkocht'] == '1' || $data['offline'] == '1' ? '</i>' : '') . "</a> ($percentage %)</td>";
+				$PrijsHistory[] = "</tr>";
 			}
 		}
-				
-		$Kenmerk[] = "<tr>";
-		$Kenmerk[] = "	<td colspan='2'>&nbsp;</td>";
-		$Kenmerk[] = "</tr>";	
-		$Kenmerk[] = "<tr>";
-		$Kenmerk[] = "	<td colspan='2'><input type='submit' value='Prijs Opslaan' name='save_prijs'></td>";
-		$Kenmerk[] = "</tr>";		
-		$Kenmerk[] = "</table>";
-		$Kenmerk[] = "</form>";
+		
+		$PrijsHistory[] = "<tr>";
+		$PrijsHistory[] = "	<td colspan='2'>&nbsp;</td>";
+		$PrijsHistory[] = "</tr>";	
+		$PrijsHistory[] = "<tr>";
+		$PrijsHistory[] = "	<td colspan='2'><input type='submit' value='Prijs Opslaan' name='save_prijs'></td>";
+		$PrijsHistory[] = "</tr>";		
+		$PrijsHistory[] = "</table>";
+		$PrijsHistory[] = "</form>";
 	}
 	
+	# Zoekresultaten
 	$sql		= "SELECT $ResultaatZoekID FROM $TableResultaat WHERE $ResultaatID like $id";
 	$result	= mysql_query($sql);
 	$row		=	mysql_fetch_array($result);
-	
+		
 	$Resultaten[] = "Gevonden met :\n";
 	$Resultaten[] = "<ul>\n";
 	
@@ -188,24 +193,59 @@ if(isset($_REQUEST['id'])) {
 	} while($row =	mysql_fetch_array($result));
 	$Resultaten[] = "</ul>\n";
 	
-	if($data['offline'] == 1 || $data['verkocht'] == 1) {
-		$Foto[] = "<img src='". changeThumbLocation($data['thumb']) ."'>";
-	} else {
-		$Foto[] = "<img src='". $data['thumb'] ."'>";
+	# Kenmerken
+	$KenmerkData = getFundaKenmerken($id);
+	
+	$Kenmerken[] = "<table>";
+	
+	foreach($KenmerkData as $key => $value)	{
+		if($key != 'foto') {
+			$Kenmerken[] = "<tr>";
+			$Kenmerken[] = "	<td valign='top'>". ucfirst($key) ."</td>";
+			$Kenmerken[] = "	<td valign='top'>$value</td>";	
+			$Kenmerken[] = "</tr>";
+		}
 	}
+	
+	$Kenmerken[] = "</table>";
+	
+	# Thumbnail
+	if($data['offline'] == 1 || $data['verkocht'] == 1) {
+		$Thumb[] = "<img src='". changeThumbLocation($data['thumb']) ."'>";
+	} else {
+		$Thumb[] = "<img src='". $data['thumb'] ."'>";
+	}
+	
+	# Foto's
+	$fotos = explode('|', $KenmerkData['foto']);
+	
+	foreach($fotos as $key => $value)	{
+		if($data['offline'] == 1) {
+			$url = str_replace('klein', 'grotere', $value);
+		} else {
+			$url = 'http://www.funda.nl/'. $data['url'] .'fotos/#groot&foto-'.($key+1);
+		}
+			
+		$Foto[] = "<a href='$url' target='_blank'><img src='". $value ."'></a>";
+	}
+	
 }
 
 echo $HTMLHeader;
 echo "<tr>\n";
 echo "<td width='50%' valign='top' align='center'>\n";
 echo showBlock(implode("\n", $HTML));
+echo "<p>";
+echo showBlock(implode("\n", $Kenmerken));
 echo "</td>";
 echo "<td width='50%' valign='top' align='center'>\n";
-echo showBlock(implode("\n", $Foto));
+echo showBlock(implode("\n", $Thumb));
 echo "<p>";
 echo showBlock(implode("\n", $Resultaten));
 echo "<p>";
-echo showBlock(implode("\n", $Kenmerk));
+echo showBlock(implode("\n", $PrijsHistory));
+echo "<p>";
+echo showBlock(implode("\n", $Foto));
 echo "</td>";
 echo "</tr>\n";
 echo $HTMLFooter;

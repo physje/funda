@@ -809,6 +809,8 @@ function getFundaKenmerken($id) {
 			} while($row = mysql_fetch_array($result));			
 		}
 		
+		ksort($data);
+		
 		return $data;
 	} else {
 		return false;
