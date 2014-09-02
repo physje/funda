@@ -139,8 +139,9 @@ if(is_array($key_1)) {
 		$Item .= "	<td align='center'><img src='". changeThumbLocation(urldecode($data_new['thumb'])) ."'></td>\n";
 		$Item .= "</tr>\n";
 		$Item .= "<tr>\n";
-		$Item .= "	<td align='center'><a href='http://www.funda.nl/". $id_oud ."'>". urldecode($data_oud['adres']) ."</a><br>$id_oud (verwijderd)</td>\n";
-		$Item .= "	<td align='center'><a href='http://www.funda.nl/". $id_new ."'>". urldecode($data_new['adres']) ."</a><br>$id_new (master)</td>\n";
+		# Een hyperlink naar huizen die offline zijn heeft geen zin, dus alleen bij het bewaarde huis staat een link
+		$Item .= "	<td align='center'>". urldecode($data_oud['adres']) ."<br>$id_oud</td>\n"; 
+		$Item .= "	<td align='center'><a href='http://www.funda.nl/". $id_new ."'>". urldecode($data_new['adres']) ."</a><br>$id_new</td>\n";
 		$Item .= "</tr>\n";
 		$Item .= "<tr>\n";
 		$Item .= "	<td align='center'>". date("d-m-y", $data_oud['start']) .' t/m '. date("d-m-y", $data_oud['eind']) ."</td>\n";
@@ -153,8 +154,8 @@ if(is_array($key_1)) {
 		
 		if(!$verwijderd) {
 			$Item .= "<tr>\n";
-			$Item .= "	<td align='center'><a href='". $ScriptURL ."admin/combine_manual.php?id_1=$id_oud&id_2=$id_new'>$id_new is master</a></td>\n";
-			$Item .= "	<td align='center'><a href='". $ScriptURL ."admin/combine_manual.php?id_1=$id_new&id_2=$id_oud'>$id_oud is master</a></td>\n";
+			$Item .= "	<td align='center'><a href='". $ScriptURL ."admin/combine_manual.php?id_1=$id_oud&id_2=$id_new'>deze verwijderen</a></td>\n";
+			$Item .= "	<td align='center'><a href='". $ScriptURL ."admin/combine_manual.php?id_1=$id_new&id_2=$id_oud'>deze verwijderen</a></td>\n";
 			$Item .= "</tr>\n";
 		}
 		$Item .= "</table>\n";
