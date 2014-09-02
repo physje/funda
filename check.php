@@ -248,7 +248,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item[] = "  <b>". formatPrice($data['prijs']) ."</b></td>";
 				$Item[] = "</tr>";
 				$Item[] = "<tr>";
-				$Item[] = "	<td align='left'>$extraString</td>";
+				$Item[] = "	<td align='left'><i>$extraString</i></td>";
 				$Item[] = "</tr>";
 				$Item[] = "<tr>";
 				$Item[] = "	<td colspan='2'>&nbsp;</td>";
