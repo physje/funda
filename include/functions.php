@@ -1749,8 +1749,9 @@ function removeOpenHuis($id) {
 function getNextOpenhuis($id) {
 	global $TableCalendar, $CalendarHuis, $CalendarStart, $CalendarEnd;
 	
-	$nu			= time();	
+	$nu			= mktime(0,0,0);	
 	$sql		= "SELECT * FROM $TableCalendar WHERE $CalendarStart > $nu AND $CalendarHuis = '$id'";
+
 	$result = mysql_query($sql);
 	$row		= mysql_fetch_array($result);
 	

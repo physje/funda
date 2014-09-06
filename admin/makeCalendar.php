@@ -64,17 +64,20 @@ for($i = 0 ; $i < $loop ; $i++) {
 	if($i == 0 AND !$enkelHuis) {
 		$opdrachten = true;
 		$gebruikers = false;
-		$dataset = getZoekOpdrachten(1, '');
+		$dataset = getZoekOpdrachten(1, '');		
 	} elseif($i == 1 AND !$enkelHuis) {
 		$opdrachten = false;
 		$gebruikers = true;
 		$dataset = getUsers();
+	} else {
+		$dataset[] = 1;
 	}
 		
 	foreach($dataset as $id) {
 		if($enkelHuis) {
-			$sql	= "SELECT * FROM $TableCalendar WHERE $TableCalendar.$CalendarHuis = ". $_REQUEST['id'] ." AND $CalendarStart > $maandGeleden";
-			$dataset[] = 1;
+			//$sql	= "SELECT * FROM $TableCalendar WHERE $TableCalendar.$CalendarHuis = ". $_REQUEST['id'] ." AND $CalendarStart > $maandGeleden";
+			$sql	= "SELECT * FROM $TableCalendar WHERE $TableCalendar.$CalendarHuis = ". $_REQUEST['id'];
+			//$dataset[] = 1;
 		}
 		
 		if($opdrachten) {
