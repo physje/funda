@@ -1,7 +1,7 @@
 <?php
 include_once('../general_include/general_functions.php');
 include_once('../general_include/general_config.php');
-//include_once('../general_include/class.MobileDetect.php');
+include_once('../general_include/class.MobileDetect.php');
 include_once('include/functions.php');
 include_once('include/config.php');
 include_once('include/HTML_TopBottom.php');
@@ -9,7 +9,10 @@ $minUserLevel = 1;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");
 
-//$detect = new Mobile_Detect;
+$detect = new Mobile_Detect;
+if ($detect->isMobile() ) {
+	$mobile = true;
+}
 
 $UserData = getMemberDetails($_SESSION['UserID']);
 
@@ -94,35 +97,31 @@ if(count($Opdrachten) == 0) {
 	$blockOpdrachten .= "<i>Maak je eerste <a href='admin/edit_opdrachten.php?id=0' target='_blank'>zoekopdracht</a> aan.</i>";
 }
 
-//if ($detect->isMobile() ) {
-if (false) {
-	echo $blockAccount;
-	echo "<p>\n";
-	echo $blockLinks;
-	echo "<p>\n";
-	echo $blockAdmin;
-	if($blockOnderhoud != '') {
-		echo "<p>\n";
-		echo $blockOnderhoud;
-	}	
-	echo $blockOpdrachten;	
+echo $HTMLHeader;
+echo "<tr>\n";
+
+if($mobile) {
+	echo "<td valign='top' align='left'>\n";
 } else {
-	echo $HTMLHeader;
-	echo "<tr>\n";
 	echo "<td width='50%' valign='top' align='center'>\n";
-	echo showBlock($blockLinks);
-	echo "<p>\n";
-	echo showBlock($blockAdmin);
-	if($blockOnderhoud != '') {
-		echo "<p>\n";
-		echo showBlock($blockOnderhoud);	
-	}
-	echo "</td><td width='50%' valign='top' align='center'>\n";
-	echo showBlock($blockAccount);
-	echo "<p>\n";
-	echo showBlock($blockOpdrachten);
-	echo "</td>\n";
-	echo "</tr>\n";
-	echo $HTMLFooter;
 }
+
+echo showBlock($blockLinks, $mobile);
+echo "<p>\n";
+echo showBlock($blockAdmin, $mobile);
+
+if($blockOnderhoud != '') {
+	echo "<p>\n";
+	echo showBlock($blockOnderhoud, $mobile);	
+}
+
+if(!$mobile)	echo "</td><td width='50%' valign='top' align='center'>\n";
+
+echo showBlock($blockAccount, $mobile);
+echo "<p>\n";
+echo showBlock($blockOpdrachten, $mobile);
+echo "</td>\n";
+echo "</tr>\n";
+echo $HTMLFooter;
+
 ?>

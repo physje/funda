@@ -229,6 +229,20 @@ if(isset($_REQUEST['id'])) {
 		$Foto[] = "<a href='$url' target='_blank'><img src='". $value ."'></a>";
 	}
 	
+	$soldBefore			= soldBefore($id);
+	$alreadyOnline	= alreadyOnline($id);
+	$onlineBefore		= onlineBefore($id);
+	
+	if(is_numeric($soldBefore)) {
+		$extraData = getFundaData($soldBefore);
+		$extraString = "<a href='http://funda.nl/$soldBefore'>Al eens verkocht op ". date("d-m-Y", $extraData['eind']) ."</a>";
+	} elseif(is_numeric($alreadyOnline)) {
+		$extraData = getFundaData($alreadyOnline);
+		$extraString = "<a href='http://funda.nl/$alreadyOnline'>Ook online bij ". $extraData['makelaar'] ."</a>";
+	} elseif(is_numeric($onlineBefore)) {
+		$extraData = getFundaData($onlineBefore);
+		$extraString = implode(" & ", getTimeBetween($extraData['eind'], $data['start'])) ." offline geweest";
+	}
 }
 
 echo $HTMLHeader;
@@ -243,6 +257,12 @@ echo showBlock(implode("\n", $Thumb));
 echo "<p>";
 echo showBlock(implode("\n", $Resultaten));
 echo "<p>";
+
+if($extraString != '') {
+	echo showBlock($extraString);
+	echo "<p>";
+}
+
 echo showBlock(implode("\n", $PrijsHistory));
 echo "<p>";
 echo showBlock(implode("\n", $Foto));

@@ -176,16 +176,20 @@ function addKnowCoordinates($coord, $huisID) {
 #
 # OUTPUT
 #		De opgemaakte string
-function showBlock($String) {
-	$Text = "<table width='95%' cellpadding='8' cellspacing='1' bgcolor='#636367'>\n";
-	$Text .= "<tr>\n";
-	$Text .= "	<td bgcolor='#EAEAEA'>\n";
-	$Text .= "	<!-- BEGIN BLOK INHOUD -->\n";	
-	$Text .= $String;	
-	$Text .= "	<!-- EIND BLOK INHOUD -->\n";	
-	$Text .= "	</td>\n";	
-	$Text .= "</tr>\n";
-	$Text .= "</table>\n";
+function showBlock($String, $mobile = false) {
+	if ($mobile ) {
+		$Text = $String;	
+	} else {		
+		$Text = "<table width='95%' cellpadding='8' cellspacing='1' bgcolor='#636367'>\n";
+		$Text .= "<tr>\n";
+		$Text .= "	<td bgcolor='#EAEAEA'>\n";
+		$Text .= "	<!-- BEGIN BLOK INHOUD -->\n";	
+		$Text .= $String;	
+		$Text .= "	<!-- EIND BLOK INHOUD -->\n";	
+		$Text .= "	</td>\n";	
+		$Text .= "</tr>\n";
+		$Text .= "</table>\n";
+	}
 	
 	return $Text;
 }
@@ -1710,10 +1714,10 @@ function extractOpenHuisData($id) {
 	$data			= getFundaData($id);
 	$contents	= file_get_contents_retry('http://www.funda.nl'.$data['url']);
 	
-	$propertie	= getString('<div class="prop-oh">', '</div>', $contents, 0);
-	$datum			= getString('</strong> ', ' van ', $propertie[0], 0);
-	$tijden			= getString(' van ', ' uur', $datum[1], 0);
-	
+	$propertie	= getString('<div class="prop-oh ">', '</div>', $contents, 0);
+	$datum			= getString('<span>', ' van ', $propertie[0], 0);
+	$tijden			= getString(' van ', ' uur.</span>', $datum[1], 0);
+		
 	$temp				= explode('-', guessDate($datum[0]));
 		
 	$dag			= $temp[0];

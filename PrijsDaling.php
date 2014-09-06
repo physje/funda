@@ -1,12 +1,18 @@
 <?php
 include_once('../general_include/general_functions.php');
 include_once('../general_include/general_config.php');
+include_once('../general_include/class.MobileDetect.php');
 include_once('include/functions.php');
 include_once('include/config.php');
 include_once('include/HTML_TopBottom.php');
 $minUserLevel = 1;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");
+
+$detect = new Mobile_Detect;
+if ($detect->isMobile() ) {
+	$mobile = true;
+}
 
 connect_db();
 
@@ -166,7 +172,7 @@ if(isset($_POST['add'])) {
 	echo "<tr>\n";
 	echo "<td width='25%' valign='top' align='center'>&nbsp;</td>\n";
 	echo "<td width='50%' valign='top' align='center'>\n";
-	echo showBlock(implode("\n", $HTML));
+	echo showBlock(implode("\n", $HTML), $mobile);
 	echo "</td>\n";
 	echo "<td width='25%' valign='top' align='center'>&nbsp;</td>\n";
 	echo "</tr>\n";	
