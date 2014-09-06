@@ -9,6 +9,8 @@ $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 connect_db();
 
+$error = array();
+
 # Kijken of alle huizen uit de kenmerken-database ook bestaande huizen zijn
 $sql		= "SELECT * FROM $TableKenmerken GROUP BY $KenmerkenID";
 $result	= mysql_query($sql);
@@ -64,8 +66,6 @@ do {
 
 $melding[] = "Alle huizen uit de resultaten-database zijn gecontroleerd<br>";
 
-
-
 # Kijken of alle huizen uit de lijst-database ook bestaande huizen zijn
 $sql		= "SELECT * FROM $TableListResult GROUP BY $ListResultHuis";
 $result	= mysql_query($sql);
@@ -80,7 +80,6 @@ do {
 } while($row = mysql_fetch_array($result));
 
 $melding[] = "Alle huizen uit de lijsten-database zijn gecontroleerd<br>";
-
 
 
 # Kijken of alle huizen uit de huizen-database ook in de resultaten-, prijzen- en kenmerken-database voorkomen
@@ -106,6 +105,26 @@ do {
 $melding[] = "Alle huizen uit de huizen-database zijn in andere databases opgezocht<br>";
 
 
+
+# Kijken of alle huizen die open huis hebben ook in de open huis database staan
+$sql		= "SELECT * FROM $TableResultaat WHERE $ResultaatOpenHuis = '1' GROUP BY $ResultaatID";
+$result	= mysql_query($sql);
+$row = mysql_fetch_array($result);
+do {
+	$huisID = $row[$ResultaatID];
+	
+	$result_2	= mysql_query("SELECT * FROM $TableCalendar WHERE $CalendarHuis like '$huisID' AND $CalendarEnd > ". time());
+	if(mysql_num_rows($result_2) == 0) {
+		mysql_query("UPDATE $TableResultaat SET $ResultaatOpenHuis = '0' WHERE $ResultaatID like $huisID");
+		$error[] = $huisID ." is niet gevonden in de open huis-database<br>";
+	}	
+} while($row = mysql_fetch_array($result));
+
+$melding[] = "Alle open-huizen uit de resultaten-database zijn gecontroleerd<br>";
+
+if(count($error) == 0) {
+	$error[] = "Geen foutmeldingen";
+}
 
 # Uitkomst netjes op het scherm tonen
 echo $HTMLHeader;
