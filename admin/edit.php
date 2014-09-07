@@ -243,6 +243,13 @@ if(isset($_REQUEST['id'])) {
 		$extraData = getFundaData($onlineBefore);
 		$extraString = implode(" & ", getTimeBetween($extraData['eind'], $data['start'])) ." offline geweest";
 	}
+	
+	# Open huis
+	$open			= getNextOpenhuis($id);
+	if($open[0] > 0) {
+		//$OpenHuis = strftime("%a %e %b %k:%M", $open[0]) ." - ". strftime("%k:%M", $open[1]);
+		$OpenHuis = date("d M Y H:i", $open[0]) ." - ". date("H:i", $open[1]);
+	}
 }
 
 echo $HTMLHeader;
@@ -257,6 +264,11 @@ echo showBlock(implode("\n", $Thumb));
 echo "<p>";
 echo showBlock(implode("\n", $Resultaten));
 echo "<p>";
+
+if($OpenHuis != '') {
+	echo showBlock($OpenHuis);
+	echo "<p>";
+}
 
 if($extraString != '') {
 	echo showBlock($extraString);

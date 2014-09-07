@@ -107,11 +107,13 @@ function file_get_contents_retry($url, $maxTry = 3) {
 
 
 function implode2($first, $last, $array) {
-	if(count($array) > 1) {
+	if(count($array) > 2) {
 		$element = array_pop ($array);
 		return implode($first, $array).$last.$element;
+	} elseif(count($array) == 2) {
+		return implode($last, $array);
 	} else {
-		return implode($first, $array);
+		return current($array);
 	}
 }
 
