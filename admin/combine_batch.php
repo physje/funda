@@ -68,13 +68,14 @@ if(is_array($key_1)) {
 		if(($data_new['start'] - $data_oud['eind']) > 0 OR $manual) {
 			# Actie-lijst :
 			#		Vervang begintijd_2 door begintijd_1		
-			#		Vervang ID_1 door ID_2 in prijzen- en lijsten-tabel
+			#		Vervang ID_1 door ID_2 in prijzen-, open huis- en lijsten-tabel
 			# 	Verwijder key_1 in huizen-, kenmerken- en resultaten-tabel
 						
 			# De begin- en eindtijd voor het nieuwe huis in tabel met huizen updaten
+			# Neem de vroegst bekende starttijd en de laatst bekende eindtijd
 			$sql_update_1 = "UPDATE $TableHuizen SET $HuizenStart = ". min($data_oud['start'], $data_new['start']) .", $HuizenEind = ". max($data_oud['eind'], $data_new['eind']) ." WHERE $HuizenID like '". $id_new ."'";
 			if(!mysql_query($sql_update_1)) {
-				echo "[$sql_update]<br>";		
+				echo "[$sql_update_1]<br>";		
 				toLog('error', '', $id_oud, "Error verplaatsen data van $id_oud naar $id_new");
 			} else {
 				toLog('info', '', $id_oud, "Data van $id_oud verplaatst naar $id_new");
@@ -84,7 +85,7 @@ if(is_array($key_1)) {
 			# Tabel met prijzen updaten
 			$sql_update_2 = "UPDATE $TablePrijzen SET $PrijzenID = '$id_new' WHERE $PrijzenID like '$id_oud'";
 			if(!mysql_query($sql_update_2)) {
-				echo "[$sql_update]<br>";
+				echo "[$sql_update_2]<br>";
 				toLog('error', '', $id_oud, "Error toewijzen prijzen aan $id_new");
 			} else {
 				toLog('info', '', $id_oud, "Prijzen toewijzen aan $id_new");
@@ -93,10 +94,19 @@ if(is_array($key_1)) {
 			# Tabel met lijsten updaten
 			$sql_update_3 = "UPDATE $TableListResult SET $ListResultHuis = '$id_new' WHERE $ListResultHuis like '$id_oud'";
 			if(!mysql_query($sql_update_3)) {
-				echo "[$sql_update]<br>";
+				echo "[$sql_update_3]<br>";
 				toLog('error', '', $id_oud, "Error toewijzen $id_new op lijst");
 			} else {
 				toLog('info', '', $id_oud, "$id_new toegewezen op lijst");
+			}
+			
+			# Tabel met open huizen updaten
+			$sql_update_4 = "UPDATE $TableCalendar SET $CalendarHuis = '$id_new' WHERE $CalendarHuis like '$id_oud'";
+			if(!mysql_query($sql_update_4)) {
+				echo "[$sql_update_4]<br>";
+				toLog('error', '', $id_oud, "Error toewijzen open huis aan $id_new");
+			} else {
+				toLog('info', '', $id_oud, "Open huizen toewijzen aan $id_new");
 			}
 					
 			# Het oude huis uit de tabel met huizen halen
@@ -120,7 +130,7 @@ if(is_array($key_1)) {
 			# Het oude huis uit de tabel met resultaten halen (de nieuwe staat er al in)
 			$sql_delete_3 = "DELETE FROM $TableResultaat WHERE $ResultaatID like '$id_oud'";
 			if(!mysql_query($sql_delete_3)) {
-				echo "[$sql_update]<br>";
+				echo "[$sql_delete_3]<br>";
 				toLog('error', '', $id_oud, "Error verwijderen van $id_oud in opdracht");
 			} else {
 				toLog('info', '', $id_oud, "Verwijderd uit opdracht (is nu $id_new)");

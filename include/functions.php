@@ -105,6 +105,17 @@ function file_get_contents_retry($url, $maxTry = 3) {
 }
 
 
+
+function implode2($first, $last, $array) {
+	if(count($array) > 1) {
+		$element = array_pop ($array);
+		return implode($first, $array).$last.$element;
+	} else {
+		return implode($first, $array);
+	}
+}
+
+
 # Zoek de coordinaten bij een gegeven straat, postcode en plaats en voeg deze toe
 #
 #	INPUT

@@ -59,6 +59,7 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met openhuizen';
 	$onderhoud['admin/cleanPrice.php']					= 'Prijzen opschonen';
 	$onderhoud['admin/cleanKenmerk.php']				= 'Kenmerken opschonen';
+	$onderhoud['admin/cleanOpenhuis.php']				= 'Open huizen opschonen';
 	$onderhoud['admin/checkTables.php']					= 'Check de verschillende databases';
 	$onderhoud['admin/search4Offline.php']			= 'Zet pagina\'s offline';
 	$onderhoud['admin/combine_batch.php']				= 'Voeg hits automatisch samen';

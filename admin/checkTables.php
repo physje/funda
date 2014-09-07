@@ -106,22 +106,6 @@ $melding[] = "Alle huizen uit de huizen-database zijn in andere databases opgezo
 
 
 
-# Kijken of alle huizen die in de results-db open huis hebben ook in de open huis database staan
-$sql		= "SELECT * FROM $TableResultaat WHERE $ResultaatOpenHuis = '1' GROUP BY $ResultaatID";
-$result	= mysql_query($sql);
-$row = mysql_fetch_array($result);
-do {
-	$huisID = $row[$ResultaatID];
-	
-	$result_2	= mysql_query("SELECT * FROM $TableCalendar WHERE $CalendarHuis like '$huisID' AND $CalendarEnd > ". time());
-	if(mysql_num_rows($result_2) == 0) {
-		mysql_query("UPDATE $TableResultaat SET $ResultaatOpenHuis = '0' WHERE $ResultaatID like $huisID");
-		$error[] = "<a href='HouseDetails.php?id=$huisID' target='_blank'>". $huisID . "</a> is niet gevonden in de open huis-database<br>";
-	}	
-} while($row = mysql_fetch_array($result));
-
-$melding[] = "Alle open-huizen uit de resultaten-database zijn gecontroleerd<br>";
-
 # Kijken of alle huizen die in de huizen-db open huis hebben ook in de open huis database staan
 $sql		= "SELECT * FROM $TableHuizen WHERE $HuizenOpenHuis = '1'";
 $result	= mysql_query($sql);
@@ -129,14 +113,14 @@ $row = mysql_fetch_array($result);
 do {
 	$huisID = $row[$ResultaatID];
 	
-	$result_2	= mysql_query("SELECT * FROM $TableCalendar WHERE $CalendarHuis like '$huisID' AND $CalendarEnd > ". time());
+	$result_2	= mysql_query("SELECT * FROM $TableCalendar WHERE $CalendarHuis like '$huisID' AND $CalendarEnd > ". mktime(0,0,0);
 	if(mysql_num_rows($result_2) == 0) {		
-		mysql_query("UPDATE $TableHuizen SET $HuizenOpenHuis = '0' WHERE $HuizenID like $huisID");
+		removeOpenHuis($huisID);
 		$error[] = "<a href='HouseDetails.php?id=$huisID' target='_blank'>". $huisID . "</a> is niet gevonden in de open huis-database<br>";
 	}	
 } while($row = mysql_fetch_array($result));
 
-$melding[] = "Alle open-huizen uit de resultaten-database zijn gecontroleerd<br>";
+$melding[] = "Alle open-huizen zijn gecontroleerd<br>";
 
 if(count($error) == 0) {
 	$error[] = "Geen foutmeldingen";

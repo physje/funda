@@ -8,7 +8,13 @@ $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 connect_db();
 
-$sql		= "SELECT * FROM $TableKenmerken GROUP BY $KenmerkenID";
+if(isset($_REQUEST['id'])) {
+	$sql		= "SELECT * FROM $TableKenmerken WHERE $KenmerkenID like ". $_REQUEST['id'] ." ORDER BY $KenmerkenKenmerk";
+} else {
+	# Vraag alle kenmerken combinaties op
+	$sql		= "SELECT * FROM $TableKenmerken GROUP BY $KenmerkenID";
+}
+
 $result	= mysql_query($sql);
 $row		= mysql_fetch_array($result);
 
@@ -16,8 +22,8 @@ $row		= mysql_fetch_array($result);
 
 do {
 	$huis			= $row[$KenmerkenID];
-	$kenmerk	= $row[$KenmerkenKenmerk];
-	$waarde		= $row[$KenmerkenValue];
+	//$kenmerk	= $row[$KenmerkenKenmerk];
+	//$waarde		= $row[$KenmerkenValue];
 	
 	$data			= getFundaData($huis);
 	$moreData = getFundaKenmerken($huis);
@@ -38,7 +44,7 @@ do {
 	} else {
 		echo "<u>$huis</u> bestaat niet";
 				
-		$sql = "DELETE FROM $TablePrijzen WHERE $PrijzenID = $huis";
+		$sql = "DELETE FROM $TableHuizen WHERE $HuizenID = $huis";
 		if(mysql_query($sql)) {
 			echo ", en is verwijderd<br>\n";
 		} else {

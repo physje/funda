@@ -21,12 +21,14 @@ if($id != '') {
 	$deel_2	= $adres;
 	
 	$links['http://www.funda.nl/'.$id] 				= "Bekijk $adres op funda.nl";
-	$links['checkOudeHuizen.php?id='. $id] 		= "Haal verkoop-gegevens van $adres op";
 	$links['renewData.php?id='. $id]					= "Haal de gegevens van $adres opnieuw van funda.nl";	
 	$links['edit.php?id='. $id]								= "Wijzig de gegevens van $adres";	
+	$links['checkOudeHuizen.php?id='. $id] 		= "Haal verkoop-gegevens van $adres op";
 	$links['bekijkHuizenZoeker.php?id='. $id]	= "Zoek $adres op HuizenZoeker.nl";
 	$links['delete.php?id='. $id]							= "Verwijder $adres uit de database";
 	$links['cleanPrice.php?id='. $id]					= "Prijzen van $adres opschonen";
+	$links['cleanKenmerk.php?id='. $id]				= "Kenmerken van $adres opschonen";
+	$links['cleanOpenhuis.php?id='. $id]			= "Open Huis vermeldingen van $adres opschonen";
 	
 	if(isset($_REQUEST['selectie'])) {
 		$selectie = $_REQUEST['selectie'];

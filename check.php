@@ -644,7 +644,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			$mail->AddAddress($MemberData['mail'], $MemberData['naam']);
 			$mail->From     = $ScriptMailAdress;
 			$mail->FromName = $ScriptTitle;
-			$mail->Subject	= $SubjectPrefix.implode(' en ', $Subject) ." voor '". $OpdrachtData['naam'] ."'";
+			$mail->Subject	= $SubjectPrefix.implode2(', ', ' en ',  $Subject) ." voor '". $OpdrachtData['naam'] ."'";
 			$mail->IsHTML(true);
 			$mail->Body			= $FinalHTMLMail;
 			$mail->AltBody	= $PlainText;
