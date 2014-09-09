@@ -505,7 +505,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			$HTMLMail .= "</tr>\n";			
 			
 			if(count($UpdatedPrice) == 1) {
-				$Subject[] = array_shift($UpdatedAddress) .' is in prijs gedaald ';
+				$Subject[] = array_shift($UpdatedAddress) ." is in prijs gedaald";
 			} else {
 				$Subject[] = count($UpdatedPrice) ." in prijs gedaalde huizen";
 			}
