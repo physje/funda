@@ -87,7 +87,7 @@ if(isset($_POST['add'])) {
 				$imageClass = 'imageAvailable';
 				//$description = "open huis";
 				$open = getNextOpenhuis($huisID);
-				$description = strftime("%e %b %k:%M", $open[0]) ." - ". strftime("%k:%M", $open[1])
+				$description = strftime("%e %b %k:%M", $open[0]) ." - ". strftime("%k:%M", $open[1]);
 			} else {
 				$description = "offline";
 				$TextClass = 'offline';
