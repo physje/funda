@@ -8,7 +8,7 @@ connect_db();
 
 $bUur                = getParam('bDag', 0);
 $bMin                = getParam('bDag', 0);
-$bDag                = getParam('bDag', date("d")-2);
+$bDag                = getParam('bDag', date("d")-1);
 $bMaand                = getParam('bMaand', date("m"));
 $bJaar                = getParam('bJaar', date("Y"));
 $eUur                = getParam('bDag', 23);
@@ -76,15 +76,15 @@ if($_REQUEST['datum'] == 0) {
 		$from					= "$TableResultaat, $TableHuizen";
 		$where[]			= "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID";
 		$where[]			= "$TableResultaat.$ResultaatZoekID = $id";
-		$where[]			= "(($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd))";
+		//$where[]			= "(($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd))";
 	} else {
 		$LijstData		= getLijstData($id);
 		$Name					= $LijstData['naam'];
 		$from					= "$TableListResult, $TableHuizen";
 		$where[]				= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID";
-		$where[]				= "$TableListResult.$ListResultList = $id";
-		$where[]				= "(($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd))";
+		$where[]				= "$TableListResult.$ListResultList = $id";		
 	}
+	$where[]				= "(($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenEind > $EindTijd AND $TableHuizen.$HuizenStart < $BeginTijd))";
 	
 	$KMLTitle = "Nieuwe huizen in $Name van ". date("d-m-Y", $BeginTijd) .' t/m '. date("d-m-Y", $EindTijd);
 	include('../include/KML_TopBottom.php');
@@ -107,7 +107,7 @@ if($_REQUEST['datum'] == 0) {
 		$row_huis			= mysql_fetch_array($result_huis);
 	
 		do {	
-			$KML_file[] = makeKMLEntry($row_huis[$HuizenID]);	
+			$KML_file[] = makeKMLEntry($row_huis[$HuizenID]);
 		} while($row_huis = mysql_fetch_array($result_huis));
 		
 		$KML_file[] = '</Folder>';	
@@ -119,7 +119,7 @@ if($_REQUEST['datum'] == 0) {
 	header("Pragma: no-cache");
 	header("Cache-control: private");
 	header('Content-type: application/kml');
-	header('Content-Disposition: attachment; filename="'.  str_replace(' ', '_', $Name .'-'. date("d_M-H\hi\m")) .'.kml"');
+	header('Content-Disposition: attachment; filename="'.  str_replace(' ', '_', $Name .'-'. date("d.m.Y-H.i")) .'.kml"');
 	echo $KML_header.implode("\n", $KML_file).$KML_footer;
 }
 ?>
