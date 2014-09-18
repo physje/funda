@@ -32,7 +32,7 @@ if(isset($_REQUEST['id'])) {
 foreach($dataset as $fundaID) {	
 	$oldData			= getFundaData($fundaID);
 	$oldExtraData = getFundaKenmerken($fundaID);
-	$URL					= "http://www.funda.nl". $oldData['url'];
+	$URL					= "http://www.funda.nl". trim($oldData['url']);
 	$allData			= extractDetailedFundaData($URL, true);
 	
 	$newData			= $allData[0];
@@ -69,6 +69,10 @@ foreach($dataset as $fundaID) {
 	
 	updateHouse($newData, $newExtraData);
 	addCoordinates($newData['adres'], $newData['PC_c'], $newData['plaats'], $newData['id']);
+	updatePrice($newData['id'], $newData['prijs'], time());
+	if($newData['verkocht'] != 1) {
+		updateAvailability($newData['id']);
+	}
 	toLog('info', '', $fundaID, 'Data opnieuw ingeladen');
 }
 

@@ -32,7 +32,7 @@ if(isset($_POST['ids'])) {
 	$deel_1 = "<form method='post' action='$_SERVER[PHP_SELF]'>\n";	
 	$deel_1 .= "<table border=0>\n";
 	$deel_1 .= "<tr>\n";
-	$deel_1 .= "	<td>Voer de funda-ID's in gescheiden door een puntkomma (;)</td>\n";
+	$deel_1 .= "	<td>Voer de funda-ID's in gescheiden door een puntkomma (;) of elke op een nieuwe regel</td>\n";
 	$deel_1 .= "</tr>\n";
 	$deel_1 .= "<tr>\n";
 	$deel_1 .= "	<td><textarea name='ids' cols='50' rows='5'></textarea></td>\n";

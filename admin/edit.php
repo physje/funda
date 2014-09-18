@@ -54,7 +54,8 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "</tr>";	
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Coordinaten</td>";
-		$HTML[] = "	<td><input type='text' name='latitude' value='". $data['lat'] ."' size='7'>,<input type='text' name='longitude' value='". $data['long'] ."' size=7'><div class='float_rechts'><a href='http://maps.google.nl/maps?q=". $data['lat'] .",". $data['long'] ."' target='_blank'>Google Maps</a></div></td>";
+		//$HTML[] = "	<td><input type='text' name='latitude' value='". $data['lat'] ."' size='7'>,<input type='text' name='longitude' value='". $data['long'] ."' size=7'><div class='float_rechts'><a href='http://maps.google.nl/maps?q=". $data['lat'] .",". $data['long'] ."' target='_blank'>Google Maps</a></div></td>";
+		$HTML[] = "	<td><input type='text' name='latitude' value='". $data['lat'] ."' size='7'>,<input type='text' name='longitude' value='". $data['long'] ."' size=7'><div class='float_rechts'><a href='../extern/redirect.php?id=$id' target='_blank'>Google Maps</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Makelaar</td>";
@@ -182,16 +183,16 @@ if(isset($_REQUEST['id'])) {
 	# Zoekresultaten
 	$sql		= "SELECT $ResultaatZoekID FROM $TableResultaat WHERE $ResultaatID like $id";
 	$result	= mysql_query($sql);
-	$row		=	mysql_fetch_array($result);
-		
-	$Resultaten[] = "Gevonden met :\n";
-	$Resultaten[] = "<ul>\n";
+	if($row	=	mysql_fetch_array($result)) {
+		$Resultaten[] = "Gevonden met :\n";
+		$Resultaten[] = "<ul>\n";
 	
-	do {
-		$opdrachtData = getOpdrachtData($row[$ResultaatZoekID]);
-		$Resultaten[] = '<li>'. $opdrachtData['naam'] ."</li>\n";
-	} while($row =	mysql_fetch_array($result));
-	$Resultaten[] = "</ul>\n";
+		do {
+			$opdrachtData = getOpdrachtData($row[$ResultaatZoekID]);
+			$Resultaten[] = '<li>'. $opdrachtData['naam'] ."</li>\n";
+		} while($row =	mysql_fetch_array($result));
+		$Resultaten[] = "</ul>\n";
+	}
 	
 	# Kenmerken
 	$KenmerkData = getFundaKenmerken($id);
@@ -262,8 +263,11 @@ echo "</td>";
 echo "<td width='50%' valign='top' align='center'>\n";
 echo showBlock(implode("\n", $Thumb));
 echo "<p>";
-echo showBlock(implode("\n", $Resultaten));
-echo "<p>";
+
+if(count($Resultaten) > 0) {
+	echo showBlock(implode("\n", $Resultaten));
+	echo "<p>";
+}
 
 if($OpenHuis != '') {
 	echo showBlock($OpenHuis);

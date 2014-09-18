@@ -441,10 +441,10 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	
 	if($contents != "") {		
 		# Omschrijving
-		$contents		= file_get_contents_retry($URL.'omschrijving/');
-		
-		if(strpos($contents, '<div class="description-full">')) {
-			$omschrijving = getString('<div class="description-full">', '</div>', $contents, 0);
+		$contents_omschrijving		= file_get_contents_retry($URL.'omschrijving/');
+				
+		if(strpos($contents_omschrijving, '<div class="description-full">')) {			
+			$omschrijving = getString('<div class="description-full">', '</div>', $contents_omschrijving, 0);
 		} else {
 			$contents		= file_get_contents_retry($URL);
 			$omschrijving = getString('<p id="PVolledigeOmschrijving" style="display:none">', '<a id="linkKorteOmschrijving"', $contents, 0);
@@ -583,8 +583,8 @@ function saveHouse($data, $moreData) {
 	foreach($moreData as $key => $value) {
 		$sql = "INSERT INTO $TableKenmerken ($KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue) VALUES ('". $data['id'] ."', '". urlencode($key) ."', '". urlencode($value) ."')";
 						
-		if(!mysql_query($sql)) {
-			return false;
+		if(!mysql_query($sql)) {			
+			return false;			
 		}
 	}
 	

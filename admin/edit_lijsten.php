@@ -140,7 +140,7 @@ if(isset($_POST['delete_list'])) {
 					$TextClass = 'online';
 				}
 				
-				$Page_2 .= "<input type='checkbox' name='huis[]' value='$huis' checked> <a href='http://funda.nl/$huis' target='_blank' class='$TextClass'>". $data['adres'] ."</a><br>\n";
+				$Page_2 .= "<input type='checkbox' name='huis[]' value='$huis' checked> <a href='HouseDetails.php?id=$huis' target='_blank' class='$TextClass'>". $data['adres'] ."</a><br>\n";
 			}
 				
 			$Page_2 .= "<br>\n";
