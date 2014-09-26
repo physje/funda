@@ -1727,7 +1727,7 @@ function extractOpenHuisData($id) {
 	$data			= getFundaData($id);
 	$contents	= file_get_contents_retry('http://www.funda.nl'.$data['url']);
 	
-	$propertie	= getString('<div class="prop-oh ">', '</div>', $contents, 0);
+	$propertie	= getString('<div class="prop-oh ', '</div>', $contents, 0);
 	$datum			= getString('<span>', ' van ', $propertie[0], 0);
 	$tijden			= getString(' van ', ' uur.</span>', $datum[1], 0);
 		
