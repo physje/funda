@@ -271,7 +271,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 	
 	
 	
-	if(strpos($param[0], '<span class="item-open"') OR strpos($param[0], '<span class="item-open nvm-open-huizen-dag"'))
+	if(strpos($param[0], '<span class="item-open"') OR strpos($param[0], '<span class="item-open nvm-open-huizen-dag"')) {
 		$openhuis = 1;
 	} else {
 		$openhuis = 0;
