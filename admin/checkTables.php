@@ -113,7 +113,7 @@ $row = mysql_fetch_array($result);
 do {
 	$huisID = $row[$ResultaatID];
 	
-	$result_2	= mysql_query("SELECT * FROM $TableCalendar WHERE $CalendarHuis like '$huisID' AND $CalendarEnd > ". mktime(0,0,0);
+	$result_2	= mysql_query("SELECT * FROM $TableCalendar WHERE $CalendarHuis like '$huisID' AND $CalendarEnd > ". mktime(0,0,0));
 	if(mysql_num_rows($result_2) == 0) {		
 		removeOpenHuis($huisID);
 		$error[] = "<a href='HouseDetails.php?id=$huisID' target='_blank'>". $huisID . "</a> is niet gevonden in de open huis-database<br>";
