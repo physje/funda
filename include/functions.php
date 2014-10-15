@@ -608,8 +608,9 @@ function updateHouse($data, $kenmerken, $erase = false) {
 		'wijk'			=> $HuizenWijk,  
 		'thumb'			=> $HuizenThumb,  
 		'makelaar'	=> $HuizenMakelaar,
+		'verkocht'	=> $HuizenVerkocht,
 		'afmeld'		=> $HuizenAfmeld
-		);
+	);
 		
 	foreach($data as $key => $value) {
 		if(array_key_exists($key, $velden)) {
