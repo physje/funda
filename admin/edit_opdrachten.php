@@ -181,14 +181,14 @@ if(isset($_POST['doorgaan'])) {
 				$Page .= "	<td>&nbsp;</td>";
 				$Page .= "	<td><a href='bekijkHuizenZoeker.php?selectie=Z$OpdrachtID'><img src='http://cache.websitegegevens.nl/favicons/www.huizenzoeker.nl.png' title=\"Zoek naar ontbrekende gegevens voor '". $OpdrachtData['naam'] ."' op huizenzoeker.nl\"></a></td>";
 				$Page .= "	<td>&nbsp;</td>";
-				$Page .= "	<td><a href='../../../download/". str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. removeFilenameCharacters($OpdrachtData['naam']) .".ics'><img src='http://www.chamilo.org/sites/all/modules/event/images/ical16x16.gif' title=\"Bekijk de huizen met Open Huis in iCal-formaat voor '". $OpdrachtData['naam'] ."'\"></a></td>";
+				$Page .= "	<td><a href='../../../download/". str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. removeFilenameCharacters($OpdrachtData['naam']) .".ics'><img src='http://p2pcanada.ca/wp-content/plugins/oak-events/images/ical.png' title=\"Bekijk de huizen met Open Huis in iCal-formaat voor '". $OpdrachtData['naam'] ."'\"></a></td>";
 				$Page .= "	<td>&nbsp;</td>";
 				
 			}
 			if(in_array($_SESSION['account'] ,$Abonnees)) {
-				$Page .= "	<td><a href='". $_SERVER["PHP_SELF"] ."?action=remove&opdracht=$OpdrachtID'><img src='http://alpem.net/appli/includes/classeLogon/img/mail_yes.gif' title=\"Ik wil g��n mails meer ontvangen voor '". $OpdrachtData['naam'] ."'\"></a></td>";
+				$Page .= "	<td><a href='". $_SERVER["PHP_SELF"] ."?action=remove&opdracht=$OpdrachtID'><img src='http://www.alpem.net/appli/includes/classeLogon/img/mail_yes.gif' title=\"Ik wil géén mails meer ontvangen voor '". $OpdrachtData['naam'] ."'\"></a></td>";
 			} else {
-				$Page .= "	<td><a href='". $_SERVER["PHP_SELF"] ."?action=add&opdracht=$OpdrachtID'><img src='http://alpem.net/appli/includes/classeLogon/img/mail_no.gif' title=\"Ik wil mails ontvangen voor '". $OpdrachtData['naam'] ."'\"></a></td>";
+				$Page .= "	<td><a href='". $_SERVER["PHP_SELF"] ."?action=add&opdracht=$OpdrachtID'><img src='http://www.alpem.net/appli/includes/classeLogon/img/mail_no.gif' title=\"Ik wil mails ontvangen voor '". $OpdrachtData['naam'] ."'\"></a></td>";
 			}
 		} else {
 			$Page .= "	<td colspan='8'>&nbsp;</td>";
