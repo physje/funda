@@ -1669,18 +1669,21 @@ function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
 			$status = 'beschikbaar';
 		}
 		
-		$CSV_regel = array();											$CSV_regel[] = convertToReadable($data['adres']);				
-		if(in_array('ID', $prefixen))							$CSV_regel[] = $huisID;
-		if(in_array('url', $prefixen))						$CSV_regel[] = 'http://funda.nl/'.$huisID;
-		if(in_array('Kadaster', $prefixen))				$CSV_regel[] = 'http://funda.nl/kadaster/?ref='.$huisID;
-		if(in_array('Huidige Prijs', $prefixen))	$CSV_regel[] = getHuidigePrijs($huisID);
-		if(in_array('Orginele Prijs', $prefixen))	$CSV_regel[] = getOrginelePrijs($huisID);
-		if(in_array('Status', $prefixen))					$CSV_regel[] = $status;
-		if(in_array('Open Huis', $prefixen))			$CSV_regel[] = $data['openhuis'];
-		if(in_array('Makelaar', $prefixen))				$CSV_regel[] = $data['makelaar'];
-		if(in_array('Wijk', $prefixen))						$CSV_regel[] = $data['wijk'];
-		if(in_array('Latitude', $prefixen))				$CSV_regel[] = str_replace('.', ',', $data['lat']);
-		if(in_array('Longitude', $prefixen))			$CSV_regel[] = str_replace('.', ',', $data['long']);
+		$CSV_regel = array();												$CSV_regel[] = convertToReadable($data['adres']);				
+		if(in_array('ID', $prefixen))								$CSV_regel[] = $huisID;
+		if(in_array('url', $prefixen))							$CSV_regel[] = 'http://funda.nl/'.$huisID;
+		if(in_array('Kadaster', $prefixen))					$CSV_regel[] = 'http://funda.nl/kadaster/?ref='.$huisID;
+		if(in_array('Huidige Prijs', $prefixen))		$CSV_regel[] = getHuidigePrijs($huisID);
+		if(in_array('Orginele Prijs', $prefixen))		$CSV_regel[] = getOrginelePrijs($huisID);
+		if(in_array('Status', $prefixen))						$CSV_regel[] = $status;
+		if(in_array('Open Huis', $prefixen))				$CSV_regel[] = $data['openhuis'];
+		if(in_array('Makelaar', $prefixen))					$CSV_regel[] = $data['makelaar'];
+		if(in_array('Wijk', $prefixen))							$CSV_regel[] = $data['wijk'];
+		if(in_array('Latitude', $prefixen))					$CSV_regel[] = str_replace('.', ',', $data['lat']);
+		if(in_array('Longitude', $prefixen))				$CSV_regel[] = str_replace('.', ',', $data['long']);
+		if(in_array('Energielabel (D)', $prefixen))	$CSV_regel[] = $data['Energielabel'];
+		if(in_array('Energielabel (V)', $prefixen))	$CSV_regel[] = $data['Voorlopig energielabel'];
+		if(in_array('Energielabel', $prefixen))			if($data['Energielabel'] != '') { $CSV_regel[] = $data['Energielabel']; } else {	$CSV_regel[] = $data['Voorlopig energielabel'];	}
 		
 		foreach($kolomen as $dummy => $kenmerk) {				
 			$string = convertToReadable($kenmerken[$kenmerk]);
