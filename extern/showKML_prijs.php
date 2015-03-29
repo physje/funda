@@ -73,14 +73,12 @@ if($_REQUEST['datum'] == 0) {
 		$from					= "$TableResultaat, $TableHuizen";
 		$where[]			= "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID";
 		$where[]			= "$TableResultaat.$ResultaatZoekID = $id";
-		//$where[]			= "(($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd))";
 	} else {
 		$LijstData		= getLijstData($id);
 		$Name					= $LijstData['naam'];
 		$from					= "$TableListResult, $TableHuizen";
 		$where[]			= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID";
 		$where[]			= "$TableListResult.$ListResultList = $id";
-		//$where[]			= "(($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd))";
 	}
 	$where[]				= "(($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenEind > $EindTijd AND $TableHuizen.$HuizenStart < $BeginTijd))";
 	

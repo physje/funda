@@ -99,14 +99,7 @@ if(isset($_POST['add'])) {
 			$class = 'online';
 		}
 		
-		/*
-		# 6D = 109
-		# A0 = 160
-		# FF = 255
-		$waarde = 109+(($percentageAll*(255-109))/100);
-		$kleurCode = '#FF'.dechex($waarde).dechex($waarde);
-		*/
-		
+
 		echo "<tr><td>\n";
 		echo "	<table width='100%' border=0><tr>\n";
 		echo "		<td width='25%'>";

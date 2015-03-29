@@ -37,8 +37,6 @@ $cfgCSVExport[] = 'Tuin';
 $cfgCSVExport[] = 'Achtertuin';
 $cfgCSVExport[] = 'Ligging tuin';
 $cfgCSVExport[] = 'Wonen (= woonoppervlakte)';
-//$cfgCSVExport[] = 'Energielabel (D)';
-//$cfgCSVExport[] = 'Energielabel (V)';
 $cfgCSVExport[] = 'Energielabel';
 $cfgCSVExport[] = 'Badkamervoorzieningen';
 $cfgCSVExport[] = 'Bouwjaar';

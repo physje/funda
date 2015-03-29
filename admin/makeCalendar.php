@@ -99,18 +99,12 @@ for($i = 0 ; $i < $loop ; $i++) {
 			$sql .= "$TableCalendar.$CalendarStart > $maandGeleden ";
 			$sql .= "GROUP BY $TableCalendar.$CalendarHuis, $TableCalendar.$CalendarStart";
 		
-			//SELECT * FROM  `funda_kalender`, `funda_resultaat`, `funda_abonnement`, `funda_verdeling` WHERE
-			//`funda_kalender`.huis = `funda_resultaat`.funda_id AND
-			//`funda_resultaat`.zoek_id = `funda_abonnement`.zoek_id AND
-			//`funda_verdeling`.opdracht = `funda_abonnement`.zoek_id AND
-			//`funda_abonnement`.member_id = 1 AND
-			//`start` > 1386406800
 		}
 	
 		$ics = array();
 		$result = mysql_query($sql);
 		$data = array();
-		
+
 		if($row = mysql_fetch_array($result)) {	
 			do {
 				$start		= $row[$CalendarStart];
@@ -179,8 +173,7 @@ function formatAddress($string) {
 	$string	= ucwords($string);
 	$string = str_replace('Van ', 'van ', $string);
 	$string = str_replace('De ', 'de ', $string);
-	//$string = str_replace(' Van ', ' van ', $string);
-	
+
 	$string = str_replace(' ', '', $string);
 	return $string;
 }

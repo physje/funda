@@ -19,9 +19,7 @@ $row		= mysql_fetch_array($result);
 
 do {
 	$huis			= $row[$KenmerkenID];
-	//$kenmerk	= $row[$KenmerkenKenmerk];
-	//$waarde		= $row[$KenmerkenValue];
-	
+
 	$data			= getFundaData($huis);
 	$moreData = getFundaKenmerken($huis);
 	

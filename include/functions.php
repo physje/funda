@@ -295,14 +295,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$data['prijs']		= $HuisPrijs;
 	$data['vov']			= $voorbehoud;
 	$data['openhuis']	= $openhuis;
-	
-	/*
-	foreach($data as $key => $value) {
-		echo $key .'|'.makeTextBlock($value, 100) .'<br>';
-	}
-	echo '------------------------------';
-	*/
-	
+
 	return $data;
 }
 
@@ -840,7 +833,7 @@ function getHuizen($opdracht, $excludeVerkocht = false, $excludeOffline = false)
 	global $TableResultaat, $ResultaatID, $ResultaatZoekID;
 	connect_db();
 	
-	$sql .= "SELECT * FROM $TableHuizen, $TableResultaat WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID like '$opdracht' ";
+	$sql = "SELECT * FROM $TableHuizen, $TableResultaat WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID like '$opdracht' ";
 	if($excludeVerkocht) {
 		$sql .= "AND $TableHuizen.$HuizenVerkocht NOT like '1' ";
 	}
