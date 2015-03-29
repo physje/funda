@@ -6,7 +6,7 @@
 #		$active : 0 = niet actief, 1 = actief, '' = alle
 #
 # OUTPUT
-#		array met ids van zoekopdracht 
+#		array met ids van zoekopdracht
 function getZoekOpdrachten($user, $uur, $active = true) {
 	global $TableZoeken, $TableVerdeling, $VerdelingOpdracht, $VerdelingUur, $ZoekenKey, $ZoekenUser;
 	$where = $Opdrachten = array();

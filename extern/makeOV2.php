@@ -1,8 +1,5 @@
 <?php
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
+include_once(__DIR__. '../include/config.php');
 connect_db();
 
 $output = $ov2output = "";

@@ -17,6 +17,13 @@ $cfgLogDebugTime	= mktime(date('H'), date('i'), date('s'), date('m'), date('d')-
 $cfgLogInfoTime		= mktime(date('H'), date('i'), date('s'), date('m')-1, date('d'), date('Y'));
 $cfgLogErrorTime	= mktime(date('H'), date('i'), date('s'), date('m'), date('d'), date('Y')-1);
 
+$cfgGeneralIncludeDirectory = __DIR__ .'/../general_includes/';
+
+include_once($cfgGeneralIncludeDirectory . 'general_functions.php');
+include_once($cfgGeneralIncludeDirectory . 'general_config.php');
+include_once( __DIR__ . 'functions.php');
+
+
 $cfgUserLevels = array(
 	1 => 'Volger',
 	2 => 'Gebruiker',
