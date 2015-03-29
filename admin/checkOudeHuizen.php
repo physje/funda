@@ -35,7 +35,7 @@ $selectie	= getParam('selectie', '');
 # Als hij een pagina opvraagt die niet bestaat krijg je veel errors/warnings.
 # Dat is niet handig, dus even onderdrukken
 error_reporting(0);
-
+$HTML = array();
 if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	$dateSelection = makeDateSelection('','',$bDag,$bMaand,$bJaar , '','',$eDag,$eMaand,$eJaar);
 		

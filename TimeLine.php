@@ -31,7 +31,7 @@ if(isset($_POST['add'])) {
 		$from					= "$TableListResult, $TableHuizen";
 		$where				= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $id";
 	}
-		
+	$Huizen = null;
 	if($_POST['addHouses'] == '1') {
 		$showListAdd = true;
 		$Huizen = getLijstHuizen($_POST['chosenList']);

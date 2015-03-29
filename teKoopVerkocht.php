@@ -8,11 +8,12 @@ include($cfgProgDir. "secure.php");
 connect_db();
 
 echo $HTMLHeader;
+$Name = null;
 
 if(isset($_REQUEST['selectie'])) {
 	$groep	= substr($_REQUEST['selectie'], 0, 1);
 	$id			= substr($_REQUEST['selectie'], 1);
-	
+
 	if($groep == 'Z') {		
 		$opdrachtData	= getOpdrachtData($id);
 		$Name					= $opdrachtData['naam'];

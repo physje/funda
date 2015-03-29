@@ -5,6 +5,7 @@ $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 connect_db();
+$data = array();
 
 if(isset($_POST['combine'])) {	
 	$groep_1	= substr($_REQUEST['selectie_1'], 0, 1);

@@ -28,7 +28,7 @@ if(isset($_POST['huizen'])) {
 		$Name					= $LijstData['naam'];
 		$dataset			= getLijstHuizen($id);
 	}
-		
+	$kolom = array();
 	# Doorloop alle huizen
 	foreach($dataset as $huisID) {
 		$kenmerken = getFundaKenmerken($huisID);

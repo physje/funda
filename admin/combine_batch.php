@@ -11,7 +11,8 @@ connect_db();
 
 $manual = false;
 $HTMLMessageNeg = $HTMLMessage = array();
-
+$key_1 = null;
+$key_2 = null;
 if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	$key_1[0] = $_REQUEST['id_1'];
 	$key_2[0] = $_REQUEST['id_2'];

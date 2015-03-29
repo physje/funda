@@ -31,7 +31,8 @@ if(isset($_POST['add'])) {
 		$Name					= $LijstData['naam'];
 		$dataset			= getLijstHuizen($id);
 	}
-	
+	$knownHuizen = null;
+
 	# Als $_POST['addHouses'] bekend is, is bekend aan welke lijst de huizen moeten worden toegevoegd
 	if($_POST['addHouses'] == '1') {
 		$showListAdd = true;

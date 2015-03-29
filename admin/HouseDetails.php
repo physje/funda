@@ -4,6 +4,7 @@ $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 connect_db();
+$deel_2 = $id = null;
 
 if(isset($_REQUEST['id'])) {
 	$id = $_REQUEST['id'];
@@ -56,6 +57,7 @@ echo "<tr>\n";
 echo "<td width='50%' valign='top' align='center'>\n";
 echo showBlock($deel_1);
 echo "</td>\n";
+
 if($deel2 != '') {
 	echo "<td width='50%' valign='top' align='center'>\n";
 	echo showBlock($deel_2);

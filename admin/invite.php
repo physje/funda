@@ -7,6 +7,7 @@ $minUserLevel = 2;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 connect_db();
+$data = array();
 
 if(isset($_POST['invite'])) {
 	$dataOntvanger	= getMemberDetails($_POST['gebruiker']);

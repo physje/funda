@@ -37,7 +37,8 @@ if(isset($_POST['add'])) {
 		$Name					= $LijstData['naam'];
 		$dataset			= getLijstHuizen($id);
 	}
-	
+
+	$knownHuizen = array();
 	if($_POST['addHouses'] == '1') {
 		$showListAdd = true;
 		$knownHuizen = getLijstHuizen($_POST['chosenList']);

@@ -69,7 +69,7 @@ if(isset($_REQUEST['error']) AND $_REQUEST['error'] != '') {
 
 $begin	= mktime($bUur, $bMin, 0, $bMaand, $bDag, $bJaar);
 $eind		= mktime($eUur, $eMin, 59, $eMaand, $eDag, $eJaar);
-
+$huis = null;
 
 $sql		= "SELECT * FROM $TableLog WHERE $LogTime BETWEEN $begin AND $eind";
 if($debug == 'ja')		$sql_OR[] = "$LogType = 'debug'";
@@ -82,6 +82,7 @@ if(isset($huis))			$sql .= " AND $LogHuis = '$huis'";
 $result	= mysql_query($sql);
 $aantal	= mysql_num_rows($result);
 $row		= mysql_fetch_array($result);
+$i = 0;
 
 do {
 	$fundaData = getFundaData($row[$LogHuis]);

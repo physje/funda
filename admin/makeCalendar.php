@@ -109,6 +109,7 @@ for($i = 0 ; $i < $loop ; $i++) {
 	
 		$ics = array();
 		$result = mysql_query($sql);
+		$data = array();
 		
 		if($row = mysql_fetch_array($result)) {	
 			do {
