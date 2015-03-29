@@ -133,4 +133,3 @@ if($_REQUEST['datum'] == 0) {
 	
 	echo $KML_header.implode("\n", $KML_file).$KML_footer;
 }
-?>

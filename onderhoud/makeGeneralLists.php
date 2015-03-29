@@ -40,4 +40,3 @@ for($i = 0 ; $i < count($IDs) ; $i++) {
 }
 
 toLog('info', '', '', 'Standaard lijsten aangemaakt');
-?>

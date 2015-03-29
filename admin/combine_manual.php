@@ -49,4 +49,3 @@ echo "<tr>\n";
 echo "	<td>". showBlock(implode("\n", $HTML)) ."</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-?>

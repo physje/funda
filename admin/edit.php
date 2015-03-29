@@ -283,5 +283,3 @@ echo showBlock(implode("\n", $Foto));
 echo "</td>";
 echo "</tr>\n";
 echo $HTMLFooter;
-
-?>

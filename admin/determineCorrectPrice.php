@@ -65,5 +65,3 @@ echo "	<td valign='top' align='center' colspan=2>". showBlock(implode("\n", $zoe
 echo "	<td width='25%'>&nbsp;</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-
-?>

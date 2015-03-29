@@ -50,5 +50,3 @@ do {
 	}
 	
 } while($row = mysql_fetch_array($result));
-
-?>

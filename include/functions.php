@@ -1917,5 +1917,3 @@ function corrigeerPrice($t1, $p1, $t2 = '') {
 		
 	return (($factor_2/$factor_1)*$p1);
 }
-
-?>

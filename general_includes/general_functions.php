@@ -189,6 +189,3 @@ function ago($datefrom,$dateto=-1) {
 	}
 	return $res;
 }
-
-
-?>

@@ -61,5 +61,3 @@ header("Cache-control: private");
 header('Content-type: application/xml');
 header('Content-Disposition: attachment; filename="poi.xml"');
 echo implode("\n", $XML);
-
-?>

@@ -204,5 +204,3 @@ echo showBlock($Page);
 echo "	</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-
-?>

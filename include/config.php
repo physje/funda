@@ -158,5 +158,3 @@ $ZoekenKey		= "id";
 $ZoekenUser		= "user";
 $ZoekenNaam		= "naam";
 $ZoekenURL		= "url";
-
-?>

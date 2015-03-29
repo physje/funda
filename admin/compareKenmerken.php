@@ -111,4 +111,3 @@ if(isset($HTML)) {
 	echo "</tr>\n";
 	echo $HTMLFooter;
 }
-?>

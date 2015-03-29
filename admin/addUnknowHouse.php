@@ -91,5 +91,3 @@ if($deel_2 != "") {
 }
 echo "</tr>\n";
 echo $HTMLFooter;
-
-?>

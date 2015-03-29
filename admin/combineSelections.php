@@ -200,5 +200,3 @@ if($deel_2 != "") {
 echo "</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-
-?>

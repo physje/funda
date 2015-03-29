@@ -698,4 +698,3 @@ if(count($ErrorMessage) > 0 AND $debug == 0) {
 	$mail->Body			= $HTMLMail;
 	$mail->Send();	
 }
-?>

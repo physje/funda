@@ -12,4 +12,3 @@ header('Content-Disposition: attachment; filename="FundaExport_'. strftime ('%Y.
 $fp = fopen($cfgXLSFilename, "r");
 echo fread($fp,filesize($cfgXLSFilename));
 fclose($fp);
-?>

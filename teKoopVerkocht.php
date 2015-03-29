@@ -1,6 +1,6 @@
 <?php
-include_once(__DIR__. '../include/config.php');
-include_once('include/HTML_TopBottom.php');
+include_once(__DIR__. 'include/config.php');
+include_once(__DIR__ . 'include/HTML_TopBottom.php');
 $minUserLevel = 1;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");
@@ -274,4 +274,3 @@ if(isset($_REQUEST['detail'])) {
 }
 
 echo $HTMLFooter;
-?>

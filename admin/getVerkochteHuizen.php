@@ -123,5 +123,3 @@ foreach($block as $key => $value) {
 echo "</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-
-?>

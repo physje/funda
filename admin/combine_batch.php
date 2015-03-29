@@ -232,4 +232,3 @@ if(is_array($key_1)) {
 	echo "Geen werk aan de winkel";
 	//toLog('info', '', '', "Geen opschoonwerkzaamheden verricht");
 }
-?>

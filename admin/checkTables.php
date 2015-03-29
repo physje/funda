@@ -134,4 +134,3 @@ echo showBlock(implode("\n", $melding));
 echo "</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-?>

@@ -50,4 +50,3 @@ if($row = mysql_fetch_array($result)) {
 		
 	} while($row = mysql_fetch_array($result));
 }
-?>		

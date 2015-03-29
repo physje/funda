@@ -49,4 +49,3 @@ header("Cache-control: private");
 header('Content-type: application/ov2');
 header('Content-Disposition: attachment; filename="funda_'. str_replace(" ", "", ucwords($Name)) .'.ov2"');
 print $ov2output;
-?>

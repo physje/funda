@@ -199,4 +199,3 @@ if($Page_4 != '') {
 echo "	</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-?>

@@ -9,5 +9,3 @@ $redirect = "http://maps.google.nl/maps?q=". $data['adres'] ."@". $data['lat'] .
 
 $url="Location: ". $redirect;
 header($url);
-
-?>

@@ -83,4 +83,3 @@ echo "<td width='8%'>&nbsp;</td>\n";
 echo "</tr>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-?>

@@ -118,4 +118,3 @@ if($newEntry) {
 	$mail->Body			= $HTMLMail;
 	$mail->Send();
 }
-?>

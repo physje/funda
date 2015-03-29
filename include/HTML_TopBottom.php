@@ -60,6 +60,3 @@ $HTMLFooter = "</table>\n";
 $HTMLFooter .= "</body>\n";
 $HTMLFooter .= "</html>\n";
 $HTMLFooter .= "\n\n<!--     Deze pagina is onderdeel van $ScriptTitle $Version gemaakt door Matthijs Draijer     -->";
-		
-
-?>

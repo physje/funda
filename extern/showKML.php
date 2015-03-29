@@ -119,4 +119,3 @@ if($_REQUEST['datum'] == 0) {
 	header('Content-Disposition: attachment; filename="'.  str_replace(' ', '_', $Name .'-'. date("d.m.Y-H.i")) .'.kml"');
 	echo $KML_header.implode("\n", $KML_file).$KML_footer;
 }
-?>

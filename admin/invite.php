@@ -99,6 +99,3 @@ echo "</td>\n";
 echo "<td width='25%' valign='top' align='center'>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-
-
-?>

@@ -19,4 +19,3 @@ foreach($Opdrachten as $opdracht) {
 $fp = fopen($cfgXLSFilename, "w+");
 fwrite($fp, createXLS($cfgCSVExport, $cfgPrefixExport, $HuizenArray, "	"));
 fclose($fp);
-?>

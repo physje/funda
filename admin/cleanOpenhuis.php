@@ -78,4 +78,3 @@ echo showBlock($meldingenVenster);
 echo "</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-?>

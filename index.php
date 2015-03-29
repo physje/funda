@@ -1,7 +1,7 @@
 <?php
-include_once(__DIR__. '../include/config.php');
-include_once('../general_include/class.MobileDetect.php');
-include_once('include/HTML_TopBottom.php');
+include_once(__DIR__. 'include/config.php');
+include_once(__DIR__ . 'general_includes/class.MobileDetect.php');
+include_once(__DIR__ . 'include/HTML_TopBottom.php');
 $minUserLevel = 1;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");
@@ -121,5 +121,3 @@ echo showBlock($blockOpdrachten, $mobile);
 echo "</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-
-?>

@@ -63,5 +63,3 @@ if($deel2 != '') {
 }
 echo "</tr>\n";
 echo $HTMLFooter;
-
-?>

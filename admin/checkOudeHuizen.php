@@ -139,5 +139,3 @@ if(count($Debug) == 0) {
 }
 echo "</tr>\n";
 echo $HTMLFooter;
-
-?>

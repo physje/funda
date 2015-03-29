@@ -174,5 +174,3 @@ if($deel_1 != '') {
 }
 echo "</tr>\n";
 echo $HTMLFooter;
-
-?>

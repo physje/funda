@@ -50,5 +50,3 @@ if(isset($_REQUEST['huis']) AND isset($_REQUEST['opdracht'])) {
 	echo "</form>\n";
 	
 }
-
-?>

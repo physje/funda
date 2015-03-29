@@ -19,5 +19,3 @@ $KML_text[] = '</Document>';
 $KML_text[] = '</kml>';
 $KML_footer = implode("\n", $KML_text);
 $KML_text = array();
-
-?>
