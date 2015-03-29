@@ -2335,7 +2335,6 @@ class PHPMailer {
       'mov'   =>  'video/quicktime',
       'avi'   =>  'video/x-msvideo',
       'movie' =>  'video/x-sgi-movie',
-      'doc'   =>  'application/msword',
       'word'  =>  'application/msword',
       'xl'    =>  'application/excel',
       'eml'   =>  'message/rfc822'
