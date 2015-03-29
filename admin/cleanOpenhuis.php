@@ -44,7 +44,7 @@ do {
 		# Er is een tijd gevonden wordt voor een huis wat niet meer bestaat.
 		# Als het goed is komt dit nooit voor, mocht het vaker voorkomen dan kan checkTables.php gedraaid worden.
 		# Hiermee worden de huizen uit de verschillende tabellen naast elkaar gelegd op zoek naar discrepanties
-		$error[] = "<u>$huis</u> bestaat niet";
+		$error[] = "<em>$huis</em> bestaat niet";
 		
 		# Als het huis niet bestaat kunnen de prijzen verwijderd worden				
 		$sql = "DELETE FROM $TableCalendar WHERE $CalendarHuis = $huis";

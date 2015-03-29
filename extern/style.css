@@ -1,16 +1,13 @@
 body	{
 	background-color: #ECE6D4;
-	font-family: Arial, Verdana;
+	font-family: Arial, Verdana, sans-serif;
 	font-size: 13px; 
 	color: #2D476D;
-	margin-top: 10px;
-	margin-left: 10px;
-	margin-right: 10px;
-	margin-bottom: 10px;
+    margin: 10px;
 }
 
 td	{
-	font-family: Verdana, Arial;
+	font-family: Verdana, Arial, sans-serif;
 	font-size: 13px;
 	color: #2D476D;
 }
@@ -50,7 +47,6 @@ td.error {
 	vertical-align:middle;
 	color: red;
 	font-weight:bold;
-	font-weight:italic;
 }
 
 td.small {

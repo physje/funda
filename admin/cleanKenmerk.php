@@ -39,7 +39,7 @@ do {
 			}			
 		}
 	} else {
-		echo "<u>$huis</u> bestaat niet";
+		echo "<em>$huis</em> bestaat niet";
 				
 		$sql = "DELETE FROM $TableHuizen WHERE $HuizenID = $huis";
 		if(mysql_query($sql)) {

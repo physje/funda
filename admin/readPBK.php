@@ -1,9 +1,9 @@
 <?php
 include_once(__DIR__. '../include/config.php');
 
-include_once('../../general_include/class.phpmailer.php');
+include_once(__DIR__ . '../general_includes/class.phpmailer.php');
 
-include_once('../include/HTML_TopBottom.php');
+include_once(__DIR__ . '../include/HTML_TopBottom.php');
 connect_db();
 
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd

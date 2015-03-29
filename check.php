@@ -1,7 +1,7 @@
 <?php
-include_once(__DIR__. '../include/config.php');
-include_once('../general_include/class.phpmailer.php');
-include_once('../general_include/class.html2text.php');
+include_once(__DIR__. 'include/config.php');
+include_once(__DIR__ . 'general_includes/class.phpmailer.php');
+include_once(__DIR__ . 'general_includes/class.html2text.php');
 include_once('include/HTML_TopBottom.php');
 connect_db();
 
