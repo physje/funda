@@ -80,8 +80,7 @@ div.wrapper{
 div.description{
 	position:absolute;	/* absolute position (so we can position it where we want)*/
 	bottom:15px;					/* position will be on bottom */
-	left:0px;
-	width:100%;
+	left:0
 	width:100%;
 	/* styling bellow */
 	background-color:white;
@@ -94,6 +93,6 @@ div.description{
 
 p.description_content{
 	padding:10px;
-	margin:0px;
+	margin:0;
 	text-align:center;
 }
