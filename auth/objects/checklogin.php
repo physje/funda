@@ -37,7 +37,7 @@ if (!isset($entered_login) && !isset($entered_password)) {
 	
 	// encrypt entered login & password
 	$login = $entered_login;
-	if ($passwordEncryptedWithMD5 && function_exists(md5)) {
+	if ($passwordEncryptedWithMD5 && function_exists('md5')) {
 		$password = md5($entered_password);
 	} else {
 		$password = $entered_password;
