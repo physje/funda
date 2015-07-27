@@ -135,6 +135,10 @@ $PrijzenID		= "funda_id";
 $PrijzenPrijs		= "prijs";
 $PrijzenTijd		= "tijd";
 
+$TableIgnore		= "funda_ignore";
+$IgnoreKey		= "id";
+$IgnoreID		= "funda_id";
+
 $TableResultaat 	= "funda_resultaat";
 $ResultaatZoekID	= "zoek_id";
 $ResultaatID		= "funda_id";
