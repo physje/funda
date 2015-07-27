@@ -1918,4 +1918,17 @@ function corrigeerPrice($t1, $p1, $t2 = '') {
 	return (($factor_2/$factor_1)*$p1);
 }
 
+function ignoreHouse4Combine($id) {
+	global $TableIgnore, $IgnoreID;
+	
+	$sql = "SELECT * FROM $TableIgnore WHERE $IgnoreID like '$id'";
+	
+	$result = mysql_query($sql);
+	if(mysql_num_rows($result) > 0) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 ?>
