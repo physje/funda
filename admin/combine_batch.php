@@ -39,7 +39,7 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 		$sql_2		= "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '$adres' AND $HuizenPC_c like '$PC' AND $HuizenID NOT like '$id_oud'";
 		$result_2	= mysql_query($sql_2);
 		
-		if(mysql_num_rows($result_2) >= 1 AND !in_array($id_oud, $KeyArray)) {
+		if(mysql_num_rows($result_2) >= 1 AND !in_array($id_oud, $KeyArray) AND !ignoreHouse4Combine($id_oud)) {
 			$row_2	= mysql_fetch_array($result_2);
 			$id_new	= $row_2[$HuizenID];
 				
