@@ -186,11 +186,21 @@ foreach($Opdrachten as $OpdrachtID) {
 				
 				# Huis kan openhuis hebben
 				if($data['openhuis'] == 1) {
-					if(!hasOpenHuis($data['id'])) {
+					# data online vergelijken met data in de database
+					$changedOpenHuis	= false;
+					$tijden			= extractOpenHuisData($data['id']);
+					$bestaandeTijden	= getNextOpenhuis($data['id']);
+
+					if($tijden[0] != $bestaandeTijden[0] OR $tijden[1] != $bestaandeTijden[1]) {
+						$sql = "DELETE FROM $TableCalendar WHERE $CalendarHuis like ". $data['id'] ." AND $CalendarStart like ". $bestaandeTijden[0] ." AND $CalendarEnd like ". $bestaandeTijden[1];
+						mysql_query($sql);
+						$changedOpenHuis = true;
+					}
+
+					if(!hasOpenHuis($data['id']) OR $changedOpenHuis) {
 						toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd');
 						
-						#	toevoegen aan de Google Calendar
-						$tijden = extractOpenHuisData($data['id']);
+						#	toevoegen aan de Google Calendar						
 						$sql = "INSERT INTO $TableCalendar ($CalendarHuis, $CalendarStart, $CalendarEnd) VALUES (". $data['id'] .", ". $tijden[0] .", ". $tijden[1] .")";
 						mysql_query($sql);
 												
@@ -200,7 +210,7 @@ foreach($Opdrachten as $OpdrachtID) {
 					}
 				} else {
 					removeOpenHuis($data['id']);
-				}
+				}				
 			}
 			
 			# Kijk of dit huis al vaker gevonden is voor deze opdracht
