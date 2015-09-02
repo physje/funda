@@ -195,6 +195,7 @@ foreach($Opdrachten as $OpdrachtID) {
 						$sql = "DELETE FROM $TableCalendar WHERE $CalendarHuis like ". $data['id'] ." AND $CalendarStart like ". $bestaandeTijden[0] ." AND $CalendarEnd like ". $bestaandeTijden[1];
 						mysql_query($sql);
 						$changedOpenHuis = true;
+						toLog('info', $OpdrachtID, $data['id'], 'Open Huis gewijzigd');
 					}
 
 					if(!hasOpenHuis($data['id']) OR $changedOpenHuis) {
