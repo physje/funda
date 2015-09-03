@@ -125,8 +125,8 @@ for($i = 0 ; $i < $loop ; $i++) {
 						
 				$ics[] = "BEGIN:VEVENT";	
 				$ics[] = "UID:FUNDA_OPEN_HUIS-". $fundaID .'-'. date("Ymd", $start);
-				$ics[] = "DTSTART:". date("Ymd\THis", $start);
-				$ics[] = "DTEND:". date("Ymd\THis", $einde);	
+				$ics[] = "DTSTART;TZID=Europe/Amsterdam:". date("Ymd\THis", $start);
+				$ics[] = "DTEND;TZID=Europe/Amsterdam:". date("Ymd\THis", $einde);	
 				$ics[] = "LAST-MODIFIED:". date("Ymd\THis", time());
 				$ics[] = "SUMMARY:Open Huis '". convertToReadable($data['adres']) ."'";
 				$ics[] = "LOCATION:". convertToReadable($data['adres']) .", ". $data['plaats'];
