@@ -3,7 +3,7 @@
 $ScriptURL		= '';			# Map waar het script staat, bv http://www.example.com/scripts/funda/
 $ScriptTitle		= 'Funda Alert';	# Naam van het script (is naam van afzender in mails)
 $ScriptMailAdress	= '';			# Mailadres van het script (is mailadres van afzender in mails)
-$Version		= '4.1.1';		# Versie nummer
+$Version		= '4.2';		# Versie nummer
 $SubjectPrefix		= '[funda] ';		# Voorvoegsel bij de onderwerpregel bij het versturen van mails
 
 $debug			= 0;			# Wel (1) of geen (0) debug-info op het scherm tonen
@@ -120,6 +120,8 @@ $UsersUsername		= "username";
 $UsersPassword		= "password";
 $UsersLevel		= "level";
 $UsersAdres		= "mail";
+$UsersPOKey		= "userkey";
+$UsersPOToken		= "api_token";
 $UsersAccount		= "account";
 $UsersLastLogin		= "lastLogin";
 

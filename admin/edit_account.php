@@ -1,6 +1,7 @@
 <?php
 include_once('../../general_include/general_functions.php');
 include_once('../../general_include/general_config.php');
+include_once('../../general_include/class.phpPushover.php');
 include_once('../include/functions.php');
 include_once('../include/config.php');
 include_once('../include/HTML_TopBottom.php');
@@ -10,9 +11,11 @@ include($cfgProgDir. "secure.php");
 connect_db();
 
 if(isset($_POST['doorgaan'])) {
-	if(saveUpdateMember($_POST['member_id'], $_POST['naam'], $_POST['username'], $_POST['password'], $_POST['mail'], $_POST['level'], $_SESSION['UserID'])) {
+	if(saveUpdateMember($_POST['member_id'], $_POST['naam'], $_POST['username'], $_POST['password'], $_POST['mail'], $_POST['userkey'], $_POST['token'], $_POST['level'], $_SESSION['UserID'])) {
 		$Page .= "Account opgeslagen. Dit tabblad kan nu gesloten worden.";
-	}
+		
+		send2Pushover(array('title' => $ScriptTitle, 'message' => 'Uw gegevens zijn gewijzigd', 'url' => $ScriptURL.'/admin/edit_account.php'), array($_POST['member_id']));
+	}	
 } elseif(isset($_REQUEST['all']) AND $_SESSION['level'] == 3) {
 	$Users = getUsers();
 	
@@ -53,6 +56,15 @@ if(isset($_POST['doorgaan'])) {
 	$Page .= "	<td>Emailadres :</td>\n";
 	$Page .= "	<td><input type='text' name='mail' value='". $data['mail'] ."' size='50'></td>\n";
 	$Page .= "</tr>\n";
+	$Page .= "<tr>\n";
+	$Page .= "	<td><a href='http://www.pushover.net'>Pushover</a> user key :</td>\n";
+	$Page .= "	<td><input type='text' name='userkey' value='". $data['userkey'] ."' size='50'></td>\n";
+	$Page .= "</tr>\n";
+	$Page .= "<tr>\n";
+	$Page .= "	<td><a href='http://www.pushover.net'>Pushover</a> API token :</td>\n";
+	$Page .= "	<td><input type='text' name='token' value='". $data['token'] ."' size='50'></td>\n";
+	$Page .= "</tr>\n";
+	
 	
 	if(($_SESSION['level'] == 2 AND isset($_REQUEST['new'])) OR $_SESSION['level'] == 3) {
 		if($_SESSION['level'] == 2) {

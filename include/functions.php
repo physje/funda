@@ -1232,7 +1232,7 @@ function getUsers() {
 
 
 function getMemberDetails($id) {
-	global $TableUsers, $UsersID, $UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres, $UsersAccount, $UsersLastLogin;
+	global $TableUsers, $UsersID, $UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres, $UsersAccount, $UsersLastLogin, $UsersPOKey, $UsersPOToken;
 	
 	$sql		= "SELECT * FROM $TableUsers WHERE $UsersID like '$id'";
 	$result	= mysql_query($sql);
@@ -1243,7 +1243,9 @@ function getMemberDetails($id) {
 	$data['username']	= $row[$UsersUsername];
 	$data['password']	= $row[$UsersPassword];
 	$data['level']		= $row[$UsersLevel];
-	$data['mail']			= $row[$UsersAdres];
+	$data['mail']			= $row[$UsersAdres];	
+	$data['userkey']	= $row[$UsersPOKey];
+	$data['token']		= $row[$UsersPOToken];	
 	$data['account']	= $row[$UsersAccount];
 	$data['login']		= $row[$UsersLastLogin];
 	
@@ -1251,8 +1253,8 @@ function getMemberDetails($id) {
 }
 
 
-function saveUpdateMember($id, $name, $username, $wachtwoord, $mail, $level, $gebruiker) {
-	global $TableUsers, $UsersID, $UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres, $UsersAccount;
+function saveUpdateMember($id, $name, $username, $wachtwoord, $mail, $po_key, $po_token, $level, $gebruiker) {
+	global $TableUsers, $UsersID, $UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres, $UsersPOKey, $UsersPOToken, $UsersAccount;
 	
 	if($level == 1) {
 		$account = $gebruiker;
@@ -1261,11 +1263,11 @@ function saveUpdateMember($id, $name, $username, $wachtwoord, $mail, $level, $ge
 	}
 	
 	if($id == 0) {
-		$sql = "INSERT INTO $TableUsers ($UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres". ($account != 0 ? ", $UsersAccount" : '') .") VALUES ('$name', '$username', '". md5($wachtwoord) ."', $level, '$mail'". ($account != 0 ? ", '$account'" : '') .")";
+		$sql = "INSERT INTO $TableUsers ($UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres, $UsersPOKey, $UsersPOToken". ($account != 0 ? ", $UsersAccount" : '') .") VALUES ('$name', '$username', '". md5($wachtwoord) ."', $level, '$mail', '$po_key', '$po_token'". ($account != 0 ? ", '$account'" : '') .")";
 	} else {
-		$sql = "UPDATE $TableUsers SET $UsersName = '$name', $UsersUsername = '$username', ". ($wachtwoord != '' ? "$UsersPassword = '". md5($wachtwoord) ."', " : '') ."$UsersLevel = $level, $UsersAdres = '$mail' ". ($account != 0 ? ", $UsersAccount = '$account'" : '') ." WHERE $UsersID = ". $id;
+		$sql = "UPDATE $TableUsers SET $UsersName = '$name', $UsersUsername = '$username', ". ($wachtwoord != '' ? "$UsersPassword = '". md5($wachtwoord) ."', " : '') ."$UsersLevel = $level, $UsersAdres = '$mail', $UsersPOKey = '$po_key', $UsersPOToken = '$po_token'". ($account != 0 ? ", $UsersAccount = '$account'" : '') ." WHERE $UsersID = ". $id;
 	}
-			
+				
 	$result = mysql_query($sql);
 	
 	if($id == '') {
@@ -1929,6 +1931,23 @@ function ignoreHouse4Combine($id) {
 	} else {
 		return false;
 	}
+}
+
+
+function send2Pushover($dataArray, $recipients) {	
+	foreach($recipients as $memberID) {
+			$MemberData = getMemberDetails($memberID);
+	
+			$push = new Pushover();
+			$push->setUser($MemberData['userkey']);
+			$push->setToken($MemberData['token']);			
+			$push->setTitle($dataArray['title']);
+			$push->setMessage($dataArray['message']);
+			if($dataArray['url'] != '')				$push->setUrl($dataArray['url']);
+			if($dataArray['urlTitle'] != '')	$push->setUrlTitle($dataArray['urlTitle']);
+			$push->setTimestamp(time());
+			$go = $push->send();
+		}
 }
 
 ?>

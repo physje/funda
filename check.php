@@ -34,6 +34,8 @@ foreach($Opdrachten as $OpdrachtID) {
 
 	$OpdrachtData = getOpdrachtData($OpdrachtID);
 	$OpdrachtMembers	= getMembers4Opdracht($OpdrachtID);	
+	$PushMembers = ;
+	
 	$OpdrachtURL	= $OpdrachtData['url'];
 	toLog('info', $OpdrachtID, '', 'Start controle '. $OpdrachtData['naam']);
 	
@@ -244,7 +246,8 @@ foreach($Opdrachten as $OpdrachtID) {
 				} else {
 					$extraString = '&nbsp;';
 				}
-
+				
+				# Mail opstellen
 				$Item = array();				
 				$Item[] = "<table width='100%'>";
 				$Item[] = "<tr>";
@@ -295,8 +298,16 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item[] = "</tr>";
 				$Item[] = "</table>";
 					
-				$NewHouses[] = showBlock(implode("\n", $Item));
+				$NewHouses[] = showBlock(implode("\n", $Item));				
 				$NewAddress[] = $data['adres'];
+				
+				# Pushover-bericht opstellen
+				$push = array();
+				$push['title']		= "Nieuw huis gevonden voor '". $OpdrachtData['naam'] ."'";
+				$push['message']	= $data['adres'] .' is nieuw';
+				$push['url']			= 'http://funda.nl/'. $data['id'];
+				$push['urlTitle']	= 'funda.nl';				
+				send2Pushover($push, $PushMembers);				
 			} elseif(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {
 				$fundaData			= getFundaData($data['id']);
 				$PriceHistory		= getFullPriceHistory($data['id']);
@@ -315,6 +326,14 @@ foreach($Opdrachten as $OpdrachtID) {
 				
 				$UpdatedPrice[] = showBlock($Item);
 				$UpdatedAddress[] = $data['adres'];
+				
+				# Pushover-bericht opstellen
+				$push = array();
+				$push['title']		= "Hhuis in prijs gedaald voor '". $OpdrachtData['naam'] ."'";
+				$push['message']	= $data['adres'] ." is in prijs verlaagd.\nVan ". formatPrice(prev($prijzen_array)) .' voor '. formatPrice(end($prijzen_array));
+				$push['url']			= 'http://funda.nl/'. $data['id'];
+				$push['urlTitle']	= 'funda.nl';				
+				send2Pushover($push, $PushMembers);
 			}			
 		}
 		if($enkeleOpdracht) {
@@ -392,6 +411,14 @@ foreach($Opdrachten as $OpdrachtID) {
 								
 				$VerkochtHuis[] = showBlock($Item);
 				$VerkochtAddress[] = $data['adres'];
+				
+				# Pushover-bericht opstellen
+				$push = array();
+				$push['title']		= 'huis verkocht';
+				$push['message']	= $data['adres'] .' is verkocht';
+				$push['url']			= 'http://funda.nl/'. $data['id'];
+				$push['urlTitle']	= 'funda.nl';				
+				send2Pushover($push, $PushMembers);			
 			} elseif($data['verkocht'] == '2') {
 				$Item  = "<table width='100%'>\n";
 				$Item .= "<tr>\n";
@@ -404,6 +431,14 @@ foreach($Opdrachten as $OpdrachtID) {
 				
 				$OnderVoorbehoud[] = showBlock($Item);
 				$BijnaVerkochtAddress[] = $data['adres'];
+				
+				# Pushover-bericht opstellen
+				$push = array();
+				$push['title']		= 'huis onder voorbehoud verkocht';
+				$push['message']	= $data['adres'] .' is onder voorbehoud verkocht';
+				$push['url']			= 'http://funda.nl/'. $data['id'];
+				$push['urlTitle']	= 'funda.nl';				
+				send2Pushover($push, $PushMembers);
 			} elseif($data['verkocht'] == '0') {
 				$Item  = "<table width='100%'>\n";
 				$Item .= "<tr>\n";
@@ -415,6 +450,14 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item .= "</table>\n";
 				$Beschikbaar[] = showBlock($Item);
 				$beschikbaarAddress[] = $data['adres'];
+				
+				# Pushover-bericht opstellen
+				$push = array();
+				$push['title']		= 'huis weer beschikbaar';
+				$push['message']	= $data['adres'] .' is niet meer onder voorbehoud verkocht';
+				$push['url']			= 'http://funda.nl/'. $data['id'];
+				$push['urlTitle']	= 'funda.nl';				
+				send2Pushover($push, $PushMembers);
 			} else {
 				$ErrorMessage[] = $OpdrachtData['naam'] ."; Zoeken van verkochte huizen geeft ongeldig resultaat";
 			}
@@ -446,6 +489,14 @@ foreach($Opdrachten as $OpdrachtID) {
 			
 			$OpenHuis[] = showBlock($Item);
 			$OpenAddress[] = $data['adres'];
+			
+			# Pushover-bericht opstellen
+			$push = array();
+			$push['title']		= 'open huis';
+			$push['message']	= $data['adres'] .' heeft open huis op '. strftime("%a %e %b %k:%M", $open[0]) ." - ". strftime("%k:%M", $open[1]);
+			$push['url']			= 'http://funda.nl/'. $data['id'];
+			$push['urlTitle']	= 'funda.nl';				
+			send2Pushover($push, $PushMembers);
 			
 			# Bijhouden dat mail verstuurd is met open huis
 			$sql_update_open = "UPDATE $TableResultaat SET $ResultaatOpenHuis = '1' WHERE $ResultaatZoekID like '$OpdrachtID' AND $ResultaatID like '$fundaID'";
@@ -648,6 +699,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		$html->set_base_url($ScriptURL);
 		$PlainText = $html->get_text();
 		
+		# Aan alle geintereseerde een mail versturen
 		foreach($OpdrachtMembers as $memberID) {
 			$MemberData = getMemberDetails($memberID);
 						
@@ -673,7 +725,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			} else {
 				toLog('info', $OpdrachtID, '', "Mail verstuurd naar ". $MemberData['mail']);
 			}
-		}	
+		}		
 	}
 }
 
