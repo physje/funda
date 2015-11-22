@@ -228,6 +228,8 @@ if(is_array($key_1)) {
 		} else {
 			toLog('info', '', '', "Mail nav opschoonwerkzaamheden verstuurd");
 		}
+		
+		send2Pushover(array('title' => 'Opschoonwerkzaamheden', 'message' => count($HTMLMessage) .' huizen opgeruimd'), array(1));
 	}
 } else {
 	echo "Geen werk aan de winkel";
