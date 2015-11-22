@@ -14,7 +14,7 @@ if(isset($_POST['doorgaan'])) {
 	if(saveUpdateMember($_POST['member_id'], $_POST['naam'], $_POST['username'], $_POST['password'], $_POST['mail'], $_POST['userkey'], $_POST['token'], $_POST['level'], $_SESSION['UserID'])) {
 		$Page .= "Account opgeslagen. Dit tabblad kan nu gesloten worden.";
 		
-		send2Pushover(array('title' => $ScriptTitle, 'message' => 'Uw gegevens zijn gewijzigd', 'url' => $ScriptURL.'/admin/edit_account.php'), array($_POST['member_id']));
+		send2Pushover(array('title' => 'Uw gegevens zijn gewijzigd', 'message' => 'Om '. date('d-m-Y H:i:s') .' vanaf ' $_SERVER['REMOTE_ADDR'], 'url' => $ScriptURL.'/admin/edit_account.php', 'urlTitle' => 'bekijk account'), array($_POST['member_id']));
 	}	
 } elseif(isset($_REQUEST['all']) AND $_SESSION['level'] == 3) {
 	$Users = getUsers();

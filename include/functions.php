@@ -1933,11 +1933,11 @@ function ignoreHouse4Combine($id) {
 	}
 }
 
-
 function send2Pushover($dataArray, $recipients) {	
 	foreach($recipients as $memberID) {
-			$MemberData = getMemberDetails($memberID);
-	
+		$MemberData = getMemberDetails($memberID);
+		
+		if($MemberData['userkey'] != '' AND $MemberData['token'] != '') {
 			$push = new Pushover();
 			$push->setUser($MemberData['userkey']);
 			$push->setToken($MemberData['token']);			
@@ -1946,8 +1946,9 @@ function send2Pushover($dataArray, $recipients) {
 			if($dataArray['url'] != '')				$push->setUrl($dataArray['url']);
 			if($dataArray['urlTitle'] != '')	$push->setUrlTitle($dataArray['urlTitle']);
 			$push->setTimestamp(time());
-			$go = $push->send();
+			$push->send();
 		}
+	}
 }
 
 ?>

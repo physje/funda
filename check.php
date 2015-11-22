@@ -34,7 +34,7 @@ foreach($Opdrachten as $OpdrachtID) {
 
 	$OpdrachtData = getOpdrachtData($OpdrachtID);
 	$OpdrachtMembers	= getMembers4Opdracht($OpdrachtID);	
-	$PushMembers = ;
+	$PushMembers = $OpdrachtMembers;
 	
 	$OpdrachtURL	= $OpdrachtData['url'];
 	toLog('info', $OpdrachtID, '', 'Start controle '. $OpdrachtData['naam']);
