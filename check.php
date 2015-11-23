@@ -307,7 +307,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				$push['title']		= "Nieuw huis gevonden voor '". $OpdrachtData['naam'] ."'";
 				$push['message']	= $data['adres'] .' is nieuw';
 				$push['url']			= 'http://funda.nl/'. $data['id'];
-				$push['urlTitle']	= 'funda.nl';				
+				//$push['urlTitle']	= 'funda.nl';				
 				send2Pushover($push, $PushMembers);				
 			} elseif(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {
 				$fundaData			= getFundaData($data['id']);
@@ -330,10 +330,10 @@ foreach($Opdrachten as $OpdrachtID) {
 				
 				# Pushover-bericht opstellen
 				$push = array();
-				$push['title']		= "Hhuis in prijs gedaald voor '". $OpdrachtData['naam'] ."'";
-				$push['message']	= $data['adres'] ." is in prijs verlaagd.\nVan ". formatPrice(prev($prijzen_array)) .' voor '. formatPrice(end($prijzen_array));
+				$push['title']		= $data['adres'] ." is in prijs verlaagd";
+				$push['message']	= "Van ". formatPrice(prev($prijzen_array)) .' voor '. formatPrice(end($prijzen_array));
 				$push['url']			= 'http://funda.nl/'. $data['id'];
-				$push['urlTitle']	= 'funda.nl';				
+				//$push['urlTitle']	= 'funda.nl';				
 				send2Pushover($push, $PushMembers);
 			}			
 		}
@@ -415,10 +415,10 @@ foreach($Opdrachten as $OpdrachtID) {
 				
 				# Pushover-bericht opstellen
 				$push = array();
-				$push['title']		= 'huis verkocht';
-				$push['message']	= $data['adres'] .' is verkocht';
+				$push['title']		= $data['adres'] .' is verkocht';
+				$push['message']	= getDoorloptijd($fundaID) ."\n". formatPrice($OorspronkelijkeVraagprijs) .' -> '. formatPrice($LaatsteVraagprijs);
 				$push['url']			= 'http://funda.nl/'. $data['id'];
-				$push['urlTitle']	= 'funda.nl';				
+				//$push['urlTitle']	= 'funda.nl';				
 				send2Pushover($push, $PushMembers);			
 			} elseif($data['verkocht'] == '2') {
 				$Item  = "<table width='100%'>\n";
@@ -435,10 +435,10 @@ foreach($Opdrachten as $OpdrachtID) {
 				
 				# Pushover-bericht opstellen
 				$push = array();
-				$push['title']		= 'huis onder voorbehoud verkocht';
-				$push['message']	= $data['adres'] .' is onder voorbehoud verkocht';
+				$push['title']		= $data['adres'] .' is onder voorbehoud verkocht';
+				$push['message']	= getDoorloptijd($fundaID) ."\n". formatPrice($OorspronkelijkeVraagprijs) .' -> '. formatPrice($LaatsteVraagprijs);
 				$push['url']			= 'http://funda.nl/'. $data['id'];
-				$push['urlTitle']	= 'funda.nl';				
+				//$push['urlTitle']	= 'funda.nl';				
 				send2Pushover($push, $PushMembers);
 			} elseif($data['verkocht'] == '0') {
 				$Item  = "<table width='100%'>\n";
@@ -454,10 +454,10 @@ foreach($Opdrachten as $OpdrachtID) {
 				
 				# Pushover-bericht opstellen
 				$push = array();
-				$push['title']		= 'huis weer beschikbaar';
-				$push['message']	= $data['adres'] .' is niet meer onder voorbehoud verkocht';
+				$push['title']		= $data['adres'] .' is niet meer onder voorbehoud verkocht';
+				$push['message']	= 'Weer op de markt voor '. formatPrice($LaatsteVraagprijs);
 				$push['url']			= 'http://funda.nl/'. $data['id'];
-				$push['urlTitle']	= 'funda.nl';				
+				//$push['urlTitle']	= 'funda.nl';				
 				send2Pushover($push, $PushMembers);
 			} else {
 				$ErrorMessage[] = $OpdrachtData['naam'] ."; Zoeken van verkochte huizen geeft ongeldig resultaat";
@@ -493,10 +493,10 @@ foreach($Opdrachten as $OpdrachtID) {
 			
 			# Pushover-bericht opstellen
 			$push = array();
-			$push['title']		= 'open huis';
-			$push['message']	= $data['adres'] .' heeft open huis op '. strftime("%a %e %b %k:%M", $open[0]) ." - ". strftime("%k:%M", $open[1]);
+			$push['title']		= $data['adres'] .' heeft open huis';
+			$push['message']	= strftime("%a %e %b", $open[0]) ." van ". strftime("%k:%M", $open[0]) ." tot ". strftime("%k:%M", $open[1]);
 			$push['url']			= 'http://funda.nl/'. $data['id'];
-			$push['urlTitle']	= 'funda.nl';				
+			//$push['urlTitle']	= 'funda.nl';				
 			send2Pushover($push, $PushMembers);
 			
 			# Bijhouden dat mail verstuurd is met open huis
