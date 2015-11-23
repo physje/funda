@@ -1945,8 +1945,10 @@ function send2Pushover($dataArray, $recipients) {
 			$push->setMessage($dataArray['message']);
 			if($dataArray['url'] != '')				$push->setUrl($dataArray['url']);
 			if($dataArray['urlTitle'] != '')	$push->setUrlTitle($dataArray['urlTitle']);
+			$push->setHtml(1);
+			$push->setDebug(true);
 			$push->setTimestamp(time());
-			$push->send();
+			$push->send();		
 		}
 	}
 }
