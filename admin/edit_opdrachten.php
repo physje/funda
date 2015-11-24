@@ -13,11 +13,21 @@ echo $HTMLHeader;
 echo "<tr>\n";
 echo "	<td>\n";
 
-if(isset($_REQUEST['action'])) {
-	if($_REQUEST['action'] == 'add') {
-		addMember2Opdracht($_REQUEST['opdracht'], $_SESSION['account']);
-	} else {
-		removeMember4Opdracht($_REQUEST['opdracht'], $_SESSION['account']);
+# Overzicht opvragen van alle zoekopdrachten
+if($_SESSION['level'] > 1) {
+	$Opdrachten = getZoekOpdrachten($_SESSION['account'], '', false);
+} else {
+	$Opdrachten = getZoekOpdrachten($_SESSION['account'], '');
+}
+
+# Abbonementen aanpassen
+if(isset($_POST['mail']) AND isset($_POST['push'])) {
+	foreach($Opdrachten as $opdracht) {
+		removeMember4Opdracht($opdracht, $_SESSION['account'], 'mail');
+		removeMember4Opdracht($opdracht, $_SESSION['account'], 'push');
+		
+		if(array_key_exists($opdracht, $_POST['mail']))	addMember2Opdracht($opdracht, $_SESSION['account'], 'mail');
+		if(array_key_exists($opdracht, $_POST['push']))	addMember2Opdracht($opdracht, $_SESSION['account'], 'push');
 	}
 }
 
@@ -33,7 +43,7 @@ if(isset($_POST['doorgaan'])) {
 		$Page .= $sql_opdracht;
 	} else {
 		$OpdrachtID = mysql_insert_id();
-		addMember2Opdracht($OpdrachtID, $_SESSION['account']);
+		addMember2Opdracht($OpdrachtID, $_SESSION['account'], 'mail');
 	}
 	
 	if(isset($_REQUEST['lichting'])) {
@@ -144,17 +154,25 @@ if(isset($_POST['doorgaan'])) {
 	$Page .= "</table>\n";
 	$Page .= "</form>\n";
 } else  {
-	if($_SESSION['level'] > 1) {
-		$Opdrachten = getZoekOpdrachten($_SESSION['account'], '', false);
+	$MemberData = getMemberDetails($_SESSION['account']);
+	if($MemberData['userkey'] != '' AND $MemberData['token'] != '') {
+		$disabled = '';
 	} else {
-		$Opdrachten = getZoekOpdrachten($_SESSION['account'], '');
+		$disabled = ' disabled';
 	}
 	
-	$Page .= "<table>\n";
-	
+	$Page .= "<form method='post'>".NL;
+	$Page .= "<table>".NL;
+	$Page .= "<tr>\n";
+	$Page .= "	<td colspan='14'>&nbsp;</td>";
+	$Page .= "	<td align='center'><img src='../images/mail_yes.gif'></td>";
+	$Page .= "	<td align='center'><img src='../images/pushover.png'></td>";
+	$Page .= "</tr>\n";
+		
 	foreach($Opdrachten as $OpdrachtID) {
 		$OpdrachtData = getOpdrachtData($OpdrachtID);
-		$Abonnees = getMembers4Opdracht($OpdrachtID);
+		$Abonnees = getMembers4Opdracht($OpdrachtID, 'mail');
+		$POMembers = getMembers4Opdracht($OpdrachtID, 'push');
 						
 		if(count(getOpdrachtUren($OpdrachtID)) == 0) {
 			$active = false;
@@ -164,42 +182,41 @@ if(isset($_POST['doorgaan'])) {
 			$class = 'online';
 		}
 		
-		$Page .= "<tr>\n";
-		$Page .= "	<td>". ($_SESSION['level'] > 1 ? "<a href='?id=$OpdrachtID' title=\"wijzig '". $OpdrachtData['naam'] ."'\" class='$class'>" : '' ) . $OpdrachtData['naam'] . ($_SESSION['level'] > 1 ? "</a>" : '') ."</td>";
+		$Page .= "<tr>".NL;
+		$Page .= "	<td>". ($_SESSION['level'] > 1 ? "<a href='?id=$OpdrachtID' title=\"wijzig '". $OpdrachtData['naam'] ."'\" class='$class'>" : '' ) . $OpdrachtData['naam'] . ($_SESSION['level'] > 1 ? "</a>" : '') ."</td>".NL;
 				
 		if($active) {
-			$Page .= "	<td>&nbsp;</td>";
+			$Page .= "	<td>&nbsp;</td>".NL;
 			
 			if($_SESSION['level'] > 1) {
-				$Page .= "	<td><a href='../check.php?OpdrachtID=$OpdrachtID'><img src='../images/new.ico' width='16' height='16' title=\"Voer '". $OpdrachtData['naam'] ."' uit\"></a></td>";
-				$Page .= "	<td>&nbsp;</td>";
-				$Page .= "	<td><a href='renewData.php?selectie=Z$OpdrachtID'><img src='../images/renew.png' width='16' height='16' title=\"Haal alle data voor '". $OpdrachtData['naam'] ."' opnieuw op\"></a></td>";
-				$Page .= "	<td>&nbsp;</td>";
-				$Page .= "	<td><a href='getVerkochteHuizen.php?OpdrachtID=$OpdrachtID'><img src='../images/sold.ico' title=\"Zoek naar verkochte huizen voor '". $OpdrachtData['naam'] ."'\"></a></td>";				
-				$Page .= "	<td>&nbsp;</td>";
-				$Page .= "	<td><a href='invite.php?OpdrachtID=$OpdrachtID'><img src='../images/invite.gif' title=\"Nodig iemand uit voor '". $OpdrachtData['naam'] ."'\"></a></td>";
-				$Page .= "	<td>&nbsp;</td>";
-				$Page .= "	<td><a href='bekijkHuizenZoeker.php?selectie=Z$OpdrachtID'><img src='../images/huizenzoeker.png' title=\"Zoek naar ontbrekende gegevens voor '". $OpdrachtData['naam'] ."' op huizenzoeker.nl\"></a></td>";
-				$Page .= "	<td>&nbsp;</td>";
-				$Page .= "	<td><a href='../../../download/". str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. removeFilenameCharacters($OpdrachtData['naam']) .".ics'><img src='../images/ical.png' title=\"Bekijk de huizen met Open Huis in iCal-formaat voor '". $OpdrachtData['naam'] ."'\"></a></td>";
-				$Page .= "	<td>&nbsp;</td>";
+				$Page .= "	<td><a href='../check.php?OpdrachtID=$OpdrachtID'><img src='../images/new.ico' width='16' height='16' title=\"Voer '". $OpdrachtData['naam'] ."' uit\"></a></td>".NL;
+				$Page .= "	<td>&nbsp;</td>".NL;
+				$Page .= "	<td><a href='renewData.php?selectie=Z$OpdrachtID'><img src='../images/renew.png' width='16' height='16' title=\"Haal alle data voor '". $OpdrachtData['naam'] ."' opnieuw op\"></a></td>".NL;
+				$Page .= "	<td>&nbsp;</td>".NL;
+				$Page .= "	<td><a href='getVerkochteHuizen.php?OpdrachtID=$OpdrachtID'><img src='../images/sold.ico' title=\"Zoek naar verkochte huizen voor '". $OpdrachtData['naam'] ."'\"></a></td>".NL;
+				$Page .= "	<td>&nbsp;</td>".NL;
+				$Page .= "	<td><a href='invite.php?OpdrachtID=$OpdrachtID'><img src='../images/invite.gif' title=\"Nodig iemand uit voor '". $OpdrachtData['naam'] ."'\"></a></td>".NL;
+				$Page .= "	<td>&nbsp;</td>".NL;
+				$Page .= "	<td><a href='bekijkHuizenZoeker.php?selectie=Z$OpdrachtID'><img src='../images/huizenzoeker.png' title=\"Zoek naar ontbrekende gegevens voor '". $OpdrachtData['naam'] ."' op huizenzoeker.nl\"></a></td>".NL;
+				$Page .= "	<td>&nbsp;</td>".NL;
+				$Page .= "	<td><a href='../../../download/". str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. removeFilenameCharacters($OpdrachtData['naam']) .".ics'><img src='../images/ical.png' title=\"Bekijk de huizen met Open Huis in iCal-formaat voor '". $OpdrachtData['naam'] ."'\"></a></td>".NL;
+				$Page .= "	<td>&nbsp;</td>".NL;
 				
 			}
-			if(in_array($_SESSION['account'] ,$Abonnees)) {
-				$Page .= "	<td><a href='". $_SERVER["PHP_SELF"] ."?action=remove&opdracht=$OpdrachtID'><img src='../images/mail_yes.gif' title=\"Ik wil géén mails meer ontvangen voor '". $OpdrachtData['naam'] ."'\"></a></td>";
-			} else {
-				$Page .= "	<td><a href='". $_SERVER["PHP_SELF"] ."?action=add&opdracht=$OpdrachtID'><img src='../images/mail_no.gif' title=\"Ik wil mails ontvangen voor '". $OpdrachtData['naam'] ."'\"></a></td>";
-			}
+			
+			$Page .= "	<td><input type='checkbox' name='mail[$OpdrachtID]' value='1'". (in_array($_SESSION['account'] ,$Abonnees) ? ' checked' : '') ." title=\"Aanvinken om mails voor '". $OpdrachtData['naam'] ."' te ontvangen\" onChange=\"this.form.submit()\"></td>".NL;
+			$Page .= "	<td><input type='checkbox' name='push[$OpdrachtID]' value='1'". (in_array($_SESSION['account'] ,$POMembers) ? ' checked' : '') ." title=\"Aanvinken om push-berichten voor '". $OpdrachtData['naam'] ."' te ontvangen\" onChange=\"this.form.submit()\"$disabled></td>".NL;
 		} else {
-			$Page .= "	<td colspan='8'>&nbsp;</td>";
+			$Page .= "	<td colspan='15'>&nbsp;</td>".NL;
 		}
 		
-		$Page .= "</tr>\n";
+		$Page .= "</tr>".NL;
 	}	
-	$Page .= "</table>\n";
+	$Page .= "</table>".NL;
+	$Page .= "</form>".NL;
 	
 	if($_SESSION['level'] > 1) {
-		$Page .= "<p>\n<a href='?id=0' title='Maak een nieuwe opdracht aan'>Nieuw</a><br>\n";
+		$Page .= "<p>\n<a href='?id=0' title='Maak een nieuwe opdracht aan'>Nieuw</a><br>".NL;
 	}
 }
 

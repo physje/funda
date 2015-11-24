@@ -1278,10 +1278,10 @@ function saveUpdateMember($id, $name, $username, $wachtwoord, $mail, $po_key, $p
 }
 
 
-function getMembers4Opdracht($OpdrachtID) {
-	global $TableAbo, $AboZoekID, $AboUserID;
+function getMembers4Opdracht($OpdrachtID, $type) {
+	global $TableAbo, $AboZoekID, $AboUserID, $AboType;
 	
-	$sql = "SELECT * FROM $TableAbo WHERE $AboZoekID like '$OpdrachtID'";
+	$sql = "SELECT * FROM $TableAbo WHERE $AboZoekID like '$OpdrachtID' AND $AboType like '$type'";
 	$result = mysql_query($sql);
 	
 	$Members = array();
@@ -1296,18 +1296,18 @@ function getMembers4Opdracht($OpdrachtID) {
 }
 
 
-function addMember2Opdracht($opdracht, $user) {
-	global $TableAbo, $AboZoekID, $AboUserID;
+function addMember2Opdracht($opdracht, $user, $type) {
+	global $TableAbo, $AboZoekID, $AboUserID, $AboType;
 	
-	$sql = "INSERT INTO $TableAbo ($AboZoekID, $AboUserID) VALUES ($opdracht, $user)";
+	$sql = "INSERT INTO $TableAbo ($AboZoekID, $AboUserID, $AboType) VALUES ($opdracht, $user, '$type')";
 	return mysql_query($sql);
 }
 
 
-function removeMember4Opdracht($opdracht, $user) {
-	global $TableAbo, $AboZoekID, $AboUserID;
+function removeMember4Opdracht($opdracht, $user, $type) {
+	global $TableAbo, $AboZoekID, $AboUserID, $AboType;
 	
-	$sql = "DELETE FROM $TableAbo WHERE $AboZoekID = $opdracht AND $AboUserID = $user";
+	$sql = "DELETE FROM $TableAbo WHERE $AboZoekID = $opdracht AND $AboUserID = $user AND $AboType like '$type'";
 	return mysql_query($sql);
 }
 

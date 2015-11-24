@@ -64,6 +64,7 @@ $strUserNotExist      	= "Onbekende inloggegevens";
 $TableAbo		= "funda_abonnement";
 $AboZoekID		= "zoek_id";
 $AboUserID		= "member_id";
+$AboType		= "soort";
 
 $TableHuizen		= "funda_huizen";
 $HuizenID 		= "funda_id";
