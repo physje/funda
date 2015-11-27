@@ -417,7 +417,9 @@ foreach($Opdrachten as $OpdrachtID) {
 				$push = array();
 				$push['title']		= $data['adres'] ." is verkocht voor '". $OpdrachtData['naam'] ."'";
 				$push['message']	= 'Na '. getDoorloptijd($fundaID) .' verkocht voor '. formatPrice($LaatsteVraagprijs);
-				if($LaatsteVraagprijs != $OorspronkelijkeVraagprijs) $push['message']	.= '<br>Oorspronkelijke vraagprijs was '. formatPrice($OorspronkelijkeVraagprijs);
+				if($LaatsteVraagprijs != $OorspronkelijkeVraagprijs) {
+					$push['message']	.= '<br>Oorspronkelijke vraagprijs was '. formatPrice($OorspronkelijkeVraagprijs);
+				}
 				$push['url']			= 'http://funda.nl/'. $data['id'];
 				$push['urlTitle']	= 'funda.nl';				
 				send2Pushover($push, $PushMembers);			
@@ -439,6 +441,9 @@ foreach($Opdrachten as $OpdrachtID) {
 				$push['title']		= $data['adres'] ." is onder voorbehoud verkocht voor '". $OpdrachtData['naam'] ."'";
 				//$push['message']	= getDoorloptijd($fundaID) ."\n". formatPrice($OorspronkelijkeVraagprijs) .' -> '. formatPrice($LaatsteVraagprijs);
 				$push['message']	= 'Na '. getDoorloptijd($fundaID) .' met een prijs van '. formatPrice($LaatsteVraagprijs);
+				if($LaatsteVraagprijs != $OorspronkelijkeVraagprijs) {
+					$push['message']	.= '<br>Oorspronkelijke vraagprijs was '. formatPrice($OorspronkelijkeVraagprijs);
+				}
 				$push['url']			= 'http://funda.nl/'. $data['id'];
 				$push['urlTitle']	= 'funda.nl';				
 				send2Pushover($push, $PushMembers);
@@ -496,7 +501,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			# Pushover-bericht opstellen
 			$push = array();
 			$push['title']		= $data['adres'] ." heeft open huis voor '". $OpdrachtData['naam'] ."'";
-			$push['message']	= strftime("%a %e %b", $open[0]) ." van ". strftime("%k:%M", $open[0]) ." tot ". strftime("%k:%M", $open[1]);
+			$push['message']	= $data['adres'] ." heeft open huis op ". strftime("%a %e %b", $open[0]) ." van ". strftime("%k:%M", $open[0]) ." tot ". strftime("%k:%M", $open[1]);
 			$push['url']			= 'http://funda.nl/'. $data['id'];
 			$push['urlTitle']	= 'funda.nl';				
 			send2Pushover($push, $PushMembers);
