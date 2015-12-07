@@ -230,7 +230,6 @@ function makeTextBlock($string, $length, $reverse = false) {
 	return $titel;
 }
 
-
 # Extraheer gegevens van een huis uit de ruwe HTML-code van de overzichtspagina van funda.nl
 #
 #	INPUT
@@ -240,7 +239,7 @@ function makeTextBlock($string, $length, $reverse = false) {
 #		array met de gegevens van het huis
 function extractFundaData($HuisText, $verkocht = false) {	
 	# Overzichtspagina
-	$HuisURL= getString('<a href="', '"', $HuisText, 0);
+	$HuisURL= getString('url="', '"', $HuisText, 0);
 	$mappen = explode("/", $HuisURL[0]);
 	if($verkocht) {
 		$key		= $mappen[4];
@@ -249,27 +248,29 @@ function extractFundaData($HuisText, $verkocht = false) {
 	}
 	$key_parts = explode("-", $key);
 	$id			= $key_parts[1];
-	$foto		= getString('<img src="', '" alt="" title="" class="', $HuisURL[1], 0);
-	$adres	= getString('<a href="'. $HuisURL[0] .'"class="object-street " >', '</a>', $foto[1], 0);
-	$PC			= getString('<li>', '<', $adres[1], 0);
-	$param	= getString('<li>', '</li>', $adres[1], 0);
-		
-	if(strpos($HuisText, '<a class="realtor" href="')) {
-		$R_url	= getString('<a class="realtor" href="', '">', $PC[1], 0);
-		$R_naam	= getString('">', '</a>', $R_url[1], 0);
+	$adres	= getString('<h3 class="search-result-title">', '<small class="search-result-subtitle">', $HuisURL[1], 0);
+	$PC			= getString('<small class="search-result-subtitle">', '</small>', $adres[1], 0);
+	$prijs	= getString('<span class="search-result-price">', '</span>', $PC[1], 0);
+	
+	if(strpos($HuisText, 'search-result-makelaar"')) {
+		$R_url	= getString('<a class="search-result-makelaar" href="', '">', $PC[1], 0);
+		$R_naam	= getString('<span class="search-result-makelaar-name">', '</span>', $PC[1], 0);
 	} else {
 		$R_url	= array('', '');
-		$R_naam	= getString('<span class="realtor">', '</span>', $PC[1], 0);
+		$R_naam	= getString('<span class="search-result-makelaar-name">', '</span>', $PC[1], 0);
 	}
-	$prijs	= getString('<span class="price">', '</span>', $R_naam[1], 0);
-		
+			
+	$param	= getString('<ul class="labels">', '</ul>', $PC[1], 0);	
+	$foto		= getString('100vw,228px" src="', '" srcset="', $HuisText, 0);
+	
+	# Nu al het knippen geweest is kan de geknipte data "geprocesed" worden		
 	if(strpos($param[0], 'Verkocht onder voorbehoud')) {
 		$voorbehoud = 1;
 	} else {
 		$voorbehoud = 0;
 	}
 	
-	if(strpos($param[0], '<span class="item-open"') OR strpos($param[0], '<span class="item-open nvm-open-huizen-dag" title="')) {
+	if(strpos($param[0], 'label-open-huis') OR strpos($param[0], '<span class="item-open nvm-open-huizen-dag" title="')) {
 		$openhuis = 1;
 	} else {
 		$openhuis = 0;
@@ -277,13 +278,17 @@ function extractFundaData($HuisText, $verkocht = false) {
 	
 	$postcode = explode(' ', trim($PC[0]));
 		
-	$HuisPrijs		= $prijs[0];			
-	$HuisPrijs		= str_ireplace('&euro;&nbsp;', '' , $HuisPrijs);
-	$HuisPrijs		= str_ireplace('.', '' , $HuisPrijs);
-		
-	if(!is_numeric($HuisPrijs)) {
-		$HuisPrijs		= '0';
+	$HuisPrijs		= $prijs[0];		
+	for($i=0 ; $i < strlen($HuisPrijs) ; $i++) {
+		$waarde = $HuisPrijs[$i];					
+		if(is_numeric($waarde)) {
+			$cleanPrice .= $waarde;
+		}
 	}
+	
+	if(!is_numeric($cleanPrice)) {
+		$cleanPrice		= '0';
+	}	
 	
 	$data['id']				= $id;
 	$data['url']			= trim($HuisURL[0]);
@@ -293,7 +298,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$data['plaats']		= end($postcode);
 	$data['thumb']		= trim($foto[0]);
 	$data['makelaar']	= trim($R_naam[0]);
-	$data['prijs']		= $HuisPrijs;
+	$data['prijs']		= $cleanPrice;
 	$data['vov']			= $voorbehoud;
 	$data['openhuis']	= $openhuis;
 	
@@ -302,11 +307,9 @@ function extractFundaData($HuisText, $verkocht = false) {
 		echo $key .'|'.makeTextBlock($value, 100) .'<br>';
 	}
 	echo '------------------------------';
-	*/
-	
+	*/	
 	return $data;
 }
-
 
 function convertToReadable($string) {
 	$string = str_replace('&nbsp;m&sup2;', '', $string);
@@ -370,7 +373,7 @@ function makeKMLEntry($id) {
 
 function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	$contents		= file_get_contents_retry($URL);
-	
+			
 	# Als het geen string is, is de pagina offline
 	# Dan kan gelijk een twee-tal lege arrays teruggegeven worden
 	if(!is_string($contents)) {
@@ -380,7 +383,7 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	# Als er een class item-sold is, is hij onder voorbehoud verkocht => $verkocht = 2
 	# Als er een class item-sold-label-large is, is hij verkocht => $verkocht = 1
 	# Als geen van beide het geval is, is hij nog beschikbaar => $verkocht = 0
-	if(strpos($contents, '<span class="item-sold">')) {
+	if(strpos($contents, '<li class="label-transactie-voorbehoud">')) {
 		$verkocht		= 2;
 	}elseif(strpos($contents, '<span class="item-sold-label-large" title="Verkocht">')) {
 		$verkocht		= 1;
@@ -393,14 +396,12 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 		$delen = explode('-', $afmeld[0]);
 		$data['afmeld'] = mktime(12,0,0,$delen[1],$delen[0],$delen[2]);
 	}
-	
+		
 	# Navigatie-gedeelte
-	$navigatie	= getString('<p class="section path-nav">', '</p>', $contents, 0);
-	$stappen		= explode('&gt;', $navigatie[0]);
-	$wijk				= getString('<span itemprop="title">', '</span>', $stappen[(count($stappen)-1)], 0);
+	$navigatie	= getString('<ol class="container breadcrumb-list">', '</ol>', $contents, 0);
+	$stappen		= explode('<li class="breadcrumb-listitem">', $navigatie[0]);
+	$wijk				= getString('title="', '">', $stappen[(count($stappen)-2)], 0);
 	$data['wijk']			= trim($wijk[0]);
-	
-	
 	
 	# Moeten gegevens die al bekend zijn opnieuw opgevraagd worden
 	# Meestal niet, maar soms is dat nodig
@@ -441,46 +442,35 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	
 	if($contents != "") {		
 		# Omschrijving
-		$contents_omschrijving		= file_get_contents_retry($URL.'omschrijving/');
-				
-		if(strpos($contents_omschrijving, '<div class="description-full">')) {			
-			$omschrijving = getString('<div class="description-full">', '</div>', $contents_omschrijving, 0);
-		} else {
-			$contents		= file_get_contents_retry($URL);
-			$omschrijving = getString('<p id="PVolledigeOmschrijving" style="display:none">', '<a id="linkKorteOmschrijving"', $contents, 0);
-		}
-		
+		$omschrijving = getString('<div data-object-description-body class="object-description-body">', '</div>', $contents, 0);
 		$KenmerkData['descr']	= trim($omschrijving[0]);	
 	} else {
 		$KenmerkData['descr']	= '';
 	}
 
 	# Kenmerken
-	$contents		= file_get_contents_retry($URL.'kenmerken/');
-	$contents		= getString('<table class="specs specs-cats" border="0">', '</table>', $contents, 0);
-	$kenmerken12	= explode('12"  class="', $contents[0]);	array_shift($kenmerken12);
-	$kenmerken13	= explode('13"  class="', $contents[0]);	array_shift($kenmerken13);
-	$kenmerkenBla	= explode('blabla"  class="', $contents[0]);	array_shift($kenmerkenBla);
-	$kenmerken		= array_merge($kenmerken12, $kenmerken13, $kenmerkenBla);
+	$content_kenmerk	= getString('<section class="object-kenmerken" aria-expanded="false" data-object-kenmerken>', '</section>', $contents, 0);
+	$kenmerken				= explode('<dt>', $content_kenmerk[0]);
+	array_shift($kenmerken);
 	
 	foreach($kenmerken as $kenmerk) {
-		$Record = getString('<th scope="row">', '</th>', $kenmerk, 0);
-		$Waarde = getString('<span class="specs-val">', '</span>', $kenmerk, 0);
+		$Record = getString('', '</dt>', $kenmerk, 0);
+		$Waarde = getString('<dd>', '</dd>', $kenmerk, 0);
 		
 		$key = trim($Record[0]);
 		$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
 	}
 	
 	# Foto	
-	$contents		= file_get_contents_retry($URL.'fotos/');
+	$content_fotos	= getString('<section class="object-media" data-object-media>', '</section>', $contents, 0);
 	
-	if($contents != "") {
+	if($content_fotos[0] != "") {
 		$picture		= array();
-		$carousel		= explode('class="thumb-media"><span>', $contents);
+		$carousel		= explode('<div class="object-media-foto">', $content_fotos[0]);
 		array_shift($carousel);
 			
 		foreach($carousel as $key => $value) {		
-			$thumb = getString('<img src="', '" onerror', $value, 0);
+			$thumb = getString('src="', '"', $value, 0);
 			$picture[] = trim($thumb[0]);
 		}
 		
@@ -575,15 +565,15 @@ function saveHouse($data, $moreData) {
 	$sql .= "($HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind) ";
 	$sql .= "VALUES ";
 	$sql .= "('". $data['id'] ."', '". urlencode($data['url']) ."', '". urlencode($data['adres']) ."', '". urlencode($data['PC_c']) ."', '". urlencode($data['PC_l']) ."', '". urlencode($data['plaats']) ."', '". urlencode($data['wijk']) ."', '". urlencode($data['thumb']) ."', '". urlencode($data['makelaar']) ."', '$begin_tijd', '$eind_tijd')";
-		
-	if(!mysql_query($sql)) {
+			
+	if(!mysql_query($sql)) {		
 		return false;
 	}
 	
 	foreach($moreData as $key => $value) {
 		$sql = "INSERT INTO $TableKenmerken ($KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue) VALUES ('". $data['id'] ."', '". urlencode($key) ."', '". urlencode($value) ."')";
 						
-		if(!mysql_query($sql)) {			
+		if(!mysql_query($sql)) {
 			return false;			
 		}
 	}

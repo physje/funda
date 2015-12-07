@@ -43,7 +43,7 @@ foreach($Opdrachten as $OpdrachtID) {
 	# Vraag de pagina op en herhaal dit het standaard aantal keer mocht het niet lukken
 	$contents	= file_get_contents_retry($OpdrachtURL);
 	
-	$NrHuizen	= getString('<span class="hits"> (', ')', $contents, 0);
+	$NrHuizen	= getString('<div class="search-header-result-count">', ' resultaten</div>', $contents, 0);
 
 	if(!is_numeric($NrHuizen[0]) AND !strpos($contents, '<div class="no-results">')) {
 		$ErrorMessage[] = $OpdrachtData['naam'] ."; Het totaal aantal huizen klopt niet : ". $NrHuizen[0];	
@@ -68,7 +68,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		$PageURL	= $OpdrachtURL.'p'.$p.'/';
 		$contents	= file_get_contents_retry($PageURL, 5);
 		
-		if(is_numeric(strpos($contents, "paging next")) AND $debug == 0) {
+		if(is_numeric(strpos($contents, '<a title="Volgende pagina')) AND $debug == 0) {
 			$nextPage = true;
 		} else {
 			$nextPage = false;
@@ -79,6 +79,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		# Deze class geeft precies het begin van een nieuw huis op de overzichtspagina aan
 		# Om zeker te zijn dat ik alle huizen vind doe ik eerst alsof alle huizen van NVM zijn,
 		# dan of alle huizen van VBO zijn, etc.
+		/*
 		$HuizenNVM			= explode(' nvm" >', $contents);			array_shift($HuizenNVM);
 		$HuizenNVMlst		= explode(' nvm lst" >', $contents);	array_shift($HuizenNVMlst);		
 		$HuizenNVMfeat	= explode(' nvm object-featured" >', $contents);	array_shift($HuizenNVMfeat);		
@@ -98,6 +99,12 @@ foreach($Opdrachten as $OpdrachtID) {
 		$HuizenExpVBO	= explode(' vbo exp " >', $contents);		array_shift($HuizenExpVBO);
 		$HuizenExpLMV	= explode(' lmv exp " >', $contents);		array_shift($HuizenExpLMV);		
 		$verlopenHuizen			= array_merge($HuizenExpNVM, $HuizenExpVBO, $HuizenExpLMV);
+		*/
+		
+		$Huizen			= explode('<div class="search-result" data', $contents);
+		$Huizen			= array_slice($Huizen, 1);		
+		$NrPageHuizen		= count($Huizen);
+		
 		
 		foreach($verlopenHuizen as $HuisText) {
 			$verlopenAdres = getString('<h3>', '<a class=', $HuisText, 0);
@@ -109,7 +116,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		}
 		
 		# Doorloop nu alle gevonden huizen op de overzichtspagina
-		foreach($Huizen as $HuisText) {
+		foreach($Huizen as $HuisText) {			
 			# Extraheer hier adres, plaats, prijs, id etc. uit
 			$data = extractFundaData($HuisText);
 			$AdressenArray[] = $data['adres'];
@@ -302,13 +309,15 @@ foreach($Opdrachten as $OpdrachtID) {
 				$NewHouses[] = showBlock(implode("\n", $Item));				
 				$NewAddress[] = $data['adres'];
 				
-				# Pushover-bericht opstellen
-				$push = array();
-				$push['title']		= "Nieuw huis voor '". $OpdrachtData['naam'] ."'";
-				$push['message']	= $data['adres'] .' is te koop voor '. formatPrice($data['prijs']);
-				$push['url']			= 'http://funda.nl/'. $data['id'];
-				$push['urlTitle']	= 'funda.nl';				
-				send2Pushover($push, $PushMembers);				
+				if($debug == 0) {
+					# Pushover-bericht opstellen
+					$push = array();
+					$push['title']		= "Nieuw huis voor '". $OpdrachtData['naam'] ."'";
+					$push['message']	= $data['adres'] .' is te koop voor '. formatPrice($data['prijs']);
+					$push['url']			= 'http://funda.nl/'. $data['id'];
+					$push['urlTitle']	= 'funda.nl';				
+					send2Pushover($push, $PushMembers);
+				}
 			} elseif(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {
 				$fundaData			= getFundaData($data['id']);
 				$PriceHistory		= getFullPriceHistory($data['id']);
