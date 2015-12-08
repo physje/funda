@@ -46,7 +46,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		
 		$HTML[] = "<a href='$PageURL'>pagina $p</a><br>\n";
 		
-		if(is_numeric(strpos($contents, '<a title="Volgende pagina')) AND $debug == 0) {
+		if(is_numeric(strpos($contents, "paging next")) AND $debug == 0) {
 			$nextPage = true;
 		} else {
 			$nextPage = false;
