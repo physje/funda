@@ -19,6 +19,8 @@ if(isset($_REQUEST[OpdrachtID])) {
 	$enkeleOpdracht = false;
 }
 
+$debug = 0;
+
 # Doorloop alle zoekopdrachten
 foreach($Opdrachten as $OpdrachtID) {	
 	$nextPage = true;
@@ -44,7 +46,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		
 		$HTML[] = "<a href='$PageURL'>pagina $p</a><br>\n";
 		
-		if(is_numeric(strpos($contents, "paging next")) AND $debug == 0) {
+		if(is_numeric(strpos($contents, '<a title="Volgende pagina')) AND $debug == 0) {
 			$nextPage = true;
 		} else {
 			$nextPage = false;
@@ -64,11 +66,13 @@ foreach($Opdrachten as $OpdrachtID) {
 		$HuizenExt		= explode(' ext sold" >', $contents);			array_shift($HuizenExt);
 		$HuizenExtlst	= explode(' ext sold lst" >', $contents);	array_shift($HuizenExtlst);
 		$Huizen				= array_merge($HuizenNVM, $HuizenNVMlst, $HuizenVBO, $HuizenVBOlst, $HuizenLMV, $HuizenLMVlst, $HuizenExt, $HuizenExtlst);
-				
+		
+		$Huizen			= array_slice($Huizen, 1);
+								
 		# Doorloop nu alle gevonden huizen op de overzichtspagina
 		foreach($Huizen as $HuisText) {
 			# Extraheer hier adres, plaats, prijs, id etc. uit
-			$data			= extractFundaData($HuisText, true);
+			$data			= extractFundaData_old($HuisText, true);
 			$fundaID	= $data['id'];
 			$url			= "http://www.funda.nl". urldecode($data['url']);
 			$new			= false;
@@ -77,7 +81,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			# Mochten huizen verkocht zijn die nog niet bekend zijn in de dB.
 			# Voeg deze dan toe als addSoldHouses = true
 			if(!knownHouse($fundaID) AND $addSoldHouses) {
-				$allData = extractDetailedFundaData($url, false);
+				$allData = extractDetailedFundaData_old($url, false);
 				$extraData = $allData[1];
 				saveHouse($data, $extraData);
 				addHouse($data, $OpdrachtID);				
@@ -105,6 +109,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				$HTML[] = "<br>\n";
 			}
 		}
+		
 	}
 	$block[] = implode("\n", $HTML);
 }
