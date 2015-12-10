@@ -8,4 +8,3 @@ define("NL", "\n");
 
 /* Set locale to Dutch */
 setlocale(LC_ALL, 'nl_NL');
-?>

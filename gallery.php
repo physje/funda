@@ -1,9 +1,6 @@
 <?php
-include_once('../general_include/general_functions.php');
-include_once('../general_include/general_config.php');
-include_once('include/functions.php');
-include_once('include/config.php');
-include_once('include/HTML_TopBottom.php');
+include_once(__DIR__. '/include/config.php');
+include_once(__DIR__ .'/include/HTML_TopBottom.php');
 $minUserLevel = 1;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");
@@ -34,7 +31,8 @@ if(isset($_POST['add'])) {
 		$Name					= $LijstData['naam'];
 		$dataset			= getLijstHuizen($id);
 	}
-	
+	$knownHuizen = null;
+
 	# Als $_POST['addHouses'] bekend is, is bekend aan welke lijst de huizen moeten worden toegevoegd
 	if($_POST['addHouses'] == '1') {
 		$showListAdd = true;
@@ -168,5 +166,3 @@ if(isset($_POST['add'])) {
 }
 
 echo $HTMLFooter;
-?>
-	

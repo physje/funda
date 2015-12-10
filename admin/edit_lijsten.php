@@ -1,8 +1,5 @@
 <?php
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
+include_once(__DIR__. '/../include/config.php');
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
@@ -202,4 +199,5 @@ if($Page_4 != '') {
 echo "	</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
+
 ?>

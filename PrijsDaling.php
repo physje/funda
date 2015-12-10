@@ -1,10 +1,7 @@
 <?php
-include_once('../general_include/general_functions.php');
-include_once('../general_include/general_config.php');
-include_once('../general_include/class.MobileDetect.php');
-include_once('include/functions.php');
-include_once('include/config.php');
-include_once('include/HTML_TopBottom.php');
+include_once(__DIR__. '/include/config.php');
+include_once(__DIR__ .'/include/HTML_TopBottom.php');
+include_once($cfgGeneralIncludeDirectory.'class.MobileDetect.php');
 $minUserLevel = 1;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");
@@ -38,7 +35,8 @@ if(isset($_POST['add'])) {
 		$Name					= $LijstData['naam'];
 		$dataset			= getLijstHuizen($id);
 	}
-	
+
+	$knownHuizen = array();
 	if($_POST['addHouses'] == '1') {
 		$showListAdd = true;
 		$knownHuizen = getLijstHuizen($_POST['chosenList']);
@@ -101,7 +99,7 @@ if(isset($_POST['add'])) {
 		} else {
 			$TextClass = 'online';
 		}
-						
+
 		echo "<tr>\n";
 		echo "	<td width='25%'>";
 		if($showListAdd)	echo "	<input type='checkbox' name='huis[]' value='$huisID'". (in_array($huisID, $knownHuizen) ? ' checked' : '') .">";
@@ -176,4 +174,3 @@ if(isset($_POST['add'])) {
 }
 
 echo $HTMLFooter;
-?>

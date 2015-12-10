@@ -1,9 +1,6 @@
 <?php
 
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
+include_once(__DIR__. '/../include/config.php');
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
@@ -46,7 +43,7 @@ if($_POST[search]) {
 	$deel_1 .= "		<td align=center><input type=button value='Ga naar lokatie' onclick='if_gmap_loadpicker();'></td>\n";
 	$deel_1 .= "	</tr>\n";
 	$deel_1 .= "	<tr>\n";
-	$deel_1 .= "		<td colspan=5 id='maparea' style='background-color: #E0E0E0;' align=center>Klik op de kaart of voer boven de coördinaten in</center>\n";
+	$deel_1 .= "		<td colspan=5 id='maparea' style='background-color: #E0E0E0;' align=center>Klik op de kaart of voer boven de coï¿½rdinaten in</center>\n";
 	$deel_1 .= "			<div id='mapitems' style='width: 480px; height: 540px'></div>\n";
 	$deel_1 .= "		</td>\n";
 	$deel_1 .= "	</tr>\n";
@@ -69,4 +66,3 @@ if($deel_2 != "") echo showBlock($deel_2);
 echo "</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-?>

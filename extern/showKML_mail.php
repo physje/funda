@@ -1,8 +1,5 @@
 <?php
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
+include_once(__DIR__. '../include/config.php');
 connect_db();
 
 $dag		= getParam('dag', date("d"));
@@ -34,5 +31,3 @@ header('Content-type: application/kml');
 header('Content-Disposition: attachment; filename="'.  str_replace(' ', '_', $data['naam'] .'-'. date("d_m-H\hi\m")) .'.kml"');
 	
 echo $KML_header.implode("\n", $KML_file).$KML_footer;
-
-?>

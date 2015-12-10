@@ -1,8 +1,5 @@
 <?php
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
+include_once(__DIR__. '/../include/config.php');
 
 header("Expires: Mon, 26 Jul 2001 05:00:00 GMT");
 header("Cache-Control: no-store, no-cache, must-revalidate");
@@ -15,4 +12,3 @@ header('Content-Disposition: attachment; filename="FundaExport_'. strftime ('%Y.
 $fp = fopen($cfgXLSFilename, "r");
 echo fread($fp,filesize($cfgXLSFilename));
 fclose($fp);
-?>

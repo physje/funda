@@ -1578,7 +1578,6 @@ class PHPMailer {
         $inclhash = md5(serialize($attachment));
         if (in_array($inclhash, $incl)) { continue; }
         $incl[]      = $inclhash;
-        $filename    = $attachment[1];
         $name        = $attachment[2];
         $encoding    = $attachment[3];
         $type        = $attachment[4];
@@ -2335,7 +2334,6 @@ class PHPMailer {
       'mov'   =>  'video/quicktime',
       'avi'   =>  'video/x-msvideo',
       'movie' =>  'video/x-sgi-movie',
-      'doc'   =>  'application/msword',
       'word'  =>  'application/msword',
       'xl'    =>  'application/excel',
       'eml'   =>  'message/rfc822'
@@ -2404,7 +2402,6 @@ class PHPMailer {
    * @param string $key_pass Password for private key
    */
   public function DKIM_QP($txt) {
-    $tmp = '';
     $line = '';
     for ($i = 0; $i < strlen($txt); $i++) {
       $ord = ord($txt[$i]);

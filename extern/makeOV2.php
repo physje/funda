@@ -1,8 +1,5 @@
 <?php
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
+include_once(__DIR__. '../include/config.php');
 connect_db();
 
 $output = $ov2output = "";
@@ -52,4 +49,3 @@ header("Cache-control: private");
 header('Content-type: application/ov2');
 header('Content-Disposition: attachment; filename="funda_'. str_replace(" ", "", ucwords($Name)) .'.ov2"');
 print $ov2output;
-?>

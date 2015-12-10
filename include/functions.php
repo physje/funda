@@ -6,7 +6,7 @@
 #		$active : 0 = niet actief, 1 = actief, '' = alle
 #
 # OUTPUT
-#		array met ids van zoekopdracht 
+#		array met ids van zoekopdracht
 function getZoekOpdrachten($user, $uur, $active = true) {
 	global $TableZoeken, $TableVerdeling, $VerdelingOpdracht, $VerdelingUur, $ZoekenKey, $ZoekenUser;
 	$where = $Opdrachten = array();
@@ -63,7 +63,7 @@ function getOpdrachtUren($opdracht) {
 # OUTPUT
 #		array met gegevens
 function getOpdrachtData($id) {
-	global $TableZoeken, $ZoekenKey, $ZoekenActive, $ZoekenUser, $ZoekenNaam, $ZoekenURL, $ZoekenMail, $ZoekenAdres;
+	global $TableZoeken, $ZoekenKey, $ZoekenActive, $ZoekenUser, $ZoekenNaam, $ZoekenURL;
 	
 	$data = array();
 	
@@ -239,7 +239,7 @@ function makeTextBlock($string, $length, $reverse = false) {
 #		array met de gegevens van het huis
 function extractFundaData($HuisText, $verkocht = false) {	
 	# Overzichtspagina
-	$HuisURL= getString('url="', '"', $HuisText, 0);
+	$HuisURL= getString('<a href="', '"', $HuisText, 0);
 	$mappen = explode("/", $HuisURL[0]);
 	if($verkocht) {
 		$key		= $mappen[4];
@@ -332,7 +332,6 @@ function extractFundaData_old($HuisText, $verkocht = false) {
 		$R_url	= getString('<a class="realtor" href="', '">', $PC[1], 0);
 		$R_naam	= getString('">', '</a>', $R_url[1], 0);
 	} else {
-		$R_url	= array('', '');
 		$R_naam	= getString('<span class="realtor">', '</span>', $PC[1], 0);
 	}
 	$prijs	= getString('<span class="price">', '</span>', $R_naam[1], 0);
@@ -370,14 +369,7 @@ function extractFundaData_old($HuisText, $verkocht = false) {
 	$data['prijs']		= $HuisPrijs;
 	$data['vov']			= $voorbehoud;
 	$data['openhuis']	= $openhuis;
-	
-	/*
-	foreach($data as $key => $value) {
-		echo $key .'|'.makeTextBlock($value, 100) .'<br>';
-	}
-	echo '------------------------------';
-	*/
-	
+
 	return $data;
 }
 
@@ -959,7 +951,7 @@ function changedPrice($id, $price, $opdracht) {
 
 
 function getFundaData($id) {
-	global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht, $HuizenOpenHuis;
+	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht, $HuizenOpenHuis;
 	connect_db();
   
   if($id != 0) {
@@ -1021,11 +1013,11 @@ function getFundaKenmerken($id) {
 
 
 function getHuizen($opdracht, $excludeVerkocht = false, $excludeOffline = false) {
-	global $TableHuizen, $HuizenOpdracht, $HuizenID, $HuizenAdres, $HuizenVerkocht, $HuizenOffline;
+	global $TableHuizen, $HuizenID, $HuizenAdres, $HuizenVerkocht, $HuizenOffline;
 	global $TableResultaat, $ResultaatID, $ResultaatZoekID;
 	connect_db();
 	
-	$sql .= "SELECT * FROM $TableHuizen, $TableResultaat WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID like '$opdracht' ";
+	$sql = "SELECT * FROM $TableHuizen, $TableResultaat WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID like '$opdracht' ";
 	if($excludeVerkocht) {
 		$sql .= "AND $TableHuizen.$HuizenVerkocht NOT like '1' ";
 	}
@@ -1133,7 +1125,7 @@ function getFullPriceHistory($input) {
 
 
 function toLog($type, $opdracht, $huis, $message) {
-	global $TableLog, $LogID, $LogTime, $LogType, $LogOpdracht, $LogHuis, $LogMessage;	
+	global $TableLog, $LogTime, $LogType, $LogOpdracht, $LogHuis, $LogMessage;
 
 	connect_db();
  	
@@ -1503,7 +1495,7 @@ function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 	unset($prijs, $naam);
 	unset($Aanmelddatum, $Verkoopdatum, $AangebodenSinds, $startdata);
 	unset($OorspronkelijkeVraagprijs, $LaatsteVraagprijs, $Vraagprijs);
-	$verkocht = $offline = false;
+	$offline = false;
 	
 	$FundaData = getFundaData($fundaID);
 	$url			= "http://www.funda.nl". urldecode($FundaData['url']);
@@ -1811,7 +1803,7 @@ function updateMakelaar($data) {
 	global $TableHuizen, $HuizenMakelaar, $HuizenID;
 	
 	$sql = "UPDATE $TableHuizen SET $HuizenMakelaar = '". urlencode($data['makelaar']) ."' WHERE $HuizenID = '". $data['id'] ."'";
-	$result = mysql_query($sql);
+	mysql_query($sql);
 }
 
 
@@ -1942,10 +1934,10 @@ function removeOpenHuis($id) {
 	global $TableHuizen, $HuizenOpenHuis, $HuizenID, $TableResultaat, $ResultaatOpenHuis, $ResultaatID;
 	
 	$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '0' WHERE $HuizenID = '$id'";
-	$result = mysql_query($sql);
+	mysql_query($sql);
 	
 	$sql = "UPDATE $TableResultaat SET $ResultaatOpenHuis = '0' WHERE $ResultaatID = '$id'";
-	$result = mysql_query($sql);	
+	mysql_query($sql);
 }
 
 

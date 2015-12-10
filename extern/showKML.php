@@ -1,8 +1,5 @@
 <?php
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
+include_once(__DIR__. '../include/config.php');
 include_once('../include/HTML_TopBottom.php');
 connect_db();
 
@@ -122,4 +119,3 @@ if($_REQUEST['datum'] == 0) {
 	header('Content-Disposition: attachment; filename="'.  str_replace(' ', '_', $Name .'-'. date("d.m.Y-H.i")) .'.kml"');
 	echo $KML_header.implode("\n", $KML_file).$KML_footer;
 }
-?>

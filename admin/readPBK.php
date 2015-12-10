@@ -1,11 +1,8 @@
 <?php
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../../general_include/class.phpmailer.php');
-include_once('../../general_include/class.phpPushover.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
-include_once('../include/HTML_TopBottom.php');
+include_once(__DIR__. '/../include/config.php');
+include_once(__DIR__ . '/../general_includes/class.phpmailer.php');
+include_once(__DIR__ . '/../general_include/class.phpPushover.php');
+include_once(__DIR__ . '/../include/HTML_TopBottom.php');
 connect_db();
 
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
@@ -122,4 +119,3 @@ if($newEntry) {
 	
 	send2Pushover(array('title' => 'Prijsindex', 'message' => 'In $mailMaand was de prijsindex $percentage ('. number_format ((100*($percentage-$oud_perc))/$percentage,1) .'%)'), array(1));
 }
-?>

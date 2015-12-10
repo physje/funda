@@ -1,4 +1,10 @@
 <?php
+# Pas deze map aan naar de plek waar de bestanden uit de map 'MOVE_THIS_FOLDER' neergezet zijn
+$cfgGeneralIncludeDirectory = __DIR__ . '/../../general_include/';
+
+include_once($cfgGeneralIncludeDirectory . 'general_functions.php');
+include_once($cfgGeneralIncludeDirectory . 'general_config.php');
+include_once( __DIR__ . '/functions.php');
 
 $ScriptURL		= '';			# Map waar het script staat, bv http://www.example.com/scripts/funda/
 $ScriptTitle		= 'Funda Alert';	# Naam van het script (is naam van afzender in mails)
@@ -30,8 +36,6 @@ $cfgCSVExport[] = 'Tuin';
 $cfgCSVExport[] = 'Achtertuin';
 $cfgCSVExport[] = 'Ligging tuin';
 $cfgCSVExport[] = 'Wonen (= woonoppervlakte)';
-//$cfgCSVExport[] = 'Energielabel (D)';
-//$cfgCSVExport[] = 'Energielabel (V)';
 $cfgCSVExport[] = 'Energielabel';
 $cfgCSVExport[] = 'Badkamervoorzieningen';
 $cfgCSVExport[] = 'Bouwjaar';
@@ -158,5 +162,3 @@ $ZoekenKey		= "id";
 $ZoekenUser		= "user";
 $ZoekenNaam		= "naam";
 $ZoekenURL		= "url";
-
-?>

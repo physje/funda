@@ -1,8 +1,5 @@
 <?php
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
+include_once(__DIR__. '/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
@@ -68,5 +65,3 @@ echo "	<td valign='top' align='center' colspan=2>". showBlock(implode("\n", $zoe
 echo "	<td width='25%'>&nbsp;</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-
-?>

@@ -1,8 +1,5 @@
 <?php
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
+include_once(__DIR__. '/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
@@ -31,7 +28,7 @@ if(isset($_POST['huizen'])) {
 		$Name					= $LijstData['naam'];
 		$dataset			= getLijstHuizen($id);
 	}
-		
+	$kolom = array();
 	# Doorloop alle huizen
 	foreach($dataset as $huisID) {
 		$kenmerken = getFundaKenmerken($huisID);
@@ -114,4 +111,3 @@ if(isset($HTML)) {
 	echo "</tr>\n";
 	echo $HTMLFooter;
 }
-?>

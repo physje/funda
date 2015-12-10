@@ -1,11 +1,7 @@
 <?php
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../../general_include/class.phpmailer.php');
-include_once('../../general_include/class.html2text.php');
-include_once('../../general_include/class.phpPushover.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
+include_once(__DIR__. '/../include/config.php');
+include_once(__DIR__. '/../general_includes/class.phpmailer.php');
+include_once(__DIR__. '/../general_includes/class.html2text.php');
 connect_db();
 
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
@@ -13,7 +9,8 @@ connect_db();
 
 $manual = false;
 $HTMLMessageNeg = $HTMLMessage = array();
-
+$key_1 = null;
+$key_2 = null;
 if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	$key_1[0] = $_REQUEST['id_1'];
 	$key_2[0] = $_REQUEST['id_2'];
@@ -21,9 +18,7 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 } else {
 	$i = 1;
 	$KeyArray			= array();
-	//$beginGrens		= mktime(0, 0, 0, date("n"), date("j"), date("Y")-1);	# Huizen die langer dan 1 jaar van funda zijn afgeweest zie ik als "nieuw"
-	//$eindGrens		= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));	# Huizen moeten 2 dagen van funda zijn verdwenen wil ik aanmerken als "van funda af"
-	
+
 	$sql  = "SELECT * ";
 	$sql .= "FROM $TableHuizen ";
 	$sql .= "WHERE ";
@@ -236,4 +231,3 @@ if(is_array($key_1)) {
 	echo "Geen werk aan de winkel";
 	//toLog('info', '', '', "Geen opschoonwerkzaamheden verricht");
 }
-?>

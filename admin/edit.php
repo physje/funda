@@ -1,14 +1,13 @@
 <?php
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
+include_once(__DIR__. '/../include/config.php');
+
 include_once('../include/HTML_TopBottom.php');
 setlocale(LC_ALL, 'nl_NL');
 $minUserLevel = 2;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 connect_db();
+$data = array();
 
 if(isset($_REQUEST['id'])) {
 	$id = $_REQUEST['id'];
@@ -54,7 +53,6 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "</tr>";	
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Coordinaten</td>";
-		//$HTML[] = "	<td><input type='text' name='latitude' value='". $data['lat'] ."' size='7'>,<input type='text' name='longitude' value='". $data['long'] ."' size=7'><div class='float_rechts'><a href='http://maps.google.nl/maps?q=". $data['lat'] .",". $data['long'] ."' target='_blank'>Google Maps</a></div></td>";
 		$HTML[] = "	<td><input type='text' name='latitude' value='". $data['lat'] ."' size='7'>,<input type='text' name='longitude' value='". $data['long'] ."' size=7'><div class='float_rechts'><a href='../extern/redirect.php?id=$id' target='_blank'>Google Maps</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
@@ -285,5 +283,3 @@ echo showBlock(implode("\n", $Foto));
 echo "</td>";
 echo "</tr>\n";
 echo $HTMLFooter;
-
-?>

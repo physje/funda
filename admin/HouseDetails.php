@@ -1,12 +1,10 @@
 <?php
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
+include_once(__DIR__. '/../include/config.php');
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 connect_db();
+$deel_2 = $id = null;
 
 if(isset($_REQUEST['id'])) {
 	$id = $_REQUEST['id'];
@@ -59,6 +57,7 @@ echo "<tr>\n";
 echo "<td width='50%' valign='top' align='center'>\n";
 echo showBlock($deel_1);
 echo "</td>\n";
+
 if($deel2 != '') {
 	echo "<td width='50%' valign='top' align='center'>\n";
 	echo showBlock($deel_2);
@@ -66,5 +65,3 @@ if($deel2 != '') {
 }
 echo "</tr>\n";
 echo $HTMLFooter;
-
-?>

@@ -1,9 +1,6 @@
 <?php
-include_once('../general_include/general_functions.php');
-include_once('../general_include/general_config.php');
-include_once('include/functions.php');
-include_once('include/config.php');
-include_once('include/HTML_TopBottom.php');
+include_once(__DIR__. '/include/config.php');
+include_once(__DIR__ .'/include/HTML_TopBottom.php');
 $minUserLevel = 1;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");
@@ -33,7 +30,7 @@ if(isset($_POST['add'])) {
 		$from					= "$TableListResult, $TableHuizen";
 		$where				= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $id";
 	}
-		
+	$Huizen = null;
 	if($_POST['addHouses'] == '1') {
 		$showListAdd = true;
 		$Huizen = getLijstHuizen($_POST['chosenList']);
@@ -52,7 +49,7 @@ if(isset($_POST['add'])) {
 	$sql		= "SELECT $TableHuizen.$HuizenOffline, $TableHuizen.$HuizenVerkocht, $TableHuizen.$HuizenAfmeld, $TableHuizen.$HuizenStart, $TableHuizen.$HuizenEind, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenID, $TableHuizen.$HuizenURL, ($TableHuizen.$HuizenEind - $TableHuizen.$HuizenStart) as tijdsduur FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
 	$result	= mysql_query($sql);
 	$row		= mysql_fetch_array($result); 
-	
+		
 	$fullWidth = $eind_tijd - $start_tijd;
 	
 	echo "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
@@ -101,14 +98,7 @@ if(isset($_POST['add'])) {
 			$class = 'online';
 		}
 		
-		/*
-		# 6D = 109
-		# A0 = 160
-		# FF = 255
-		$waarde = 109+(($percentageAll*(255-109))/100);
-		$kleurCode = '#FF'.dechex($waarde).dechex($waarde);
-		*/
-		
+
 		echo "<tr><td>\n";
 		echo "	<table width='100%' border=0><tr>\n";
 		echo "		<td width='25%'>";
@@ -160,4 +150,5 @@ if(isset($_POST['add'])) {
 }
 
 echo $HTMLFooter;
+
 ?>

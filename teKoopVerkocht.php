@@ -1,9 +1,6 @@
 <?php
-include_once('../general_include/general_functions.php');
-include_once('../general_include/general_config.php');
-include_once('include/functions.php');
-include_once('include/config.php');
-include_once('include/HTML_TopBottom.php');
+include_once(__DIR__. '/include/config.php');
+include_once(__DIR__ .'/include/HTML_TopBottom.php');
 $minUserLevel = 1;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");
@@ -11,11 +8,12 @@ include($cfgProgDir. "secure.php");
 connect_db();
 
 echo $HTMLHeader;
+$Name = null;
 
 if(isset($_REQUEST['selectie'])) {
 	$groep	= substr($_REQUEST['selectie'], 0, 1);
 	$id			= substr($_REQUEST['selectie'], 1);
-	
+
 	if($groep == 'Z') {		
 		$opdrachtData	= getOpdrachtData($id);
 		$Name					= $opdrachtData['naam'];
@@ -275,4 +273,3 @@ if(isset($_REQUEST['detail'])) {
 }
 
 echo $HTMLFooter;
-?>

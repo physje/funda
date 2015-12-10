@@ -1,9 +1,7 @@
 <?php
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
+include_once(__DIR__. '/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
+
 connect_db();
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
@@ -37,7 +35,7 @@ $selectie	= getParam('selectie', '');
 # Als hij een pagina opvraagt die niet bestaat krijg je veel errors/warnings.
 # Dat is niet handig, dus even onderdrukken
 error_reporting(0);
-
+$HTML = array();
 if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	$dateSelection = makeDateSelection('','',$bDag,$bMaand,$bJaar , '','',$eDag,$eMaand,$eJaar);
 		
@@ -81,8 +79,6 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 		$sql_array[] = "WHERE ";
 		$sql_array[] = "$TableResultaat.$ResultaatZoekID = $TableVerdeling.$VerdelingOpdracht AND ";
 		$sql_array[] = "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ";
-		//$sql_array[] = "($TableHuizen.$HuizenEind BETWEEN $beginGrens AND $eindGrens) AND ";
-		//$sql_array[] = "$TableHuizen.$HuizenVerkocht like '0' AND";
 		$sql_array[] = "$TableHuizen.$HuizenVerkocht NOT like '1' AND";
 		$sql_array[] = "$TableHuizen.$HuizenOffline like '0' AND";
 		
@@ -141,5 +137,3 @@ if(count($Debug) == 0) {
 }
 echo "</tr>\n";
 echo $HTMLFooter;
-
-?>

@@ -1,8 +1,6 @@
 <?php
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
+include_once(__DIR__. '/../include/config.php');
+
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
@@ -19,5 +17,3 @@ if($row = mysql_fetch_array($result)) {
 		}
 	} while($row = mysql_fetch_array($result));
 }
-
-?>

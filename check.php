@@ -1,12 +1,9 @@
 <?php
-include_once('../general_include/general_functions.php');
-include_once('../general_include/general_config.php');
-include_once('../general_include/class.phpmailer.php');
-include_once('../general_include/class.html2text.php');
-include_once('../general_include/class.phpPushover.php');
-include_once('include/functions.php');
-include_once('include/config.php');
+include_once(__DIR__. '/include/config.php');
 include_once('include/HTML_TopBottom.php');
+include_once($cfgGeneralIncludeDirectory.'class.phpmailer.php');
+include_once($cfgGeneralIncludeDirectory.'class.html2text.php');
+include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
 connect_db();
 
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
@@ -72,39 +69,12 @@ foreach($Opdrachten as $OpdrachtID) {
 		} else {
 			$nextPage = false;
 		}
-		
-		# Op funda.nl staan huizen van verschillende makkelaars-organisaties (NVM, VBO, etc.)
-		# Voor elke organisatie wordt een andere class uit de style-sheet gebruikt
-		# Deze class geeft precies het begin van een nieuw huis op de overzichtspagina aan
-		# Om zeker te zijn dat ik alle huizen vind doe ik eerst alsof alle huizen van NVM zijn,
-		# dan of alle huizen van VBO zijn, etc.
-		/*
-		$HuizenNVM			= explode(' nvm" >', $contents);			array_shift($HuizenNVM);
-		$HuizenNVMlst		= explode(' nvm lst" >', $contents);	array_shift($HuizenNVMlst);		
-		$HuizenNVMfeat	= explode(' nvm object-featured" >', $contents);	array_shift($HuizenNVMfeat);		
-		$HuizenVBO			= explode(' vbo" >', $contents);			array_shift($HuizenVBO);
-		$HuizenVBOlst		= explode(' vbo lst" >', $contents);	array_shift($HuizenVBOlst);
-		$HuizenLMV			= explode(' lmv" >', $contents);			array_shift($HuizenLMV);
-		$HuizenLMVlst		= explode(' lmv lst" >', $contents);	array_shift($HuizenLMVlst);
-		$HuizenExt			= explode(' ext" >', $contents);			array_shift($HuizenExt);
-		$HuizenExtlst		= explode(' ext lst" >', $contents);	array_shift($HuizenExtlst);
-		$HuizenProject	= explode('closed" >', $contents);		array_shift($HuizenProject);
-		$Huizen					= array_merge($HuizenNVM, $HuizenNVMlst, $HuizenNVMfeat, $HuizenVBO, $HuizenVBOlst, $HuizenLMV, $HuizenLMVlst, $HuizenExt, $HuizenExtlst, $HuizenProject);
-		$NrPageHuizen		= count($Huizen);
-		
-		# funda.nl heeft sinds 18-02-2013 de gekke gewoonte om ook verkochte huizen op te nemen.
-		# Op deze manier wordt de teller van gevonden huizen wel kloppend gehouden.
-		$HuizenExpNVM	= explode(' nvm exp " >', $contents);		array_shift($HuizenExpNVM);
-		$HuizenExpVBO	= explode(' vbo exp " >', $contents);		array_shift($HuizenExpVBO);
-		$HuizenExpLMV	= explode(' lmv exp " >', $contents);		array_shift($HuizenExpLMV);		
-		$verlopenHuizen			= array_merge($HuizenExpNVM, $HuizenExpVBO, $HuizenExpLMV);
-		*/
-		
-		$Huizen			= explode('<div class="search-result" data', $contents);
+
+		# Code opknippen zodat er een array met HTML-code voor een huis ontstaat		
+		$Huizen			= explode('<div class="search-result-media">', $contents);
 		$Huizen			= array_slice($Huizen, 1);		
 		$NrPageHuizen		= count($Huizen);
-		
-		
+				
 		foreach($verlopenHuizen as $HuisText) {
 			$verlopenAdres = getString('<h3>', '<a class=', $HuisText, 0);
 			$VerlopenArray[] = $verlopenAdres[0];
@@ -778,4 +748,3 @@ if(count($ErrorMessage) > 0 AND $debug == 0) {
 	$mail->Body			= $HTMLMail;
 	$mail->Send();	
 }
-?>

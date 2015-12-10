@@ -1,8 +1,5 @@
 <?php
-include_once('../../general_include/general_functions.php');
-include_once('../../general_include/general_config.php');
-include_once('../include/functions.php');
-include_once('../include/config.php');
+include_once(__DIR__. '/../include/config.php');
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
@@ -22,9 +19,7 @@ $row		= mysql_fetch_array($result);
 
 do {
 	$huis			= $row[$KenmerkenID];
-	//$kenmerk	= $row[$KenmerkenKenmerk];
-	//$waarde		= $row[$KenmerkenValue];
-	
+
 	$data			= getFundaData($huis);
 	$moreData = getFundaKenmerken($huis);
 	
@@ -42,7 +37,7 @@ do {
 			}			
 		}
 	} else {
-		echo "<u>$huis</u> bestaat niet";
+		echo "<em>$huis</em> bestaat niet";
 				
 		$sql = "DELETE FROM $TableHuizen WHERE $HuizenID = $huis";
 		if(mysql_query($sql)) {
@@ -53,5 +48,3 @@ do {
 	}
 	
 } while($row = mysql_fetch_array($result));
-
-?>
