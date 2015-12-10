@@ -19,7 +19,6 @@ if(isset($_REQUEST[OpdrachtID])) {
 	$enkeleOpdracht = true;
 } else {
 	$Opdrachten = getZoekOpdrachten('', date('H'));
-	//$Opdrachten = getZoekOpdrachtenByHour(date('H'));
 	$enkeleOpdracht = false;
 }
 
@@ -248,8 +247,7 @@ foreach($Opdrachten as $OpdrachtID) {
 					$extraData = getFundaData($alreadyOnline);
 					$extraString = "<a href='http://funda.nl/$alreadyOnline'>Al online bij ". $extraData['makelaar'] ."</a>";
 				} elseif(is_numeric($onlineBefore)) {
-					$extraData = getFundaData($onlineBefore);					
-					//$extraString = "<a href='". $ScriptURL ."/admin/combine_batch.php?id_1=$onlineBefore&id_2=". $data['id'] ."'>Online geweest tot ". date("d-m-Y", $extraData['eind']) ."</a>";
+					$extraData = getFundaData($onlineBefore);
 					$extraString = implode(" & ", getTimeBetween($extraData['eind'], time())) ." geleden offline gegaan";
 				} else {
 					$extraString = '&nbsp;';
@@ -448,7 +446,6 @@ foreach($Opdrachten as $OpdrachtID) {
 				# Pushover-bericht opstellen
 				$push = array();
 				$push['title']		= $data['adres'] ." is onder voorbehoud verkocht voor '". $OpdrachtData['naam'] ."'";
-				//$push['message']	= getDoorloptijd($fundaID) ."\n". formatPrice($OorspronkelijkeVraagprijs) .' -> '. formatPrice($LaatsteVraagprijs);
 				$push['message']	= 'Na '. getDoorloptijd($fundaID) .' met een prijs van '. formatPrice($LaatsteVraagprijs);
 				if($LaatsteVraagprijs != $OorspronkelijkeVraagprijs) {
 					$push['message']	.= '<br>Oorspronkelijke vraagprijs was '. formatPrice($OorspronkelijkeVraagprijs);

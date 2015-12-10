@@ -101,8 +101,6 @@ if(isset($_POST['add'])) {
 		} else {
 			$TextClass = 'online';
 		}
-		
-		//$balkKleuren = array('', '#FF6D6D','#FF7777','#FF8181','#FF8B8B','#FF9595','#FF9F9F');
 						
 		echo "<tr>\n";
 		echo "	<td width='25%'>";
@@ -115,7 +113,6 @@ if(isset($_POST['add'])) {
 		if(array_sum($breedte) > 0) {			
 			foreach($breedte as $tijd => $value) {
 				$i++;
-				//echo "		<td width='". $value ."%' bgcolor='". $balkKleuren[fmod($i, count($balkKleuren))] ."' title='Gedaald naar ". formatPrice($prijzen[$tijd]) ." (afname ". formatPercentage($percentage[$tijd]) .")\nOorspronkelijk ". formatPrice(getOrginelePrijs($huisID)) ." (afname ". formatPercentage($percentage_overall[$tijd]) .")'>&nbsp;</td>\n";
 				echo "		<td width='". $value ."%' bgcolor='#FF6D6D' title='Gedaald naar ". formatPrice($prijzen[$tijd]) ." (afname ". formatPercentage($percentage[$tijd]) .")\nOorspronkelijk ". formatPrice(getOrginelePrijs($huisID)) ." (afname ". formatPercentage($percentage_overall[$tijd]) .")'>&nbsp;</td>\n";
 			}
 		}

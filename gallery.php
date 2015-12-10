@@ -85,7 +85,6 @@ if(isset($_POST['add'])) {
 				$description = "onder voorbehoud";
 			} elseif($data['openhuis'] == '1') {
 				$imageClass = 'imageAvailable';
-				//$description = "open huis";
 				$open = getNextOpenhuis($huisID);
 				$description = strftime("%e %b %k:%M", $open[0]) ." - ". strftime("%k:%M", $open[1]);
 			} else {

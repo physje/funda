@@ -167,8 +167,6 @@ if(isset($_REQUEST['detail'])) {
 		$start_array[$i] = $start;
 		$eind_array[$i] = $eind;
 		
-		//echo date('d-m-Y', $start) .' -> '. date('d-m-Y', $eind) .'<br>';
-		
 		$start	= $eind+1;
 		$i++;
 	}
