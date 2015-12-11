@@ -1,7 +1,7 @@
 <?php
-include_once(__DIR__. '/../include/config.php');
-include_once(__DIR__ . '/../general_includes/class.phpmailer.php');
-include_once(__DIR__ . '/../general_include/class.phpPushover.php');
+include_once(__DIR__.'/../include/config.php');
+include_once($cfgGeneralIncludeDirectory.'/class.phpmailer.php');
+include_once($cfgGeneralIncludeDirectory.'/class.phpPushover.php');
 include_once(__DIR__ . '/../include/HTML_TopBottom.php');
 connect_db();
 

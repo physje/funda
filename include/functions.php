@@ -2121,6 +2121,7 @@ function send2Pushover($dataArray, $recipients) {
 			$push->setMessage($dataArray['message']);
 			if($dataArray['url'] != '')				$push->setUrl($dataArray['url']);
 			if($dataArray['urlTitle'] != '')	$push->setUrlTitle($dataArray['urlTitle']);
+			if($dataArray['priority'] != 0)		$push->setPriority ($dataArray['priority']);
 			$push->setHtml(1);
 			$push->setDebug(true);
 			$push->setTimestamp(time());
@@ -2128,5 +2129,3 @@ function send2Pushover($dataArray, $recipients) {
 		}
 	}
 }
-
-?>

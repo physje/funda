@@ -1,15 +1,8 @@
 <?php
-# Pas deze map aan naar de plek waar de bestanden uit de map 'MOVE_THIS_FOLDER' neergezet zijn
-$cfgGeneralIncludeDirectory = __DIR__ . '/../../general_include/';
-
-include_once($cfgGeneralIncludeDirectory . 'general_functions.php');
-include_once($cfgGeneralIncludeDirectory . 'general_config.php');
-include_once( __DIR__ . '/functions.php');
-
-$ScriptURL		= '';			# Map waar het script staat, bv http://www.example.com/scripts/funda/
+$ScriptURL			= '';			# Map waar het script staat, bv http://www.example.com/scripts/funda/
 $ScriptTitle		= 'Funda Alert';	# Naam van het script (is naam van afzender in mails)
 $ScriptMailAdress	= '';			# Mailadres van het script (is mailadres van afzender in mails)
-$Version		= '4.2';		# Versie nummer
+$Version		= '4.3';		# Versie nummer
 $SubjectPrefix		= '[funda] ';		# Voorvoegsel bij de onderwerpregel bij het versturen van mails
 
 $debug			= 0;			# Wel (1) of geen (0) debug-info op het scherm tonen
@@ -57,6 +50,12 @@ $cfgPrefixExport[] = 'Longitude';
 
 # Default bestandsnaam voor de reguliere export naar EXCEL
 $cfgXLSFilename = '../extern/export_'. date('mdy') .'_'. md5(strftime ('%A %e %B %G')) .'.xls';
+
+# Pas deze map aan naar de plek waar de bestanden uit de map 'MOVE_THIS_FOLDER' neergezet zijn
+$cfgGeneralIncludeDirectory = __DIR__ . '/../../general_include/';
+
+# Prioriteit waarmee PushOver-notificaties met errors worden verstuurd
+$cfgPushErrorPriority = 1;
 
 # Strings met meldingen voor het inloggen
 #$strNoAccess          = "Toegang geweigerd";
@@ -162,3 +161,7 @@ $ZoekenKey		= "id";
 $ZoekenUser		= "user";
 $ZoekenNaam		= "naam";
 $ZoekenURL		= "url";
+
+include_once($cfgGeneralIncludeDirectory . 'general_functions.php');
+include_once($cfgGeneralIncludeDirectory . 'general_config.php');
+include_once( __DIR__ .'/functions.php');

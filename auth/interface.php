@@ -46,5 +46,3 @@ echo "</tr>\n";
 echo $HTMLFooter;
 
 toLog('info', '', '', 'Inlogpoging vanaf '. $_SERVER['REMOTE_ADDR']);
-
-?>

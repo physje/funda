@@ -1,8 +1,7 @@
 <?php
-include_once(__DIR__. '../include/config.php');
-
-include_once(__DIR__ . '../general_includes/class.phpmailer.php');
-include_once(__DIR__ . '../general_includes/class.html2text.php');
+include_once(__DIR__.'../include/config.php');
+include_once($cfgGeneralIncludeDirectory.'class.phpmailer.php');
+include_once($cfgGeneralIncludeDirectory.'class.html2text.php');
 
 include_once('../include/HTML_TopBottom.php');
 connect_db();
@@ -83,6 +82,3 @@ echo "</td>\n";
 echo "<td width='25%' valign='top' align='center'>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-
-
-?>

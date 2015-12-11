@@ -1,5 +1,5 @@
 <?php
-include_once(__DIR__. '/include/config.php');
+include_once(__DIR__.'/include/config.php');
 include_once('include/HTML_TopBottom.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpmailer.php');
 include_once($cfgGeneralIncludeDirectory.'class.html2text.php');
@@ -44,6 +44,8 @@ foreach($Opdrachten as $OpdrachtID) {
 	if(!is_numeric($NrHuizen[0]) AND !strpos($contents, '<div class="no-results">')) {
 		$ErrorMessage[] = $OpdrachtData['naam'] ."; Het totaal aantal huizen klopt niet : ". $NrHuizen[0];	
 		toLog('error', $OpdrachtID, '', 'Ongeldig aantal huizen');
+		$push = array(); $push['title'] = "Ongeldig aantal huizen voor '". $OpdrachtData['naam'] ."'"; $push['message'] = "Het totaal aantal huizen klopt niet : ". $NrHuizen[0]; $push['url'] = $OpdrachtURL; $push['urlTitle'] = $OpdrachtData['naam']; $push['priority']	= $cfgPushErrorPriority;
+		send2Pushover($push, array(1));
 	}
 	
 	$String = array('');
@@ -283,7 +285,7 @@ foreach($Opdrachten as $OpdrachtID) {
 					$push['title']		= "Nieuw huis voor '". $OpdrachtData['naam'] ."'";
 					$push['message']	= $data['adres'] .' is te koop voor '. formatPrice($data['prijs']);
 					$push['url']			= 'http://funda.nl/'. $data['id'];
-					$push['urlTitle']	= 'funda.nl';				
+					$push['urlTitle']	= $data['adres'];				
 					send2Pushover($push, $PushMembers);
 				}
 			} elseif(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {
@@ -310,7 +312,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				$push['title']		= $data['adres'] ." is in prijs verlaagd voor '". $OpdrachtData['naam'] ."'";
 				$push['message']	= "Van ". formatPrice(prev($prijzen_array)) .' voor '. formatPrice(end($prijzen_array));
 				$push['url']			= 'http://funda.nl/'. $data['id'];
-				$push['urlTitle']	= 'funda.nl';				
+				$push['urlTitle']	= $data['adres'];				
 				send2Pushover($push, $PushMembers);
 			}			
 		}
@@ -352,6 +354,8 @@ foreach($Opdrachten as $OpdrachtID) {
 			if(!is_numeric(strpos($contents, "<h3>Geen koopwoningen gevonden die voldoen aan uw zoekopdracht</h3>"))) {
 				$ErrorMessage[] = $OpdrachtData['naam'] ."; Script vond maar ". (count($AdressenArray) + count($VerlopenArray)) .' huizen op pagina '. $p;
 				toLog('error', $OpdrachtID, '', "script vond maar ". (count($AdressenArray) + count($VerlopenArray)) ." huizen; pag. $p");
+				$push = array(); $push['title'] = "Te weinig huizen gevonden voor '". $OpdrachtData['naam'] ."'"; $push['message'] = "Het aantal gevonden huizen op pagina $p klopt niet : ". $NrHuizen[0]; $push['url'] = $OpdrachtURL; $push['urlTitle'] = $OpdrachtData['naam']; $push['priority']	= $cfgPushErrorPriority;
+				send2Pushover($push, array(1));
 			}
 		}
 		
@@ -398,7 +402,7 @@ foreach($Opdrachten as $OpdrachtID) {
 					$push['message']	.= '<br>Oorspronkelijke vraagprijs was '. formatPrice($OorspronkelijkeVraagprijs);
 				}
 				$push['url']			= 'http://funda.nl/'. $data['id'];
-				$push['urlTitle']	= 'funda.nl';				
+				$push['urlTitle']	= $data['adres'];				
 				send2Pushover($push, $PushMembers);			
 			} elseif($data['verkocht'] == '2') {
 				$Item  = "<table width='100%'>\n";
@@ -421,7 +425,7 @@ foreach($Opdrachten as $OpdrachtID) {
 					$push['message']	.= '<br>Oorspronkelijke vraagprijs was '. formatPrice($OorspronkelijkeVraagprijs);
 				}
 				$push['url']			= 'http://funda.nl/'. $data['id'];
-				$push['urlTitle']	= 'funda.nl';				
+				$push['urlTitle']	= $data['adres'];				
 				send2Pushover($push, $PushMembers);
 			} elseif($data['verkocht'] == '0') {
 				$Item  = "<table width='100%'>\n";
@@ -440,7 +444,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				$push['title']		= $data['adres'] ." is weer beschikbaar voor '". $OpdrachtData['naam'] ."'";
 				$push['message']	= 'Weer op de markt voor '. formatPrice($LaatsteVraagprijs);
 				$push['url']			= 'http://funda.nl/'. $data['id'];
-				$push['urlTitle']	= 'funda.nl';				
+				$push['urlTitle']	= $data['adres'];				
 				send2Pushover($push, $PushMembers);
 			} else {
 				$ErrorMessage[] = $OpdrachtData['naam'] ."; Zoeken van verkochte huizen geeft ongeldig resultaat";
@@ -479,7 +483,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			$push['title']		= $data['adres'] ." heeft open huis voor '". $OpdrachtData['naam'] ."'";
 			$push['message']	= $data['adres'] ." heeft open huis op ". strftime("%a %e %b", $open[0]) ." van ". strftime("%k:%M", $open[0]) ." tot ". strftime("%k:%M", $open[1]);
 			$push['url']			= 'http://funda.nl/'. $data['id'];
-			$push['urlTitle']	= 'funda.nl';				
+			$push['urlTitle']	= $data['adres'];				
 			send2Pushover($push, $PushMembers);
 			
 			# Bijhouden dat mail verstuurd is met open huis

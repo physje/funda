@@ -1,5 +1,5 @@
 <?php
-include_once(__DIR__. '/../include/config.php');
+include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
 connect_db();
 
@@ -177,4 +177,3 @@ function formatAddress($string) {
 	$string = str_replace(' ', '', $string);
 	return $string;
 }
-?>

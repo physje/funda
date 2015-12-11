@@ -37,6 +37,3 @@ if (isset($logout) && !(isset($_GET['logout']) || isset($_POST['logout']))) {
   include($cfgProgDir. "objects/checklogin.php");
   include($cfgProgDir. 'objects/checklogin_db.php');
 }
-
-
-?>

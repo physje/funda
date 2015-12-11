@@ -1,5 +1,5 @@
 <?php
-include_once(__DIR__. '/../include/config.php');
+include_once(__DIR__.'/../include/config.php');
 
 include_once('../include/HTML_TopBottom.php');
 setlocale(LC_ALL, 'nl_NL');

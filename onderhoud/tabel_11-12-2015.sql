@@ -1,22 +1,28 @@
--- Generation Time: Aug 08, 2014 at 09:25 AM
--- Server version: 5.5.29
--- PHP Version: 5.4.23
+-- phpMyAdmin SQL Dump
+-- version 4.0.10.7
+-- http://www.phpmyadmin.net
+--
+-- Machine: localhost:3306
+-- Genereertijd: 11 dec 2015 om 14:04
+-- Serverversie: 5.6.27
+-- PHP-versie: 5.4.31
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `funda_abonnement`
+-- Tabelstructuur voor tabel `funda_abonnement`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_abonnement` (
   `zoek_id` int(3) NOT NULL,
-  `member_id` int(3) NOT NULL
+  `member_id` int(3) NOT NULL,
+  `soort` set('mail','push') NOT NULL DEFAULT 'mail'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `funda_huizen`
+-- Tabelstructuur voor tabel `funda_huizen`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_huizen` (
@@ -33,6 +39,7 @@ CREATE TABLE IF NOT EXISTS `funda_huizen` (
   `longitude` float(10,6) NOT NULL,
   `start` int(10) NOT NULL DEFAULT '0',
   `eind` int(10) NOT NULL DEFAULT '0',
+  `afgemeld` int(10) NOT NULL DEFAULT '0',
   `verkocht` set('0','1','2') NOT NULL DEFAULT '0',
   `offline` set('0','1') NOT NULL DEFAULT '0',
   `open_huis` set('0','1') NOT NULL DEFAULT '0',
@@ -42,7 +49,19 @@ CREATE TABLE IF NOT EXISTS `funda_huizen` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `funda_kalender`
+-- Tabelstructuur voor tabel `funda_ignore`
+--
+
+CREATE TABLE IF NOT EXISTS `funda_ignore` (
+  `id` int(8) NOT NULL AUTO_INCREMENT,
+  `funda_id` int(8) NOT NULL,
+  KEY `id` (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `funda_kalender`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_kalender` (
@@ -54,7 +73,7 @@ CREATE TABLE IF NOT EXISTS `funda_kalender` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `funda_kenmerken`
+-- Tabelstructuur voor tabel `funda_kenmerken`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_kenmerken` (
@@ -69,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `funda_kenmerken` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `funda_lists`
+-- Tabelstructuur voor tabel `funda_lists`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_lists` (
@@ -83,7 +102,7 @@ CREATE TABLE IF NOT EXISTS `funda_lists` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `funda_list_resultaat`
+-- Tabelstructuur voor tabel `funda_list_resultaat`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_list_resultaat` (
@@ -94,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `funda_list_resultaat` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `funda_log`
+-- Tabelstructuur voor tabel `funda_log`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_log` (
@@ -111,7 +130,7 @@ CREATE TABLE IF NOT EXISTS `funda_log` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `funda_members`
+-- Tabelstructuur voor tabel `funda_members`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_members` (
@@ -121,6 +140,8 @@ CREATE TABLE IF NOT EXISTS `funda_members` (
   `password` text NOT NULL,
   `level` int(1) NOT NULL,
   `mail` text NOT NULL,
+  `userkey` text NOT NULL,
+  `api_token` text NOT NULL,
   `account` int(3) NOT NULL,
   `lastLogin` int(11) NOT NULL,
   UNIQUE KEY `id` (`id`)
@@ -134,7 +155,7 @@ INSERT INTO `funda_members` (`id`, `name`, `username`, `password`, `level`, `mai
 -- --------------------------------------------------------
 
 --
--- Table structure for table `funda_PBK`
+-- Tabelstructuur voor tabel `funda_PBK`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_PBK` (
@@ -147,7 +168,7 @@ CREATE TABLE IF NOT EXISTS `funda_PBK` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `funda_prijzen`
+-- Tabelstructuur voor tabel `funda_prijzen`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_prijzen` (
@@ -161,7 +182,7 @@ CREATE TABLE IF NOT EXISTS `funda_prijzen` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `funda_resultaat`
+-- Tabelstructuur voor tabel `funda_resultaat`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_resultaat` (
@@ -175,7 +196,7 @@ CREATE TABLE IF NOT EXISTS `funda_resultaat` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `funda_verdeling`
+-- Tabelstructuur voor tabel `funda_verdeling`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_verdeling` (
@@ -186,7 +207,7 @@ CREATE TABLE IF NOT EXISTS `funda_verdeling` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `funda_zoeken`
+-- Tabelstructuur voor tabel `funda_zoeken`
 --
 
 CREATE TABLE IF NOT EXISTS `funda_zoeken` (

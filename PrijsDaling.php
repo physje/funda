@@ -1,5 +1,5 @@
 <?php
-include_once(__DIR__. '/include/config.php');
+include_once(__DIR__.'/include/config.php');
 include_once(__DIR__ .'/include/HTML_TopBottom.php');
 include_once($cfgGeneralIncludeDirectory.'class.MobileDetect.php');
 $minUserLevel = 1;

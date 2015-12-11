@@ -30,4 +30,3 @@ function is_in_array($needle, $haystack) {
                 }
         else return(false);
         }
-?>

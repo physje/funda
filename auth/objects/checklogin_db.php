@@ -53,4 +53,3 @@ if (( isset($requiredUserLevel) && !empty($requiredUserLevel[0])) || isset($minU
     exit;
   }
 }
-?>

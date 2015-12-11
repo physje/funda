@@ -1,5 +1,5 @@
 <?php
-include_once(__DIR__. '../include/config.php');
+include_once(__DIR__.'../include/config.php');
 connect_db();
 
 $XML[] = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>";

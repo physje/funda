@@ -68,4 +68,3 @@ if (!isset($password)) {
 
 // login and password variables exist
 // continue to checking them
-?>
