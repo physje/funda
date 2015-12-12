@@ -43,11 +43,11 @@ foreach($dataset as $fundaID) {
 		echo $key .' -> '. $value .'<br>';
 	}
 	
-	foreach($oldExtraData as $key => $value) {
+	foreach($newExtraData as $key => $value) {
 		echo $key .' -> '. $value .'<br>';
 	}
 	*/
-	
+			
 	if($showDetails) {		
 		$HTML[] = "<table>";
 		$HTML[] = "<tr><td width=10%>&nbsp;</td><td width=45%><b>Oud</b></td><td width=45%><b>Nieuw</b></td></tr>";	

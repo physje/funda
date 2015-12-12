@@ -278,18 +278,6 @@ function extractFundaData($HuisText, $verkocht = false) {
 	
 	$postcode = explode(' ', trim($PC[0]));
 		
-	$HuisPrijs		= $prijs[0];		
-	for($i=0 ; $i < strlen($HuisPrijs) ; $i++) {
-		$waarde = $HuisPrijs[$i];					
-		if(is_numeric($waarde)) {
-			$cleanPrice .= $waarde;
-		}
-	}
-	
-	if(!is_numeric($cleanPrice)) {
-		$cleanPrice		= '0';
-	}	
-	
 	$data['id']				= $id;
 	$data['url']			= trim($HuisURL[0]);
 	$data['adres']		= trim($adres[0]);
@@ -298,7 +286,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$data['plaats']		= end($postcode);
 	$data['thumb']		= trim($foto[0]);
 	$data['makelaar']	= trim($R_naam[0]);
-	$data['prijs']		= $cleanPrice;
+	$data['prijs']		= cleanPrice($prijs[0]);
 	$data['vov']			= $voorbehoud;
 	$data['openhuis']	= $openhuis;
 	
@@ -311,6 +299,21 @@ function extractFundaData($HuisText, $verkocht = false) {
 	return $data;
 }
 
+function cleanPrice($HuisPrijs) {
+	$cleanPrice = '';
+	for($i=0 ; $i < strlen($HuisPrijs) ; $i++) {
+		$waarde = $HuisPrijs[$i];
+		if(is_numeric($waarde)) {
+			$cleanPrice .= $waarde;
+		}
+	}
+	
+	if(!is_numeric($cleanPrice)) {
+		$cleanPrice		= '0';
+	}	
+		
+	return $cleanPrice;
+}
 
 function extractFundaData_old($HuisText, $verkocht = false) {	
 	# Overzichtspagina
@@ -470,11 +473,12 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	# Moeten gegevens die al bekend zijn opnieuw opgevraagd worden
 	# Meestal niet, maar soms is dat nodig
 	if($alreadyKnown) {
-		$adres			= getString('<h1>', '</h1>', $navigatie[1], 0);
-		$PC					= getString('<p>', '</p>', $adres[1], 0);
-		$prijs			= getString('<span class="price">', '</span>', $PC[1], 0);
-		$rel_info		= getString('<h3>', '</h3>', $contents, 0);
+		$adresHTML	= getString('<div class="object-header-info">', '</div>', $contents, 0);
+		$prijs			= getString('<strong class="object-header-price">', '</strong>', $contents, 0);
+		$makelHTML	= getString('<h2 class="object-contact-aanbieder-name">', '</h2>', $contents, 0);
+		$fotoHTML		=  getString('<div class="object-media-foto">', '</div>', $contents, 0);
 		
+		/*
 		if($verkocht == 1) {
 			$foto				=	getString('" src="http:', '"', $adres[1], 0);
 		} else {
@@ -485,22 +489,21 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 			$dummy_PC	= getString('', '<span class="item', $PC[0], 0);
 			$PC[0] = $dummy_PC[0];							
 		}
-	
-		$postcode		= explode(" ", trim($PC[0]));
-	
-		$HuisPrijs	= $prijs[0];			
-		$HuisPrijs	= str_ireplace('&euro;&nbsp;', '' , $HuisPrijs);
-		$HuisPrijs	= str_ireplace('.', '' , $HuisPrijs);
+		*/
+		$adres			= getString('">', '<span class="object-header-subtitle">', $adresHTML[0], 0);
+		$PC					= getString('<span class="object-header-subtitle">', '</span>', $adresHTML[0], 0);
+		$makelaar		= getString('">', '</a>', $makelHTML[0], 0);
+		$foto				=	getString('<a href="', '"', $fotoHTML[0], 0);
 		
-		$makelaar	= getString('">', '</a>', $rel_info[0], 0);
+		$postcode		= explode(" ", trim($PC[0]));		
 		
 		$data['adres']		= trim(str_replace('<span class="item-sold-label-large" title="Verkocht">VERKOCHT</span>', '', $adres[0]));
 		$data['PC_c']			= trim($postcode[0]);
 		$data['PC_l']			= trim($postcode[1]);
 		$data['plaats']		= end($postcode);
-		$data['thumb']		= 'http:'.trim($foto[0]);
+		$data['thumb']		= trim(str_replace('_1080x720.jpg', '_360x240.jpg', $foto[0]));
 		$data['makelaar']	= trim($makelaar[0]);
-		$data['prijs']		= $HuisPrijs;
+		$data['prijs']		= cleanPrice($prijs[0]);
 		$data['verkocht']	= $verkocht;
 	}
 	
