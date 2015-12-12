@@ -1,6 +1,5 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
-
 include_once('../include/HTML_TopBottom.php');
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
@@ -8,6 +7,13 @@ include($cfgProgDir. "secure.php");
 connect_db();
 
 $error = array();
+# Foutieve huizen uit de huizen-database verwijderen.
+# Foutief is bijvoorbeeld een funda-id van 0
+$sql = "DELETE FROM $TableHuizen WHERE $HuizenID like '' OR $HuizenID like '0'";
+mysql_query($sql);
+$melding[] = "Foutieve huizen zijn verwijderd<br>";
+
+
 
 # Kijken of alle huizen uit de kenmerken-database ook bestaande huizen zijn
 $sql		= "SELECT * FROM $TableKenmerken GROUP BY $KenmerkenID";
@@ -101,8 +107,6 @@ do {
 } while($row = mysql_fetch_array($result));
 
 $melding[] = "Alle huizen uit de huizen-database zijn in andere databases opgezocht<br>";
-
-
 
 # Kijken of alle huizen die in de huizen-db open huis hebben ook in de open huis database staan
 $sql		= "SELECT * FROM $TableHuizen WHERE $HuizenOpenHuis = '1'";
