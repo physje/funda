@@ -1,5 +1,5 @@
 <?php
-include_once(__DIR__.'../include/config.php');
+include_once(__DIR__.'/../include/config.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpmailer.php');
 include_once($cfgGeneralIncludeDirectory.'class.html2text.php');
 

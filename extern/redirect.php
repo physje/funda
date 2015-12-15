@@ -1,5 +1,5 @@
 <?php
-include_once(__DIR__.'../include/config.php');
+include_once(__DIR__.'/../include/config.php');
 connect_db();
 
 $data = getFundaData($_REQUEST['id']);
