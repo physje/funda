@@ -261,7 +261,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 	}
 			
 	$param	= getString('<ul class="labels">', '</ul>', $PC[1], 0);	
-	$foto		= getString('100vw,228px" src="', '" srcset="', $HuisText, 0);
+	$foto		= getString('calc(100vw - 2rem)" src="', '" srcset="', $HuisText, 0);
 	
 	# Nu al het knippen geweest is kan de geknipte data "geprocesed" worden		
 	if(strpos($param[0], 'Verkocht onder voorbehoud')) {

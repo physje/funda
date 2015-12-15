@@ -5,7 +5,7 @@ $ScriptMailAdress	= '';			# Mailadres van het script (is mailadres van afzender 
 $Version		= '4.3';		# Versie nummer
 $SubjectPrefix		= '[funda] ';		# Voorvoegsel bij de onderwerpregel bij het versturen van mails
 
-$debug			= 1;			# Wel (1) of geen (0) debug-info op het scherm tonen
+$debug			= 0;			# Wel (1) of geen (0) debug-info op het scherm tonen
 $stapPrijs		= 25000;		# Stapjes in prijs in de Google Maps view
 $colPhoto		= 3;			# Aantal kolommen met foto in mail
 $rowPhoto		= 3;			# Aantal rijen met foto in mail

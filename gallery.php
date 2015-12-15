@@ -105,7 +105,7 @@ if(isset($_POST['add'])) {
 		# De HTML van een huis
 		# Let op dat de <div class='float_rechts'> eerst staan, en pas daarna de linkertekst.
 		# Deze hack zorgt dat het in IE ook werkt
-		$Foto  = "	<a href='". $ScriptURL ."admin/HouseDetails.php?id=$huisID' target='_blank' title='$hoverText'><div class='wrapper'><img src='$image' class='$imageClass'></a>";
+		$Foto  = "	<a href='". $ScriptURL ."admin/HouseDetails.php?id=$huisID' target='_blank' title='$hoverText'><div class='wrapper'><img src='$image' width='240' class='$imageClass'></a>";
 		if($balk)	$Foto .= "<div class='description'><p class='description_content'>". strtoupper($description) ."</p></div>";
 		$Foto .= "</div><br>\n";		
 		if($showListAdd)	$Foto .= "	<input type='checkbox' name='huis[]' value='$huisID'". (in_array($huisID, $knownHuizen) ? ' checked' : '') .">";
