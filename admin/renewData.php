@@ -30,7 +30,12 @@ foreach($dataset as $fundaID) {
 	$oldData			= getFundaData($fundaID);
 	$oldExtraData = getFundaKenmerken($fundaID);
 	$URL					= "http://www.funda.nl". trim($oldData['url']);
-	$allData			= extractDetailedFundaData($URL, true);
+	
+	if($oldData['verkocht'] == 1) {
+		$allData			= extractDetailedFundaData_old($URL, true);
+	} else {
+		$allData			= extractDetailedFundaData($URL, true);
+	}
 	
 	$newData			= $allData[0];
 	$newExtraData	= $allData[1];

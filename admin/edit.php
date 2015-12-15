@@ -225,7 +225,7 @@ if(isset($_REQUEST['id'])) {
 			$url = 'http://www.funda.nl/'. $data['url'] .'fotos/#groot&foto-'.($key+1);
 		}
 			
-		$Foto[] = "<a href='$url' target='_blank'><img src='". $value ."'></a>";
+		$Foto[] = "<a href='$url' target='_blank'><img src='". str_replace('1080x720', '180x120', $value) ."'></a>";
 	}
 	
 	$soldBefore			= soldBefore($id);
