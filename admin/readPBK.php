@@ -117,5 +117,5 @@ if($newEntry) {
 	$mail->Body			= $HTMLMail;
 	$mail->Send();
 	
-	send2Pushover(array('title' => 'Prijsindex', 'message' => 'In $mailMaand was de prijsindex $percentage ('. number_format ((100*($percentage-$oud_perc))/$percentage,1) .'%)'), array(1));
+	send2Pushover(array('title' => 'Prijsindex', 'message' => "In $mailMaand was de prijsindex $percentage (". number_format ((100*($percentage-$oud_perc))/$percentage,1) .'%)'), array(1));
 }
