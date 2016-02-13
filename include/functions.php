@@ -507,12 +507,12 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 		$data['verkocht']	= $verkocht;
 	}
 	
-	if($contents != "") {		
+	if($contents != "" AND $verkocht != 1) {		
 		# Omschrijving
 		//$omschrijving = getString('<div data-object-description-body class="object-description-body">', '</div>', $contents, 0);
 		$omschrijving = getString('<div class="object-description-body" data-object-description-strip-markup data-object-description-body>', '</div>', $contents, 0);
 		
-		$KenmerkData['descr']	= trim($omschrijving[0]);	
+		$KenmerkData['descr']	= trim($omschrijving[0]);
 	} else {
 		$KenmerkData['descr']	= '';
 	}
@@ -623,7 +623,11 @@ function extractDetailedFundaData_old($URL, $alreadyKnown=false) {
 	}
 	
 	if($contents != "") {		
-		# Omschrijving
+		if($verkocht == 1) {
+			$URL = str_replace('/koop/', '/koop/verkocht/', $URL);
+		}
+		
+		# Omschrijving		
 		$contents_omschrijving		= file_get_contents_retry($URL.'omschrijving/');
 				
 		if(strpos($contents_omschrijving, '<div class="description-full">')) {			
@@ -637,6 +641,7 @@ function extractDetailedFundaData_old($URL, $alreadyKnown=false) {
 	} else {
 		$KenmerkData['descr']	= '';
 	}
+	
 	# Kenmerken
 	$contents		= file_get_contents_retry($URL.'kenmerken/');
 	$contents		= getString('<table class="specs specs-cats" border="0">', '</table>', $contents, 0);
