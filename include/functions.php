@@ -474,7 +474,7 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	# Meestal niet, maar soms is dat nodig
 	if($alreadyKnown) {
 		$adresHTML	= getString('<div class="object-header-info">', '</div>', $contents, 0);
-		$prijs			= getString('<strong class="object-header-price">', '</strong>', $contents, 0);
+		$prijs			= getString('<strong class="object-header-price ">', '</strong>', $contents, 0);
 		$makelHTML	= getString('<h2 class="object-contact-aanbieder-name">', '</h2>', $contents, 0);
 		$fotoHTML		=  getString('<div class="object-media-foto">', '</div>', $contents, 0);
 		
@@ -509,14 +509,16 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	
 	if($contents != "") {		
 		# Omschrijving
-		$omschrijving = getString('<div data-object-description-body class="object-description-body">', '</div>', $contents, 0);
+		//$omschrijving = getString('<div data-object-description-body class="object-description-body">', '</div>', $contents, 0);
+		$omschrijving = getString('<div class="object-description-body" data-object-description-strip-markup data-object-description-body>', '</div>', $contents, 0);
+		
 		$KenmerkData['descr']	= trim($omschrijving[0]);	
 	} else {
 		$KenmerkData['descr']	= '';
 	}
 
 	# Kenmerken
-	$content_kenmerk	= getString('<section class="object-kenmerken" aria-expanded="false" data-object-kenmerken>', '</section>', $contents, 0);
+	$content_kenmerk	= getString('<section class="object-kenmerken is-expanded" aria-expanded="true" data-object-kenmerken>', '</section>', $contents, 0);
 	$kenmerken				= explode('<dt>', $content_kenmerk[0]);
 	array_shift($kenmerken);
 	
@@ -538,7 +540,8 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 			
 		foreach($carousel as $key => $value) {		
 			$thumb = getString('src="', '"', $value, 0);
-			$picture[] = trim($thumb[0]);
+			//$picture[] = trim($thumb[0]);
+			$picture[] = trim(str_replace('_1080x720.jpg', '_360x240.jpg', $thumb[0]));
 		}
 		
 		$KenmerkData['foto']		= implode('|', $picture);
