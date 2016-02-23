@@ -88,7 +88,7 @@ if(isset($_POST['delete_list'])) {
 		$Page_3 .= "<input type='submit' value='Voeg huizen toe in prijsdaling'>";
 		$Page_3 .= "</form>";
 
-		$Page_3 .="<a href='bekijkHuizenzoeker.php?selectie=L$list'>Voer aan HuizenZoeker.nl</a>";
+		$Page_3 .="<a href='bekijkHuizenZoeker.php?selectie=L$list'>Voer aan HuizenZoeker.nl</a>";
 		$Page_3 .="<p>";
 		$Page_3 .="<a href='renewData.php?selectie=L$list'>Haal alle funda-gegevens opnieuw op</a>";
 
