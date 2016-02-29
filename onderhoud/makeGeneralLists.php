@@ -1,8 +1,8 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
-$minUserLevel = 1;
-$cfgProgDir = '../auth/';
-include($cfgProgDir. "secure.php");
+# $minUserLevel = 1;
+# $cfgProgDir = '../auth/';
+# include($cfgProgDir. "secure.php");
 connect_db();
 
 $tijdGrens = mktime(0,0,0,date("n")-1, date("d"), date("Y"));
