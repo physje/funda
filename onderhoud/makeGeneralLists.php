@@ -20,14 +20,16 @@ $query = array(
 for($i = 0 ; $i < count($IDs) ; $i++) {
 	$LijstID = $IDs[$i];
 	$data = getLijstData($LijstID);
-
+	
 	if($data['id'] != $LijstID) {
 		$sql_insert = "INSERT INTO $TableList ($ListID) VALUES ($LijstID)";
 		mysql_query($sql_insert);
-		saveUpdateList($LijstID, $_SESSION['UserID'], 1, $namen[$i]);
+		saveUpdateList($LijstID, $_SESSION['UserID'], 1, $namen[$i]);		
 	} else {
 		$sql_delete = "DELETE FROM $TableListResult WHERE $ListResultList like $LijstID";
-		mysql_query($sql_delete);
+		if(!mysql_query($sql_delete)) {
+			echo $sql_delete;
+		}
 	}
 	
 	$sql_toevoegen = $query[$i];	
