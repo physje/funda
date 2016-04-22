@@ -2101,7 +2101,14 @@ function corrigeerPrice($t1, $p1, $t2 = '') {
 		$row = mysql_fetch_array($result_1);
     		$factor_1 = $row[$PBKWaarde];
 	} else {
-		$factor_1 = $factor_2;	
+		//$factor_1 = $factor_2;	
+		$sql_4 = "SELECT * FROM $TablePBK ORDER BY $PBKStart DESC LIMIT 0,1";
+		$result_4 = mysql_query($sql_3);
+		$row = mysql_fetch_array($result_4);
+		
+		if($t1 > $row[$PBKEind]) {
+			$factor_1 = $row[$PBKWaarde];
+		}
 	}
 		
 	return (($factor_2/$factor_1)*$p1);
