@@ -261,7 +261,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item[] = "	<tr>";
 					
 				foreach($selectie as $key => $foto) {
-					$foto_resize = str_replace ('1440x960.jpg', '_180x120.jpg', $foto);
+					$foto_resize = str_replace ('_1440x960.jpg', '_180x120.jpg', $foto);
 					$Item[] = "		<td><a href='http://www.funda.nl". $data['url'] ."fotos/#groot&foto-". ($key + 1) ."'><img src='$foto_resize' border='0'></a></td>";
 					if(fmod($key, $colPhoto) == ($colPhoto - 1)) {
 						$Item[] = "	</tr>";
