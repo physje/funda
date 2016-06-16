@@ -67,7 +67,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		$contents	= file_get_contents_retry($PageURL, 5);
 		
 		# if(is_numeric(strpos($contents, '<a title="Volgende pagina')) AND $debug == 0) {
-		if(is_numeric(strpos($contents, '<span class="previous-next-label">Volgende</span>')) AND $debug == 0) {
+		if(is_numeric(strpos($contents, '<span class="pagination-next-label">Volgende</span>')) AND $debug == 0) {
 			$nextPage = true;
 		} else {
 			$nextPage = false;
