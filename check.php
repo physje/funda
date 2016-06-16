@@ -39,7 +39,7 @@ foreach($Opdrachten as $OpdrachtID) {
 	# Vraag de pagina op en herhaal dit het standaard aantal keer mocht het niet lukken
 	$contents	= file_get_contents_retry($OpdrachtURL);
 	
-	$NrHuizen	= getString('<div class="search-header-result-count">', ' resultaten</div>', $contents, 0);
+	$NrHuizen	= getString('<div data-instant-search-output="total" class="search-output-result-count">', ' resultaten', $contents, 0);
 
 	if(!is_numeric($NrHuizen[0]) AND !strpos($contents, '<div class="no-results">')) {
 		$ErrorMessage[] = $OpdrachtData['naam'] ."; Het totaal aantal huizen klopt niet : ". $NrHuizen[0];	
