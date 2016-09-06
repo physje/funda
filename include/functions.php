@@ -1920,9 +1920,9 @@ function extractOpenHuisData($id) {
 	$data			= getFundaData($id);
 	$contents	= file_get_contents_retry('http://www.funda.nl'.$data['url']);
 	
-	$propertie	= getString('<ul class="object-open-huis-description" data-object-open-huis-description>', '</ul>', $contents, 0);
-	$datum			= getString('<li class="">', ' van ', $propertie[0], 0);
-	$tijden			= getString(' van ', ' uur.</span>', $datum[1], 0);
+	$propertie	= getString('<ol class="object-promolabel__open-huis-dates">', '</ol>', $contents, 0);
+	$datum			= getString('open-huis-date">', ' van ', $propertie[0], 0);
+	$tijden			= getString(' van ', ' uur.</li>', $datum[1], 0);
 		
 	$temp				= explode('-', guessDate($datum[0]));
 		
