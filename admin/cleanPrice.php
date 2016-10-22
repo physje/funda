@@ -11,8 +11,6 @@ if(isset($_REQUEST['id'])) {
 } else {
 	# Vraag alle huis-prijs combinaties op
 	$sql		= "SELECT *, COUNT(*) as aantal FROM $TablePrijzen GROUP BY $PrijzenID, $PrijzenPrijs HAVING aantal > 1";
-	
-	echo $sql;
 }
 $result	= mysql_query($sql);
 $row		= mysql_fetch_array($result);
