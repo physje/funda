@@ -222,10 +222,12 @@ if(isset($_REQUEST['id'])) {
 		if($data['offline'] == 1) {
 			$url = str_replace('klein', 'grotere', $value);
 		} else {
-			$url = 'http://www.funda.nl/'. $data['url'] .'fotos/#groot&foto-'.($key+1);
+			#$url = 'http://www.funda.nl/'. $data['url'] .'fotos/#groot&foto-'.($key+1);
+			$url = 'http://www.funda.nl'. $data['url'] .'#foto-'.($key+1);
 		}
 			
-		$Foto[] = "<a href='$url' target='_blank'><img src='". str_replace('1080x720', '180x120', $value) ."'></a>";
+		//$Foto[] = "<a href='$url' target='_blank'><img src='". str_replace('1080x720', '180x120', $value) ."'></a>";
+		$Foto[] = "<a href='$url' target='_blank'><img src='". preg_replace ('/(\d+)x(\d+)/', '180x120', $value) ."'></a>";
 	}
 	
 	$soldBefore			= soldBefore($id);

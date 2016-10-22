@@ -477,19 +477,6 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 		$prijs			= getString('<strong class="object-header-price ">', '</strong>', $contents, 0);
 		$makelHTML	= getString('<h2 class="object-contact-aanbieder-name">', '</h2>', $contents, 0);
 		$fotoHTML		=  getString('<div class="object-media-foto">', '</div>', $contents, 0);
-		
-		/*
-		if($verkocht == 1) {
-			$foto				=	getString('" src="http:', '"', $adres[1], 0);
-		} else {
-			$foto				=	getString('" src="http:', '"', $prijs[1], 0);
-		}
-	
-		if(strpos($PC[0], '<span class="item')) {
-			$dummy_PC	= getString('', '<span class="item', $PC[0], 0);
-			$PC[0] = $dummy_PC[0];							
-		}
-		*/
 		$adres			= getString('">', '<span class="object-header-subtitle">', $adresHTML[0], 0);
 		$PC					= getString('<span class="object-header-subtitle">', '</span>', $adresHTML[0], 0);
 		$makelaar		= getString('">', '</a>', $makelHTML[0], 0);
@@ -500,16 +487,15 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 		$data['adres']		= trim(str_replace('<span class="item-sold-label-large" title="Verkocht">VERKOCHT</span>', '', $adres[0]));
 		$data['PC_c']			= trim($postcode[0]);
 		$data['PC_l']			= trim($postcode[1]);
-		$data['plaats']		= end($postcode);
-		$data['thumb']		= trim(str_replace('_1080x720.jpg', '_360x240.jpg', $foto[0]));
+		$data['plaats']		= end($postcode);		
+		$data['thumb'] = preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $foto[0]);
 		$data['makelaar']	= trim($makelaar[0]);
 		$data['prijs']		= cleanPrice($prijs[0]);
 		$data['verkocht']	= $verkocht;
 	}
 	
 	if($contents != "" AND $verkocht != 1) {		
-		# Omschrijving
-		//$omschrijving = getString('<div data-object-description-body class="object-description-body">', '</div>', $contents, 0);
+		# Omschrijving		
 		$omschrijving = getString('<div class="object-description-body" data-object-description-strip-markup data-object-description-body>', '</div>', $contents, 0);
 		
 		$KenmerkData['descr']	= trim($omschrijving[0]);
@@ -538,10 +524,14 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 		$carousel		= explode('<div class="object-media-foto">', $content_fotos[0]);
 		array_shift($carousel);
 			
-		foreach($carousel as $key => $value) {		
-			$thumb = getString('src="', '"', $value, 0);
-			//$picture[] = trim($thumb[0]);
-			$picture[] = trim(str_replace('_1080x720.jpg', '_360x240.jpg', $thumb[0]));
+		foreach($carousel as $key => $value) {
+			if(strpos($value, 'data-lazy-srcset=')) {
+				$thumb = getString('data-lazy-srcset="', ' ', $value, 0);
+				$picture[] = preg_replace ('/_(\d+).jpg/', '_180x120.jpg', $thumb[0]);
+			} else {
+				$thumb = getString('src="', '"', $value, 0);
+				$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_180x120.jpg', $thumb[0]);
+			}
 		}
 		
 		$KenmerkData['foto']		= implode('|', $picture);

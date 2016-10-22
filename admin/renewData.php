@@ -31,11 +31,11 @@ foreach($dataset as $fundaID) {
 	$oldExtraData = getFundaKenmerken($fundaID);
 	$URL					= "http://www.funda.nl". trim($oldData['url']);
 	
-	if($oldData['verkocht'] == 1) {
-		$allData			= extractDetailedFundaData_old($URL, true);
-	} else {
+	//if($oldData['verkocht'] == 1) {
+	//	$allData			= extractDetailedFundaData_old($URL, true);
+	//} else {
 		$allData			= extractDetailedFundaData($URL, true);
-	}
+	//}
 	
 	$newData			= $allData[0];
 	$newExtraData	= $allData[1];
