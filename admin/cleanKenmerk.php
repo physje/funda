@@ -9,7 +9,7 @@ if(isset($_REQUEST['id'])) {
 	$sql		= "SELECT * FROM $TableKenmerken WHERE $KenmerkenID like ". $_REQUEST['id'] ." ORDER BY $KenmerkenKenmerk";
 } else {
 	# Vraag alle kenmerken combinaties op
-	$sql		= "SELECT * FROM $TableKenmerken GROUP BY $KenmerkenID";
+	$sql		= "SELECT *, COUNT(*) as aantal FROM $TableKenmerken GROUP BY $KenmerkenID, $KenmerkenValue HAVING aantal > 1";
 }
 
 $result	= mysql_query($sql);

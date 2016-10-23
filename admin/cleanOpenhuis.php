@@ -10,7 +10,7 @@ if(isset($_REQUEST['id'])) {
 	$sql		= "SELECT * FROM $TableCalendar WHERE $CalendarHuis like ". $_REQUEST['id'] ." ORDER BY $CalendarStart ASC";
 } else {
 	# Vraag alle huis-tijd combinaties op
-	$sql		= "SELECT * FROM $TableCalendar GROUP BY $CalendarHuis, $CalendarStart";
+	$sql		= "SELECT *, COUNT(*) as aantal FROM $TableCalendar GROUP BY $CalendarHuis, $CalendarStart HAVING aantal > 1";
 }
 $result	= mysql_query($sql);
 $row		= mysql_fetch_array($result);
