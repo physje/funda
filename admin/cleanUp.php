@@ -23,3 +23,5 @@ echo showBlock($pagina);
 echo "</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
+
+?>
