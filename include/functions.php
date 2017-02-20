@@ -95,9 +95,18 @@ function file_get_contents_retry($url, $maxTry = 3) {
 	$contents = false;
 	$counter = 0;
 	
+	$useragents = array('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; SLCC1; .NET CLR 2.0.50727)','Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)','Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en) AppleWebKit/124 (KHTML, like Gecko) Safari/125','Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.30 Safari/525.13','Opera/7.23 (Windows 98; U) [en]','Mozilla/5.0 (Windows; U; Windows NT 5.1; nl; rv:1.9) Gecko/2008052906 Firefox/3.0','Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.4 (like Gecko)');
+
 	while($contents === false AND $counter < $maxTry) {
-		if($counter > 0)	{	sleep(2);	}
-		$contents	= file_get_contents($url);
+		if($counter > 0)	{	sleep(2);	}		
+				
+		$curl_handle=curl_init();
+		curl_setopt($curl_handle, CURLOPT_URL,$url);
+		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
+		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl_handle, CURLOPT_USERAGENT, $useragents[rand(0, count($useragents))]);
+		$contents = curl_exec($curl_handle);
+		curl_close($curl_handle);
 		$counter++;
 	}
 	
