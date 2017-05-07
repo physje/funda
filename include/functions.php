@@ -10,9 +10,7 @@
 function getZoekOpdrachten($user, $uur, $active = true) {
 	global $TableZoeken, $TableVerdeling, $VerdelingOpdracht, $VerdelingUur, $ZoekenKey, $ZoekenUser;
 	$where = $Opdrachten = array();
-	
-	$sql = "SELECT $TableZoeken.$ZoekenKey";
-		
+					
 	if($user != '') {
 		$from = $TableZoeken;
 		$where[] = "$TableZoeken.$ZoekenUser = '$user'";
@@ -24,7 +22,7 @@ function getZoekOpdrachten($user, $uur, $active = true) {
 		$where[] = "$TableVerdeling.$VerdelingUur = '$uur'";
 	}
 	
-	$sql .= ' FROM '. $from .' WHERE '. implode(" AND ", $where);
+	$sql = "SELECT $TableZoeken.$ZoekenKey FROM ". $from .' WHERE '. implode(" AND ", $where);
 		
 	$result = mysql_query($sql);	
 	if($row = mysql_fetch_array($result)) {
@@ -32,6 +30,21 @@ function getZoekOpdrachten($user, $uur, $active = true) {
 			if(($active AND count(getOpdrachtUren($row[$ZoekenKey])) > 0) OR !$active) {
 				$Opdrachten[] = $row[$ZoekenKey];
 			}
+		} while($row = mysql_fetch_array($result));
+	}
+	
+	return $Opdrachten;
+}
+
+function getActiveOpdrachten() {
+	global $TableVerdeling, $VerdelingOpdracht;
+	
+	$sql = "SELECT $VerdelingOpdracht FROM $TableVerdeling GROUP BY $VerdelingOpdracht";
+	
+	$result = mysql_query($sql);	
+	if($row = mysql_fetch_array($result)) {
+		do {
+			$Opdrachten[] = $row[$VerdelingOpdracht];
 		} while($row = mysql_fetch_array($result));
 	}
 	
@@ -104,7 +117,8 @@ function file_get_contents_retry($url, $maxTry = 3) {
 		curl_setopt($curl_handle, CURLOPT_URL,$url);
 		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
 		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl_handle, CURLOPT_USERAGENT, $useragents[rand(0, count($useragents))]);
+		//curl_setopt($curl_handle, CURLOPT_USERAGENT, $useragents[rand(0, count($useragents))]);
+		curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.4 (like Gecko)');
 		$contents = curl_exec($curl_handle);
 		curl_close($curl_handle);
 		$counter++;
