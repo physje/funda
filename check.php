@@ -15,32 +15,11 @@ if(isset($_REQUEST[OpdrachtID])) {
 	$Opdrachten = array($_REQUEST[OpdrachtID]);
 	$enkeleOpdracht = true;
 } else {
-	# Wel of niet random checken
-	# Funda blockt robots, random helpt hopelijk om opsporen iets lastiger te maken.
-	# Eerst wordt er dus random bepaalt of er wel of niet gecheckt moet worden.
-	# Dan wordt er random bepaalt welke opdracht indien er besloten is wel te checken.
-	# En als laatste wordt er random een wachttijd ingevoerd zodat ook dat variabel is.
-	if($randomCheck) {
-		$dobbelsteen = (rand(0, 100))/100;
-		toLog('debug', '', '', "Waarde dobbelsteen $dobbelsteen ($randomFactor)");
-		
-		if($dobbelsteen < $randomFactor) {
-			$alleOpdrachten = getActiveOpdrachten();
-			$key = rand(0, (count($alleOpdrachten)-1));
-			$Opdrachten[] = $alleOpdrachten[$key];
-			toLog('debug', $alleOpdrachten[$key], '', 'Van de '. count($alleOpdrachten) ." opdrachten, opdracht $key gekozen");
-			
-			$wachtTijd = rand(0, (58*60));
-			toLog('debug', $alleOpdrachten[$key], '', 'Wachtijd van '. round($wachtTijd/60). ' minuten');
-			sleep($wachtTijd);
-			
-		} else {
-			$Opdrachten = array();
-		}
-	} else {
-		$Opdrachten = getZoekOpdrachten('', date('H'));
-	}
+	$tempData = getRandomOpdracht();
+	$Opdrachten = $tempData[1];	
 	$enkeleOpdracht = false;
+	
+	sleep($tempData[1]);
 }
 
 $block = array();

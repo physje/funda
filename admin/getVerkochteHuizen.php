@@ -12,8 +12,11 @@ if(isset($_REQUEST[OpdrachtID])) {
 	$Opdrachten = array($_REQUEST[OpdrachtID]);
 	$enkeleOpdracht = true;
 } else {
-	$Opdrachten = getZoekOpdrachten('', date('H'));
+	$tempData = getRandomOpdracht();
+	$Opdrachten = $tempData[1];	
 	$enkeleOpdracht = false;
+	
+	sleep($tempData[1]);
 }
 
 $debug = 0;
