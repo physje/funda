@@ -70,7 +70,7 @@ function getRandomOpdracht() {
 			$alleOpdrachten = getActiveOpdrachten();
 			$key = rand(0, (count($alleOpdrachten)-1));
 			$Opdrachten[] = $alleOpdrachten[$key];
-			toLog('debug', $alleOpdrachten[$key], '', 'Van de '. count($alleOpdrachten) ." opdrachten, opdracht $key gekozen");
+			toLog('debug', $alleOpdrachten[$key], '', 'Van de '. count($alleOpdrachten) ." opdrachten, opdracht $key gekozen : ". $alleOpdrachten[$key]);
 			
 			$wachtTijd = rand(0, (58*60));
 			toLog('debug', $alleOpdrachten[$key], '', 'Wachtijd van '. round($wachtTijd/60). ' minuten');

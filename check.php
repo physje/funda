@@ -16,7 +16,7 @@ if(isset($_REQUEST[OpdrachtID])) {
 	$enkeleOpdracht = true;
 } else {
 	$tempData = getRandomOpdracht();
-	$Opdrachten = $tempData[1];	
+	$Opdrachten = $tempData[0];	
 	$enkeleOpdracht = false;
 	
 	sleep($tempData[1]);
