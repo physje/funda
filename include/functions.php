@@ -61,7 +61,6 @@ function getRandomOpdracht() {
 	# Funda blockt robots, random helpt hopelijk om opsporen iets lastiger te maken.
 	# Eerst wordt er dus random bepaalt of er wel of niet gecheckt moet worden.
 	# Dan wordt er random bepaalt welke opdracht indien er besloten is wel te checken.
-	# En als laatste wordt er random een wachttijd ingevoerd zodat ook dat variabel is.
 	if($randomCheck) {
 		$dobbelsteen = (rand(0, 100))/100;
 		toLog('debug', '', '', "Waarde dobbelsteen $dobbelsteen ($randomFactor)");
@@ -70,21 +69,15 @@ function getRandomOpdracht() {
 			$alleOpdrachten = getActiveOpdrachten();
 			$key = rand(0, (count($alleOpdrachten)-1));
 			$Opdrachten[] = $alleOpdrachten[$key];
-			toLog('debug', $alleOpdrachten[$key], '', 'Van de '. count($alleOpdrachten) ." opdrachten, opdracht $key gekozen : ". $alleOpdrachten[$key]);
-			
-			$wachtTijd = rand(0, (58*60));
-			toLog('debug', $alleOpdrachten[$key], '', 'Wachtijd van '. round($wachtTijd/60). ' minuten');
+			toLog('debug', $alleOpdrachten[$key], '', 'Van  '. count($alleOpdrachten) ." opdrachten, opdracht $key gekozen : ". $alleOpdrachten[$key]);
 		} else {
 			$Opdrachten = array();
 		}
 	} else {
 		$Opdrachten = getZoekOpdrachten('', date('H'));
 	}
-	
-	$output[0] = $Opdrachten;
-	$output[1] = $wachtTijd;
-	
-	return $output;	
+		
+	return $Opdrachten;	
 }
 
 

@@ -169,4 +169,6 @@ include_once($cfgGeneralIncludeDirectory . 'general_functions.php');
 include_once($cfgGeneralIncludeDirectory . 'general_config.php');
 include_once( __DIR__ .'/functions.php');
 
+date_default_timezone_set('Europe/Amsterdam');
+
 ?>

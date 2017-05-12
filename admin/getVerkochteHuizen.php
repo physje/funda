@@ -6,17 +6,18 @@ connect_db();
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
 # Iedereen kan deze pagina dus in principe openen.
 
+# http://stackoverflow.com/questions/9049460/cron-jobs-and-random-times-within-given-hours/16289693
+# Om te zorgen dat de pagina op wisselende tijden wordt geopend heb ik de volgende cronjob opgenomen :
+#		sleep $[RANDOM\%60]m ; wget -q -O /dev/null http://example.com/funda/admin/getVerkochteHuizen.php
+
 # Als er een OpdrachtID is meegegeven hoeft alleen die uitgevoerd te worden.
 # In alle andere gevallen gewoon alle actieve zoekopdrachten
 if(isset($_REQUEST[OpdrachtID])) {
 	$Opdrachten = array($_REQUEST[OpdrachtID]);
 	$enkeleOpdracht = true;
 } else {
-	$tempData = getRandomOpdracht();
-	$Opdrachten = $tempData[0];	
+	$Opdrachten = getRandomOpdracht();
 	$enkeleOpdracht = false;
-	
-	sleep($tempData[1]);
 }
 
 $debug = 0;
