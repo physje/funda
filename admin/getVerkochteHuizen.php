@@ -8,7 +8,7 @@ connect_db();
 
 # http://stackoverflow.com/questions/9049460/cron-jobs-and-random-times-within-given-hours/16289693
 # Om te zorgen dat de pagina op wisselende tijden wordt geopend heb ik de volgende cronjob opgenomen :
-#		sleep $[RANDOM\%60]m ; wget -q -O /dev/null http://example.com/funda/admin/getVerkochteHuizen.php
+#		sleep $[RANDOM\%3660] ; wget -q -O /dev/null http://example.com/funda/admin/getVerkochteHuizen.php
 
 # Als er een OpdrachtID is meegegeven hoeft alleen die uitgevoerd te worden.
 # In alle andere gevallen gewoon alle actieve zoekopdrachten
@@ -82,7 +82,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			# Mochten huizen verkocht zijn die nog niet bekend zijn in de dB.
 			# Voeg deze dan toe als addSoldHouses = true
 			if(!knownHouse($fundaID) AND $addSoldHouses) {
-				$allData = extractDetailedFundaData_old($url, false);
+				$allData = extractDetailedFundaData($url, false);
 				$extraData = $allData[1];
 				saveHouse($data, $extraData);
 				addHouse($data, $OpdrachtID);				

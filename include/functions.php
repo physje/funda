@@ -55,8 +55,6 @@ function getActiveOpdrachten() {
 function getRandomOpdracht() {
 	global $randomCheck, $randomFactor;
 	
-	$wachtTijd = 0;
-	
 	# Wel of niet random checken
 	# Funda blockt robots, random helpt hopelijk om opsporen iets lastiger te maken.
 	# Eerst wordt er dus random bepaalt of er wel of niet gecheckt moet worden.
@@ -492,7 +490,7 @@ function makeKMLEntry($id) {
 
 function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	$contents		= file_get_contents_retry($URL);
-			
+				
 	# Als het geen string is, is de pagina offline
 	# Dan kan gelijk een twee-tal lege arrays teruggegeven worden
 	if(!is_string($contents)) {
@@ -504,30 +502,38 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	# Als geen van beide het geval is, is hij nog beschikbaar => $verkocht = 0
 	if(strpos($contents, '<li class="label-transactie-voorbehoud">')) {
 		$verkocht		= 2;
-	}elseif(strpos($contents, '<span class="item-sold-label-large" title="Verkocht">')) {
+	}elseif(strpos($contents, '<li class="label-transactie-definitief">')) {
 		$verkocht		= 1;
 	} else {
 		$verkocht		= 0;
 	}
 	
 	if($verkocht == 1) {
-		$afmeld			= getString('<span class="txt-sft">&nbsp;|&nbsp;Afmelddatum: ','</span>', $contents, 0);
-		$delen = explode('-', $afmeld[0]);
-		$data['afmeld'] = mktime(12,0,0,$delen[1],$delen[0],$delen[2]);
+		$Aangeboden 	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
+		$KenmerkData['Aangeboden sinds'] = substr(trim($Aangeboden[0]), 4);
+				
+		$Verkoopdatum 	= getString('<dt>Verkoopdatum</dt>','</dd>', $contents, 0);
+		$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
 	}
-		
+			
 	# Navigatie-gedeelte
-	$navigatie	= getString('<ol class="container breadcrumb-list">', '</ol>', $contents, 0);
+	$navigatie	= getString('<ol class="container breadcrumb-list">', '</ol>', $contents, 0);		
 	$stappen		= explode('<li class="breadcrumb-listitem">', $navigatie[0]);
 	$wijk				= getString('title="', '">', $stappen[(count($stappen)-2)], 0);
 	$data['wijk']			= trim($wijk[0]);
-	
+		
 	# Moeten gegevens die al bekend zijn opnieuw opgevraagd worden
 	# Meestal niet, maar soms is dat nodig
 	if($alreadyKnown) {
 		$adresHTML	= getString('<div class="object-header-info">', '</div>', $contents, 0);
-		$prijs			= getString('<strong class="object-header-price ">', '</strong>', $contents, 0);
-		$makelHTML	= getString('<h2 class="object-contact-aanbieder-name">', '</h2>', $contents, 0);
+		
+		if($verkocht == 1) {
+			$prijs			= getString('<strong class="object-header-price sold">', '</strong>', $contents, 0);
+		} else {
+			$prijs			= getString('<strong class="object-header-price">', '</strong>', $contents, 0);
+		}	
+		
+		$makelHTML	= getString('<h3 class="object-contact-aanbieder-name">', '</h3>', $contents, 0);
 		$fotoHTML		=  getString('<div class="object-media-foto">', '</div>', $contents, 0);
 		$adres			= getString('">', '<span class="object-header-subtitle">', $adresHTML[0], 0);
 		$PC					= getString('<span class="object-header-subtitle">', '</span>', $adresHTML[0], 0);
@@ -546,7 +552,7 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 		$data['verkocht']	= $verkocht;
 	}
 	
-	if($contents != "" AND $verkocht != 1) {		
+	if($contents != "") {		
 		# Omschrijving		
 		$omschrijving = getString('<div class="object-description-body" data-object-description-strip-markup data-object-description-body>', '</div>', $contents, 0);
 		
@@ -593,134 +599,6 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	
 	return array($data, $KenmerkData);
 }
-
-function extractDetailedFundaData_old($URL, $alreadyKnown=false) {
-	$contents		= file_get_contents_retry($URL);
-	
-	# Als het geen string is, is de pagina offline
-	# Dan kan gelijk een twee-tal lege arrays teruggegeven worden
-	if(!is_string($contents)) {
-		return array(array(), array());
-	}
-	# Als er een class item-sold is, is hij onder voorbehoud verkocht => $verkocht = 2
-	# Als er een class item-sold-label-large is, is hij verkocht => $verkocht = 1
-	# Als geen van beide het geval is, is hij nog beschikbaar => $verkocht = 0
-	if(strpos($contents, '<span class="item-sold">')) {
-		$verkocht		= 2;
-	}elseif(strpos($contents, '<span class="item-sold-label-large" title="Verkocht">')) {
-		$verkocht		= 1;
-	} else {
-		$verkocht		= 0;
-	}
-	
-	if($verkocht == 1) {
-		$afmeld			= getString('<span class="txt-sft">&nbsp;|&nbsp;Afmelddatum: ','</span>', $contents, 0);
-		$delen = explode('-', $afmeld[0]);
-		$data['afmeld'] = mktime(12,0,0,$delen[1],$delen[0],$delen[2]);
-	}
-	
-	# Navigatie-gedeelte
-	$navigatie	= getString('<p class="section path-nav">', '</p>', $contents, 0);
-	$stappen		= explode('&gt;', $navigatie[0]);
-	$wijk				= getString('<span itemprop="title">', '</span>', $stappen[(count($stappen)-1)], 0);
-	$data['wijk']			= trim($wijk[0]);
-	
-	
-	
-	# Moeten gegevens die al bekend zijn opnieuw opgevraagd worden
-	# Meestal niet, maar soms is dat nodig
-	if($alreadyKnown) {
-		$adres			= getString('<h1>', '</h1>', $navigatie[1], 0);
-		$PC					= getString('<p>', '</p>', $adres[1], 0);
-		$prijs			= getString('<span class="price">', '</span>', $PC[1], 0);
-		$rel_info		= getString('<h3>', '</h3>', $contents, 0);
-		
-		if($verkocht == 1) {
-			$foto				=	getString('" src="http:', '"', $adres[1], 0);
-		} else {
-			$foto				=	getString('" src="http:', '"', $prijs[1], 0);
-		}
-	
-		if(strpos($PC[0], '<span class="item')) {
-			$dummy_PC	= getString('', '<span class="item', $PC[0], 0);
-			$PC[0] = $dummy_PC[0];							
-		}
-	
-		$postcode		= explode(" ", trim($PC[0]));
-	
-		$HuisPrijs	= $prijs[0];			
-		$HuisPrijs	= str_ireplace('&euro;&nbsp;', '' , $HuisPrijs);
-		$HuisPrijs	= str_ireplace('.', '' , $HuisPrijs);
-		
-		$makelaar	= getString('">', '</a>', $rel_info[0], 0);
-		
-		$data['adres']		= trim(str_replace('<span class="item-sold-label-large" title="Verkocht">VERKOCHT</span>', '', $adres[0]));
-		$data['PC_c']			= trim($postcode[0]);
-		$data['PC_l']			= trim($postcode[1]);
-		$data['plaats']		= end($postcode);
-		$data['thumb']		= 'http:'.trim($foto[0]);
-		$data['makelaar']	= trim($makelaar[0]);
-		$data['prijs']		= $HuisPrijs;
-		$data['verkocht']	= $verkocht;
-	}
-	
-	if($contents != "") {		
-		if($verkocht == 1) {
-			$URL = str_replace('/koop/', '/koop/verkocht/', $URL);
-		}
-		
-		# Omschrijving		
-		$contents_omschrijving		= file_get_contents_retry($URL.'omschrijving/');
-				
-		if(strpos($contents_omschrijving, '<div class="description-full">')) {			
-			$omschrijving = getString('<div class="description-full">', '</div>', $contents_omschrijving, 0);
-		} else {
-			$contents		= file_get_contents_retry($URL);
-			$omschrijving = getString('<p id="PVolledigeOmschrijving" style="display:none">', '<a id="linkKorteOmschrijving"', $contents, 0);
-		}
-		
-		$KenmerkData['descr']	= trim($omschrijving[0]);	
-	} else {
-		$KenmerkData['descr']	= '';
-	}
-	
-	# Kenmerken
-	$contents		= file_get_contents_retry($URL.'kenmerken/');
-	$contents		= getString('<table class="specs specs-cats" border="0">', '</table>', $contents, 0);
-	$kenmerken12	= explode('12"  class="', $contents[0]);	array_shift($kenmerken12);
-	$kenmerken13	= explode('13"  class="', $contents[0]);	array_shift($kenmerken13);
-	$kenmerkenBla	= explode('blabla"  class="', $contents[0]);	array_shift($kenmerkenBla);
-	$kenmerken		= array_merge($kenmerken12, $kenmerken13, $kenmerkenBla);
-	
-	foreach($kenmerken as $kenmerk) {
-		$Record = getString('<th scope="row">', '</th>', $kenmerk, 0);
-		$Waarde = getString('<span class="specs-val">', '</span>', $kenmerk, 0);
-		
-		$key = trim($Record[0]);
-		$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
-	}
-	
-	# Foto	
-	$contents		= file_get_contents_retry($URL.'fotos/');
-	
-	if($contents != "") {
-		$picture		= array();
-		$carousel		= explode('class="thumb-media"><span>', $contents);
-		array_shift($carousel);
-			
-		foreach($carousel as $key => $value) {		
-			$thumb = getString('<img src="', '" onerror', $value, 0);
-			$picture[] = trim($thumb[0]);
-		}
-		
-		$KenmerkData['foto']		= implode('|', $picture);
-	}	else {
-		$KenmerkData['foto']		= '';
-	}
-	
-	return array($data, $KenmerkData);
-}
-
 
 function knownHouse($key) {
 	global $TableHuizen, $HuizenID;	
@@ -1551,8 +1429,8 @@ function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 	$offline = false;
 	
 	$FundaData = getFundaData($fundaID);
-	$url			= "http://www.funda.nl". urldecode($FundaData['url']);
-	
+	$url			= "http://www.funda.nl". changeURLLocation($FundaData['url']);
+		
 	# Via de kenmerkenpagina
 	$allData	= extractDetailedFundaData($url);
 	$generalData = $allData[0];
@@ -1569,12 +1447,14 @@ function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 	if(count($data) > 3) {
 		# Reeds verkochte huizen
 		if($data['Aanmelddatum'] != '') {
+			echo '['. $data['Aanmelddatum'] .']';
 			$guessStartDatum	= guessDate($data['Aanmelddatum']);
 			$startDatum	= explode("-", $guessStartDatum);
 			$Aanmelddatum = mktime(0, 0, 1, $startDatum[1], $startDatum[0], $startDatum[2]);
 		}
 							
 		if($data['Verkoopdatum'] != '') {
+			echo '['. $data['Verkoopdatum'] .']';
 			$guessVerkoopDatum = guessDate($data['Verkoopdatum']);
 			$verkoopDatum	= explode("-", $guessVerkoopDatum);
 			$Verkoopdatum = mktime(23, 59, 59, $verkoopDatum[1], $verkoopDatum[0], $verkoopDatum[2]);			

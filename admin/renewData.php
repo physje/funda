@@ -26,16 +26,18 @@ if(isset($_REQUEST['id'])) {
 	}
 }
 
-foreach($dataset as $fundaID) {	
+foreach($dataset as $fundaID) {
+	set_time_limit (60);
 	$oldData			= getFundaData($fundaID);
 	$oldExtraData = getFundaKenmerken($fundaID);
-	$URL					= "http://www.funda.nl". trim($oldData['url']);
 	
 	if($oldData['verkocht'] == 1) {
-		$allData			= extractDetailedFundaData_old($URL, true);
+		$URL					= "http://www.funda.nl". changeURLLocation($oldData['url']);
 	} else {
-		$allData			= extractDetailedFundaData($URL, true);
+		$URL					= "http://www.funda.nl". trim($oldData['url']);
 	}
+		
+	$allData			= extractDetailedFundaData($URL, true);
 	
 	$newData			= $allData[0];
 	$newExtraData	= $allData[1];

@@ -11,7 +11,7 @@ connect_db();
 
 # http://stackoverflow.com/questions/9049460/cron-jobs-and-random-times-within-given-hours/16289693
 # Om te zorgen dat de pagina op wisselende tijden wordt geopend heb ik de volgende cronjob opgenomen :
-#		sleep $[RANDOM\%60]m ; wget -q -O /dev/null http://example.com/funda/check.php
+#		sleep $[RANDOM\%3660] ; wget -q -O /dev/null http://example.com/funda/check.php
 
 # Als er een OpdrachtID is meegegeven hoeft alleen die uitgevoerd te worden.
 # In alle andere gevallen gewoon alle actieve zoekopdrachten

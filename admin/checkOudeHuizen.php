@@ -80,6 +80,7 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 		$sql_array[] = "$TableResultaat.$ResultaatZoekID = $TableVerdeling.$VerdelingOpdracht AND ";
 		$sql_array[] = "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ";
 		$sql_array[] = "$TableHuizen.$HuizenVerkocht NOT like '1' AND";
+		//$sql_array[] = "$TableHuizen.$HuizenVerkocht like '1' AND";
 		$sql_array[] = "$TableHuizen.$HuizenOffline like '0' AND";
 		
 		if($_REQUEST['selectie'] != '') {
@@ -104,7 +105,12 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	if($row = mysql_fetch_array($result)) {
 		do {
 			set_time_limit (30); 
-			$url			= "http://www.funda.nl". urldecode($row[$HuizenURL]);
+			
+			if($row[$HuizenVerkocht] == 1) {
+				$url			= "http://www.funda.nl". changeURLLocation($row[$HuizenURL]);
+			} else {
+				$url			= "http://www.funda.nl". $row[$HuizenURL];
+			}
 			$HTML[] = '<b>'. urldecode($row[$HuizenAdres]) ."</b> (<a href='$url'>url</a>, ". urldecode($row[$HuizenPlaats]) .")<br>";
 			$HTML[] = "[van ". date("d-m-Y", $row[$HuizenStart]) ." tot ". date("d-m-Y", $row[$HuizenEind]) ."]<br>";
 			
