@@ -2,7 +2,7 @@
 $ScriptURL			= '';			# Map waar het script staat, bv http://www.example.com/scripts/funda/
 $ScriptTitle		= 'Funda Alert';	# Naam van het script (is naam van afzender in mails)
 $ScriptMailAdress	= '';			# Mailadres van het script (is mailadres van afzender in mails)
-$Version		= '4.3';		# Versie nummer
+$Version		= '5.0beta';		# Versie nummer
 $SubjectPrefix		= '[funda] ';		# Voorvoegsel bij de onderwerpregel bij het versturen van mails
 
 $debug			= 0;			# Wel (1) of geen (0) debug-info op het scherm tonen
@@ -22,6 +22,7 @@ $cfgUserLevels = array(
 	3 => 'Administrator'	
 );
 
+$fundaAPI = "[VUL IN]";
 $randomCheck = true;			# Random checken, ja (true) of nee (false). Funda blockt robots, random kan handig zijn.
 $randomFactor = 0.5;			# Getal tussen 0 en 1, waarbij 0 is nooit checken en 1 altijd. 
 

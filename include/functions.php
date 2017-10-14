@@ -144,11 +144,14 @@ function file_get_contents_retry($url, $maxTry = 3) {
 		curl_setopt($curl_handle, CURLOPT_URL,$url);
 		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
 		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-		//curl_setopt($curl_handle, CURLOPT_USERAGENT, $useragents[rand(0, count($useragents))]);
-		curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.4 (like Gecko)');
+		curl_setopt($curl_handle, CURLOPT_USERAGENT, $useragents[rand(0, count($useragents))]);
+		//curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.4 (like Gecko)');
 		$contents = curl_exec($curl_handle);
 		curl_close($curl_handle);
 		$counter++;
+		
+		# echo '{'. $contents .'}';
+		
 	}
 	
 	return $contents;
@@ -218,8 +221,13 @@ function addKnowCoordinates($coord, $huisID) {
 	global $TableHuizen, $HuizenLat, $HuizenLon, $HuizenID;
 			
 	if(is_numeric($coord[1])) {
-		$lat = $coord[0].'.'.$coord[1];
-		$lng = $coord[2].'.'.$coord[3]; 
+		if(count($coord) > 3) {
+			$lat = $coord[0].'.'.$coord[1];
+			$lng = $coord[2].'.'.$coord[3]; 
+		} else {
+			$lat = $coord[0];
+			$lng = $coord[1]; 
+		}
 		$sql = "UPDATE $TableHuizen SET $HuizenLat = '$lat', $HuizenLon = '$lng' WHERE $HuizenID = '$huisID'";
 		if(!mysql_query($sql)) {
 			return false;
@@ -659,7 +667,7 @@ function newHouse($key, $opdracht) {
 	}
 }
 
-
+/*
 function saveHouse($data, $moreData) {	
 	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
 	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
@@ -694,6 +702,53 @@ function saveHouse($data, $moreData) {
 			return false;			
 		}
 	}
+	
+	return true;
+}
+*/
+
+function saveHouseJSON($JSON, $id) {	
+	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
+	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
+	
+	connect_db();
+	
+	if(isset($data['begin'])) {
+		$begin_tijd = $data['begin'];
+	} elseif($JSON['PublicatieDatum'] != '') {
+		$begin_tijd = substr($JSON['PublicatieDatum'], 0, 10);
+	} else {
+		$begin_tijd = mktime(0, 0, 1);
+	}
+	
+	if(!isset($data['eind'])) {
+		$eind_tijd = mktime(23, 59, 59);
+	} else {
+		$eind_tijd = $data['eind'];
+	}	
+	
+	$sql  = "INSERT INTO $TableHuizen ";
+	$sql .= "($HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind) ";
+	$sql .= "VALUES ";
+	$sql .= "('$id', '". urlencode($JSON['URL']) ."', '". urlencode($JSON['Adres']) ."', '". substr($JSON['Postcode'], 0, 4) ."', '". substr($JSON['Postcode'], -2) ."', '". urlencode($JSON['Woonplaats']) ."', '". urlencode($JSON['Foto']) ."', '". urlencode($JSON['MakelaarNaam']) ."', '$begin_tijd', '$eind_tijd')";
+			
+	if(!mysql_query($sql)) {		
+		return false;
+	}
+		
+	//$index[''] = 'Perceeloppervlakte';
+	//$index[''] = 'Woonoppervlakte';
+	//$index['Aantal kamers'] = 'AantalKamers';
+	
+	/*
+	foreach($moreData as $key => $value) {
+		$sql = "INSERT INTO $TableKenmerken ($KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue) VALUES ('". $data['id'] ."', '". urlencode($key) ."', '". urlencode($value) ."')";
+						
+		if(!mysql_query($sql)) {
+			return false;			
+		}
+	}
+	*/
 	
 	return true;
 }
