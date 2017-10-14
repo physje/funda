@@ -872,13 +872,17 @@ function addHouse($data, $id) {
 }
 
 
-function updateAvailability($id) {
-	global $TableHuizen, $HuizenEind, $HuizenOffline, $HuizenID;
+function updateAvailability($id, $PublicatieDatum = '') {
+	global $TableHuizen, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenID;
 	connect_db();
+			
+	$sql = "UPDATE $TableHuizen SET $HuizenEind = ". mktime(23, 59, 59) .", ";
 	
-	$eind_tijd = mktime(23, 59, 59);
+	if($PublicatieDatum != '') {
+		$sql .= "$HuizenStart = ". substr($PublicatieDatum, 0, 10) .", ";
+	}
 	
-	$sql = "UPDATE $TableHuizen SET $HuizenEind = $eind_tijd, $HuizenOffline = '0' WHERE $HuizenID like '$id'";
+	$sql .= "$HuizenOffline = '0' WHERE $HuizenID like '$id'";
 	
 	if(!mysql_query($sql)) {
 		return false;
