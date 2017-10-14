@@ -716,7 +716,7 @@ function saveHouseJSON($JSON, $id) {
 	if(isset($data['begin'])) {
 		$begin_tijd = $data['begin'];
 	} elseif($JSON['PublicatieDatum'] != '') {
-		$begin_tijd = substr($JSON['PublicatieDatum'], 0, 10);
+		$begin_tijd = substr($JSON['PublicatieDatum'], 6, 10);
 	} else {
 		$begin_tijd = mktime(0, 0, 1);
 	}
@@ -879,7 +879,7 @@ function updateAvailability($id, $PublicatieDatum = '') {
 	$sql = "UPDATE $TableHuizen SET $HuizenEind = ". mktime(23, 59, 59) .", ";
 	
 	if($PublicatieDatum != '') {
-		$sql .= "$HuizenStart = ". substr($PublicatieDatum, 0, 10) .", ";
+		$sql .= "$HuizenStart = ". substr($PublicatieDatum, 6, 10) .", ";
 	}
 	
 	$sql .= "$HuizenOffline = '0' WHERE $HuizenID like '$id'";

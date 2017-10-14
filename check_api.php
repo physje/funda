@@ -115,7 +115,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				#																		#
 					
 				# We moeten dus aangeven dat hij nog steeds op de markt is
-				if(!updateAvailability($fundaID)) {
+				if(!updateAvailability($fundaID, $huis['PublicatieDatum'])) {
 					$ErrorMessage[] = "Updaten van ". $huis['Adres'] ." is mislukt";
 					toLog('error', $OpdrachtID, $fundaID, "Update van huis kon niet worden gedaan");
 				} else {
