@@ -116,7 +116,7 @@ foreach($Opdrachten as $OpdrachtID) {
 					
 				# We moeten dus aangeven dat hij nog steeds op de markt is
 				//if(!updateAvailability($fundaID, $huis['PublicatieDatum'])) {
-				if(!updateHouseJSON($huis, $fundaID))) {
+				if(!updateHouseJSON($huis, $fundaID)) {
 					$ErrorMessage[] = "Updaten van ". $huis['Adres'] ." is mislukt";
 					toLog('error', $OpdrachtID, $fundaID, "Update van huis kon niet worden gedaan");
 				} else {
@@ -222,7 +222,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				$Item[] = "	<td colspan='2' align='center'><h1><a href='". $ScriptURL ."extern/redirect.php?id=$fundaID'>". $huis['Adres'] ."</a></h1></td>";
 				$Item[] = "</tr>";
 				$Item[] = "<tr>";
-				$Item[] = "	<td align='center' width='55%' rowspan='2'><a href='http://funda.nl/$fundaID'><img src='". str_replace ('_klein.jpg', '_middel.jpg', $huis['Foto']) ."' alt='klik hier om naar funda.nl te gaan' border='0'></a></td>";
+				$Item[] = "	<td align='center' width='55%' rowspan='2'><a href='http://funda.nl/$fundaID'><img src='". $huis['FotoMedium'] ."' alt='klik hier om naar funda.nl te gaan' border='0'></a></td>";
 				$Item[] = "	<td align='left' width='45%'>";
 				$Item[] = "  ". $huis['Postcode'] ." ". $huis['Woonplaats'] ."<br>";
 				$Item[] = "  ". $huis['AantalKamers'] ."<br>";
@@ -290,7 +290,7 @@ foreach($Opdrachten as $OpdrachtID) {
 				
 				$Item  = "<table width='100%'>\n";
 				$Item .= "<tr>\n";
-				$Item .= "	<td align='center'><img src='". $huis['Foto'] ."'></td>\n";
+				$Item .= "	<td align='center'><img src='". $huis['FotoMedium'] ."'></td>\n";
 				$Item .= "	<td align='center'><a href='http://funda.nl/$fundaID'>". $huis['Adres'] ."</a>, ". $huis['Woonplaats'] ."<br>\n";
 				//$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $fundaData['wijk'] .")<br>\n";
 				$Item .= $huis['Postcode'] ."<br>\n";

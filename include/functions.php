@@ -775,7 +775,7 @@ function updateHouseJSON($JSON, $id) {
 		$eind_tijd = $data['eind'];
 	}	
 	
-	$sql  = "UPDATE $TableHuizen ";
+	$sql  = "UPDATE $TableHuizen SET ";
 	$sql .= "$HuizenURL = '". urlencode($JSON['URL']) ."', ";
 	$sql .= "$HuizenAdres = '". urlencode($JSON['Adres']) ."', ";
 	$sql .= "$HuizenPC_c = '". substr($JSON['Postcode'], 0, 4) ."', ";
@@ -1237,6 +1237,7 @@ function getDoorloptijd($id) {
 function changeThumbLocation($string) {
 	$string = str_replace('valentinamedia', 'valentina_media', $string);
 	$string = str_replace('images.funda.nl/valentina', 'cloud.funda.nl/valentina', $string);
+	$string = str_replace('http://', 'https://', $string);
 	return $string;
 }
 
