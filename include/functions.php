@@ -151,8 +151,7 @@ function file_get_contents_retry($url, $maxTry = 3) {
 		curl_close($curl_handle);
 		$counter++;
 		
-		# echo '{'. $contents .'}';
-		
+		# echo '{'. $contents .'}';		
 	}
 	
 	return $contents;
@@ -789,6 +788,8 @@ function updateHouseJSON($JSON, $id) {
 			
 	if(!mysql_query($sql)) {		
 		return false;
+	} else {
+		return true;
 	}
 }
 
