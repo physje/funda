@@ -144,6 +144,7 @@ function file_get_contents_retry($url, $maxTry = 3) {
 		curl_setopt($curl_handle, CURLOPT_URL,$url);
 		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
 		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl_handle, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($curl_handle, CURLOPT_USERAGENT, $useragents[rand(0, count($useragents))]);
 		//curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.4 (like Gecko)');
 		$contents = curl_exec($curl_handle);
@@ -709,7 +710,7 @@ function saveHouse($data, $moreData) {
 
 function saveHouseJSON($JSON, $id) {	
 	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
-	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
+	#global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
 	
 	connect_db();
 	
@@ -753,6 +754,43 @@ function saveHouseJSON($JSON, $id) {
 	return true;
 }
 
+
+function updateHouseJSON($JSON, $id) {	
+	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
+	#global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
+	
+	connect_db();
+	
+	if(isset($data['begin'])) {
+		$begin_tijd = $data['begin'];
+	} elseif($JSON['PublicatieDatum'] != '') {
+		$begin_tijd = substr($JSON['PublicatieDatum'], 6, 10);
+	} else {
+		$begin_tijd = mktime(0, 0, 1);
+	}
+	
+	if(!isset($data['eind'])) {
+		$eind_tijd = mktime(23, 59, 59);
+	} else {
+		$eind_tijd = $data['eind'];
+	}	
+	
+	$sql  = "UPDATE $TableHuizen ";
+	$sql .= "$HuizenURL = '". urlencode($JSON['URL']) ."', ";
+	$sql .= "$HuizenAdres = '". urlencode($JSON['Adres']) ."', ";
+	$sql .= "$HuizenPC_c = '". substr($JSON['Postcode'], 0, 4) ."', ";
+	$sql .= "$HuizenPC_l = '". substr($JSON['Postcode'], -2) ."', ";
+	$sql .= "$HuizenPlaats = '". urlencode($JSON['Woonplaats']) ."', ";
+	$sql .= "$HuizenThumb = '". urlencode($JSON['Foto']) ."', ";
+	$sql .= "$HuizenMakelaar = '". urlencode($JSON['MakelaarNaam']) ."', ";
+	$sql .= "$HuizenStart = '$begin_tijd', ";
+	$sql .= "$HuizenEind = '$eind_tijd' ";
+	$sql .= "WHERE $HuizenID like '$id'";	
+			
+	if(!mysql_query($sql)) {		
+		return false;
+	}
+}
 
 function updateHouse($data, $kenmerken, $erase = false) {
 	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenAfmeld, $HuizenVerkocht;
