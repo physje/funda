@@ -144,6 +144,7 @@ function file_get_contents_retry($url, $maxTry = 3) {
 		curl_setopt($curl_handle, CURLOPT_URL,$url);
 		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
 		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl_handle, CURLOPT_POST, false);
 		curl_setopt($curl_handle, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($curl_handle, CURLOPT_USERAGENT, $useragents[rand(0, count($useragents))]);
 		//curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.4 (like Gecko)');
@@ -225,10 +226,11 @@ function addKnowCoordinates($coord, $huisID) {
 			$lat = $coord[0].'.'.$coord[1];
 			$lng = $coord[2].'.'.$coord[3]; 
 		} else {
-			$lat = $coord[0];
-			$lng = $coord[1]; 
+			$lat = str_ireplace(',', '.', $coord[0]);
+			$lng = str_ireplace(',', '.', $coord[1]);
 		}
 		$sql = "UPDATE $TableHuizen SET $HuizenLat = '$lat', $HuizenLon = '$lng' WHERE $HuizenID = '$huisID'";
+				
 		if(!mysql_query($sql)) {
 			return false;
 		} else {
@@ -716,7 +718,7 @@ function saveHouseJSON($JSON, $id) {
 	if(isset($data['begin'])) {
 		$begin_tijd = $data['begin'];
 	} elseif($JSON['PublicatieDatum'] != '') {
-		$begin_tijd = substr($JSON['PublicatieDatum'], 6, 10);
+		$begin_tijd = convertJSON2Unix($JSON['PublicatieDatum']);
 	} else {
 		$begin_tijd = mktime(0, 0, 1);
 	}
@@ -763,7 +765,8 @@ function updateHouseJSON($JSON, $id) {
 	if(isset($data['begin'])) {
 		$begin_tijd = $data['begin'];
 	} elseif($JSON['PublicatieDatum'] != '') {
-		$begin_tijd = substr($JSON['PublicatieDatum'], 6, 10);
+		//$begin_tijd = substr($JSON['PublicatieDatum'], 6, 10);
+		$begin_tijd = convertJSON2Unix($JSON['PublicatieDatum']);
 	} else {
 		$begin_tijd = mktime(0, 0, 1);
 	}
@@ -792,6 +795,13 @@ function updateHouseJSON($JSON, $id) {
 		return true;
 	}
 }
+
+
+function convertJSON2Unix($JSON) {
+	//return substr($JSON, 6, 10)+(substr($JSON, -5, 1)*60*60);
+	return substr($JSON, 6, 10);
+}
+
 
 function updateHouse($data, $kenmerken, $erase = false) {
 	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenAfmeld, $HuizenVerkocht;
@@ -918,7 +928,7 @@ function updateAvailability($id, $PublicatieDatum = '') {
 	$sql = "UPDATE $TableHuizen SET $HuizenEind = ". mktime(23, 59, 59) .", ";
 	
 	if($PublicatieDatum != '') {
-		$sql .= "$HuizenStart = ". substr($PublicatieDatum, 6, 10) .", ";
+		$sql .= "$HuizenStart = ". convertJSON2Unix($PublicatieDatum) .", ";
 	}
 	
 	$sql .= "$HuizenOffline = '0' WHERE $HuizenID like '$id'";

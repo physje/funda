@@ -79,7 +79,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			$fundaID	= $key_parts[1];
 	
 			$String[] = "<a href='". $huis['URL'] ."'>". $huis['Adres'] ."</a> ($fundaID)";
-						
+					
 			# Kijken of huis bestaat in de database, vraagprijs opslaan, onder voorbehoud verkocht, open huis bijhouden
 			if(!knownHouse($fundaID)) {
 				#																					#
@@ -115,8 +115,9 @@ foreach($Opdrachten as $OpdrachtID) {
 				#																		#
 					
 				# We moeten dus aangeven dat hij nog steeds op de markt is
+				if(!updateAvailability($fundaID)) {
 				//if(!updateAvailability($fundaID, $huis['PublicatieDatum'])) {
-				if(!updateHouseJSON($huis, $fundaID)) {
+				//if(!updateHouseJSON($huis, $fundaID)) {
 					$ErrorMessage[] = "Updaten van ". $huis['Adres'] ." is mislukt";
 					toLog('error', $OpdrachtID, $fundaID, "Update van huis kon niet worden gedaan");
 				} else {
@@ -150,38 +151,35 @@ foreach($Opdrachten as $OpdrachtID) {
 					toLog('info', $OpdrachtID, $fundaID, 'Niet meer onder voorbehoud verkocht');
 				}
 				
-				/*
-				nog een keer naar kijken als er meer huizen met open huis zijn
 				
 				# Huis kan openhuis hebben
-				if($huis['OpenHuis'] != '') {
+				if($huis['OpenHuis'][0] != '') {
 					# data online vergelijken met data in de database
 					$changedOpenHuis	= false;
-					$tijden			= extractOpenHuisData($data['id']);
-					$bestaandeTijden	= getNextOpenhuis($data['id']);
+					$startTijd				= convertJSON2Unix($huis['OpenHuis'][0]);
+					$bestaandeTijden	= getNextOpenhuis($fundaID);
 
-					if($tijden[0] != $bestaandeTijden[0] OR $tijden[1] != $bestaandeTijden[1]) {
-						$sql = "DELETE FROM $TableCalendar WHERE $CalendarHuis like ". $data['id'] ." AND $CalendarStart like ". $bestaandeTijden[0] ." AND $CalendarEnd like ". $bestaandeTijden[1];
+					if($startTijd != $bestaandeTijden[0] ) {
+						$sql = "DELETE FROM $TableCalendar WHERE $CalendarHuis like $fundaID AND $CalendarStart like $startTijd";
 						mysql_query($sql);
 						$changedOpenHuis = true;
-						toLog('info', $OpdrachtID, $data['id'], 'Open Huis gewijzigd');
+						toLog('info', $OpdrachtID, $fundaID, 'Open Huis gewijzigd');
 					}
 
-					if(!hasOpenHuis($data['id']) OR $changedOpenHuis) {
-						toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd');
+					if(!hasOpenHuis($fundaID) OR $changedOpenHuis) {
+						toLog('info', $OpdrachtID, $fundaID, 'Open Huis aangekondigd');
 						
 						#	toevoegen aan de Google Calendar						
-						$sql = "INSERT INTO $TableCalendar ($CalendarHuis, $CalendarStart, $CalendarEnd) VALUES (". $data['id'] .", ". $tijden[0] .", ". $tijden[1] .")";
+						$sql = "INSERT INTO $TableCalendar ($CalendarHuis, $CalendarStart, $CalendarEnd) VALUES ($fundaID, $startTijd, ". ($startTijd+7200) .")";
 						mysql_query($sql);
 												
 						#	opnemen in de eerst volgende mail						
-						$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '1' WHERE $HuizenID like '". $data['id'] ."'";
+						$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '1' WHERE $HuizenID like $fundaID";
 						mysql_query($sql);
 					}
 				} else {
-					removeOpenHuis($data['id']);
+					removeOpenHuis($fundaID);
 				}
-				*/
 			}
 			
 			# Kijk of dit huis al vaker gevonden is voor deze opdracht
@@ -316,6 +314,42 @@ foreach($Opdrachten as $OpdrachtID) {
 		if($enkeleOpdracht) {
 			$block[] = implode("<br>\n", $String);
 		}	
+	}
+	
+	# Open huizen ($data['openhuis'] = 1)
+	$sql_open = "SELECT $TableHuizen.$HuizenID FROM $TableResultaat, $TableHuizen WHERE $TableHuizen.$HuizenOpenHuis = '1' AND $TableResultaat.$ResultaatOpenHuis = '0' AND $TableResultaat.$ResultaatZoekID like '$OpdrachtID' AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID";
+	$result = mysql_query($sql_open);
+	
+	if($row = mysql_fetch_array($result)) {
+		do {
+			$fundaID	= $row[$HuizenID];
+			$data			= getFundaData($fundaID);
+			$open			= getNextOpenhuis($fundaID);
+			
+			$Item  = "<table width='100%'>\n";
+			$Item .= "<tr>\n";
+			$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
+			$Item .= "	<td align='center'><a href='http://funda.nl/". $fundaID ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
+			$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $data['wijk'] .")<br>\n";
+			$Item .= '	<b>'. strftime("%a %e %b %k:%M", $open[0]) ." - ". strftime("%k:%M", $open[1]) ."</b> (<a href='". $ScriptURL ."admin/makeCalendar.php?id=". $fundaID ."'>iCal</a>)</td>\n";
+			$Item .= "</tr>\n";
+			$Item .= "</table>\n";
+			
+			$OpenHuis[] = showBlock($Item);
+			$OpenAddress[] = $data['adres'];
+			
+			# Pushover-bericht opstellen
+			$push = array();
+			$push['title']		= $data['adres'] ." heeft open huis voor '". $OpdrachtData['naam'] ."'";
+			$push['message']	= $data['adres'] ." heeft open huis op ". strftime("%a %e %b", $open[0]) ." van ". strftime("%k:%M", $open[0]) ." tot ". strftime("%k:%M", $open[1]);
+			$push['url']			= 'http://funda.nl/'. $data['id'];
+			$push['urlTitle']	= $data['adres'];				
+			send2Pushover($push, $PushMembers);
+			
+			# Bijhouden dat mail verstuurd is met open huis
+			$sql_update_open = "UPDATE $TableResultaat SET $ResultaatOpenHuis = '1' WHERE $ResultaatZoekID like '$OpdrachtID' AND $ResultaatID like '$fundaID'";
+			mysql_query($sql_update_open);				
+		} while($row = mysql_fetch_array($result));
 	}
 	
 	# Als er een nieuw huis, een huis in prijs gedaald, open huis of een huis verkocht is moet er een mail verstuurd worden.
