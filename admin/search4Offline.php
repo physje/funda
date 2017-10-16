@@ -17,6 +17,7 @@ $sql_array[] = "WHERE ";
 $sql_array[] = "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ";
 $sql_array[] = "(($TableHuizen.$HuizenVerkocht NOT like '1' AND $TableHuizen.$HuizenOffline NOT like '1' AND $TableHuizen.$HuizenEind < $grens_offline) OR ";
 $sql_array[] = "($TableHuizen.$HuizenVerkocht like '1' AND $TableHuizen.$HuizenOffline NOT like '1' AND $TableHuizen.$HuizenEind < $grens_verkocht))";
+$sql_array[] = "$TableHuizen.$HuizenVerkocht NOT like '1' AND $TableHuizen.$HuizenOffline NOT like '1' AND $TableHuizen.$HuizenEind < $grens_offline ";
 $sql_array[] = "GROUP BY $TableHuizen.$HuizenID";
 
 $sql = implode(" ", $sql_array);
@@ -31,13 +32,13 @@ error_reporting(0);
 if($row = mysql_fetch_array($result)) {
 	do {
 		$fundaID	= $row[$HuizenID];
-		$url			= "http://www.funda.nl". urldecode($row[$HuizenURL]);
+		$url			= "https://www.funda.nl". urldecode($row[$HuizenURL]);
 		
 		echo date("d-m-Y H:i", $row[$HuizenEind]). ' <b>'. urldecode($row[$HuizenAdres]) ."</b>, ". $row[$HuizenPlaats] ." (<a href='HouseDetails.php?id=$fundaID' target='_blank'>edit</a>, <a href='$url' target='_blank'>funda</a>)<br>";
 				
 		$contents = file_get_contents_retry($url);
-				
-		if(!is_string($contents)) {
+									
+		if(!is_string($contents) OR strpos($contents, '<title>Dit huis kunnen we niet vinden</title>')) {
 			$sql_update = "UPDATE $TableHuizen SET $HuizenOffline = '1' WHERE $HuizenID like $fundaID";
 			if(mysql_query($sql_update)) {
 				echo " -> offline gehaald<br>";
@@ -47,6 +48,6 @@ if($row = mysql_fetch_array($result)) {
 			}
 		}		
 		echo "\n<br>\n";		
-		
+		sleep(3);
 	} while($row = mysql_fetch_array($result));
 }
