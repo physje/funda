@@ -43,6 +43,8 @@ if(isset($_REQUEST['selectie']) AND $_REQUEST['selectie'] != '') {
 
 if(isset($_REQUEST['huis']) AND $_REQUEST['huis'] != '') {
 	$huis = $_REQUEST['huis'];
+} else {
+	$huis = null;
 }
 
 if(isset($_REQUEST['debug']) AND $_REQUEST['debug'] != '') {
@@ -53,23 +55,22 @@ if(isset($_REQUEST['debug']) AND $_REQUEST['debug'] != '') {
 
 if(isset($_REQUEST['info']) AND $_REQUEST['info'] != '') {
 	$info = $_REQUEST['info'];	
-} elseif(!isset($_REQUEST['bDag'])) {
-	$info = 'ja';
+//} elseif(!isset($_REQUEST['bDag'])) {
+//	$info = 'ja';
 } else {
-	$info = 'nee';
+	$info = 'ja';
 }
 
 if(isset($_REQUEST['error']) AND $_REQUEST['error'] != '') {
 	$error = $_REQUEST['error'];	
-} elseif(!isset($_REQUEST['bDag'])) {
-	$error = 'ja';
+//} elseif(!isset($_REQUEST['bDag'])) {
+//	$error = 'ja';
 } else {
-	$error = 'nee';
+	$error = 'ja';
 }
 
 $begin	= mktime($bUur, $bMin, 0, $bMaand, $bDag, $bJaar);
 $eind		= mktime($eUur, $eMin, 59, $eMaand, $eDag, $eJaar);
-$huis = null;
 
 $sql		= "SELECT * FROM $TableLog WHERE $LogTime BETWEEN $begin AND $eind";
 if($debug == 'ja')		$sql_OR[] = "$LogType = 'debug'";
@@ -92,7 +93,7 @@ do {
 	$rij = "<tr>";
 	$rij .= "	<td>". date("d-m H:i:s", $row[$LogTime]) ."</td>";
 	$rij .= "	<td>&nbsp;</td>\n";
-	$rij .= "	<td><a href='?selectie=Z". $row[$LogOpdracht] ."&huis=". $row[$LogHuis] ."&bDag=$bDag&bMaand$bMaand&bJaar=$bJaar&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar' title='". $opdrachtData['naam'] .'; '. $fundaData['adres'] ."'>". $row[$LogHuis] ."</a></td>";
+	$rij .= "	<td><a href='?selectie=Z". $row[$LogOpdracht] ."&huis=". $row[$LogHuis] ."&bMin=$bMin&bUur=$bUur&bDag=$bDag&bMaand=$bMaand&bJaar=$bJaar&eMin=$eMin&eUur=$eUur&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar' title='". $opdrachtData['naam'] .'; '. $fundaData['adres'] ."'>". $row[$LogHuis] ."</a></td>";
 	$rij .= "	<td>&nbsp;</td>\n";
 	$rij .= "	<td>". $row[$LogMessage] ."</td>";
 	$rij .= "</tr>";
