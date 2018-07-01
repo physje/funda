@@ -79,7 +79,7 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 		$sql_array[] = "WHERE ";
 		$sql_array[] = "$TableResultaat.$ResultaatZoekID = $TableVerdeling.$VerdelingOpdracht AND ";
 		$sql_array[] = "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ";
-		$sql_array[] = "$TableHuizen.$HuizenVerkocht NOT like '1' AND";
+		//$sql_array[] = "$TableHuizen.$HuizenVerkocht NOT like '1' AND";
 		//$sql_array[] = "$TableHuizen.$HuizenVerkocht like '1' AND";
 		$sql_array[] = "$TableHuizen.$HuizenOffline like '0' AND";
 		

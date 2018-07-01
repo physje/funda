@@ -24,20 +24,48 @@ $debug = 0;
 
 # Doorloop alle zoekopdrachten
 foreach($Opdrachten as $OpdrachtID) {	
-	$nextPage = true;
-	$p = 0;
+	$OpdrachtData			= getOpdrachtData($OpdrachtID);
 	
-	$OpdrachtData = getOpdrachtData($OpdrachtID);
-	$OpdrachtURL	= str_replace('http://www.funda.nl/koop/', 'https://www.funda.nl/koop/verkocht/', $OpdrachtData['url']);
-	
+	$OpdrachtURL	= "http://partnerapi.funda.nl/feeds/Aanbod.svc/json/$fundaAPI/?type=koop&zo=/verkocht". str_replace ("http://www.funda.nl/koop", "", $OpdrachtData['url']) ."&pagesize=15";
 	toLog('info', $OpdrachtID, '', 'Start controle verkochte huizen '. $OpdrachtData['naam']);
 	
-	# Vraag de pagina op en herhaal dit het standaard aantal keer mocht het niet lukken
-	$contents	= file_get_contents_retry($OpdrachtURL);
+	$NrPaginas = 1;
+	
+	for($p=1 ; $p <= $NrPaginas ; $p++) {
+		set_time_limit (30);
+		
+		$PageURL	= $OpdrachtURL.'&page='.$p;
+	
+		# Vraag de pagina op en herhaal dit het standaard aantal keer mocht het niet lukken
+		$contents	= file_get_contents_retry($PageURL);
+	
+		$JSONArray = json_decode($contents, true);
+	
+		// = $JSONArray['AccountStatus'];
+		// = $JSONArray['EmailNotConfirmed'];
+		// = $JSONArray['ValidationFailed'];
+		// = $JSONArray['ValidationReport'];
+		// = $JSONArray['Website'];
+		// = $JSONArray['Metadata'];
+		$Huizen = $JSONArray['Objects'];
+		$Paginas = $JSONArray['Paging'];
+		$NrHuizen = $JSONArray['TotaalAantalObjecten'];
+		
+		$NrPageHuizen	= count($Huizen);
+		$NrPaginas = $Paginas['AantalPaginas'];
+				
+		if($p == 1) {			
+			$block[] = "<a href='$OpdrachtURL'>". $OpdrachtData['naam'] ."</a> -> <a href='". $OpdrachtData['url'] ."'>". $NrHuizen ." huizen</a><br>\n";
+		}
+	}
+}
+
+/*
+
 	
 	$HTML = array();
 	$HTML[] = "Zoekopdracht <a href='$OpdrachtURL'>". $OpdrachtData['naam'] ."</a>\n<p>\n";
-			
+	
 	while($nextPage) {
 		set_time_limit (60);
 		$p++;
@@ -52,7 +80,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		} else {
 			$nextPage = false;
 		}
-		/*
+		
 		# Op funda.nl staan huizen van verschillende makkelaars-organisaties (NVM, VBO, etc.)
 		# Voor elke organisatie wordt een andere class uit de style-sheet gebruikt
 		# Deze class geeft precies het begin van een nieuw huis op de overzichtspagina aan
@@ -67,19 +95,9 @@ foreach($Opdrachten as $OpdrachtID) {
 		$HuizenExt		= explode(' ext sold" >', $contents);			array_shift($HuizenExt);
 		$HuizenExtlst	= explode(' ext sold lst" >', $contents);	array_shift($HuizenExtlst);
 		$Huizen				= array_merge($HuizenNVM, $HuizenNVMlst, $HuizenVBO, $HuizenVBOlst, $HuizenLMV, $HuizenLMVlst, $HuizenExt, $HuizenExtlst);
-		*/
 		
-		$Huizen			= explode('<div class="search-result-media">', $contents);
-		//$Huizen			= array_slice($Huizen, 1);
-			
-		$HuisText = $Huizen[1];
-		$data			= extractFundaData($HuisText, true);
-		
-		foreach($data as $key => $value) {
-			echo $key .' -> '. $value .'<br>';
-		}
-		
-		/*
+		$Huizen			= array_slice($Huizen, 1);
+								
 		# Doorloop nu alle gevonden huizen op de overzichtspagina
 		foreach($Huizen as $HuisText) {
 			# Extraheer hier adres, plaats, prijs, id etc. uit
@@ -120,11 +138,11 @@ foreach($Opdrachten as $OpdrachtID) {
 				$HTML[] = "<br>\n";
 			}
 		}
-		*/
 		
 	}
 	$block[] = implode("\n", $HTML);
 }
+*/
 
 # Laat de resultaten van de check netjes op het scherm zien.
 $tweeKolom = false;

@@ -37,9 +37,9 @@ function getZoekOpdrachten($user, $uur, $active = true) {
 }
 
 function getActiveOpdrachten() {
-	global $TableVerdeling, $VerdelingOpdracht;
+	global $TableVerdeling, $VerdelingOpdracht, $TableZoeken, $ZoekenKey;
 	
-	$sql = "SELECT $VerdelingOpdracht FROM $TableVerdeling GROUP BY $VerdelingOpdracht";
+	$sql = "SELECT $TableZoeken.$ZoekenKey FROM $TableVerdeling, $TableZoeken WHERE $TableZoeken.$ZoekenKey = $TableVerdeling.$VerdelingOpdracht GROUP BY $TableZoeken.$ZoekenKey";
 	
 	$result = mysql_query($sql);	
 	if($row = mysql_fetch_array($result)) {
