@@ -39,13 +39,13 @@ foreach($Opdrachten as $OpdrachtID) {
 	
 	$OpdrachtURL	= $OpdrachtData['url'];
 	toLog('info', $OpdrachtID, '', 'Start controle '. $OpdrachtData['naam']);
-	
+			
 	# Vraag de pagina op en herhaal dit het standaard aantal keer mocht het niet lukken
 	$contents	= file_get_contents_retry($OpdrachtURL);
-	
+			
 	$NrHuizen	= getString('<span data-instant-search-output="total">', ' resulta', $contents, 0);
 
-	if(!is_numeric($NrHuizen[0]) AND !strpos($contents, '<div class="no-results">')) {
+	if(!is_numeric($NrHuizen[0]) AND !strpos($contents, '<div class="no-results">') AND $debug == 0) {
 		$ErrorMessage[] = $OpdrachtData['naam'] ."; Het totaal aantal huizen klopt niet : ". $NrHuizen[0];	
 		toLog('error', $OpdrachtID, '', 'Ongeldig aantal huizen');
 		$push = array(); $push['title'] = "Ongeldig aantal huizen voor '". $OpdrachtData['naam'] ."'"; $push['message'] = "Het totaal aantal huizen klopt niet : ". $NrHuizen[0]; $push['url'] = $OpdrachtURL; $push['urlTitle'] = $OpdrachtData['naam']; $push['priority']	= $cfgPushErrorPriority;
@@ -63,15 +63,32 @@ foreach($Opdrachten as $OpdrachtID) {
 	# op basis van het aantal gevonden huizen ($NrHuizen).
 	# Door te kijken of 'next page' op een pagina voorkomt weet ik dat ik nog een pagina verder moet
 	while($nextPage) {
-		set_time_limit (30);
+		sleep (5);
+		set_time_limit (60);
 		$AdressenArray = $VerlopenArray = array();
 		$p++;
 		
 		$PageURL	= $OpdrachtURL.'p'.$p.'/';
-		$contents	= file_get_contents_retry($PageURL, 5);
+		$debug_filename = 'funda_'. $OpdrachtID .'_'. $p .'.htm';
+		
+		# In debug-modus, sla pagina voor later op
+		if($debug == 0 OR (!file_exists($debug_filename) AND $debug == 1)) {
+			$contents	= file_get_contents_retry($PageURL, 5);
+			
+			if($debug == 1) {
+				$fp = fopen($debug_filename, 'w');
+				fwrite($fp, $contents);
+				fclose($fp);
+			}			
+		} else {			
+			$fp = fopen($debug_filename, 'r+');
+			$contents = fread($fp, filesize($debug_filename));
+			fclose($fp);
+		}
 		
 		# if(is_numeric(strpos($contents, '<a title="Volgende pagina')) AND $debug == 0) {
-		if(is_numeric(strpos($contents, '<span class="pagination-next-label">Volgende</span>')) AND $debug == 0) {
+		# if(is_numeric(strpos($contents, '<span class="pagination-next-label">Volgende</span>')) AND $debug == 0) {
+		if(is_numeric(strpos($contents, '<span class="icon-arrow-right-blue" data-grunticon-embed>')) AND $debug == 0) {		
 			$nextPage = true;
 		} else {
 			$nextPage = false;
@@ -82,10 +99,12 @@ foreach($Opdrachten as $OpdrachtID) {
 		$Huizen			= array_slice($Huizen, 1);		
 		$NrPageHuizen		= count($Huizen);
 				
+		/*
 		foreach($verlopenHuizen as $HuisText) {
 			$verlopenAdres = getString('<h3>', '<a class=', $HuisText, 0);
 			$VerlopenArray[] = $verlopenAdres[0];
 		}
+		*/
 				
 		if($debug == 1) {
 			$block[] = "Aantal huizen op <a href='$PageURL'>pagina $p</a> : ". $NrPageHuizen ."<br>\n";
@@ -107,7 +126,8 @@ foreach($Opdrachten as $OpdrachtID) {
 							
 			# Huis is nog niet bekend bij het script, dus moet worden toegevoegd
 			if(!knownHouse($data['id'])) {				
-				$allData = extractDetailedFundaData("http://www.funda.nl". $data['url'], false);				
+				//$allData = extractDetailedFundaData("http://www.funda.nl". $data['url'], false);
+				$allData = array(array(), array());
 				$data	= array_merge($data, $allData[0]);
 				$extraData = $allData[1];
 				# Gegevens over het huis opslaan

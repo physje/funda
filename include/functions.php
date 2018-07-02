@@ -139,7 +139,8 @@ function file_get_contents_retry($url, $maxTry = 3) {
 
 	while($contents === false AND $counter < $maxTry) {
 		if($counter > 0)	{	sleep(2);	}		
-				
+		
+		/*		
 		$curl_handle=curl_init();
 		curl_setopt($curl_handle, CURLOPT_URL,$url);
 		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
@@ -148,6 +149,11 @@ function file_get_contents_retry($url, $maxTry = 3) {
 		curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.4 (like Gecko)');
 		$contents = curl_exec($curl_handle);
 		curl_close($curl_handle);
+		*/
+		
+		$opts = array('http'=>array('method'=>"GET",'header'=>"User-Agent: ". $useragents[rand(0, count($useragents))] ."\r\n"));
+		$context = stream_context_create($opts);
+		$contents = file_get_contents($url, false, $context);		
 		$counter++;
 	}
 	
@@ -289,7 +295,7 @@ function makeTextBlock($string, $length, $reverse = false) {
 #		array met de gegevens van het huis
 function extractFundaData($HuisText, $verkocht = false) {	
 	# Overzichtspagina
-	$HuisURL= getString('<a href="', '"', $HuisText, 0);
+	$HuisURL= getString('<a data-object-url-tracking="resultlist" href="', '"', $HuisText, 0);
 	$mappen = explode("/", $HuisURL[0]);
 	if($verkocht) {
 		$key		= $mappen[4];
@@ -438,7 +444,7 @@ function convertToReadable($string) {
 
 
 function removeFilenameCharacters($string) {
-	$string = str_replace('²', '', $string);
+	$string = str_replace('Â²', '', $string);
 	$string = str_replace(',', '', $string);
 	$string = str_replace('!', '', $string);
 	$string = str_replace('[', '', $string);
@@ -957,6 +963,7 @@ function getHuizen($opdracht, $excludeVerkocht = false, $excludeOffline = false)
 	}
 	$sql .= "ORDER BY $TableHuizen.$HuizenAdres";
 	
+	$setupMySql = mysql_query("SET SQL_BIG_SELECTS=1") or die('Cannot complete SETUP BIG SELECTS because: ' . mysql_error());
 	$result	= mysql_query($sql);
 	$row		= mysql_fetch_array($result);
 		
@@ -1261,6 +1268,7 @@ function getLijstHuizen($list, $excludeVerkocht = false, $excludeOffline = false
 		$where .= " AND $HuizenOffline NOT like '1'";
 	}	
 	$sql		= "SELECT $TableHuizen.$HuizenID FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
+	$setupMySql = mysql_query("SET SQL_BIG_SELECTS=1") or die('Cannot complete SETUP BIG SELECTS because: ' . mysql_error());
 	$result = mysql_query($sql);
 	
 	$Huizen = array();
@@ -1801,7 +1809,7 @@ function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
 						
 			if($kenmerk == 'Achtertuin' || $kenmerk == 'Voortuin' || $kenmerk == 'Plaats') {
 				if(strlen($string) > 10) {
-					$string = str_replace(' m²', '', $string);
+					$string = str_replace(' mÂ²', '', $string);
 					$temp = getString('', '(', $string, 0);						$CSV_regel[] = trim($temp[0]);
 					$temp = getString('(', 'm diep', $string, 0);			$CSV_regel[] = trim($temp[0]);
 					$temp = getString('en ', 'm breed', $string, 0);	$CSV_regel[] = trim($temp[0]);
@@ -1811,8 +1819,8 @@ function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
 					$CSV_regel[] = '';
 				}
 			} else {					
-				$string = str_replace('m�', '', $string);
-				$string = str_replace('m�', '', $string);
+				$string = str_replace('mï¿½', '', $string);
+				$string = str_replace('mï¿½', '', $string);
 				$CSV_regel[] = trim($string);
 			}
 			
@@ -2069,3 +2077,5 @@ function send2Pushover($dataArray, $recipients) {
 		}
 	}
 }
+
+?>
