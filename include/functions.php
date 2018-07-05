@@ -666,9 +666,47 @@ function newHouse($key, $opdracht) {
 }
 
 
-function saveHouse($data, $moreData) {	
+//function saveHouse($data, $moreData) {	
+//	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
+//	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
+//	
+//	connect_db();
+//	
+//	if(!isset($data['begin'])) {
+//		$begin_tijd = mktime(0, 0, 1);
+//	} else {
+//		$begin_tijd = $data['begin'];
+//	}
+//	
+//	if(!isset($data['eind'])) {
+//		$eind_tijd = mktime(23, 59, 59);
+//	} else {
+//		$eind_tijd = $data['eind'];
+//	}	
+//	
+//	$sql  = "INSERT INTO $TableHuizen ";
+//	$sql .= "($HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind) ";
+//	$sql .= "VALUES ";
+//	$sql .= "('". $data['id'] ."', '". urlencode($data['url']) ."', '". urlencode($data['adres']) ."', '". urlencode($data['PC_c']) ."', '". urlencode($data['PC_l']) ."', '". urlencode($data['plaats']) ."', '". urlencode($data['wijk']) ."', '". urlencode($data['thumb']) ."', '". urlencode($data['makelaar']) ."', '$begin_tijd', '$eind_tijd')";
+//			
+//	if(!mysql_query($sql)) {		
+//		return false;
+//	}
+//	
+//	foreach($moreData as $key => $value) {
+//		$sql = "INSERT INTO $TableKenmerken ($KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue) VALUES ('". $data['id'] ."', '". urlencode($key) ."', '". urlencode($value) ."')";
+//						
+//		if(!mysql_query($sql)) {
+//			return false;			
+//		}
+//	}
+//	
+//	return true;
+//}
+
+
+function saveHouse2dB($data) {	
 	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
-	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
 	
 	connect_db();
 	
@@ -693,17 +731,8 @@ function saveHouse($data, $moreData) {
 		return false;
 	}
 	
-	foreach($moreData as $key => $value) {
-		$sql = "INSERT INTO $TableKenmerken ($KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue) VALUES ('". $data['id'] ."', '". urlencode($key) ."', '". urlencode($value) ."')";
-						
-		if(!mysql_query($sql)) {
-			return false;			
-		}
-	}
-	
 	return true;
 }
-
 
 function updateHouse($data, $kenmerken, $erase = false) {
 	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenAfmeld, $HuizenVerkocht;
