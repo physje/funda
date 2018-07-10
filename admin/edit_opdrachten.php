@@ -188,10 +188,10 @@ if(isset($_POST['doorgaan'])) {
 			if($_SESSION['level'] > 1) {
 				$Page .= "	<td><a href='../check.php?OpdrachtID=$OpdrachtID'><img src='../images/new.ico' width='16' height='16' title=\"Voer '". $OpdrachtData['naam'] ."' uit\"></a></td>".NL;
 				$Page .= "	<td>&nbsp;</td>".NL;
-				$Page .= "	<td><a href='renewData.php?selectie=Z$OpdrachtID'><img src='../images/renew.png' width='16' height='16' title=\"Haal alle data voor '". $OpdrachtData['naam'] ."' opnieuw op\"></a></td>".NL;
-				$Page .= "	<td>&nbsp;</td>".NL;
-				$Page .= "	<td><a href='getVerkochteHuizen.php?OpdrachtID=$OpdrachtID'><img src='../images/sold.ico' title=\"Zoek naar verkochte huizen voor '". $OpdrachtData['naam'] ."'\"></a></td>".NL;
-				$Page .= "	<td>&nbsp;</td>".NL;
+				//$Page .= "	<td><a href='renewData.php?selectie=Z$OpdrachtID'><img src='../images/renew.png' width='16' height='16' title=\"Haal alle data voor '". $OpdrachtData['naam'] ."' opnieuw op\"></a></td>".NL;
+				//$Page .= "	<td>&nbsp;</td>".NL;
+				//$Page .= "	<td><a href='getVerkochteHuizen.php?OpdrachtID=$OpdrachtID'><img src='../images/sold.ico' title=\"Zoek naar verkochte huizen voor '". $OpdrachtData['naam'] ."'\"></a></td>".NL;
+				//$Page .= "	<td>&nbsp;</td>".NL;
 				$Page .= "	<td><a href='invite.php?OpdrachtID=$OpdrachtID'><img src='../images/invite.gif' title=\"Nodig iemand uit voor '". $OpdrachtData['naam'] ."'\"></a></td>".NL;
 				$Page .= "	<td>&nbsp;</td>".NL;
 				$Page .= "	<td><a href='bekijkHuizenZoeker.php?selectie=Z$OpdrachtID'><img src='../images/huizenzoeker.png' title=\"Zoek naar ontbrekende gegevens voor '". $OpdrachtData['naam'] ."' op huizenzoeker.nl\"></a></td>".NL;

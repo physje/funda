@@ -40,14 +40,13 @@ function getActiveOpdrachten() {
 	global $TableVerdeling, $VerdelingOpdracht, $TableZoeken, $ZoekenKey;
 	
 	$sql = "SELECT $TableZoeken.$ZoekenKey FROM $TableVerdeling, $TableZoeken WHERE $TableZoeken.$ZoekenKey = $TableVerdeling.$VerdelingOpdracht GROUP BY $TableZoeken.$ZoekenKey";
-	
 	$result = mysql_query($sql);	
 	if($row = mysql_fetch_array($result)) {
 		do {
-			$Opdrachten[] = $row[$VerdelingOpdracht];
+			$Opdrachten[] = $row[$ZoekenKey];
 		} while($row = mysql_fetch_array($result));
 	}
-	
+		
 	return $Opdrachten;
 }
 
@@ -66,7 +65,7 @@ function getRandomOpdracht() {
 		if($dobbelsteen < $randomFactor) {
 			$alleOpdrachten = getActiveOpdrachten();
 			$key = rand(0, (count($alleOpdrachten)-1));
-			$Opdrachten[] = $alleOpdrachten[$key];
+			$Opdrachten[] = $alleOpdrachten[$key];			
 			toLog('debug', $alleOpdrachten[$key], '', 'Van  '. count($alleOpdrachten) ." opdrachten, opdracht $key gekozen : ". $alleOpdrachten[$key]);
 		} else {
 			$Opdrachten = array();
@@ -299,7 +298,7 @@ function makeTextBlock($string, $length, $reverse = false) {
 #		array met de gegevens van het huis
 function extractFundaData($HuisText, $verkocht = false) {	
 	# Overzichtspagina
-	$HuisURL= getString('<a href="', '"', $HuisText, 0);
+	$HuisURL= getString('<a data-object-url-tracking="resultlist" href="', '"', $HuisText, 0);
 	$mappen = explode("/", $HuisURL[0]);
 	if($verkocht) {
 		$key		= $mappen[4];
@@ -358,6 +357,65 @@ function extractFundaData($HuisText, $verkocht = false) {
 	*/	
 	return $data;
 }
+
+function RSS2Array($string) {
+	$link					= getString('<link>', '</link>', $string, 0);
+	$title				= getString('<title>', '</title>', $string, 0);
+	$description	= getString('<description>', '</description>', $string, 0);
+	$pubDate			= getString('<pubDate>', '</pubDate>', $string, 0);
+	
+	$mappen 		= explode("/", $link[0]);
+	$key				= $mappen[5];
+	$key_parts	= explode("-", $key);
+	$fundaID		= $key_parts[1];
+		
+	$adres				= getString(': ', ',', $title[0], 0);
+	$plaats				= getString(',', '', $adres[1], 0);
+	$thumb				= getString('img src="', '" align="left"', $description[0], 0);
+	$prijs				= getString('span class="price"&gt;', '&lt;/span&gt;', $thumb[1], 0);
+	$oppervlakte	= getString(' - ', ' m2 oppervlak', $prijs[1], 0);
+	$kamers				= getString(' - ', ' kamers', $oppervlakte[1], 0);
+			
+	$data['id']				= $fundaID;
+	$data['link']			= $link[0];
+	//$data['title']		= $title[0];	
+	$data['thumb']		= $thumb[0];
+	$data['straat']		= extractStreetFromAdress($$adres[0]);
+	$data['adres']		= trim($adres[0]);
+	$data['plaats']		= trim($plaats[0]);
+	$data['prijs']		= str_replace('.','' ,substr($prijs[0], 5));
+	$data['oppervl']	= $oppervlakte[0];
+	$data['kamers']		= $kamers[0];
+	$data['begin']		= strtotime($pubDate[0]);
+	$data['pubDate']	= $pubDate[0];
+	
+	//$data['description']	= $description[0];
+	
+	return $data;	
+}
+
+function extractStreetFromAdress($adres) {
+	$nogStraat = true;
+	$i = 0;
+	
+	$delen = explode(' ', trim($adres));
+	$i_max = count($delen);
+	
+	while($nogStraat) {
+		if(is_numeric($delen[$i])) {
+			$nogStraat = false;
+		} else {
+			$i++;
+		}
+		
+		if($i > $i_max) {
+			$nogStraat = false;
+		}
+	}
+	
+	return implode(' ', array_slice($delen, 0, $i));
+}
+
 
 function cleanPrice($HuisPrijs) {
 	$cleanPrice = '';
@@ -669,7 +727,6 @@ function newHouse($key, $opdracht) {
 	}
 }
 
-/*
 function saveHouse($data, $moreData) {	
 	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
 	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
@@ -696,18 +753,41 @@ function saveHouse($data, $moreData) {
 	if(!mysql_query($sql)) {		
 		return false;
 	}
-	
-	foreach($moreData as $key => $value) {
-		$sql = "INSERT INTO $TableKenmerken ($KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue) VALUES ('". $data['id'] ."', '". urlencode($key) ."', '". urlencode($value) ."')";
-						
-		if(!mysql_query($sql)) {
-			return false;			
-		}
-	}
-	
+		
 	return true;
 }
-*/
+
+
+function saveHouseRSS($data) {
+	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPlaats, $HuizenThumb, $HuizenStart, $HuizenEind;
+	
+	connect_db();
+	
+	if(isset($data['begin'])) {
+		$begin_tijd = $data['begin'];
+	} elseif($data['pubDate'] != '') {
+		$begin_tijd = $data['pubDate'];
+	} else {
+		$begin_tijd = mktime(0, 0, 1);
+	}
+	
+	if(!isset($data['eind'])) {
+		$eind_tijd = mktime(23, 59, 59);
+	} else {
+		$eind_tijd = $data['eind'];
+	}
+	
+	$sql  = "INSERT INTO $TableHuizen ";
+	$sql .= "($HuizenID, $HuizenURL, $HuizenAdres, $HuizenPlaats, $HuizenThumb, $HuizenStart, $HuizenEind) ";
+	$sql .= "VALUES ";
+	$sql .= "(". $data['id'] .", '". urlencode($data['link']) ."', '". urlencode($data['adres']) ."', '". urlencode($data['plaats']) ."', '". urlencode($data['thumb']) ."', '$begin_tijd', '$eind_tijd')";
+	
+	if(mysql_query($sql)) {		
+		return true;
+	}
+	
+	return false;	
+}
 
 function saveHouseJSON($JSON, $id) {	
 	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
@@ -908,10 +988,10 @@ function alreadyOnline($id) {
 
 
 function addHouse($data, $id) {
-	global $TableResultaat, $ResultaatZoekID, $ResultaatID, $ResultaatPrijs;
+	global $TableResultaat, $ResultaatZoekID, $ResultaatID, $ResultaatPrijs, $ResultaatPrijsMail;
 
 	connect_db();
-	$sql = "INSERT INTO $TableResultaat ($ResultaatZoekID, $ResultaatID, $ResultaatPrijs) VALUES ($id, '". $data['id'] ."', '". $data['prijs'] ."')";
+	$sql = "INSERT INTO $TableResultaat ($ResultaatZoekID, $ResultaatID, $ResultaatPrijs, $ResultaatPrijsMail) VALUES ($id, '". $data['id'] ."', '". $data['prijs'] ."', '". $data['prijs'] ."')";
 
 	if(!mysql_query($sql)) {
 		return false;
@@ -921,14 +1001,14 @@ function addHouse($data, $id) {
 }
 
 
-function updateAvailability($id, $PublicatieDatum = '') {
+function updateAvailability($id, $begin = '') {
 	global $TableHuizen, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenID;
 	connect_db();
 			
 	$sql = "UPDATE $TableHuizen SET $HuizenEind = ". mktime(23, 59, 59) .", ";
 	
-	if($PublicatieDatum != '') {
-		$sql .= "$HuizenStart = ". convertJSON2Unix($PublicatieDatum) .", ";
+	if($begin != '') {
+		$sql .= "$HuizenStart = $begin, ";
 	}
 	
 	$sql .= "$HuizenOffline = '0' WHERE $HuizenID like '$id'";
@@ -2177,4 +2257,78 @@ function send2Pushover($dataArray, $recipients) {
 			$push->send();		
 		}
 	}
+}
+
+function addUpdateStreetDb($straat, $stad) {
+	global $TableStraten, $StratenID, $StratenActive, $StratenStrLeesbaar, $StratenStrFunda, $StratenStad;
+	
+	$sql = "SELECT * FROM $TableStraten WHERE $StratenStrLeesbaar like '$straat' AND $StratenStad like '$stad'";
+	$result = mysql_query($sql);
+	if(mysql_num_rows($result) == 0) {		
+		$sql_insert = "INSERT INTO $TableStraten ($StratenActive, $StratenStrLeesbaar, $StratenStad, $StratenStrFunda) VALUES ('1', '". $straat ."', '". $stad. "', '". convert2FundaStyle($straat) ."')";
+		mysql_query($sql_insert);				
+	} else {
+		$row = mysql_fetch_array($result);
+		$sql_update = "UPDATE $TableStraten SET $StratenActive = '1' WHERE $StratenID = ". $row[$StratenID];
+		mysql_query($sql_update);
+	}
+}
+
+function convert2FundaStyle($string) {
+	 $string = str_replace ('.', '',$string);
+	 $string = str_replace (' ', '-',$string);
+	 
+	 return strtolower($string);
+}
+
+function getStreet2Check($limit) {
+	global $TableStraten, $StratenID, $StratenActive, $StratenLastCheck;
+	
+	$Straten = array();
+	$sql = "SELECT $StratenID FROM $TableStraten WHERE $StratenActive = '1' ORDER BY $StratenLastCheck ASC LIMIT 0, $limit";
+	$result = mysql_query($sql);
+	$row = mysql_fetch_array($result);
+	do {
+		$Straten[] = $row[$StratenID];
+	} while($row = mysql_fetch_array($result));
+	
+	return $Straten;
+}
+
+function getStreetByID($id) {
+	global $TableStraten, $StratenID, $StratenStrFunda, $StratenStad, $StratenStrLeesbaar;
+	
+	$sql 		= "SELECT * FROM $TableStraten WHERE $StratenID = $id";	
+	$result = mysql_query($sql);
+	$row		=	mysql_fetch_array($result);
+	
+	$data['straat'] = $row[$StratenStrFunda];
+	$data['plaats'] = $row[$StratenStad];
+	$data['leesbaar'] = $row[$StratenStrLeesbaar];
+	
+	return $data;
+}
+
+function getOpdrachtenByFundaID($fundaID) {
+	global $TableResultaat, $ResultaatZoekID, $ResultaatID, $AboType, $TableAbo, $AboZoekID;
+	
+	$Opdrachten = array();
+	
+	$sql_1		= "SELECT $TableResultaat.$ResultaatZoekID FROM $TableResultaat, $TableAbo WHERE $TableResultaat.$ResultaatZoekID = $TableAbo.$AboZoekID AND $TableAbo.$AboType like 'push' AND $TableResultaat.$ResultaatID like $fundaID";
+	$result_1	= mysql_query($sql_1);
+	if(mysql_num_rows($result_1) == 0) {
+		$sql_2		= "SELECT $ResultaatZoekID FROM $TableResultaat WHERE $ResultaatID like $fundaID";
+		$result_2	= mysql_query($sql_2);
+		$row_2 =	mysql_fetch_array($result_2);
+		do {
+			$Opdrachten[] = $row[$ResultaatZoekID];
+		} while($row_2 =	mysql_fetch_array($result_2));
+	} else {
+		$row_1 =	mysql_fetch_array($result_1);
+		do {
+			$Opdrachten[] = $row[$ResultaatZoekID];
+		} while($row_1 =	mysql_fetch_array($result_1));
+	}
+	
+	return $Opdrachten;
 }

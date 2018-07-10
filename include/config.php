@@ -155,6 +155,9 @@ $ResultaatID		= "funda_id";
 $ResultaatPrijs		= "prijs";
 $ResultaatVerkocht	= "verkocht";
 $ResultaatOpenHuis	= "open_huis";
+$ResultaatNew				= "nieuw";
+$ResultaatPrijsMail	= "mail_prijs";
+
 
 $TableVerdeling		= "funda_verdeling";
 $VerdelingUur		= "uur";
@@ -165,6 +168,14 @@ $ZoekenKey		= "id";
 $ZoekenUser		= "user";
 $ZoekenNaam		= "naam";
 $ZoekenURL		= "url";
+
+$TableStraten				= "funda_straten";
+$StratenID					= "id";
+$StratenActive 			= "active";
+$StratenStrLeesbaar = "naam_leesbaar";
+$StratenStrFunda		= "naam_funda";
+$StratenStad				= "stad";
+$StratenLastCheck		= "last_checked";
 
 include_once($cfgGeneralIncludeDirectory . 'general_functions.php');
 include_once($cfgGeneralIncludeDirectory . 'general_config.php');
