@@ -23,7 +23,7 @@ if(isset($_REQUEST['OpdrachtID'])) {
 	$iMax = 1;
 } elseif(date('i') > 5) {
 	$straatRun = true;
-	$iMax = 5;
+	$iMax = 1;
 	$Straten = getStreet2Check($iMax);
 } else {
 	$Opdrachten = getZoekOpdrachten('', date('G'));

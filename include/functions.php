@@ -380,7 +380,7 @@ function RSS2Array($string) {
 	$data['link']			= $link[0];
 	//$data['title']		= $title[0];	
 	$data['thumb']		= $thumb[0];
-	$data['straat']		= extractStreetFromAdress($$adres[0]);
+	$data['straat']		= extractStreetFromAdress($adres[0]);
 	$data['adres']		= trim($adres[0]);
 	$data['plaats']		= trim($plaats[0]);
 	$data['prijs']		= str_replace('.','' ,substr($prijs[0], 5));
