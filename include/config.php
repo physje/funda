@@ -1,10 +1,4 @@
 <?php
-$ScriptURL			= '';			# Map waar het script staat, bv http://www.example.com/scripts/funda/
-$ScriptTitle		= 'Funda Alert';	# Naam van het script (is naam van afzender in mails)
-$ScriptMailAdress	= '';			# Mailadres van het script (is mailadres van afzender in mails)
-$Version		= '5.0beta';		# Versie nummer
-$SubjectPrefix		= '[funda] ';		# Voorvoegsel bij de onderwerpregel bij het versturen van mails
-
 $debug			= 0;			# Wel (1) of geen (0) debug-info op het scherm tonen
 $stapPrijs		= 25000;		# Stapjes in prijs in de Google Maps view
 $colPhoto		= 3;			# Aantal kolommen met foto in mail
@@ -22,9 +16,8 @@ $cfgUserLevels = array(
 	3 => 'Administrator'	
 );
 
-$fundaAPI = "[VUL IN]";
 $randomCheck = true;			# Random checken, ja (true) of nee (false). Funda blockt robots, random kan handig zijn.
-$randomFactor = 0.5;			# Getal tussen 0 en 1, waarbij 0 is nooit checken en 1 altijd. 
+$randomFactor = 1;			# Getal tussen 0 en 1, waarbij 0 is nooit checken en 1 altijd. 
 
 # Deze zaken zijn standaard aangevinkt bij een export naar EXCEL
 $cfgCSVExport[] = 'Inhoud';
@@ -180,6 +173,7 @@ $StratenLastCheck		= "last_checked";
 include_once($cfgGeneralIncludeDirectory . 'general_functions.php');
 include_once($cfgGeneralIncludeDirectory . 'general_config.php');
 include_once( __DIR__ .'/functions.php');
+include_once( __DIR__ .'/config_funda.php');
 
 date_default_timezone_set('Europe/Amsterdam');
 
