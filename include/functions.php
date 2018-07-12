@@ -378,7 +378,8 @@ function RSS2Array($string) {
 			
 	$data['id']				= $fundaID;
 	$data['link']			= $link[0];
-	//$data['title']		= $title[0];	
+	//$data['title']		= $title[0];
+	$data['descr']			= $description[0];	
 	$data['thumb']		= $thumb[0];
 	$data['straat']		= extractStreetFromAdress($adres[0]);
 	$data['adres']		= trim($adres[0]);
