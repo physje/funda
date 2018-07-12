@@ -90,7 +90,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 				$ErrorMessage[] = "Toevoegen van coordinaten aan ". $data['adres'] ." ging niet goed";	
 				toLog('error', $OpdrachtID, $data['id'], 'Coordinaten toevoegen mislukt');
 			} else {
-				toLog('debug', $OpdrachtID, $data['id'], "Coordinaten toegevoegd");
+				toLog('debug', $OpdrachtID, $data['id'], 'Coordinaten toegevoegd');
 			}
 				
 			# Prijs van het huis opslaan
@@ -98,12 +98,12 @@ for($i=0 ; $i < $iMax ; $i++) {
 				$ErrorMessage[] = "Toevoegen van prijs (". $data['prijs'] .") aan ". $data['adres'] ." ging niet goed";
 				toLog('error', $OpdrachtID, $fundaID, 'Prijs toevoegen mislukt');
 			} else {
-				toLog('debug', $OpdrachtID, $fundaID, "Prijs toegevoegd");
+				toLog('debug', $OpdrachtID, $fundaID, 'Prijs ('. $data['prijs'] .') toegevoegd');
 			}
 			
 			
 			
-		} else {
+		} elseif(knownHouse($fundaID)) {
 			# Huis is al bekend bij het script
 			# We moeten dus aangeven dat hij nog steeds op de markt is
 			if(!updateAvailability($fundaID, $data['begin'])) {
@@ -120,9 +120,9 @@ for($i=0 ; $i < $iMax ; $i++) {
 				if(!updatePrice($fundaID, $data['prijs'])) {
 					echo "Toevoegen van de prijs van <b>". $data['adres'] ."</b> is mislukt | $sql<br>\n";
 					$ErrorMessage[] = "Updaten van prijs (". $data['prijs'] .") aan ". $data['adres'] ." ging niet goed";
-					toLog('error', $OpdrachtID, $fundaID, "Nieuwe prijs van ". $data['prijs'] ." kon niet worden toegevoegd");
+					toLog('error', $OpdrachtID, $fundaID, "Nieuwe prijs van '. $data['prijs'] .' kon niet worden toegevoegd");
 				} else {
-					toLog('debug', $OpdrachtID, $fundaID, "Nieuwe vraagprijs");
+					toLog('debug', $OpdrachtID, $fundaID, 'Nieuwe vraagprijs ('. $data['prijs'] .')');
 				}
 			}
 		}
@@ -140,7 +140,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 			$push['title']		= "Nieuw huis voor '". $OpdrachtData['naam'] ."'";
 			$push['message']	= $data['adres'] .' is te koop voor '. formatPrice($data['prijs']);
 			$push['url']			= 'http://funda.nl/'. $fundaID;
-			$push['urlTitle']	= $data['adres'];				
+			$push['urlTitle']	= $data['descr'];				
 			send2Pushover($push, $PushMembers);
 		} elseif(changedPrice($fundaID, $data['prijs'], $OpdrachtID)) {
 			$fundaData			= getFundaData($fundaID);
