@@ -724,7 +724,7 @@ function newHouse($key, $opdracht) {
 	if(mysql_num_rows($result) == 0) {
 		return true;
 	} elseif(mysql_num_rows($result) > 1) {
-		toLog('error', $opdacht, $key, 'Huis-opdracht-combinatie komt vaker voor');
+		toLog('error', $opdacht, $key, 'Huis-opdracht-combinatie komt vaker voor');		
 		return false;
 	} else {
 		return false;
@@ -2313,26 +2313,30 @@ function getStreetByID($id) {
 	return $data;
 }
 
+
 function getOpdrachtenByFundaID($fundaID) {
 	global $TableResultaat, $ResultaatZoekID, $ResultaatID, $AboType, $TableAbo, $AboZoekID;
 	
 	$Opdrachten = array();
 	
+	# Eerst kijken of er een opdracht is die gepushed moet worden
 	$sql_1		= "SELECT $TableResultaat.$ResultaatZoekID FROM $TableResultaat, $TableAbo WHERE $TableResultaat.$ResultaatZoekID = $TableAbo.$AboZoekID AND $TableAbo.$AboType like 'push' AND $TableResultaat.$ResultaatID like $fundaID";
 	$result_1	= mysql_query($sql_1);
+	
+	# Zo niet (= 0), zoek dan gewoon even op welke opdrachten erbij horen
 	if(mysql_num_rows($result_1) == 0) {
 		$sql_2		= "SELECT $ResultaatZoekID FROM $TableResultaat WHERE $ResultaatID like $fundaID";
 		$result_2	= mysql_query($sql_2);
 		$row_2 =	mysql_fetch_array($result_2);
 		do {
-			$Opdrachten[] = $row[$ResultaatZoekID];
+			$Opdrachten[] = $row_2[$ResultaatZoekID];
 		} while($row_2 =	mysql_fetch_array($result_2));
 	} else {
 		$row_1 =	mysql_fetch_array($result_1);
 		do {
-			$Opdrachten[] = $row[$ResultaatZoekID];
+			$Opdrachten[] = $row_1[$ResultaatZoekID];
 		} while($row_1 =	mysql_fetch_array($result_1));
 	}
-	
+		
 	return $Opdrachten;
 }

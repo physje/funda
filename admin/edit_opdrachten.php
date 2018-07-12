@@ -159,9 +159,9 @@ if(isset($_POST['doorgaan'])) {
 	}
 	
 	$Page .= "<form method='post'>".NL;
-	$Page .= "<table>".NL;
+	$Page .= "<table border=0>".NL;
 	$Page .= "<tr>\n";
-	$Page .= "	<td colspan='14'>&nbsp;</td>";
+	$Page .= "	<td colspan='10'>&nbsp;</td>";
 	$Page .= "	<td align='center'><img src='../images/mail_yes.gif'></td>";
 	$Page .= "	<td align='center'><img src='../images/pushover.png'></td>";
 	$Page .= "</tr>\n";
@@ -188,16 +188,16 @@ if(isset($_POST['doorgaan'])) {
 			if($_SESSION['level'] > 1) {
 				$Page .= "	<td><a href='../check.php?OpdrachtID=$OpdrachtID'><img src='../images/new.ico' width='16' height='16' title=\"Voer '". $OpdrachtData['naam'] ."' uit\"></a></td>".NL;
 				$Page .= "	<td>&nbsp;</td>".NL;
-				//$Page .= "	<td><a href='renewData.php?selectie=Z$OpdrachtID'><img src='../images/renew.png' width='16' height='16' title=\"Haal alle data voor '". $OpdrachtData['naam'] ."' opnieuw op\"></a></td>".NL;
-				//$Page .= "	<td>&nbsp;</td>".NL;
+				$Page .= "	<td><a href='". $OpdrachtData['url'] ."'><img src='../images/renew.png' width='16' height='16' title=\"Bekijk '". $OpdrachtData['naam'] ."' op funda.nl\"></a></td>".NL;
+				$Page .= "	<td>&nbsp;</td>".NL;
 				//$Page .= "	<td><a href='getVerkochteHuizen.php?OpdrachtID=$OpdrachtID'><img src='../images/sold.ico' title=\"Zoek naar verkochte huizen voor '". $OpdrachtData['naam'] ."'\"></a></td>".NL;
 				//$Page .= "	<td>&nbsp;</td>".NL;
 				$Page .= "	<td><a href='invite.php?OpdrachtID=$OpdrachtID'><img src='../images/invite.gif' title=\"Nodig iemand uit voor '". $OpdrachtData['naam'] ."'\"></a></td>".NL;
 				$Page .= "	<td>&nbsp;</td>".NL;
 				$Page .= "	<td><a href='bekijkHuizenZoeker.php?selectie=Z$OpdrachtID'><img src='../images/huizenzoeker.png' title=\"Zoek naar ontbrekende gegevens voor '". $OpdrachtData['naam'] ."' op huizenzoeker.nl\"></a></td>".NL;
 				$Page .= "	<td>&nbsp;</td>".NL;
-				$Page .= "	<td><a href='../../../download/". str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. removeFilenameCharacters($OpdrachtData['naam']) .".ics'><img src='../images/ical.png' title=\"Bekijk de huizen met Open Huis in iCal-formaat voor '". $OpdrachtData['naam'] ."'\"></a></td>".NL;
-				$Page .= "	<td>&nbsp;</td>".NL;
+				//$Page .= "	<td><a href='../../../download/". str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. removeFilenameCharacters($OpdrachtData['naam']) .".ics'><img src='../images/ical.png' title=\"Bekijk de huizen met Open Huis in iCal-formaat voor '". $OpdrachtData['naam'] ."'\"></a></td>".NL;
+				//$Page .= "	<td>&nbsp;</td>".NL;
 				
 			}
 			
