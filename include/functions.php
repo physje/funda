@@ -1845,7 +1845,7 @@ function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $
 		for($u=0 ; $u<=23 ; $u++)	$begin[] = "	<option value='$u'". ($u == $bUur ? ' selected' : '') .">". substr('0'.$u, -2) ."</option>";
 		$begin[] = "	</select>:";
 		$begin[] = "	<select name='bMin'>";
-		for($m=0 ; $m<=59 ; $m++)	$begin[] = "	<option value='$m'". ($m == $bMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
+		for($m=0 ; $m<=59 ; $m=$m+5)	$begin[] = "	<option value='$m'". ($m == $bMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
 		$begin[] = "	</select>";
 	}
 	
@@ -1864,7 +1864,7 @@ function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $
 		for($u=0 ; $u<=23 ; $u++)	$eind[] = "	<option value='$u'". ($u == $eUur ? ' selected' : '') .">". substr('0'.$u, -2) ."</option>";
 		$eind[] = "	</select>:";
 		$eind[] = "	<select name='eMin'>";
-		for($m=0 ; $m<=59 ; $m++)	$eind[] = "	<option value='$m'". ($m == $eMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
+		for($m=0 ; $m<=59 ; $m=$m+5)	$eind[] = "	<option value='$m'". ($m == $eMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
 		$eind[] = "	</select>";
 	}
 	

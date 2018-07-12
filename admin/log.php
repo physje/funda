@@ -53,20 +53,16 @@ if(isset($_REQUEST['debug']) AND $_REQUEST['debug'] != '') {
 	$debug = 'nee';
 }
 
-if(isset($_REQUEST['info']) AND $_REQUEST['info'] != '') {
-	$info = $_REQUEST['info'];	
-//} elseif(!isset($_REQUEST['bDag'])) {
-//	$info = 'ja';
+if((isset($_REQUEST['info']) AND $_REQUEST['info'] != '') OR !isset($_REQUEST['logSearch'])) {
+	$info = 'ja';	
 } else {
-	$info = 'ja';
+	$info = 'nee';
 }
 
-if(isset($_REQUEST['error']) AND $_REQUEST['error'] != '') {
-	$error = $_REQUEST['error'];	
-//} elseif(!isset($_REQUEST['bDag'])) {
-//	$error = 'ja';
-} else {
+if((isset($_REQUEST['error']) AND $_REQUEST['error'] != '') OR !isset($_REQUEST['logSearch'])) {
 	$error = 'ja';
+} else {
+	$error = 'nee';
 }
 
 $begin	= mktime($bUur, $bMin, 0, $bMaand, $bDag, $bJaar);
@@ -107,6 +103,7 @@ do {
 $dateSelection = makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $eDag, $eMaand, $eJaar);
 
 $zoekScherm[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+$zoekScherm[] = "<input type='hidden' name='logSearch' value='ja'>";
 $zoekScherm[] = "<table border=0 align='center'>";
 $zoekScherm[] = "<tr>";
 $zoekScherm[] = "	<td><b>Begindatum</b></td>";
@@ -144,9 +141,9 @@ $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "</tr>";
 $zoekScherm[] = "<tr>";
 $zoekScherm[] = "	<td colspan='4'>";
-$zoekScherm[] = "	<input type='checkbox' name='error' value='ja' ". ($error == 'ja' ? ' checked' : '') ."> Error&nbsp;&nbsp;&nbsp;";
-$zoekScherm[] = "	<input type='checkbox' name='info' value='ja' ". ($info == 'ja' ? ' checked' : '') ."> Info&nbsp;&nbsp;&nbsp;";
-$zoekScherm[] = "	<input type='checkbox' name='debug' value='ja' ". ($debug == 'ja' ? ' checked' : '') ."> Debug";
+$zoekScherm[] = "	<input type='checkbox' name='error' value='ja'". ($error == 'ja' ? ' checked' : '') ."> Error&nbsp;&nbsp;&nbsp;";
+$zoekScherm[] = "	<input type='checkbox' name='info' value='ja'". ($info == 'ja' ? ' checked' : '') ."> Info&nbsp;&nbsp;&nbsp;";
+$zoekScherm[] = "	<input type='checkbox' name='debug' value='ja'". ($debug == 'ja' ? ' checked' : '') ."> Debug";
 $zoekScherm[] = "	</td>";
 if(isset($opdracht)) {
 	if(isset($huis)) {
