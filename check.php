@@ -120,7 +120,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 				if(!updatePrice($fundaID, $data['prijs'])) {
 					echo "Toevoegen van de prijs van <b>". $data['adres'] ."</b> is mislukt | $sql<br>\n";
 					$ErrorMessage[] = "Updaten van prijs (". $data['prijs'] .") aan ". $data['adres'] ." ging niet goed";
-					toLog('error', $OpdrachtID, $fundaID, "Nieuwe prijs van '. $data['prijs'] .' kon niet worden toegevoegd");
+					toLog('error', $OpdrachtID, $fundaID, 'Nieuwe prijs van '. $data['prijs'] .' kon niet worden toegevoegd');
 				} else {
 					toLog('debug', $OpdrachtID, $fundaID, 'Nieuwe vraagprijs ('. $data['prijs'] .')');
 				}
