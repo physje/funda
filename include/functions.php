@@ -721,10 +721,13 @@ function newHouse($key, $opdracht) {
 	$sql		= "SELECT * FROM $TableResultaat WHERE $ResultaatID like '$key' AND $ResultaatZoekID like '$opdracht'";
 			
 	$result	= mysql_query($sql);
-	if(mysql_num_rows($result) == 1) {
+	if(mysql_num_rows($result) == 0) {
+		return true;
+	} elseif(mysql_num_rows($result) > 1) {
+		toLog('error', $opdacht, $key, 'Huis-opdracht-combinatie komt vaker voor');
 		return false;
 	} else {
-		return true;
+		return false;
 	}
 }
 
