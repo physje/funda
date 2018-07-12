@@ -161,12 +161,9 @@ for($i=0 ; $i < $iMax ; $i++) {
 		if($opdrachtRun)	addUpdateStreetDb($data['straat'], $data['plaats']);
 	}
 	
-	//if($enkeleOpdracht) {
-		$block[] = implode("<br>\n", $String);
-		$String = array();
-	//}
-	
-	
+	$block[] = implode("<br>\n", $String);
+	$String = array();
+		
 	if($straatRun) {
 		$sql_update = "UPDATE $TableStraten SET ". (count($Huizen) > 0 ? "$StratenLastCheck = '". time() ."'" : "$StratenActive = '0'") ." WHERE $StratenID = ". $straatID;
 		mysql_query($sql_update);

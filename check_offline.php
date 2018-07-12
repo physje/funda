@@ -4,11 +4,11 @@ include_once('include/HTML_TopBottom.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
 connect_db();
 
-$offlineDir = 'offline/koop/';
+$pageDir = $offlineDir.'koop/';
 
 $String = $block = array();
 
-if ($handle = opendir($offlineDir)) {
+if ($handle = opendir($pageDir)) {
 	while (false !== ($entry = readdir($handle))) {
 		if ($entry != "." && $entry != "..") {
 			$files[] = $entry;
@@ -21,7 +21,7 @@ if ($handle = opendir($offlineDir)) {
 foreach($files as $file) {
 	# Alles initialiseren
 	set_time_limit (30);
-	$bestand = $offlineDir.$file;
+	$bestand = $pageDir.$file;
 	$AdressenArray = $VerlopenArray = array();
 		
 	# Bestandsnaam is opgebouwd volgens
