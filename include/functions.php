@@ -220,7 +220,7 @@ function addCoordinates($straat, $postcode, $plaats, $huisID) {
 function addKnowCoordinates($coord, $huisID) {
 	global $TableHuizen, $HuizenLat, $HuizenLon, $HuizenID;
 			
-	if(is_numeric($coord[1])) {
+	if(is_numeric($coord[1]) AND $coord[0] != 0) {
 		if(count($coord) > 3) {
 			$lat = $coord[0].'.'.$coord[1];
 			$lng = $coord[2].'.'.$coord[3]; 
@@ -302,8 +302,10 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$mappen = explode("/", $HuisURL[0]);
 	if($verkocht) {
 		$key		= $mappen[4];
+		$data['verkocht']			= 1;
 	} else {
 		$key		= $mappen[3];
+		$data['verkocht']			= 0;
 	}
 	$key_parts = explode("-", $key);
 	$id			= $key_parts[1];
@@ -632,6 +634,106 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 
 	# Kenmerken
 	$content_kenmerk	= getString('<section class="object-kenmerken is-expanded" aria-expanded="true" data-object-kenmerken>', '</section>', $contents, 0);
+	$kenmerken				= explode('<dt>', $content_kenmerk[0]);
+	array_shift($kenmerken);
+	
+	foreach($kenmerken as $kenmerk) {
+		$Record = getString('', '</dt>', $kenmerk, 0);
+		$Waarde = getString('<dd>', '</dd>', $kenmerk, 0);
+		
+		$key = trim($Record[0]);
+		$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
+	}
+	
+	# Foto	
+	$content_fotos	= getString('<section class="object-media" data-object-media>', '</section>', $contents, 0);
+	
+	if($content_fotos[0] != "") {
+		$picture		= array();
+		$carousel		= explode('<div class="object-media-foto">', $content_fotos[0]);
+		array_shift($carousel);
+			
+		foreach($carousel as $key => $value) {
+			if(strpos($value, 'data-lazy-srcset=')) {
+				$thumb = getString('data-lazy-srcset="', ' ', $value, 0);
+				$picture[] = preg_replace ('/_(\d+).jpg/', '_180x120.jpg', $thumb[0]);
+			} else {
+				$thumb = getString('src="', '"', $value, 0);
+				$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_180x120.jpg', $thumb[0]);
+			}
+		}
+		
+		$KenmerkData['foto']		= implode('|', $picture);
+	}	else {
+		$KenmerkData['foto']		= '';
+	}
+	
+	return array($data, $KenmerkData);
+}
+
+function extractFundaDataFromPage($offlineHTML) {	
+	$HTML = getString('<body>', '<h2 class="related-objects__title">', $offlineHTML, 0);
+	$contents = $HTML[0];
+	
+	# Als er een class item-sold is, is hij onder voorbehoud verkocht => $verkocht = 2
+	# Als er een class item-sold-label-large is, is hij verkocht => $verkocht = 1
+	# Als geen van beide het geval is, is hij nog beschikbaar => $verkocht = 0
+	if(strpos($contents, '<li class="label-transactie-voorbehoud">')) {
+		$verkocht		= 2;
+	}elseif(strpos($contents, '<li class="label-transactie-definitief">')) {
+		$verkocht		= 1;
+	} else {
+		$verkocht		= 0;
+	}
+	
+	if($verkocht == 1) {
+		$Aangeboden 	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
+		$KenmerkData['Aangeboden sinds'] = substr(trim($Aangeboden[0]), 4);
+				
+		$Verkoopdatum 	= getString('<dt>Verkoopdatum</dt>','</dd>', $contents, 0);
+		$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
+	}
+			
+	# Navigatie-gedeelte
+	$navigatie	= getString('<ol class="container breadcrumb-list">', '</ol>', $contents, 0);
+	$stappen		= explode('<li class="breadcrumb-listitem">', $navigatie[0]);
+	$wijk				= getString('/">', '</a>', $stappen[(count($stappen)-2)], 0);
+	$id					= getString('tinyId=', '"', $contents, 0);
+
+	$adres	= getString('<span aria-current="page">', '</span>', $contents, 0);
+		
+	if($verkocht == 1) {
+		$prijs			= getString('<strong class="object-header__price--historic">', '</strong>', $contents, 0);
+	} else {
+		$prijs			= getString('<strong class="object-header-price">', '</strong>', $contents, 0);
+	}	
+	
+	$makelHTML	= getString('<h3 class="object-contact-aanbieder-name">', '</h3>', $contents, 0);
+	$PC					= getString('<span class="object-header__address-city">', '</span>', $contents, 0);
+	$makelaar		= getString('">', '</a>', $makelHTML[0], 0);
+	$foto				=	getString('<meta itemprop="image" content="', '"', $offlineHTML, 0);
+	
+	$postcode		= explode(" ", trim($PC[0]));		
+
+	$data['id']				= trim($id[0]);
+	$data['wijk']			= trim($wijk[0]);	
+	$data['adres']		= trim(str_replace('<span class="item-sold-label-large" title="Verkocht">VERKOCHT</span>', '', $adres[0]));
+	$data['PC_c']			= trim($postcode[0]);
+	$data['PC_l']			= trim($postcode[1]);
+	$data['plaats']		= end($postcode);
+	$data['thumb'] = preg_replace ('/_(\d+).jpg/', '_360x240.jpg', $foto[0]);
+	$data['makelaar']	= trim($makelaar[0]);
+	$data['prijs']		= cleanPrice($prijs[0]);
+	$data['verkocht']	= $verkocht;
+	
+	# Omschrijving		
+	$descrHTML		= getString('<div class="object-description-body"', '</div>', $contents, 0);
+	$omschrijving = getString('>', '</div>', $descrHTML[0], 0);
+	
+	$KenmerkData['descr']	= trim($omschrijving[0]);
+	
+	# Kenmerken
+	$content_kenmerk	= getString('<h2 class="object-kenmerken-title">Kenmerken</h2>', '</section>', $contents, 0);
 	$kenmerken				= explode('<dt>', $content_kenmerk[0]);
 	array_shift($kenmerken);
 	
@@ -1826,6 +1928,175 @@ function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 	return $HTML;
 }
 
+
+function updateVerkochtDataFromPage($generalData, $data) {
+	global $TableHuizen, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenVerkocht, $HuizenOffline, $HuizenID;
+	
+	# Alles weer opnieuw initialiseren.
+	unset($prijs, $naam);
+	unset($Aanmelddatum, $Verkoopdatum, $AangebodenSinds, $startdata);
+	unset($OorspronkelijkeVraagprijs, $LaatsteVraagprijs, $Vraagprijs);
+	$offline = false;
+	
+	$fundaID = $generalData['id'];
+	$FundaData = getFundaData($fundaID);
+			
+	if($generalData['afmeld'] != "") {
+		$sql_update = "UPDATE $TableHuizen SET $HuizenAfmeld = ". $generalData['afmeld'] ." WHERE $HuizenID like $fundaID";
+		if(mysql_query($sql_update)) {
+			$HTML[] = " -> afgemeld<br>";
+		}			
+	}
+			
+	# Als de array 'data' groter is dan 3 is er data gevonden in de kenmerken-pagina
+	if(count($data) > 3) {
+		# Reeds verkochte huizen
+		if($data['Aanmelddatum'] != '') {
+			$guessStartDatum	= guessDate($data['Aanmelddatum']);
+			$startDatum	= explode("-", $guessStartDatum);
+			$Aanmelddatum = mktime(0, 0, 1, $startDatum[1], $startDatum[0], $startDatum[2]);
+		}
+							
+		if($data['Verkoopdatum'] != '') {
+			$guessVerkoopDatum = guessDate($data['Verkoopdatum']);
+			$verkoopDatum	= explode("-", $guessVerkoopDatum);
+			$Verkoopdatum = mktime(23, 59, 59, $verkoopDatum[1], $verkoopDatum[0], $verkoopDatum[2]);
+		}			
+
+		if($data['Laatste vraagprijs'] != '') {
+			$prijzen		= explode(" ", $data['Laatste vraagprijs']);				
+			$LaatsteVraagprijs	= str_ireplace('.', '' , substr($prijzen[0], 5));
+		}
+									
+		# Huizen die nog niet verkocht zijn
+		if($data['Aangeboden sinds'] != '') {
+			if($data['Aangeboden sinds'] == '5 maanden') {
+				$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m')-5, date('d'), date('Y'));
+			} elseif($data['Aangeboden sinds'] == '4 maanden') {
+				$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m')-4, date('d'), date('Y'));
+			} elseif($data['Aangeboden sinds'] == '3 maanden') {
+				$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m')-3, date('d'), date('Y'));
+			} elseif($data['Aangeboden sinds'] == '2 maanden') {
+				$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m')-2, date('d'), date('Y'));
+			} elseif($data['Aangeboden sinds'] == '8 weken') {
+				$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m'), date('d')-56, date('Y'));
+			} elseif($data['Aangeboden sinds'] == '7 weken') {
+				$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m'), date('d')-49, date('Y'));
+			} elseif($data['Aangeboden sinds'] == '6 weken') {
+				$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m'), date('d')-42, date('Y'));
+			} elseif($data['Aangeboden sinds'] == '5 weken') {
+				$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m'), date('d')-35, date('Y'));
+			} elseif($data['Aangeboden sinds'] == '4 weken') {
+				$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m'), date('d')-28, date('Y'));
+			} elseif($data['Aangeboden sinds'] == '3 weken') {
+				$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m'), date('d')-21, date('Y'));
+			} elseif($data['Aangeboden sinds'] == '2 weken') {
+				$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m'), date('d')-14, date('Y'));
+			} elseif($data['Aangeboden sinds'] == '6+ maanden') {
+				$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m')-7, date('d'), date('Y'));
+			} else {
+				$guessDatum = guessDate($data['Aangeboden sinds']);
+				$AangebodenDatum	= explode("-", $guessDatum);
+				$AangebodenSinds = mktime(0, 0, 1, $AangebodenDatum[1], $AangebodenDatum[0], $AangebodenDatum[2]);
+			}
+		}
+					
+		if($data['Oorspronkelijke vraagprijs'] != '') {
+			$prijzen		= explode(" ", $data['Oorspronkelijke vraagprijs']);
+			$OorspronkelijkeVraagprijs = str_ireplace('.', '' , substr($prijzen[0], 5));
+		}
+					
+		if($data['Vraagprijs'] != '') {
+			$prijzen						= explode(" ", $data['Vraagprijs']);				
+			$Vraagprijs	= str_ireplace('.', '' , substr($prijzen[0], 5));
+		}
+			
+	}
+	
+	# Van de 3 bekende data de laagste opzoeken
+	if($Aanmelddatum > 10)		{ $startdata[] = $Aanmelddatum;	}
+	if($AangebodenSinds > 10)	{ $startdata[] = $AangebodenSinds; }
+															$startdata[] = $FundaData['start'];
+															
+	$startDatum = min($startdata);
+			
+	# Soms wordt een huis erafgehaald en dan paar dagen later er weer opgezet.
+	# Om te zorgen dat de 'valse' informatie op de site de data in de dB niet overschrijft wordt de check gedaan.
+	if($OorspronkelijkeVraagprijs > 0 AND $Aanmelddatum  == $startDatum) {
+		$tijdstip = $Aanmelddatum;
+		$prijs[$tijdstip]	= $OorspronkelijkeVraagprijs;
+		$naam[$tijdstip]	= 'Oorspronkelijke vraagprijs';
+	}
+
+	# Bij aangeboden sinds gaat men niet verder dan 6 maanden.
+	# Om te zorgen dat bij een huis wat al twee jaar te koop staat en 9 maanden geleden in prijs is gedaald,
+	# niet de oorspronkelijke vraagprijs wordt ingevoerd even de check.
+	if($OorspronkelijkeVraagprijs > 0 AND $AangebodenSinds  == $startDatum) {
+		$tijdstip = $AangebodenSinds;
+		$prijs[$tijdstip]	= $OorspronkelijkeVraagprijs;
+		$naam[$tijdstip]	= 'Oorspronkelijke vraagprijs';
+	}
+			
+	# We gaan er vanuit dat de laatste vraagprijs ook de verkoopdatum is
+	if($LaatsteVraagprijs > 0 AND $Verkoopdatum > 10) {
+		$tijdstip = $Verkoopdatum;
+		$prijs[$tijdstip]	= $LaatsteVraagprijs;
+		$naam[$tijdstip]	= 'Laatste vraagprijs';				
+	}			
+			
+	# Sommige huizen verdwijnen van de radar, als ze nog wel online zijn het prijsverloop monitoren.
+	if($Vraagprijs > 0) {
+		$tijdstip = time();
+		$prijs[$tijdstip]	= $Vraagprijs;
+		$naam[$tijdstip]	= 'Vraagprijs';	
+	}
+	
+	# Alle gevonden prijzen incl. tijdstippen invoeren			
+	foreach($prijs as $key => $value) {				
+		if(updatePrice($fundaID, $value, $key)) {
+			$HTML[] = " -> ". $naam[$key] ." toegevoegd ($value / ". date("d-m-y", $key) .")";
+			toLog('debug', $opdrachtID, $fundaID, $naam[$key] ." toegevoegd");
+		} else {
+			toLog('error', $opdrachtID, $fundaID, "Error met toevoegen $value als ". $naam[$key]);
+		}
+	}
+	
+	# Als er een startdatum gevonden is die verder terugligt dan die bekend was => invoegen
+	if($startDatum != $FundaData['start'] AND !$offline) {
+		$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $startDatum WHERE $HuizenID like $fundaID";
+		
+		if(mysql_query($sql_update)) {
+			$HTML[] = " -> begintijd aangepast";
+		} else {
+			toLog('error', $opdrachtID, $fundaID, "Error met verwerken begintijd");
+		}				
+	}
+
+	# Als er geen verkoopdatum bekend is, is hij niet verkocht en dus nog online
+	if($Verkoopdatum == '' AND !$offline) {
+		$sql_update = "UPDATE $TableHuizen SET $HuizenEind = ". time() ." WHERE $HuizenID like $fundaID";
+		
+		if(mysql_query($sql_update)) {
+			$HTML[] = " -> eindtijd aangepast<br>";
+		} else {
+			toLog('error', $opdrachtID, $fundaID, "Error met verwerken begintijd");
+		}				
+	}
+		
+	# Als er een verkoopdatum bekend is => die datum als eindtijd invoeren
+	if($Verkoopdatum > 10) {
+		$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $startDatum, $HuizenEind = $Verkoopdatum, $HuizenVerkocht = '1' WHERE $HuizenID like $fundaID";
+				
+		if(mysql_query($sql_update)) {
+			$HTML[] = " -> begin- en eindtijd aangepast (verkocht)";
+			toLog('info', $opdrachtID, $fundaID, "Huis is verkocht");
+		} else {
+			toLog('error', $opdrachtID, $fundaID, "Error met verwerken verkocht huis");
+		}			
+	}
+	
+	return $HTML;
+}
 
 function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $eDag, $eMaand, $eJaar) {
 	$maandNamen = array(1 => 'Jan', 2 => 'Feb', 3 => 'Mrt', 4 => 'Apr', 5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Dec');

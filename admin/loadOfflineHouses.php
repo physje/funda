@@ -1,10 +1,10 @@
 <?php
-include_once(__DIR__.'/include/config.php');
-include_once('include/HTML_TopBottom.php');
+include_once(__DIR__.'/../include/config.php');
+include_once('../include/HTML_TopBottom.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
 connect_db();
 
-$pageDir = $offlineDir.'huis/';
+$pageDir = '../'.$offlineDir.'huis/';
 
 $String = $block = array();
 
@@ -17,56 +17,44 @@ if ($handle = opendir($pageDir)) {
 	closedir($handle);
 }
 
+$files =  array();
+$files[] = 'Verkocht  Rozengaarderweg 41 7416 BL Deventer [funda].html';
+$files[] = 'Verkocht_ Brinkgreverweg 95 7415 CE Deventer [funda].html';
+
 # Doorloop alle zoekopdrachten
 foreach($files as $file) {
 	# Alles initialiseren
+	set_time_limit (60);
+	$bestand = $pageDir.$file;
 	
 	$fp = fopen($bestand, 'r+');
 	$contents = fread($fp, filesize($bestand));
 	fclose($fp);
-
-foreach($dataset as $fundaID) {
-	set_time_limit (60);
-	$oldData			= getFundaData($fundaID);
-	$oldExtraData = getFundaKenmerken($fundaID);
 	
-	if($oldData['verkocht'] == 1) {
-		$URL					= "http://www.funda.nl". changeURLLocation($oldData['url']);
+	$data = extractFundaDataFromPage($contents);
+	$HTML[] = "<a href='$bestand'>". $data[0]['adres'] ."</a><br>\n";
+	
+	# Als wij een huis niet kennen klopt er iets niet
+	if(!knownHouse($data[0]['id'])) {
+		toLog('error', '', $data[0]['id'], 'Huis niet bekend');
+		
+	# Meestal zal het huis wel bekend zijn
 	} else {
-		$URL					= "http://www.funda.nl". trim($oldData['url']);
-	}
+		updateHouse($data[0], $data[1]);
+		//addCoordinates($data[0]['adres'], $data[0]['PC_c'], $data[0]['plaats'], $data[0]['id']);
+		updatePrice($data[0]['id'], $data[0]['prijs'], time());
 		
-	$allData			= extractDetailedFundaData($URL, true);
-	
-	$newData			= $allData[0];
-	$newExtraData	= $allData[1];
-	$newData['id'] = $fundaID;
-	
-	$HTML[] = "<a href='$URL'>". $oldData['adres'] ."</a><br>";
-			
-	if($showDetails) {		
-		$HTML[] = "<table>";
-		$HTML[] = "<tr><td width=10%>&nbsp;</td><td width=45%><b>Oud</b></td><td width=45%><b>Nieuw</b></td></tr>";	
+		# Als hij nog niet verkocht is moeten wij dat aangeven
+		if($data[0]['verkocht'] != 1) {
+			updateAvailability($data[0]['id']);
 		
-		foreach($oldData as $key => $value) {
-			$HTML[] = "<tr><td valign='top'>$key</td><td valign='top'>$value</td><td valign='top'>". ($newData[$key] == $value ? $newData[$key] : '<b>'.$newData[$key].'</b>') ."</td></tr>";
+		# Als hij wel verkocht is moeten we de administratie daarvan even bijwerken
+		} else {
+			$temp = updateVerkochtDataFromPage($data[0], $data[1]);
+			$HTML[] = implode("<br>\n", $temp)."<br>\n";
 		}
-		
-		$HTML[] = "<tr><td colspan=3>&nbsp;</td></tr>";
-		
-		foreach($oldExtraData as $key => $value) {
-			$HTML[] = "<tr><td valign='top'>$key</td><td valign='top'>$value</td><td valign='top'>". ($newExtraData[$key] == $value ? $newExtraData[$key] : '<b>'.$newExtraData[$key].'</b>') ."</td></tr>";
-		}
-		$HTML[] = "</table>";
+		toLog('info', '', $data[0]['id'], 'Offline pagina ingeladen');
 	}
-	
-	updateHouse($newData, $newExtraData);
-	addCoordinates($newData['adres'], $newData['PC_c'], $newData['plaats'], $newData['id']);
-	updatePrice($newData['id'], $newData['prijs'], time());
-	if($newData['verkocht'] != 1) {
-		updateAvailability($newData['id']);
-	}
-	toLog('info', '', $fundaID, 'Data opnieuw ingeladen');
 }
 
 echo $HTMLHeader;

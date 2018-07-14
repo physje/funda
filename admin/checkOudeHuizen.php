@@ -104,22 +104,19 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	$result	= mysql_query($sql);	
 	if($row = mysql_fetch_array($result)) {
 		do {
-			set_time_limit (30); 
-			
+					
 			if($row[$HuizenVerkocht] == 1) {
 				$url			= "http://www.funda.nl". changeURLLocation($row[$HuizenURL]);
 			} else {
-				$url			= "http://www.funda.nl". $row[$HuizenURL];
+				$url			= urldecode($row[$HuizenURL]);
 			}
 			$HTML[] = '<b>'. urldecode($row[$HuizenAdres]) ."</b> (<a href='$url'>url</a>, ". urldecode($row[$HuizenPlaats]) .")<br>";
 			$HTML[] = "[van ". date("d-m-Y", $row[$HuizenStart]) ." tot ". date("d-m-Y", $row[$HuizenEind]) ."]<br>";
 			
-			if($row[$HuizenOffline] == 0) {
-				$HTML_temp = extractAndUpdateVerkochtData($row[$HuizenID]);				
-			} else {
-				$HTML_temp[] = ' -> niet aan begonnen, is offline<br>';
+			if($row[$HuizenOffline] != 0) {
+				$HTML[] = ' -> niet aan beginnen, is offline<br>';
 			}
-			$HTML = array_merge($HTML, $HTML_temp);
+			//$HTML = array_merge($HTML, $HTML_temp);
 		} while($row = mysql_fetch_array($result));
 	}
 }

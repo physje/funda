@@ -1,4 +1,4 @@
-<?
+<?php
 
 # Map waar het script staat, bv http://www.example.com/scripts/funda/
 $ScriptURL	= '';
@@ -10,7 +10,7 @@ $ScriptTitle	= 'Funda Alert';
 $ScriptMailAdress	= '';
 
 # Versie nummer
-$Version	= ''
+$Version	= '';
 
 # Voorvoegsel bij de onderwerpregel bij het versturen van mails
 $SubjectPrefix	= '[funda] ';
