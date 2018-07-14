@@ -114,7 +114,7 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 			
 			$HTML[] = '<b>'. urldecode($row[$HuizenAdres]) ."</b> (". urldecode($row[$HuizenPlaats]) .")<br>";
 			$HTML[] = "[van ". date("d-m-Y", $row[$HuizenStart]) ." tot ". date("d-m-Y", $row[$HuizenEind]) ."]<br>";
-			$HTML[] = "<a href='$url' target='_new'>funda.nl</a> | <a href='edit.php?id=". $row[$HuizenID] ."' target='_new'>details</a> | zet offline";
+			$HTML[] = "<a href='$url' target='_new'>funda.nl</a> | <a href='edit.php?id=". $row[$HuizenID] ."' target='_new'>details</a> | zet offline<br>";
 			
 			if($row[$HuizenOffline] != 0) {
 				$HTML[] = ' -> niet aan beginnen, is offline<br>';
