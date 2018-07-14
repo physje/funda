@@ -17,10 +17,6 @@ if ($handle = opendir($pageDir)) {
 	closedir($handle);
 }
 
-$files =  array();
-$files[] = 'Verkocht  Rozengaarderweg 41 7416 BL Deventer [funda].html';
-$files[] = 'Verkocht_ Brinkgreverweg 95 7415 CE Deventer [funda].html';
-
 # Doorloop alle zoekopdrachten
 foreach($files as $file) {
 	# Alles initialiseren

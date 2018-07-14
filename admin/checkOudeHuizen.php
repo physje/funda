@@ -106,16 +106,20 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 		do {
 					
 			if($row[$HuizenVerkocht] == 1) {
-				$url			= "http://www.funda.nl". changeURLLocation($row[$HuizenURL]);
+				$url			= urldecode(changeURLLocation($row[$HuizenURL]));
 			} else {
-				$url			= urldecode($row[$HuizenURL]);
+				$url			= str_replace('http://www.funda.nl', '', urldecode($row[$HuizenURL]));
 			}
-			$HTML[] = '<b>'. urldecode($row[$HuizenAdres]) ."</b> (<a href='$url'>url</a>, ". urldecode($row[$HuizenPlaats]) .")<br>";
+			$url = 'http://www.funda.nl'.$url;
+			
+			$HTML[] = '<b>'. urldecode($row[$HuizenAdres]) ."</b> (". urldecode($row[$HuizenPlaats]) .")<br>";
 			$HTML[] = "[van ". date("d-m-Y", $row[$HuizenStart]) ." tot ". date("d-m-Y", $row[$HuizenEind]) ."]<br>";
+			$HTML[] = "<a href='$url' target='_new'>funda.nl</a> | <a href='edit.php?id=". $row[$HuizenID] ."' target='_new'>details</a> | zet offline";
 			
 			if($row[$HuizenOffline] != 0) {
 				$HTML[] = ' -> niet aan beginnen, is offline<br>';
 			}
+				
 			//$HTML = array_merge($HTML, $HTML_temp);
 		} while($row = mysql_fetch_array($result));
 	}
