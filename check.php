@@ -142,7 +142,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 			$push['url']			= 'http://funda.nl/'. $fundaID;
 			$push['urlTitle']	= $data['descr'];				
 			send2Pushover($push, $PushMembers);
-		} elseif(changedPrice($fundaID, $data['prijs'], $OpdrachtID)) {
+		} elseif(changedPrice($fundaID, $data['prijs'], $OpdrachtID) AND $opdrachtRun) {
 			$fundaData			= getFundaData($fundaID);
 			$PriceHistory		= getFullPriceHistory($fundaID);
 			$prijzen_array	= $PriceHistory[0];
