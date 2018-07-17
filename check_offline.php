@@ -234,7 +234,7 @@ for($i=0; $i<2 ; $i++) {
 		$String[] = "<a href='$bestand'>Pagina $p</a> van <a href='$OpdrachtURL'>". $OpdrachtData['naam'] ."</a> verwerkt ($file) en ". count($AdressenArray)  ." huizen gevonden<br>";
 			
 		toLog('debug', $OpdrachtID, '', "Einde pagina $p (". count($AdressenArray) ." huizen)");
-		//unlink($bestand);
+		unlink($bestand);
 	}
 }
 $block[] = implode("\n", $String);
