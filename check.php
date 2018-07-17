@@ -42,13 +42,11 @@ for($i=0 ; $i < $iMax ; $i++) {
 		$PushMembers		= getMembers4Opdracht($OpdrachtID, 'push');
 		
 		toLog('info', $OpdrachtID, '', 'Start controle '. $OpdrachtData['naam']);
-		toLog('debug', $OpdrachtID, '', 'url:'.$OpdrachtData['url']);
 	} else {		
 		$straatID = $Straten[$i];
 		$straatData = getStreetByID($straatID);
 		$OpdrachtData['url'] = 'http://www.funda.nl/koop/'.convert2FundaStyle($straatData['plaats']) ."/straat-". $straatData['straat'] ."/";
-		toLog('info', '', '', 'Start controle '. $straatData['leesbaar'] .' in '. $straatData['plaats']);		
-		toLog('debug', '', '', 'url:'.$OpdrachtData['url']);
+		toLog('info', '', '', 'Start controle '. $straatData['leesbaar'] .' in '. $straatData['plaats']);
 	}
 	
 	$OpdrachtURL	= "http://partnerapi.funda.nl/feeds/Aanbod.svc/rss/?type=koop&zo=". str_replace ("http://www.funda.nl/koop", "", $OpdrachtData['url']);
@@ -56,8 +54,10 @@ for($i=0 ; $i < $iMax ; $i++) {
 
 	if($opdrachtRun) {
 		$String[] = "<a href='$OpdrachtURL'>RSS</a> -> <a href='". $OpdrachtData['url'] ."'>". $OpdrachtData['naam'] ."</a>";
+		toLog('debug', $OpdrachtID, '', 'url:'.$OpdrachtURL);
 	} else {
 		$String[] = "<a href='$OpdrachtURL'>RSS</a> -> <a href='". $OpdrachtData['url'] ."'>". $straatData['leesbaar'] ."</a> (". $straatData['plaats'] .")";
+		toLog('debug', '', '', 'url:'.$OpdrachtURL);
 	}
 		
 	$Huizen = explode('<item>', $content);
