@@ -111,38 +111,40 @@ for($i=0; $i<2 ; $i++) {
 			
 			# Huis is al bekend bij het script
 			# We moeten dus aangeven dat hij nog steeds op de markt is
-			if(!updateAvailability($data['id']) AND !$verkocht) {
-				echo "<font color='red'>Updaten van <b>". $data['adres'] ."</b> is mislukt</font> | $sql<br>\n";
-				$ErrorMessage[] = "Updaten van ". $data['adres'] ." is mislukt";
-				toLog('error', $OpdrachtID, $data['id'], "Update van huis kon niet worden gedaan");
-			} elseif(!$verkocht) {
-				toLog('debug', $OpdrachtID, $data['id'], 'Huis geupdate');
-			}
-			
-			# Huis kan gedaald zijn in prijs
-			# Dat moeten we dus controleren en indien nodig opslaan en melding van maken
-			if(newPrice($data['id'], $data['prijs']) AND !$verkocht) {							
-				if(!updatePrice($data['id'], $data['prijs'])) {
-					echo "Toevoegen van de prijs van <b>". $data['adres'] ."</b> is mislukt | $sql<br>\n";
-					$ErrorMessage[] = "Updaten van prijs (". $data['prijs'] .") aan ". $data['adres'] ." ging niet goed";
-					toLog('error', $OpdrachtID, $data['id'], "Nieuwe prijs van ". $data['prijs'] ." kon niet worden toegevoegd");
-				} elseif(!$verkocht) {
-					toLog('debug', $OpdrachtID, $data['id'], "Nieuwe vraagprijs");
+			if(!$verkocht) {
+				if(!updateAvailability($data['id'])) {
+					echo "<font color='red'>Updaten van <b>". $data['adres'] ."</b> is mislukt</font> | $sql<br>\n";
+					$ErrorMessage[] = "Updaten van ". $data['adres'] ." is mislukt";
+					toLog('error', $OpdrachtID, $data['id'], "Update van huis kon niet worden gedaan");
+				} else {
+					toLog('debug', $OpdrachtID, $data['id'], 'Huis geupdate');
 				}
-			}
+						
+				# Huis kan gedaald zijn in prijs
+				# Dat moeten we dus controleren en indien nodig opslaan en melding van maken
+				if(newPrice($data['id'], $data['prijs']) AND !$verkocht) {							
+					if(!updatePrice($data['id'], $data['prijs'])) {
+						echo "Toevoegen van de prijs van <b>". $data['adres'] ."</b> is mislukt | $sql<br>\n";
+						$ErrorMessage[] = "Updaten van prijs (". $data['prijs'] .") aan ". $data['adres'] ." ging niet goed";
+						toLog('error', $OpdrachtID, $data['id'], "Nieuwe prijs van ". $data['prijs'] ." kon niet worden toegevoegd");
+					} else {
+						toLog('debug', $OpdrachtID, $data['id'], "Nieuwe vraagprijs");
+					}
+				}
 					
-			# Huis kan onder voorbehoud verkocht zijn
-			if($data['vov'] > 0) {
-				if(!soldHouseTentative($data['id'])) {
-					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '2' WHERE $HuizenID like '". $data['id'] ."'";
+				# Huis kan onder voorbehoud verkocht zijn
+				if($data['vov'] > 0) {
+					if(!soldHouseTentative($data['id'])) {
+						$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '2' WHERE $HuizenID like '". $data['id'] ."'";
+						mysql_query($sql);
+						toLog('info', $OpdrachtID, $data['id'], 'Onder voorbehoud verkocht');
+					}
+				# Het geval dat onder voorbehoud wordt teruggedraaid
+				} elseif(soldHouseTentative($data['id']) AND $data['verkocht'] == 0) {
+					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."'";
 					mysql_query($sql);
-					toLog('info', $OpdrachtID, $data['id'], 'Onder voorbehoud verkocht');
+					toLog('info', $OpdrachtID, $data['id'], 'Niet meer onder voorbehoud verkocht');
 				}
-			# Het geval dat onder voorbehoud wordt teruggedraaid
-			} elseif(soldHouseTentative($data['id']) AND $data['verkocht'] == 0) {
-				$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."'";
-				mysql_query($sql);
-				toLog('info', $OpdrachtID, $data['id'], 'Niet meer onder voorbehoud verkocht');
 			}
 			
 			# Huis kan ook echt verkocht zijn
@@ -161,31 +163,31 @@ for($i=0; $i<2 ; $i++) {
 					
 			# Huis kan openhuis hebben
 			if($data['openhuis'] == 1) {
-					# data online vergelijken met data in de database
-					$changedOpenHuis	= false;
-					$tijden			= extractOpenHuisData($data['id']);
-					$bestaandeTijden	= getNextOpenhuis($data['id']);
+				# data online vergelijken met data in de database
+				$changedOpenHuis	= false;
+				$tijden			= extractOpenHuisData($data['id']);
+				$bestaandeTijden	= getNextOpenhuis($data['id']);
 			
-					if($tijden[0] != $bestaandeTijden[0] OR $tijden[1] != $bestaandeTijden[1]) {
-						$sql = "DELETE FROM $TableCalendar WHERE $CalendarHuis like ". $data['id'] ." AND $CalendarStart like ". $bestaandeTijden[0] ." AND $CalendarEnd like ". $bestaandeTijden[1];
-						mysql_query($sql);
-						$changedOpenHuis = true;
-						toLog('info', $OpdrachtID, $data['id'], 'Open Huis gewijzigd');
-					}
+				if($tijden[0] != $bestaandeTijden[0] OR $tijden[1] != $bestaandeTijden[1]) {
+					$sql = "DELETE FROM $TableCalendar WHERE $CalendarHuis like ". $data['id'] ." AND $CalendarStart like ". $bestaandeTijden[0] ." AND $CalendarEnd like ". $bestaandeTijden[1];
+					mysql_query($sql);
+					$changedOpenHuis = true;
+					toLog('info', $OpdrachtID, $data['id'], 'Open Huis gewijzigd');
+				}
 	
-					if(!hasOpenHuis($data['id']) OR $changedOpenHuis) {
-						toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd');
-						
-						#	toevoegen aan de Google Calendar						
-						$sql = "INSERT INTO $TableCalendar ($CalendarHuis, $CalendarStart, $CalendarEnd) VALUES (". $data['id'] .", ". $tijden[0] .", ". $tijden[1] .")";
-						mysql_query($sql);
-												
-						#	opnemen in de eerst volgende mail						
-						$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '1' WHERE $HuizenID like '". $data['id'] ."'";
-						mysql_query($sql);
-					}
+				if(!hasOpenHuis($data['id']) OR $changedOpenHuis) {
+					toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd');
+					
+					#	toevoegen aan de Google Calendar						
+					$sql = "INSERT INTO $TableCalendar ($CalendarHuis, $CalendarStart, $CalendarEnd) VALUES (". $data['id'] .", ". $tijden[0] .", ". $tijden[1] .")";
+					mysql_query($sql);
+											
+					#	opnemen in de eerst volgende mail						
+					$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '1' WHERE $HuizenID like '". $data['id'] ."'";
+					mysql_query($sql);
+				}
 			} else {
-					removeOpenHuis($data['id']);
+				removeOpenHuis($data['id']);
 			}				
 						
 			# Kijk of dit huis al vaker gevonden is voor deze opdracht
@@ -199,7 +201,7 @@ for($i=0; $i<2 ; $i++) {
 		
 				$NewAddress[] = $data['adres'];
 					
-				if($debug == 0) {
+				if($debug == 0 AND !$verkocht) {
 					# Pushover-bericht opstellen
 					$push = array();
 					$push['title']		= "Nieuw huis voor '". $OpdrachtData['naam'] ."'";					
