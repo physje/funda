@@ -705,7 +705,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	if($verkocht == 1) {
 		$prijs			= getString('<strong class="object-header__price--historic">', '</strong>', $contents, 0);
 	} else {
-		$prijs			= getString('<strong class="object-header-price">', '</strong>', $contents, 0);
+		$prijs			= getString('<strong class="object-header__price">', '</strong>', $contents, 0);
 	}	
 	
 	$makelHTML	= getString('<h3 class="object-contact-aanbieder-name">', '</h3>', $contents, 0);
