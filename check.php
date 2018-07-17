@@ -41,12 +41,14 @@ for($i=0 ; $i < $iMax ; $i++) {
 		$OpdrachtData		= getOpdrachtData($OpdrachtID);
 		$PushMembers		= getMembers4Opdracht($OpdrachtID, 'push');
 		
-		toLog('info', $OpdrachtID, '', 'Start controle '. $OpdrachtData['naam']);		
+		toLog('info', $OpdrachtID, '', 'Start controle '. $OpdrachtData['naam']);
+		toLog('debug', $OpdrachtID, '', 'url:'.$OpdrachtData['url']);
 	} else {		
 		$straatID = $Straten[$i];
 		$straatData = getStreetByID($straatID);
 		$OpdrachtData['url'] = 'http://www.funda.nl/koop/'.convert2FundaStyle($straatData['plaats']) ."/straat-". $straatData['straat'] ."/";
 		toLog('info', '', '', 'Start controle '. $straatData['leesbaar'] .' in '. $straatData['plaats']);		
+		toLog('debug', '', '', 'url:'.$OpdrachtData['url']);
 	}
 	
 	$OpdrachtURL	= "http://partnerapi.funda.nl/feeds/Aanbod.svc/rss/?type=koop&zo=". str_replace ("http://www.funda.nl/koop", "", $OpdrachtData['url']);
