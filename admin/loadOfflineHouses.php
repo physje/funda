@@ -51,6 +51,7 @@ foreach($files as $file) {
 		}
 		toLog('info', '', $data[0]['id'], 'Offline pagina ingeladen');
 	}
+	unlink($bestand);
 }
 
 echo $HTMLHeader;
