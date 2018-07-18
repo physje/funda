@@ -297,9 +297,15 @@ function makeTextBlock($string, $length, $reverse = false) {
 # OUTPUT
 #		array met de gegevens van het huis
 function extractFundaData($HuisText, $verkocht = false) {	
+	
 	# Overzichtspagina
 	$HuisURL= getString('<a data-object-url-tracking="resultlist" href="', '"', $HuisText, 0);
-	$mappen = explode("/", $HuisURL[0]);
+	
+	$cleanURL	= $HuisURL[0];
+	$cleanURL	= str_replace('?navigateSource=resultlist', '', $cleanURL);
+	$cleanURL	= str_replace('https://www.funda.nl', '', $cleanURL);
+	
+	$mappen = explode("/", $cleanURL);
 	if($verkocht) {
 		$key		= $mappen[4];
 		$data['verkocht']			= 1;
@@ -321,8 +327,9 @@ function extractFundaData($HuisText, $verkocht = false) {
 		$R_naam	= getString('<span class="search-result-makelaar-name">', '</span>', $PC[1], 0);
 	}
 			
-	$param	= getString('<ul class="labels">', '</ul>', $PC[1], 0);	
-	$foto		= getString('calc(100vw - 2rem)" src="', '" srcset="', $HuisText, 0);
+	$param		= getString('<ul class="labels">', '</ul>', $PC[1], 0);	
+	$fotoURL	= getString('calc(100vw - 2rem)', 'srcset="">', $HuisText, 0);
+	$foto			= getString('src="', '"', $fotoURL[0], 0);
 	
 	# Nu al het knippen geweest is kan de geknipte data "geprocesed" worden		
 	if(strpos($param[0], 'Verkocht onder voorbehoud')) {
@@ -340,7 +347,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$postcode = explode(' ', trim($PC[0]));
 		
 	$data['id']				= $id;
-	$data['url']			= trim($HuisURL[0]);
+	$data['url']			= trim($cleanURL);
 	$data['adres']		= trim($adres[0]);
 	$data['PC_c']			= trim($postcode[0]);
 	$data['PC_l']			= trim($postcode[1]);
@@ -2529,7 +2536,7 @@ function send2Pushover($dataArray, $recipients) {
 			$push->setHtml(1);
 			$push->setDebug(true);
 			$push->setTimestamp(time());
-			$push->send();		
+			$push->send();
 		}
 	}
 }
