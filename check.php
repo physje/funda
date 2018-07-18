@@ -163,6 +163,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 				$push['urlTitle']	= $data['adres'];				
 				send2Pushover($push, $PushMembers);
 				toLog('debug', $OpdrachtID, $fundaID, 'Pushover-bericht prijsdaling verstuurd');
+			}
 		}
 		
 		if($opdrachtRun)	addUpdateStreetDb($data['straat'], $data['plaats']);
