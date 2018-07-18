@@ -6,11 +6,11 @@ $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 connect_db();
 
-if(!isset($_POST['state']) OR !isset($_POST['id'])) {
+if(!isset($_REQUEST['state']) OR !isset($_REQUEST['id'])) {
 	$deel_1 = "Onvoldoende gegevens bekend";
 } else {
-	if($_POST['state'] == 'verkocht')	$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '1' WHERE $HuizenID = ".$_POST['id'];
-	if($_POST['state'] == 'offline')	$sql = "UPDATE $TableHuizen SET $HuizenOffline = '1' WHERE $HuizenID = ".$_POST['id'];
+	if($_REQUEST['state'] == 'verkocht')	$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '1' WHERE $HuizenID = ".$_REQUEST['id'];
+	if($_REQUEST['state'] == 'offline')	$sql = "UPDATE $TableHuizen SET $HuizenOffline = '1' WHERE $HuizenID = ".$_REQUEST['id'];
 	
 	if(mysql_query($sql)) {
 		$deel_1 = "Status aangepast";
