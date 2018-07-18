@@ -12,10 +12,12 @@ if(!isset($_REQUEST['state']) OR !isset($_REQUEST['id'])) {
 	if($_REQUEST['state'] == 'verkocht')	$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '1' WHERE $HuizenID = ".$_REQUEST['id'];
 	if($_REQUEST['state'] == 'offline')	$sql = "UPDATE $TableHuizen SET $HuizenOffline = '1' WHERE $HuizenID = ".$_REQUEST['id'];
 	
+	$details = getFundaData($_REQUEST['id']);
+	
 	if(mysql_query($sql)) {
-		$deel_1 = "Status aangepast";
+		$deel_1 = "Status van ". $data['adres'] ." aangepast naar ". $_REQUEST['state'];
 	}	else {
-		$deel_1 = "Status <b>niet</b> aangepast";
+		$deel_1 = "Status van ". $data['adres'] ." kon niet worden aangepast naar ". $_REQUEST['state'];
 	}
 }
 

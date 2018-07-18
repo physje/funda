@@ -89,7 +89,7 @@ do {
 	$rij = "<tr>";
 	$rij .= "	<td>". date("d-m H:i:s", $row[$LogTime]) ."</td>";
 	$rij .= "	<td>&nbsp;</td>\n";
-	$rij .= "	<td><a href='?selectie=Z". $row[$LogOpdracht] ."&huis=". $row[$LogHuis] ."&bMin=$bMin&bUur=$bUur&bDag=$bDag&bMaand=$bMaand&bJaar=$bJaar&eMin=$eMin&eUur=$eUur&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar' title='". $opdrachtData['naam'] .'; '. $fundaData['adres'] ."'>". $row[$LogHuis] ."</a></td>";
+	$rij .= "	<td><a href='?". ($row[$LogOpdracht] != 0 ? 'selectie=Z'. $row[$LogOpdracht] .'&' : '') . ($row[$LogHuis] != 0 ? 'huis='. $row[$LogHuis] .'&' : '') ."bMin=$bMin&bUur=$bUur&bDag=$bDag&bMaand=$bMaand&bJaar=$bJaar&eMin=$eMin&eUur=$eUur&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar' title='". $opdrachtData['naam'] .'; '. $fundaData['adres'] ."'>". $row[$LogHuis] ."</a></td>";
 	$rij .= "	<td>&nbsp;</td>\n";
 	$rij .= "	<td>". $row[$LogMessage] ."</td>";
 	$rij .= "</tr>";
@@ -111,10 +111,8 @@ $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "	<td><b>Einddatum</b></td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "	<td><b>Zoekopdracht</b></td>";
-if(isset($opdracht)) {
-	$zoekScherm[] = "	<td>&nbsp;</td>";
-	$zoekScherm[] = "	<td><b>Huis</b></td>";
-}	
+$zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "	<td><b>Huis</b></td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "	<td rowspan='3'><input type='submit' value='Zoeken' name='submit'></td>";
 $zoekScherm[] = "</tr>";
@@ -124,19 +122,19 @@ $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "	<td>". $dateSelection[1] ."</td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "	<td>". makeSelectionSelection(true, true, $selectie) ."</td>";
-if(isset($opdracht)) {
-	$Huizen			= getHuizen($opdracht);
+$zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "	<td><select name='huis'>";
+$zoekScherm[] = "	<option value=''>Alle</option>";
 
-	$zoekScherm[] = "	<td>&nbsp;</td>";
-	$zoekScherm[] = "	<td><select name='huis'>";
-	$zoekScherm[] = "	<option value=''>Alle</option>";
-	foreach($Huizen as $huisID) {
-		$HuisData = getFundaData($huisID);
-		$zoekScherm[] = "	<option value='$huisID'". ($huis == $huisID ? ' selected' : '') .">". $HuisData['adres'] ."</option>";
-	}
-	
-	$zoekScherm[] = "	</select></td>";
-}
+$sql = "SELECT $TableHuizen.$HuizenID, $TableHuizen.$HuizenAdres FROM $TableHuizen, $TableLog WHERE $TableLog.$LogHuis = $TableHuizen.$HuizenID AND $TableLog.$LogTime BETWEEN $begin AND $eind GROUP BY $TableHuizen.$HuizenID ORDER BY $TableHuizen.$HuizenAdres";
+$result	= mysql_query($sql);
+$row		= mysql_fetch_array($result);
+
+do {
+	$zoekScherm[] = "	<option value='". $row[$HuizenID] ."'". ($huis == $row[$HuizenID] ? ' selected' : '') .">". urldecode($row[$HuizenAdres]) ."</option>";
+} while($row = mysql_fetch_array($result));
+
+$zoekScherm[] = "	</select></td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "</tr>";
 $zoekScherm[] = "<tr>";

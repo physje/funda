@@ -6,7 +6,8 @@ $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 connect_db();
 
-$error = array();
+$error = $delete_kenmerken = $delete_prijzen = $delete_resultaten = $delete_lijsten = array();
+
 # Foutieve huizen uit de huizen-database verwijderen.
 # Foutief is bijvoorbeeld een funda-id van 0
 $sql = "DELETE FROM $TableHuizen WHERE $HuizenID like '' OR $HuizenID like '0'";
@@ -25,6 +26,7 @@ do {
 	
 	if(!is_array($data)) {
 		$error[] = "<a href='HouseDetails.php?id=$huisID'>". $huisID . "</a> uit kenmerken-database niet gevonden in de huizen-database<br>";
+		$delete_kenmerken[] = $huisID;
 	} else {
 		$Kenmerken[] = $huisID;
 	}
@@ -44,6 +46,7 @@ do {
 	
 	if(!is_array($data)) {
 		$error[] = "<a href='HouseDetails.php?id=$huisID'>". $huisID . "</a> uit prijzen-database niet gevonden in de huizen-database<br>";
+		$delete_prijzen[] = $huisID;
 	} else {
 		$Prijzen[] = $huisID;
 	}
@@ -63,6 +66,7 @@ do {
 	
 	if(!is_array($data)) {
 		$error[] = "<a href='HouseDetails.php?id=$huisID'>". $huisID . "</a> uit resultaten-database niet gevonden in de huizen-database<br>";
+		$delete_resultaten[] = $huisID;
 	} else {
 		$Resultaat[] = $huisID;
 	}
@@ -80,6 +84,7 @@ do {
 	
 	if(!is_array($data)) {
 		$error[] = "<a href='HouseDetails.php?id=$huisID'>". $huisID . "</a> uit lijsten-database niet gevonden in de huizen-database<br>";
+		$delete_lijsten[] = $huisID;
 	}
 } while($row = mysql_fetch_array($result));
 
@@ -126,6 +131,30 @@ $melding[] = "Alle open-huizen zijn gecontroleerd<br>";
 
 if(count($error) == 0) {
 	$error[] = "Geen foutmeldingen";
+}
+
+$autoDelete = false;
+
+if($autoDelete) {
+	foreach($delete_kenmerken as $id) {
+		$sql = "DELETE FROM $TableKenmerken WHERE $KenmerkenID like $id";
+		mysql_query($sql);
+	}
+	
+	foreach($delete_prijzen as $id) {
+		$sql = "DELETE FROM $TablePrijzen WHERE $PrijzenID like $id";
+		mysql_query($sql);
+	}
+	
+	foreach($delete_resultaten as $id) {
+		$sql = "DELETE FROM $TableResultaat WHERE $ResultaatID like $id";
+		mysql_query($sql);
+	}
+	
+	foreach($delete_lijsten as $id) {
+		$sql = "DELETE FROM $TableListResult WHERE $ListResultHuis like $id";
+		mysql_query($sql);
+	}
 }
 
 # Uitkomst netjes op het scherm tonen

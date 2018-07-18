@@ -18,7 +18,7 @@ if(isset($_REQUEST['id'])) {
 		
 		# Als er maar 1 resultaat is, of als men het zeker weet
 		# mag het huis verwijderd worden
-		if(mysql_num_rows($result) == 1 OR isset($_REQUEST['heelzeker'])) {
+		if(mysql_num_rows($result) =< 1 OR isset($_REQUEST['heelzeker'])) {
 			# Huis zelf verwijderen
 			$sql = "DELETE FROM $TableHuizen WHERE $HuizenID like '$id'";
 			if(mysql_query($sql)) {
