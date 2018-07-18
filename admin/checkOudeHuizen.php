@@ -105,16 +105,17 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	if($row = mysql_fetch_array($result)) {
 		do {
 					
-			if($row[$HuizenVerkocht] == 1) {
+			/*if($row[$HuizenVerkocht] == 1) {
 				$url			= urldecode(changeURLLocation($row[$HuizenURL]));
 			} else {
-				$url			= str_replace('http://www.funda.nl', '', urldecode($row[$HuizenURL]));
+				$url			= str_replace('http://www.funda.nl', '', str_replace('http://funda.nl', '', urldecode($row[$HuizenURL])));
 			}
-			$url = 'http://www.funda.nl'.$url;
+			*/
+			$url = 'http://www.funda.nl/'.$row[$HuizenID];
 			
 			$HTML[] = '<b>'. urldecode($row[$HuizenAdres]) ."</b> (". urldecode($row[$HuizenPlaats]) .")<br>";
 			$HTML[] = "[van ". date("d-m-Y", $row[$HuizenStart]) ." tot ". date("d-m-Y", $row[$HuizenEind]) ."]<br>";
-			$HTML[] = "<a href='$url' target='_new'>funda.nl</a> | <a href='edit.php?id=". $row[$HuizenID] ."' target='_new'>details</a> | zet offline<br>";
+			$HTML[] = "<a href='$url' target='funda_huis'>funda.nl</a> | <a href='edit.php?id=". $row[$HuizenID] ."' target='funda_detail'>details</a> | zet <a href='changeState.php?state=offline&id=". $row[$HuizenID] ."' target='funda_state'>offline</a>, <a href='changeState.php?state=verkocht&id=". $row[$HuizenID] ."' target='funda_state'>verkocht</a><br>";
 			
 			if($row[$HuizenOffline] != 0) {
 				$HTML[] = ' -> niet aan beginnen, is offline<br>';

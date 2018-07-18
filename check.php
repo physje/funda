@@ -54,10 +54,10 @@ for($i=0 ; $i < $iMax ; $i++) {
 
 	if($opdrachtRun) {
 		$String[] = "<a href='$OpdrachtURL'>RSS</a> -> <a href='". $OpdrachtData['url'] ."'>". $OpdrachtData['naam'] ."</a>";
-		toLog('debug', $OpdrachtID, '', 'url:'.$OpdrachtURL);
+		toLog('debug', $OpdrachtID, '', $OpdrachtURL);
 	} else {
 		$String[] = "<a href='$OpdrachtURL'>RSS</a> -> <a href='". $OpdrachtData['url'] ."'>". $straatData['leesbaar'] ."</a> (". $straatData['plaats'] .")";
-		toLog('debug', '', '', 'url:'.$OpdrachtURL);
+		toLog('debug', '', '', $OpdrachtURL);
 	}
 		
 	$Huizen = explode('<item>', $content);

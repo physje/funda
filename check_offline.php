@@ -225,7 +225,7 @@ for($i=0; $i<2 ; $i++) {
 				$push['message']	= "Van ". formatPrice(prev($prijzen_array)) .' voor '. formatPrice(end($prijzen_array));
 				$push['url']			= 'http://funda.nl/'. $data['id'];
 				$push['urlTitle']	= $data['adres'];				
-				//send2Pushover($push, $PushMembers);
+				send2Pushover($push, $PushMembers);
 			}
 			
 			if(!$verkocht) {
