@@ -39,7 +39,6 @@ for($i=0 ; $i < $iMax ; $i++) {
 	if($opdrachtRun) {
 		$OpdrachtID			= $Opdrachten[$i];
 		$OpdrachtData		= getOpdrachtData($OpdrachtID);
-		$PushMembers		= getMembers4Opdracht($OpdrachtID, 'push');
 		
 		toLog('info', $OpdrachtID, '', 'Start controle '. $OpdrachtData['naam']);
 	} else {		
@@ -73,7 +72,6 @@ for($i=0 ; $i < $iMax ; $i++) {
 			$opdrachten = getOpdrachtenByFundaID($fundaID);
 			$OpdrachtID = $opdrachten[0];
 			$OpdrachtData		= getOpdrachtData($OpdrachtID);
-			$PushMembers		= getMembers4Opdracht($OpdrachtID, 'push');
 		}
 		
 		# Huis nog niet bekend in systeem
@@ -138,34 +136,8 @@ for($i=0 ; $i < $iMax ; $i++) {
 			}
 			
 			# Pushover-bericht opstellen
-			if(count($PushMembers) > 0) {
-				$push = array();
-				$push['title']		= "Nieuw huis voor '". $OpdrachtData['naam'] ."'";
-				$push['message']	= $data['adres'] .' is te koop voor '. formatPrice($data['prijs']);
-				$push['url']			= 'http://funda.nl/'. $fundaID;
-				$push['urlTitle']	= $data['descr'];				
-				send2Pushover($push, $PushMembers);
-				toLog('debug', $OpdrachtID, $fundaID, 'Pushover-bericht nieuw huis verstuurd');
-			}
-		} elseif(changedPrice($fundaID, $data['prijs'], $OpdrachtID) AND $opdrachtRun) {
-			$fundaData			= getFundaData($fundaID);
-			$PriceHistory		= getFullPriceHistory($fundaID);
-			$prijzen_array	= $PriceHistory[0];
-			$prijzen_perc 	= $PriceHistory[3];
-			end($prijzen_array);	# De pointer op de laatste waarde (=laatste prijs) zetten
-			
-			# Pushover-bericht opstellen
-			if(count($PushMembers) > 0) {
-				$push = array();
-				$push['title']		= $data['adres'] ." is in prijs verlaagd voor '". $OpdrachtData['naam'] ."'";
-				$push['message']	= "Van ". formatPrice(prev($prijzen_array)) .' voor '. formatPrice(end($prijzen_array));
-				$push['url']			= 'http://funda.nl/'. $fundaID;
-				$push['urlTitle']	= $data['adres'];				
-				send2Pushover($push, $PushMembers);
-				toLog('debug', $OpdrachtID, $fundaID, 'Pushover-bericht prijsdaling verstuurd');
-			}
-		}
-		
+			sendPushoverNewHouse($fundaID, $OpdrachtID);
+		} elseif(changedPrice($fundaID, $data['prijs'], $OpdrachtID) AND $opdrachtRun) sendPushoverChangedPrice($fundaID, $OpdrachtID);
 		if($opdrachtRun)	addUpdateStreetDb($data['straat'], $data['plaats']);
 	}
 	

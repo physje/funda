@@ -2618,3 +2618,45 @@ function getOpdrachtenByFundaID($fundaID) {
 		
 	return $Opdrachten;
 }
+
+function sendPushoverNewHouse($fundaID, $OpdrachtID) {	
+	$data						= getFundaData($fundaID);
+	$data['prijs']	= getHuidigePrijs($fundaID);
+	$OpdrachtData		= getOpdrachtData($OpdrachtID);
+	$PushMembers		= getMembers4Opdracht($OpdrachtID, 'push');
+	
+	# Pushover-bericht opstellen
+	if(count($PushMembers) > 0) {
+		$push = array();
+		$push['title']		= "Nieuw huis voor '". $OpdrachtData['naam'] ."'";
+		$push['message']	= $data['adres'] .' is te koop voor '. formatPrice($data['prijs']);
+		$push['url']			= 'http://funda.nl/'. $fundaID;
+		$push['urlTitle']	= $data['descr'];				
+		send2Pushover($push, $PushMembers);
+		toLog('debug', $OpdrachtID, $fundaID, 'Pushover-bericht nieuw huis verstuurd');
+	}
+}
+
+
+function sendPushoverChangedPrice($fundaID, $OpdrachtID) {
+	$fundaData			= getFundaData($fundaID);
+	$PriceHistory		= getFullPriceHistory($fundaID);
+	$prijzen_array	= $PriceHistory[0];
+	$prijzen_perc 	= $PriceHistory[3];
+	end($prijzen_array);	# De pointer op de laatste waarde (=laatste prijs) zetten
+			
+	$PushMembers		= getMembers4Opdracht($OpdrachtID, 'push');
+			
+	# Pushover-bericht opstellen
+	if(count($PushMembers) > 0) {
+		$push = array();
+		$push['title']		= $data['adres'] ." is in prijs verlaagd voor '". $OpdrachtData['naam'] ."'";
+		$push['message']	= "Van ". formatPrice(prev($prijzen_array)) .' voor '. formatPrice(end($prijzen_array));
+		$push['url']			= 'http://funda.nl/'. $fundaID;
+		$push['urlTitle']	= $data['adres'];				
+		send2Pushover($push, $PushMembers);
+		toLog('debug', $OpdrachtID, $fundaID, 'Pushover-bericht prijsdaling verstuurd');
+	}
+}
+
+?>
