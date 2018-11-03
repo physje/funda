@@ -131,6 +131,7 @@ $UsersLastLogin		= "lastLogin";
 $TablePBK		= "funda_PBK";
 $PBKStart		= "start";
 $PBKEind		= "eind";
+$PBKRegio		= "regio";
 $PBKWaarde		= "waarde";
 $PBKComment		= "comment";
 
@@ -171,6 +172,12 @@ $StratenStrLeesbaar = "naam_leesbaar";
 $StratenStrFunda		= "naam_funda";
 $StratenStad				= "stad";
 $StratenLastCheck		= "last_checked";
+
+$TableGemeentes			= "funda_gemeentes";
+$GemeentesPC				= "PC";
+$GemeentesPlaats		= "plaats";
+$GemeentesGemeente	= "gemeente";
+$GemeentesProvincie	= "provincie";
 
 include_once($cfgGeneralIncludeDirectory . 'general_functions.php');
 include_once($cfgGeneralIncludeDirectory . 'general_config.php');

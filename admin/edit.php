@@ -112,11 +112,17 @@ if(isset($_REQUEST['id'])) {
 					$prijs = $_POST['pPrijs'][$key];
 					updatePrice($id, $prijs, $tijd);
 				}
-			}
+			}   
 		}
 	} else {
 		# Prijshistorie
 		$Prijzen = getPriceHistory($id);
+		
+		if($data['PC_c'] != '') {
+			$provincie = findProv($data['PC_c']);
+		} else {
+			$provincie = findProv($data['plaats']);
+		}
 	
 		$PrijsHistory[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
 		$PrijsHistory[] = "<input type='hidden' name='id' value='$id'>";
@@ -148,12 +154,12 @@ if(isset($_REQUEST['id'])) {
 				$bMaand = date('m', $key);
 				$bJaar	= date('Y', $key);				
 				if($data['verkocht'] == '1' || $data['offline'] == '1') {
-					$nieuwePrijs	= corrigeerPrice($key, $value, $data['eind']);					
+					$nieuwePrijs	= corrigeerPrice($key, $value, $data['eind'], $provincie);					
 					$eDag		= date('d', $data['eind']);
 					$eMaand	= date('m', $data['eind']);
 					$eJaar	= date('Y', $data['eind']);
 				} else {
-					$nieuwePrijs	= corrigeerPrice($key, $value);
+					$nieuwePrijs	= corrigeerPrice($key, $value, '', $provincie);
 					$eDag		= date('d');
 					$eMaand	= date('m');
 					$eJaar	= date('Y');
@@ -163,7 +169,7 @@ if(isset($_REQUEST['id'])) {
 				$percentage		= number_format ((100*($nieuwePrijs-$value)/$value), 1);				
 				if($percentage > 0)	$percentage = '+'.$percentage;
 				
-				$PrijsHistory[] = "<td><a href='determineCorrectPrice.php?prijs=$prijs&bDag=$bDag&bMaand=$bMaand&bJaar=$bJaar&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar' target='_blank'>". ($data['verkocht'] == '1' || $data['offline'] == '1' ? '<i>' : '') . formatPrice($nieuwePrijs) . ($data['verkocht'] == '1' || $data['offline'] == '1' ? '</i>' : '') . "</a> ($percentage %)</td>";
+				$PrijsHistory[] = "<td><a href='determineCorrectPrice.php?prijs=$prijs&bDag=$bDag&bMaand=$bMaand&bJaar=$bJaar&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar&regio=$provincie' target='_blank'>". ($data['verkocht'] == '1' || $data['offline'] == '1' ? '<i>' : '') . formatPrice($nieuwePrijs) . ($data['verkocht'] == '1' || $data['offline'] == '1' ? '</i>' : '') . "</a> ($percentage %)</td>";
 				$PrijsHistory[] = "</tr>";
 			}
 		}

@@ -2359,7 +2359,7 @@ function getNextOpenhuis($id) {
 
 
 function makeHuizenZoekerURL($data) {	
-	$string	= findProv($data['PC_c']) ."###". $data['plaats'] ."###". $data['adres'];
+	$string	= strtolower(findProv($data['PC_c'])) ."###". $data['plaats'] ."###". $data['adres'];
 	$string = strtolower($string);
 	$string = str_replace(".", "", $string);
 	$string = str_replace(",", "", $string);
@@ -2374,7 +2374,22 @@ function makeHuizenZoekerURL($data) {
 }
 
 
-function findProv($postcode) {	
+function findProv($string) {
+	global $GemeentesProvincie, $TableGemeentes, $GemeentesPC, $GemeentesPlaats;
+	
+	if(is_numeric($string)) {
+		$sql = "SELECT $GemeentesProvincie FROM $TableGemeentes WHERE $GemeentesPC like $string";
+	} else {
+		$sql = "SELECT $GemeentesProvincie FROM $TableGemeentes WHERE $GemeentesPlaats like '". trim($string) ."'";
+	}
+	
+	$result = mysql_query($sql);
+	$row		= mysql_fetch_array($result);
+	
+	return str_replace(' ', '-', $row[$GemeentesProvincie]);
+	
+	
+	/*
 	$maxPostcode[1299] = 'Noord-Holland';
 	$maxPostcode[1379] = 'Flevoland';
 	$maxPostcode[1383] = 'Noord-Holland';
@@ -2461,24 +2476,25 @@ function findProv($postcode) {
 		$pc = key($maxPostcode);
 	}
 	
-	return strtolower($maxPostcode[$pc]);
+	return $maxPostcode[$pc];
+	*/
 }
 
 
-function corrigeerPrice($t1, $p1, $t2 = '') {
-	global $TablePBK, $PBKStart, $PBKEind, $PBKWaarde;
+function corrigeerPrice($t1, $p1, $t2 = '', $regio = 'Totaal') {
+	global $TablePBK, $PBKStart, $PBKEind, $PBKWaarde, $PBKRegio;
 	
 	if($t2 == '') {
 		$t2 = time();
 	}
 	
-	$sql_2 = "SELECT * FROM $TablePBK WHERE $t2 BETWEEN $PBKStart AND $PBKEind";
+	$sql_2 = "SELECT * FROM $TablePBK WHERE $t2 BETWEEN $PBKStart AND $PBKEind AND $PBKRegio like '$regio'";
 	$result_2 = mysql_query($sql_2);
 	if(mysql_num_rows($result_2) == 1) {
 		$row = mysql_fetch_array($result_2);
     		$factor_2 = $row[$PBKWaarde];
 	} else {
-		$sql_3 = "SELECT * FROM $TablePBK ORDER BY $PBKStart DESC LIMIT 0,1";
+		$sql_3 = "SELECT * FROM $TablePBK WHERE $PBKRegio like '$regio' ORDER BY $PBKStart DESC LIMIT 0,1";
 		$result_3 = mysql_query($sql_3);
 		$row = mysql_fetch_array($result_3);
 		
@@ -2488,14 +2504,14 @@ function corrigeerPrice($t1, $p1, $t2 = '') {
 	}
 	
 	
-	$sql_1 = "SELECT * FROM $TablePBK WHERE $t1 BETWEEN $PBKStart AND $PBKEind";
+	$sql_1 = "SELECT * FROM $TablePBK WHERE $t1 BETWEEN $PBKStart AND $PBKEind AND $PBKRegio like '$regio'";
 	$result_1 = mysql_query($sql_1);
 	if(mysql_num_rows($result_1) == 1) {
 		$row = mysql_fetch_array($result_1);
     		$factor_1 = $row[$PBKWaarde];
 	} else {
 		//$factor_1 = $factor_2;	
-		$sql_4 = "SELECT * FROM $TablePBK ORDER BY $PBKStart DESC LIMIT 0,1";
+		$sql_4 = "SELECT * FROM $TablePBK WHERE $PBKRegio like '$regio' ORDER BY $PBKStart DESC LIMIT 0,1";
 		$result_4 = mysql_query($sql_3);
 		$row = mysql_fetch_array($result_4);
 		
@@ -2503,6 +2519,8 @@ function corrigeerPrice($t1, $p1, $t2 = '') {
 			$factor_1 = $row[$PBKWaarde];
 		}
 	}
+	
+	//echo 'factor 1 : '. $factor_1 .' | factor 2 : '. $factor_2;
 		
 	return (($factor_2/$factor_1)*$p1);
 }

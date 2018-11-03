@@ -29,30 +29,35 @@ if(!isset($_REQUEST['eDag']) OR !isset($_REQUEST['eMaand']) OR !isset($_REQUEST[
 $dateSelection = makeDateSelection('', '', $bDag, $bMaand, $bJaar, '', '', $eDag, $eMaand, $eJaar);
 
 if(isset($_REQUEST['prijs'])) {
-	$price_2 = formatPrice(corrigeerPrice(mktime(0,0,0,$bMaand, $bDag, $bJaar), $_REQUEST['prijs'], mktime(0,0,0,$eMaand, $eDag, $eJaar)));
+	$price_2 = formatPrice(corrigeerPrice(mktime(0,0,0,$bMaand, $bDag, $bJaar), $_REQUEST['prijs'], mktime(0,0,0,$eMaand, $eDag, $eJaar), $_REQUEST['regio']));
 } else {
 	$price_2 = '&nbsp;';
 }
+$regios = array('Totaal', 'Amsterdam', 'Drenthe', 'Flevoland', 'Friesland', 'Gelderland', 'Gravenhage', 'Groningen', 'Limburg', 'Midden-Nederland', 'Noord-Brabant', 'Noord-Holland', 'Noord-Nederland', 'Overijssel', 'Rotterdam', 'Utrecht', 'West-Nederland', 'Zeeland', 'Zuid-Holland', 'Zuid-Nederland');
 
 $zoekScherm[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
 $zoekScherm[] = "<table border=0 align='center'>";
 $zoekScherm[] = "<tr>";
 $zoekScherm[] = "	<td><b>Van</b></td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
-$zoekScherm[] = "	<td rowspan='3'><input type='submit' value='Corrigeer' name='submit'></td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "	<td rowspan='3'>&nbsp;</td>";
+$zoekScherm[] = "	<td rowspan='2'><input type='submit' value='Corrigeer' name='submit'></td>";
+$zoekScherm[] = "	<td rowspan='3'>&nbsp;</td>";
 $zoekScherm[] = "	<td><b>Naar</b></td>";
 $zoekScherm[] = "</tr>";
 $zoekScherm[] = "<tr>";
 $zoekScherm[] = "	<td>". $dateSelection[0] ."</td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "	<td>". $dateSelection[1] ."</td>";
 $zoekScherm[] = "</tr>";
 $zoekScherm[] = "<tr>";
 $zoekScherm[] = "	<td><input type='text' name='prijs' value='". $_REQUEST['prijs'] ."'></td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "	<td>";
+$zoekScherm[] = "	<select name='regio'>";
+
+foreach($regios as $regio) {
+	$zoekScherm[] = "		<option value='$regio'". ($regio == $_REQUEST['regio'] ? ' selected' : '') .">". ($regio == 'Totaal' ? 'Heel Nederland' : $regio) ."</option>";
+}
+$zoekScherm[] = "	</select>";
+$zoekScherm[] = "	</td>";
 $zoekScherm[] = "	<td>$price_2</td>";
 $zoekScherm[] = "</tr>";
 $zoekScherm[] = "</table>";

@@ -53,7 +53,7 @@ if($_SESSION['level'] > 2) {
 	//$onderhoud['admin/getVerkochteHuizen.php']	= 'Werk verkochte huizen bij';
 	$onderhoud['admin/checkOudeHuizen.php']			= 'Huizen die al even van de radar zijn';
 	$onderhoud['onderhoud/makeGeneralLists.php']						= 'Maak algemene lijsten aan';
-	$onderhoud['admin/readPBK.php']							= 'Lees de prijs-index van het Kadaster in';
+	$onderhoud['admin/readKadasterPBK.php']							= 'Lees de prijs-index van het Kadaster in';
 	$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met openhuizen';
 	$onderhoud['admin/cleanPrice.php']					= 'Prijzen opschonen';
 	$onderhoud['admin/cleanKenmerk.php']				= 'Kenmerken opschonen';
