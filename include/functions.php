@@ -36,6 +36,7 @@ function getZoekOpdrachten($user, $uur, $active = true) {
 	return $Opdrachten;
 }
 
+/*
 function getActiveOpdrachten() {
 	global $TableVerdeling, $VerdelingOpdracht, $TableZoeken, $ZoekenKey;
 	
@@ -49,8 +50,9 @@ function getActiveOpdrachten() {
 		
 	return $Opdrachten;
 }
+*/
 
-
+/*
 function getRandomOpdracht() {
 	global $randomCheck, $randomFactor;
 	
@@ -76,6 +78,7 @@ function getRandomOpdracht() {
 		
 	return $Opdrachten;	
 }
+*/
 
 
 function getOpdrachtUren($opdracht) {
@@ -158,7 +161,7 @@ function file_get_contents_retry($url, $maxTry = 3) {
 }
 
 
-
+/*
 function implode2($first, $last, $array) {
 	if(count($array) > 2) {
 		$element = array_pop ($array);
@@ -169,7 +172,7 @@ function implode2($first, $last, $array) {
 		return current($array);
 	}
 }
-
+*/
 
 # Zoek de coordinaten bij een gegeven straat, postcode en plaats en voeg deze toe
 #
@@ -443,6 +446,7 @@ function cleanPrice($HuisPrijs) {
 	return $cleanPrice;
 }
 
+/*
 function extractFundaData_old($HuisText, $verkocht = false) {	
 	# Overzichtspagina
 	$HuisURL= getString('<a href="', '"', $HuisText, 0);
@@ -503,7 +507,7 @@ function extractFundaData_old($HuisText, $verkocht = false) {
 
 	return $data;
 }
-
+*/
 
 
 function convertToReadable($string) {
@@ -514,7 +518,7 @@ function convertToReadable($string) {
 	return $string;
 }
 
-
+/*
 function removeFilenameCharacters($string) {
 	$string = str_replace('²', '', $string);
 	$string = str_replace(',', '', $string);
@@ -526,6 +530,7 @@ function removeFilenameCharacters($string) {
 	
 	return $string;
 }
+*/
 
 
 function makeKMLEntry($id) {
@@ -565,7 +570,7 @@ function makeKMLEntry($id) {
 	return implode("\n", $KML_file);
 }
 
-
+/*
 function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	$contents		= file_get_contents_retry($URL);
 				
@@ -677,6 +682,7 @@ function extractDetailedFundaData($URL, $alreadyKnown=false) {
 	
 	return array($data, $KenmerkData);
 }
+*/
 
 function extractFundaDataFromPage($offlineHTML) {	
 	$HTML = getString('<body>', '<h2 class="related-objects__title">', $offlineHTML, 0);
@@ -902,6 +908,7 @@ function saveHouseRSS($data) {
 	return false;	
 }
 
+/*
 function saveHouseJSON($JSON, $id) {	
 	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
 	#global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
@@ -945,10 +952,10 @@ function saveHouseJSON($JSON, $id) {
 	}
 	*/
 	
-	return true;
-}
+	//return true;
+//}
 
-
+/*
 function updateHouseJSON($JSON, $id) {	
 	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
 	#global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
@@ -988,13 +995,14 @@ function updateHouseJSON($JSON, $id) {
 		return true;
 	}
 }
+*/
 
-
+/*
 function convertJSON2Unix($JSON) {
 	//return substr($JSON, 6, 10)+(substr($JSON, -5, 1)*60*60);
 	return substr($JSON, 6, 10);
 }
-
+*/
 
 function updateHouse($data, $kenmerken, $erase = false) {
 	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenAfmeld, $HuizenVerkocht;
@@ -1445,7 +1453,7 @@ function changeThumbLocation($string) {
 	return $string;
 }
 
-
+/*
 function changeURLLocation($string) {
 	if(substr($string, 0, 6) == '/koop/' AND substr($string, 0, 15) != '/koop/verkocht/') {
 		return '/koop/verkocht/'. substr($string, 6);
@@ -1453,6 +1461,7 @@ function changeURLLocation($string) {
 		return $string;
 	}
 }
+*/
 
 
 function guessDate($string) {	
@@ -1720,7 +1729,7 @@ function removeMember4Opdracht($opdracht, $user, $type) {
 	return mysql_query($sql);
 }
 
-
+/*
 function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 	global $TableHuizen, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenVerkocht, $HuizenOffline, $HuizenID;
 	
@@ -1934,6 +1943,7 @@ function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 	
 	return $HTML;
 }
+*/
 
 
 function updateVerkochtDataFromPage($generalData, $data) {
@@ -2675,6 +2685,20 @@ function sendPushoverChangedPrice($fundaID, $OpdrachtID) {
 		send2Pushover($push, $PushMembers);
 		toLog('debug', $OpdrachtID, $fundaID, 'Pushover-bericht prijsdaling verstuurd');
 	}
+}
+
+function mark4Details($fundaID) {
+	global $TableHuizen, $HuizenDetails, $HuizenID;
+	
+	$sql 		= "UPDATE $TableHuizen SET $HuizenDetails = '1' WHERE $HuizenID = $fundaID";	
+	return mysql_query($sql);	
+}
+
+function remove4Details($fundaID) {
+	global $TableHuizen, $HuizenDetails, $HuizenID;
+	
+	$sql 		= "UPDATE $TableHuizen SET $HuizenDetails = '0' WHERE $HuizenID = $fundaID";	
+	return mysql_query($sql);
 }
 
 ?>

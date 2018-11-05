@@ -106,7 +106,10 @@ for($i=0; $i<2 ; $i++) {
 					toLog('error', $OpdrachtID, $data['id'], 'Prijs toevoegen mislukt');
 				} else {
 					toLog('debug', $OpdrachtID, $data['id'], "Prijs toegevoegd");
-				}	
+				}
+				
+				# Aanvinken om in een later stadium de details op te vragen
+				mark4Details($data['id']);
 			}
 			
 			# Huis is al bekend bij het script
@@ -153,6 +156,9 @@ for($i=0; $i<2 ; $i++) {
 					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '1' WHERE $HuizenID like '". $data['id'] ."'";
 					mysql_query($sql);
 					toLog('info', $OpdrachtID, $data['id'], 'Verkocht');
+					
+					# Aanvinken om in een later stadium de details op te vragen
+					mark4Details($data['id']);
 				}
 			# Het geval dat verkocht wordt teruggedraaid (hypotetisch)
 			} elseif(soldHouse($data['id'])) {
@@ -201,36 +207,10 @@ for($i=0; $i<2 ; $i++) {
 		
 				$NewAddress[] = $data['adres'];
 					
-				if($debug == 0 AND !$verkocht) {
-					# Pushover-bericht opstellen
-					$push = array();
-					$push['title']		= "Nieuw huis voor '". $OpdrachtData['naam'] ."'";					
-					$push['message']	= $data['adres'] .' is te koop voor '. formatPrice($data['prijs']);					
-					$push['url']			= 'http://funda.nl/'. $data['id'];
-					$push['urlTitle']	= $data['adres'];
-					send2Pushover($push, $PushMembers);
-				}
-			} elseif(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {
-				$fundaData			= getFundaData($data['id']);
-				$PriceHistory		= getFullPriceHistory($data['id']);
-				$prijzen_array	= $PriceHistory[0];
-				$prijzen_perc 	= $PriceHistory[3];
-				end($prijzen_array);	# De pointer op de laatste waarde (=laatste prijs) zetten
-					
-				$UpdatedAddress[] = $data['adres'];
-					
-				# Pushover-bericht opstellen
-				$push = array();
-				$push['title']		= $data['adres'] ." is in prijs verlaagd voor '". $OpdrachtData['naam'] ."'";
-				$push['message']	= "Van ". formatPrice(prev($prijzen_array)) .' voor '. formatPrice(end($prijzen_array));
-				$push['url']			= 'http://funda.nl/'. $data['id'];
-				$push['urlTitle']	= $data['adres'];				
-				send2Pushover($push, $PushMembers);
-			}
+				if($debug == 0 AND !$verkocht)	sendPushoverNewHouse($data['id'], $OpdrachtID);
+			} elseif(changedPrice($data['id'], $data['prijs'], $OpdrachtID))	sendPushoverChangedPrice($data['id'], $OpdrachtID);
 			
-			if(!$verkocht) {
-				addUpdateStreetDb(extractStreetFromAdress($data['adres']), $data['plaats']);
-			}
+			if(!$verkocht)	addUpdateStreetDb(extractStreetFromAdress($data['adres']), $data['plaats']);
 		}
 	
 		$String[] = "<a href='$bestand'>Pagina $p</a> van <a href='$OpdrachtURL'>". $OpdrachtData['naam'] ."</a> verwerkt ($file) en ". count($AdressenArray)  ." huizen gevonden<br>";
@@ -259,21 +239,3 @@ foreach($block as $key => $value) {
 echo "</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
-
-# Als er een error-meldingen zijn gegenereerd in het script moet er een mail de deur uit.
-# Natuurlijk alleen als we niet aan het debuggen zijn
-if(count($ErrorMessage) > 0 AND $debug == 0) {	
-	include('include/HTML_TopBottom.php');
-	$HTMLMail = $HTMLHeader;
-	$HTMLMail .= showBlock(implode("<br>", $ErrorMessage));
-	$HTMLMail .= $HTMLFooter;
-	
-	$mail = new PHPMailer;
-	$mail->From     = $ScriptMailAdress;
-	$mail->FromName = $ScriptTitle;
-	$mail->AddAddress($ScriptMailAdress, 'Matthijs');
-	$mail->Subject	= $SubjectPrefix."problemen met ".$ScriptTitle;
-	$mail->IsHTML(true);
-	$mail->Body			= $HTMLMail;
-	$mail->Send();	
-}

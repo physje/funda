@@ -86,6 +86,7 @@ $HuizenAfmeld		= "afgemeld";
 $HuizenVerkocht		= "verkocht";
 $HuizenOffline		= "offline";
 $HuizenOpenHuis		= "open_huis";
+$HuizenDetails		= "details";
 
 $TableCalendar		= "funda_kalender";
 $CalendarHuis		= "huis";

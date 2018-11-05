@@ -15,9 +15,11 @@ if(!isset($_REQUEST['state']) OR !isset($_REQUEST['id'])) {
 	$details = getFundaData($_REQUEST['id']);
 	
 	if(mysql_query($sql)) {
-		$deel_1 = "Status van ". $data['adres'] ." aangepast naar ". $_REQUEST['state'];
+		$deel_1 = "Status van <i>". $details['adres'] ."</i> aangepast naar ". $_REQUEST['state'];		
+		if($_REQUEST['state'] == 'verkocht')	mark4Details($_REQUEST['id']);
+		if($_REQUEST['state'] == 'offline')	remove4Details($_REQUEST['id']);
 	}	else {
-		$deel_1 = "Status van ". $data['adres'] ." kon niet worden aangepast naar ". $_REQUEST['state'];
+		$deel_1 = "Status van <i>". $details['adres'] ."</i> kon niet worden aangepast naar ". $_REQUEST['state'];
 	}
 }
 

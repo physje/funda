@@ -162,7 +162,7 @@ if(isset($_POST['doorgaan'])) {
 	$Page .= "<table border=0>".NL;
 	$Page .= "<tr>\n";
 	$Page .= "	<td colspan='10'>&nbsp;</td>";
-	$Page .= "	<td align='center'><img src='../images/mail_yes.gif'></td>";
+	//$Page .= "	<td align='center'><img src='../images/mail_yes.gif'></td>";
 	$Page .= "	<td align='center'><img src='../images/pushover.png'></td>";
 	$Page .= "</tr>\n";
 		
@@ -201,7 +201,7 @@ if(isset($_POST['doorgaan'])) {
 				
 			}
 			
-			$Page .= "	<td><input type='checkbox' name='mail[$OpdrachtID]' value='1'". (in_array($_SESSION['account'] ,$Abonnees) ? ' checked' : '') ." title=\"Aanvinken om mails voor '". $OpdrachtData['naam'] ."' te ontvangen\" onChange=\"this.form.submit()\"></td>".NL;
+			//$Page .= "	<td><input type='checkbox' name='mail[$OpdrachtID]' value='1'". (in_array($_SESSION['account'] ,$Abonnees) ? ' checked' : '') ." title=\"Aanvinken om mails voor '". $OpdrachtData['naam'] ."' te ontvangen\" onChange=\"this.form.submit()\"></td>".NL;
 			$Page .= "	<td><input type='checkbox' name='push[$OpdrachtID]' value='1'". (in_array($_SESSION['account'] ,$POMembers) ? ' checked' : '') ." title=\"Aanvinken om push-berichten voor '". $OpdrachtData['naam'] ."' te ontvangen\" onChange=\"this.form.submit()\"$disabled></td>".NL;
 		} else {
 			$Page .= "	<td colspan='15'>&nbsp;</td>".NL;

@@ -32,9 +32,6 @@ $eMaand 	= getParam('eMaand', date("m", $einddag));
 $eJaar		= getParam('eJaar', date("Y", $einddag));
 $selectie	= getParam('selectie', '');
 
-# Als hij een pagina opvraagt die niet bestaat krijg je veel errors/warnings.
-# Dat is niet handig, dus even onderdrukken
-error_reporting(0);
 $HTML = array();
 if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	$dateSelection = makeDateSelection('','',$bDag,$bMaand,$bJaar , '','',$eDag,$eMaand,$eJaar);
@@ -104,13 +101,6 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	$result	= mysql_query($sql);	
 	if($row = mysql_fetch_array($result)) {
 		do {
-					
-			/*if($row[$HuizenVerkocht] == 1) {
-				$url			= urldecode(changeURLLocation($row[$HuizenURL]));
-			} else {
-				$url			= str_replace('http://www.funda.nl', '', str_replace('http://funda.nl', '', urldecode($row[$HuizenURL])));
-			}
-			*/
 			$url = 'http://www.funda.nl/'.$row[$HuizenID];
 			
 			$HTML[] = '<b>'. urldecode($row[$HuizenAdres]) ."</b> (". urldecode($row[$HuizenPlaats]) .")<br>";
@@ -120,8 +110,7 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 			if($row[$HuizenOffline] != 0) {
 				$HTML[] = ' -> niet aan beginnen, is offline<br>';
 			}
-				
-			//$HTML = array_merge($HTML, $HTML_temp);
+
 		} while($row = mysql_fetch_array($result));
 	}
 }

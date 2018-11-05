@@ -1,8 +1,6 @@
 <?php
 include_once(__DIR__.'/include/config.php');
 include_once('include/HTML_TopBottom.php');
-//include_once($cfgGeneralIncludeDirectory.'class.phpmailer.php');
-//include_once($cfgGeneralIncludeDirectory.'class.html2text.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
 connect_db();
 
@@ -134,6 +132,9 @@ for($i=0 ; $i < $iMax ; $i++) {
 			} else {
 				toLog('debug', $OpdrachtID, $fundaID, 'Huis toegekend aan opdracht');
 			}
+			
+			# Aanvinken om in een later stadium de details op te vragen
+			mark4Details($fundaID);
 			
 			# Pushover-bericht opstellen
 			sendPushoverNewHouse($fundaID, $OpdrachtID);

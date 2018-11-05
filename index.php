@@ -50,8 +50,8 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['check.php']											= 'Check funda';
 	$onderhoud['check_offline.php']							= 'Check de offline opgeslagen pagina\'s';	
 	$onderhoud['admin/loadOfflineHouses.php']		= 'Check de offline opgeslagen huis-pagina\'s';	
-	//$onderhoud['admin/getVerkochteHuizen.php']	= 'Werk verkochte huizen bij';
 	$onderhoud['admin/checkOudeHuizen.php']			= 'Huizen die al even van de radar zijn';
+	$onderhoud['admin/details2Download.php']		= 'Overzicht van huizen waar de details van ontbreken';
 	$onderhoud['onderhoud/makeGeneralLists.php']						= 'Maak algemene lijsten aan';
 	$onderhoud['admin/readKadasterPBK.php']							= 'Lees de prijs-index van het Kadaster in';
 	$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met openhuizen';
@@ -59,7 +59,6 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['admin/cleanKenmerk.php']				= 'Kenmerken opschonen';
 	$onderhoud['admin/cleanOpenhuis.php']				= 'Open huizen opschonen';
 	$onderhoud['admin/checkTables.php']					= 'Check de verschillende databases';
-	//$onderhoud['admin/search4Offline.php']			= 'Zet pagina\'s offline';
 	$onderhoud['admin/combine_batch.php']				= 'Voeg hits automatisch samen';
 	$onderhoud['admin/combine_manual.php']			= 'Voeg hits handmatig samen';
 	$onderhoud['admin/cleanUp.php']							= 'Verwijder oude log-items';	

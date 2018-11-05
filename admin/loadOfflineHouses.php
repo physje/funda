@@ -50,6 +50,7 @@ foreach($files as $file) {
 			$HTML[] = implode("<br>\n", $temp)."<br>\n";
 		}
 		toLog('info', '', $data[0]['id'], 'Offline pagina ingeladen');
+		remove4Details($data[0]['id']);
 	}
 	unlink($bestand);
 }
