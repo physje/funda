@@ -28,7 +28,7 @@ foreach($files as $file) {
 	fclose($fp);
 	
 	$data = extractFundaDataFromPage($contents);
-	$HTML[] = "<a href='$bestand'>". $data[0]['adres'] ."</a><br>\n";
+	$HTML[] = "<a href='". $ScriptURL ."admin/edit.php?id=". $data[0]['id'] ."'>". $data[0]['adres'] ."</a><br>\n";
 	
 	# Als wij een huis niet kennen klopt er iets niet
 	if(!knownHouse($data[0]['id'])) {

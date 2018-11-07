@@ -839,7 +839,10 @@ function newHouse($key, $opdracht) {
 	if(mysql_num_rows($result) == 0) {
 		return true;
 	} elseif(mysql_num_rows($result) > 1) {
-		toLog('error', $opdacht, $key, 'Huis-opdracht-combinatie komt vaker voor');		
+		toLog('error', $opdacht, $key, 'Huis-opdracht-combinatie komt vaker voor');
+		if(mysql_query("DELETE FROM $TableResultaat WHERE $ResultaatID like '$key' AND $ResultaatZoekID like '$opdracht' LIMIT 1,1")){
+			toLog('error', $opdacht, $key, 'Huis-opdracht-combinatie opgeschoond');
+		}
 		return false;
 	} else {
 		return false;
@@ -2659,7 +2662,7 @@ function sendPushoverNewHouse($fundaID, $OpdrachtID) {
 		$push['title']		= "Nieuw huis voor '". $OpdrachtData['naam'] ."'";
 		$push['message']	= $data['adres'] .' is te koop voor '. formatPrice($data['prijs']);
 		$push['url']			= 'http://funda.nl/'. $fundaID;
-		$push['urlTitle']	= $data['descr'];				
+		$push['urlTitle']	= $data['adres'];				
 		send2Pushover($push, $PushMembers);
 		toLog('debug', $OpdrachtID, $fundaID, 'Pushover-bericht nieuw huis verstuurd');
 	}
@@ -2668,6 +2671,7 @@ function sendPushoverNewHouse($fundaID, $OpdrachtID) {
 
 function sendPushoverChangedPrice($fundaID, $OpdrachtID) {
 	$fundaData			= getFundaData($fundaID);
+	$OpdrachtData		= getOpdrachtData($OpdrachtID);
 	$PriceHistory		= getFullPriceHistory($fundaID);
 	$prijzen_array	= $PriceHistory[0];
 	$prijzen_perc 	= $PriceHistory[3];
@@ -2678,10 +2682,10 @@ function sendPushoverChangedPrice($fundaID, $OpdrachtID) {
 	# Pushover-bericht opstellen
 	if(count($PushMembers) > 0) {
 		$push = array();
-		$push['title']		= $data['adres'] ." is in prijs verlaagd voor '". $OpdrachtData['naam'] ."'";
+		$push['title']		= $fundaData['adres'] ." is in prijs verlaagd voor '". $OpdrachtData['naam'] ."'";
 		$push['message']	= "Van ". formatPrice(prev($prijzen_array)) .' voor '. formatPrice(end($prijzen_array));
 		$push['url']			= 'http://funda.nl/'. $fundaID;
-		$push['urlTitle']	= $data['adres'];				
+		$push['urlTitle']	= $fundaData['adres'];				
 		send2Pushover($push, $PushMembers);
 		toLog('debug', $OpdrachtID, $fundaID, 'Pushover-bericht prijsdaling verstuurd');
 	}
