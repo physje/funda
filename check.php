@@ -99,7 +99,8 @@ for($i=0 ; $i < $iMax ; $i++) {
 				toLog('debug', $OpdrachtID, $fundaID, 'Prijs ('. $data['prijs'] .') toegevoegd');
 			}
 			
-			
+			# Aanvinken om in een later stadium de details op te vragen
+			mark4Details($fundaID);			
 			
 		} elseif(knownHouse($fundaID)) {
 			# Huis is al bekend bij het script
@@ -132,9 +133,6 @@ for($i=0 ; $i < $iMax ; $i++) {
 			} else {
 				toLog('debug', $OpdrachtID, $fundaID, 'Huis toegekend aan opdracht');
 			}
-			
-			# Aanvinken om in een later stadium de details op te vragen
-			mark4Details($fundaID);
 			
 			# Pushover-bericht opstellen
 			sendPushoverNewHouse($fundaID, $OpdrachtID);
