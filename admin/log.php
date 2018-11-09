@@ -94,7 +94,7 @@ do {
 	
 	if($row[$LogType] == 'error') {
 		$rij .= "	<td><b>". $row[$LogMessage] ."</b></td>";
-	} elseif($row[$LogType] == 'info') {
+	} elseif($row[$LogType] == 'debug') {
 		$rij .= "	<td><i>". $row[$LogMessage] ."</i></td>";
 	} else {
 		$rij .= "	<td>". $row[$LogMessage] ."</td>";
