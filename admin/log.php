@@ -91,8 +91,17 @@ do {
 	$rij .= "	<td>&nbsp;</td>\n";
 	$rij .= "	<td><a href='?". ($row[$LogOpdracht] != 0 ? 'selectie=Z'. $row[$LogOpdracht] .'&' : '') . ($row[$LogHuis] != 0 ? 'huis='. $row[$LogHuis] .'&' : '') ."bMin=$bMin&bUur=$bUur&bDag=$bDag&bMaand=$bMaand&bJaar=$bJaar&eMin=$eMin&eUur=$eUur&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar' title='". $opdrachtData['naam'] .'; '. $fundaData['adres'] ."'>". $row[$LogHuis] ."</a></td>";
 	$rij .= "	<td>&nbsp;</td>\n";
-	$rij .= "	<td>". $row[$LogMessage] ."</td>";
+	
+	if($row[$LogType] == 'error') {
+		$rij .= "	<td><b>". $row[$LogMessage] ."</b></td>";
+	} elseif($row[$LogType] == 'info') {
+		$rij .= "	<td><i>". $row[$LogMessage] ."</i></td>";
+	} else {
+		$rij .= "	<td>". $row[$LogMessage] ."</td>";
+	}
+		
 	$rij .= "</tr>";
+	
 	if($i > $aantal/2) {
 		$deel_2 .= $rij;
 	} else {
