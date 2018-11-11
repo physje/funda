@@ -65,6 +65,10 @@ if((isset($_REQUEST['error']) AND $_REQUEST['error'] != '') OR !isset($_REQUEST[
 	$error = 'nee';
 }
 
+if(isset($_REQUEST['string'])) {
+	$string = $_REQUEST['string'];
+}
+
 $begin	= mktime($bUur, $bMin, 0, $bMaand, $bDag, $bJaar);
 $eind		= mktime($eUur, $eMin, 59, $eMaand, $eDag, $eJaar);
 
@@ -75,6 +79,7 @@ if($error == 'ja')		$sql_OR[] = "$LogType = 'error'";
 if(is_array($sql_OR))	$sql .= " AND (". implode(" OR ", $sql_OR) .")";
 if(isset($opdracht))	$sql .= " AND $LogOpdracht = '$opdracht'";
 if(isset($huis))			$sql .= " AND $LogHuis = '$huis'";
+if(isset($string))		$sql .= " AND $LogMessage like '%$string%'";
 
 $result	= mysql_query($sql);
 $aantal	= mysql_num_rows($result);
@@ -116,22 +121,24 @@ $zoekScherm[] = "<input type='hidden' name='logSearch' value='ja'>";
 $zoekScherm[] = "<table border=0 align='center'>";
 $zoekScherm[] = "<tr>";
 $zoekScherm[] = "	<td><b>Begindatum</b></td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
-$zoekScherm[] = "	<td><b>Einddatum</b></td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "	<td rowspan='5'>&nbsp;</td>";
 $zoekScherm[] = "	<td><b>Zoekopdracht</b></td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
-$zoekScherm[] = "	<td><b>Huis</b></td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
-$zoekScherm[] = "	<td rowspan='3'><input type='submit' value='Zoeken' name='submit'></td>";
+$zoekScherm[] = "	<td rowspan='5'>&nbsp;</td>";
+$zoekScherm[] = "	<td><b>String</b></td>";
+//$zoekScherm[] = "	<td rowspan='5'><input type='submit' value='Zoeken' name='submit'></td>";
 $zoekScherm[] = "</tr>";
 $zoekScherm[] = "<tr>";
 $zoekScherm[] = "	<td>". $dateSelection[0] ."</td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
-$zoekScherm[] = "	<td>". $dateSelection[1] ."</td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "	<td>". makeSelectionSelection(true, true, $selectie) ."</td>";
+$zoekScherm[] = "	<td><input type='text' name='string' value='$string' size=50></td>";
+$zoekScherm[] = "</tr>";
+$zoekScherm[] = "<tr>";
+$zoekScherm[] = "	<td><b>Einddatum</b></td>";
+$zoekScherm[] = "	<td><b>Huis</b></td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "</tr>";
+$zoekScherm[] = "<tr>";
+$zoekScherm[] = "	<td>". $dateSelection[1] ."</td>";
 $zoekScherm[] = "	<td><select name='huis'>";
 $zoekScherm[] = "	<option value=''>Alle</option>";
 
@@ -144,24 +151,22 @@ do {
 } while($row = mysql_fetch_array($result));
 
 $zoekScherm[] = "	</select></td>";
-$zoekScherm[] = "	<td>&nbsp;</td>";
+//$zoekScherm[] = "	<td>&nbsp;</td>";
+$zoekScherm[] = "	<td align='right'><input type='submit' value='Zoeken' name='submit'></td>";
 $zoekScherm[] = "</tr>";
 $zoekScherm[] = "<tr>";
-$zoekScherm[] = "	<td colspan='4'>";
-$zoekScherm[] = "	<input type='checkbox' name='error' value='ja'". ($error == 'ja' ? ' checked' : '') ."> Error&nbsp;&nbsp;&nbsp;";
+$zoekScherm[] = "	<td><input type='checkbox' name='error' value='ja'". ($error == 'ja' ? ' checked' : '') ."> Error&nbsp;&nbsp;&nbsp;";
 $zoekScherm[] = "	<input type='checkbox' name='info' value='ja'". ($info == 'ja' ? ' checked' : '') ."> Info&nbsp;&nbsp;&nbsp;";
 $zoekScherm[] = "	<input type='checkbox' name='debug' value='ja'". ($debug == 'ja' ? ' checked' : '') ."> Debug";
 $zoekScherm[] = "	</td>";
-if(isset($opdracht)) {
-	if(isset($huis)) {
-		$zoekScherm[] = "	<td colspan='3' align='right'>huis op <a href='http://funda.nl/$huis'>funda.nl</a> | <a href='edit.php?id=$huis'>lokaal</a></td>";
-	} else {
-		$zoekScherm[] = "	<td colspan='3'>&nbsp;</td>";	
-	}
-	$zoekScherm[] = "	<td>&nbsp;</td>";	
+
+if(isset($huis)) {
+	$zoekScherm[] = "	<td align='right'>huis op <a href='http://funda.nl/$huis'>funda.nl</a> | <a href='edit.php?id=$huis'>lokaal</a></td>";
 } else {
-	$zoekScherm[] = "	<td colspan='2'>&nbsp;</td>";	
+	$zoekScherm[] = "	<td>&nbsp;</td>";	
 }
+
+$zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "</tr>";
 $zoekScherm[] = "</table>";
 $zoekScherm[] = "</form>";

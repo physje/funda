@@ -74,6 +74,8 @@ do {
 
 $melding[] = "Alle huizen uit de resultaten-database zijn gecontroleerd<br>";
 
+
+
 # Kijken of alle huizen uit de lijst-database ook bestaande huizen zijn
 $sql		= "SELECT * FROM $TableListResult GROUP BY $ListResultHuis";
 $result	= mysql_query($sql);
@@ -113,6 +115,8 @@ do {
 
 $melding[] = "Alle huizen uit de huizen-database zijn in andere databases opgezocht<br>";
 
+
+
 # Kijken of alle huizen die in de huizen-db open huis hebben ook in de open huis database staan
 $sql		= "SELECT * FROM $TableHuizen WHERE $HuizenOpenHuis = '1'";
 $result	= mysql_query($sql);
@@ -128,6 +132,20 @@ do {
 } while($row = mysql_fetch_array($result));
 
 $melding[] = "Alle open-huizen zijn gecontroleerd<br>";
+
+
+
+# Kijken of er geen dubbele huizen voorkomen in de resultaten database
+$sql = "SELECT COUNT(*) as aantal, $ResultaatZoekID, $ResultaatID FROM $TableResultaat GROUP BY $ResultaatZoekID, $ResultaatID HAVING aantal > 1";
+$result	= mysql_query($sql);
+$row = mysql_fetch_array($result);
+do {
+	mysql_query("DELETE FROM $TableResultaat WHERE $ResultaatID like '". $row[$ResultaatID] ."' AND $ResultaatZoekID like '". $row[$ResultaatZoekID] ."' LIMIT ". ($row['aantal'] - 1));
+	$error[] = "<a href='HouseDetails.php?id=". $row[$ResultaatID] ."' target='_blank'>". $row[$ResultaatID] . "</a> is ". $row['aantal'] ." keer gevonden in de resultaten-tabel<br>";
+} while($row = mysql_fetch_array($result));
+
+$melding[] = "Dubbele huizen in de resultaten-database verwijderd<br>";
+
 
 if(count($error) == 0) {
 	$error[] = "Geen foutmeldingen";

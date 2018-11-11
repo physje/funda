@@ -7,8 +7,17 @@ $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 connect_db();
 
-//$sql = "SELECT * FROM $TableHuizen,$TableResultaat WHERE $TableHuizen.$HuizenID = $TableResultaat.$ResultaatID AND ($TableResultaat.$ResultaatZoekID = '33' OR $TableResultaat.$ResultaatZoekID = '32' OR $TableResultaat.$ResultaatZoekID = '31') AND $TableHuizen.$HuizenOffline = '0' AND $TableHuizen.$HuizenWijk like '' GROUP BY $TableHuizen.$HuizenID ORDER BY $TableHuizen.$HuizenEind ASC LIMIT 0, 25";
-$sql = "SELECT * FROM $TableHuizen WHERE $HuizenDetails = '1' AND $HuizenOffline = '0' ORDER BY $HuizenEind ASC LIMIT 0, 25";
+$Opdrachten = getZoekOpdrachten($_SESSION['account'], '');
+
+foreach($opdrachten as $OpdrachtID) {
+	$members = getMembers4Opdracht($OpdrachtID, 'push');
+	if(count($members) > 0) {
+		$resultaat[] = "$TableResultaat.$ResultaatZoekID = '$OpdrachtID'";
+	}
+}
+
+$sql = "SELECT * FROM $TableHuizen,$TableResultaat WHERE $TableHuizen.$HuizenID = $TableResultaat.$ResultaatID AND (". implode(" OR ", $resultaat) .") AND $HuizenDetails = '1' AND $HuizenOffline = '0' GROUP BY $TableHuizen.$HuizenID ORDER BY $TableHuizen.$HuizenEind ASC LIMIT 0, 25";
+//$sql = "SELECT * FROM $TableHuizen WHERE $HuizenDetails = '1' AND $HuizenOffline = '0' ORDER BY $HuizenEind ASC LIMIT 0, 25";
 $result	= mysql_query($sql);	
 if($row = mysql_fetch_array($result)) {
 	do {

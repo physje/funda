@@ -33,14 +33,8 @@ echo "<tr>\n";
 echo "<td width='50%' valign='top' align='center'>\n";
 echo showBlock($deel_1);
 echo "</td>\n";
-if($deel_2 != "") {
-	echo "<td width='50%' valign='top' align='center'>\n";
-	echo showBlock($deel_2);
-	echo "</td>\n";
-} else {
-	echo "<td width='50%' valign='top' align='center'>\n";
-	echo "&nbsp;";
-	echo "</td>\n";
-}
+echo "<td width='50%' valign='top' align='center'>\n";
+echo "&nbsp;";
+echo "</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;

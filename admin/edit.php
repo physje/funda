@@ -263,8 +263,11 @@ echo $HTMLHeader;
 echo "<tr>\n";
 echo "<td width='50%' valign='top' align='center'>\n";
 echo showBlock(implode("\n", $HTML));
-echo "<p>";
-echo showBlock(implode("\n", $Kenmerken));
+
+if(count($KenmerkData) > 0) {
+	echo "<p>";
+	echo showBlock(implode("\n", $Kenmerken));
+}
 echo "</td>";
 echo "<td width='50%' valign='top' align='center'>\n";
 echo showBlock(implode("\n", $Thumb));
@@ -286,8 +289,11 @@ if($extraString != '') {
 }
 
 echo showBlock(implode("\n", $PrijsHistory));
-echo "<p>";
-echo showBlock(implode("\n", $Foto));
+
+if($KenmerkData['foto'] != '') {
+	echo "<p>";
+	echo showBlock(implode("\n", $Foto));
+}
 echo "</td>";
 echo "</tr>\n";
 echo $HTMLFooter;

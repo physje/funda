@@ -20,7 +20,8 @@ if($id != '') {
 	
 	$links['http://www.funda.nl/'.$id] 				= "Bekijk $adres op funda.nl";
 	$links['renewData.php?id='. $id]					= "Haal de gegevens van $adres opnieuw van funda.nl";	
-	$links['edit.php?id='. $id]								= "Wijzig de gegevens van $adres";	
+	$links['edit.php?id='. $id]								= "Wijzig de gegevens van $adres";
+	$links['overviewOpdrachtenHuis.php?id='. $id]	= "Bekijk zoekopdrachten waar $adres gevonden is";
 	$links['checkOudeHuizen.php?id='. $id] 		= "Haal verkoop-gegevens van $adres op";
 	$links['bekijkHuizenZoeker.php?id='. $id]	= "Zoek $adres op HuizenZoeker.nl";
 	$links['delete.php?id='. $id]							= "Verwijder $adres uit de database";
