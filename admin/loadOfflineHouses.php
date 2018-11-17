@@ -37,7 +37,7 @@ foreach($files as $file) {
 	# Meestal zal het huis wel bekend zijn
 	} else {
 		updateHouse($data[0], $data[1]);
-		//addCoordinates($data[0]['adres'], $data[0]['PC_c'], $data[0]['plaats'], $data[0]['id']);
+		addCoordinates($data[0]['adres'], $data[0]['PC_c'], $data[0]['plaats'], $data[0]['id']);
 		updatePrice($data[0]['id'], $data[0]['prijs'], time());
 		
 		# Als hij nog niet verkocht is moeten wij dat aangeven

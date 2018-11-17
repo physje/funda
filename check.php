@@ -43,7 +43,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 		$straatID = $Straten[$i];
 		$straatData = getStreetByID($straatID);
 		$OpdrachtData['url'] = 'http://www.funda.nl/koop/'.convert2FundaStyle($straatData['plaats']) ."/straat-". $straatData['straat'] ."/";
-		toLog('info', '', '', 'Start controle '. $straatData['leesbaar'] .' in '. $straatData['plaats']);
+		//toLog('info', '', '', 'Start controle '. $straatData['leesbaar'] .' in '. $straatData['plaats']);
 	}
 	
 	$OpdrachtURL	= "http://partnerapi.funda.nl/feeds/Aanbod.svc/rss/?type=koop&zo=". str_replace ("http://www.funda.nl/koop", "", $OpdrachtData['url']);
@@ -146,6 +146,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 	if($straatRun) {
 		$sql_update = "UPDATE $TableStraten SET ". (count($Huizen) > 0 ? "$StratenLastCheck = '". time() ."'" : "$StratenActive = '0'") ." WHERE $StratenID = ". $straatID;
 		mysql_query($sql_update);
+		toLog('info', '', '', $straatData['leesbaar'] .' in '. $straatData['plaats'] . ' gecontroleerd; '. count($Huizen) .' huizen.');
 	}
 }
 
