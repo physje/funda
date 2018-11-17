@@ -7,7 +7,7 @@ $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 connect_db();
 
-$Opdrachten = getZoekOpdrachten($_SESSION['account'], '');
+$opdrachten = getZoekOpdrachten($_SESSION['account'], '');
 
 foreach($opdrachten as $OpdrachtID) {
 	$members = getMembers4Opdracht($OpdrachtID, 'push');
