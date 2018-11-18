@@ -124,6 +124,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 					toLog('debug', $OpdrachtID, $fundaID, 'Nieuwe vraagprijs ('. $data['prijs'] .')');
 				}
 			}
+			$knownHouses++;
 		}
 		
 		if(newHouse($fundaID, $OpdrachtID) AND $opdrachtRun) {
@@ -144,9 +145,10 @@ for($i=0 ; $i < $iMax ; $i++) {
 	$String = array();
 		
 	if($straatRun) {
-		$sql_update = "UPDATE $TableStraten SET ". (count($Huizen) > 0 ? "$StratenLastCheck = '". time() ."'" : "$StratenActive = '0'") ." WHERE $StratenID = ". $straatID;
+		$sql_update = "UPDATE $TableStraten SET ". ($knownHouses > 0 ? "$StratenLastCheck = '". time() ."'" : "$StratenActive = '0'") ." WHERE $StratenID = ". $straatID;
 		mysql_query($sql_update);
-		toLog('info', '', '', $straatData['leesbaar'] .' in '. $straatData['plaats'] . ' gecontroleerd; '. count($Huizen) .' huizen.');
+		toLog('debug', '', '', $sql_update);
+		toLog('info', '', '', $straatData['leesbaar'] .' in '. $straatData['plaats'] . "; $knownHouses ". ($knownHouses == 1 ? 'huis' : 'huizen') ." van ". count($Huizen));
 	}
 }
 

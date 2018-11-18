@@ -39,9 +39,10 @@ function getString($start, $end, $string, $offset) {
 }
 
 function getCoordinates($straat, $postcode, $plaats, $land = 'Nederland') {
-	$q		= urlencode($straat) .",+". urlencode($postcode) ."+". urlencode($plaats) .",+". urlencode($land);
-	$url	= "http://maps.googleapis.com/maps/api/geocode/xml?address=$q&sensor=false";
-		
+	$API	= "";
+	$q		= urlencode(html_entity_decode($straat)) .",+". urlencode($postcode) ."+". urlencode(html_entity_decode($plaats)) .",+". urlencode($land);
+	$url	= "https://maps.googleapis.com/maps/api/geocode/xml?address=$q&sensor=false&key=$API";
+	
 	$contents	= file_get_contents($url);
 	
 	$status	= getString('<status>', '</status>', $contents, 0);
