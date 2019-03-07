@@ -11,9 +11,9 @@ connect_db();
 if(isset($_REQUEST['type'])) { $type = $_REQUEST['type']; } else { $type = 'alles'; }
 
 if($type == 'regio') {
-	$url = "https://vastgoeddashboard.kadaster.nl/vgd/woningen/PrijsindexPerRegio.csv?years_back=100";
+	$url = "https://vastgoeddashboard.kadaster.nl/vgd/woningen/PrijsindexPerRegio.csv?years_back=1";
 } else {
-	$url = "https://vastgoeddashboard.kadaster.nl/vgd/woningen/prijsindex.csv?years_back=100";
+	$url = "https://vastgoeddashboard.kadaster.nl/vgd/woningen/prijsindex.csv?years_back=1";
 }
 //$csvFile = 'local_PBK.csv';
 //$fp = fopen($csvFile, 'w+');
