@@ -160,8 +160,8 @@ if(is_array($key_1)) {
 		
 		if(!$verwijderd) {
 			$Item .= "<tr>\n";
-			$Item .= "	<td align='center'><a href='". $ScriptURL ."admin/combine_manual.php?id_1=$id_oud&id_2=$id_new'>deze verwijderen</a> | <a href='". $ScriptURL ."admin/changeState.php?id=$id_oud'>deze negeren</a></td>\n";
-			$Item .= "	<td align='center'><a href='". $ScriptURL ."admin/combine_manual.php?id_1=$id_new&id_2=$id_oud'>deze verwijderen</a> | <a href='". $ScriptURL ."admin/changeState.php?id=$id_new'>deze negeren</a></td>\n";
+			$Item .= "	<td align='center'><a href='". $ScriptURL ."admin/combine_manual.php?id_1=$id_oud&id_2=$id_new'>deze verwijderen</a> | <a href='". $ScriptURL ."admin/changeState.php?state=ignore&id=$id_oud'>deze negeren</a></td>\n";
+			$Item .= "	<td align='center'><a href='". $ScriptURL ."admin/combine_manual.php?id_1=$id_new&id_2=$id_oud'>deze verwijderen</a> | <a href='". $ScriptURL ."admin/changeState.php?state=ignore&id=$id_new'>deze negeren</a></td>\n";
 			$Item .= "</tr>\n";
 		}
 		$Item .= "</table>\n";
