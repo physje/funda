@@ -1931,10 +1931,12 @@ function addUpdateStreetDb($straat, $stad) {
 }
 
 function convert2FundaStyle($string) {
-	 $string = str_replace ('.', '',$string);
-	 $string = str_replace (' ', '-',$string);
-	 
-	 return strtolower($string);
+	$string = str_replace ('.', '',$string);
+	$string = str_replace (' ', '-',$string);
+	$string = str_replace ('é', 'e',$string);
+	$string = str_replace ('ë', 'e',$string);
+	
+	return strtolower($string);
 }
 
 function getStreet2Check($limit) {
