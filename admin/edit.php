@@ -53,7 +53,7 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "</tr>";	
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Coordinaten</td>";
-		$HTML[] = "	<td><input type='text' name='latitude' value='". $data['lat'] ."' size='7'>,<input type='text' name='longitude' value='". $data['long'] ."' size=7'><div class='float_rechts'><a href='../extern/redirect.php?id=$id' target='_blank'>Google Maps</a></div></td>";
+		$HTML[] = "	<td><input type='text' name='latitude' value='". $data['lat'] ."' size='7'>,<input type='text' name='longitude' value='". $data['long'] ."' size=7'><div class='float_rechts'><a href='../extern/redirect.php?id=$id' target='_blank'>Google Maps</a> | <a href='renewCoord.php?fundaID=$id' target='_blank'>vernieuw</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Makelaar</td>";

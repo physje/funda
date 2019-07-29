@@ -438,6 +438,41 @@ function makeKMLEntry($id) {
 }
 
 
+function makeLeafletEntry($id) {
+	global $ScriptURL;
+	$data			= getFundaData($id);	
+	$Prijzen	= getPriceHistory($id);
+	
+	$temp			= each($Prijzen);
+	$label		= $temp[0];
+	
+	$infowindow[] = "<table border=1>";
+	$infowindow[] = "<tr>";
+	$infowindow[] = "	<td colspan='3' width='550'><img src='". $data['thumb'] ."'><br><a href='http://www.funda.nl/$id'>funda.nl</a> | <a href='". $ScriptURL ."admin/edit.php?id=". $id ."'>edit</a></td>";
+	$infowindow[] = "</tr>";
+	$infowindow[] = "<tr>";
+	$infowindow[] = "	<td valign='top' width='150'><b>". $data['adres'] .'<br>'. $data['PC_c'] .' '. $data['PC_l'] .' '. $data['plaats'] .'</b></td>';
+	$infowindow[] = "	<td valign='top'>&nbsp;</td>";
+	$infowindow[] = "	<td valign='top' width='250'>";
+	
+	foreach($Prijzen as $key => $value)	{
+		if($key != 0) {
+			$infowindow[] = date('d M y', $key) .' : &euro;&nbsp;'. number_format($value,0,',','.').'<br>';
+		}
+	}
+	
+	$infowindow[] = "	</td>";
+	$infowindow[] = "</tr>";
+	$infowindow[] = "</table>";
+
+	
+	$Marker[] = "		var funda_$id = L.marker([". $data['lat'] .", ". $data['long'] ."]).addTo(map);";
+	$Marker[] = "		funda_$id.bindPopup(\"". implode("", $infowindow) ."\", {maxWidth: \"auto\"});";
+	
+	return implode("\n", $Marker);
+}
+
+
 function extractFundaDataFromPage($offlineHTML) {	
 	$HTML = getString('<body>', '<h2 class="related-objects__title">', $offlineHTML, 0);
 	$contents = $HTML[0];

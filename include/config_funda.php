@@ -14,3 +14,7 @@ $Version	= '';
 
 # Voorvoegsel bij de onderwerpregel bij het versturen van mails
 $SubjectPrefix	= '[funda] ';
+
+# Voor het tonen van kaarten via leaflet is een API nodig
+# https://locationiq.com/
+$leafletAPI = '';

@@ -36,6 +36,15 @@ if(isset($googleMaps)) {
 	$HTMLHeader .= "	<script type='text/javascript' src='http://maps.google.com/maps/api/js?sensor=false'></script>\n";
 }
 
+if(isset($leaflet)) {
+	$HTMLHeader	.= "        <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.0.3/dist/leaflet.css\" />\n";
+	$HTMLHeader	.= "        <script src=\"https://unpkg.com/leaflet@1.0.3/dist/leaflet.js\"></script>\n";
+	$HTMLHeader	.= "        <script src=\"https://tiles.unwiredmaps.com/js/leaflet-unwired.js\"></script>\n";
+	$HTMLHeader	.= "        <style>\n";
+	$HTMLHeader	.= "            #map { height: 630px; }\n";
+	$HTMLHeader	.= "        </style>\n";
+}
+
 $HTMLHeader	.= "</head>\n";
 
 if(isset($googleMaps)) {
