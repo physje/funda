@@ -158,7 +158,7 @@ if($_REQUEST['datum'] == 0) {
 	 	foreach($prijsOverlay as $index => $array) {
 	 		$layerName = 'layer_'.$index;
 	 		
-	 		$HTML[] = '		var '. $layerName.' = L.layerGroup(['. implode(', ', $array).']);';
+	 		$HTML[] = '		var '. $layerName.' = L.layerGroup(['. implode(', ', $array).']).addTo(map);';
 	 		$overlayMaps[] = '"'. $layerTitle[$index] .'": '. $layerName;
 	 	}
 	 	

@@ -143,19 +143,27 @@ if($_REQUEST['datum'] == 0) {
 	 	$HTML[] = "";
 	 	
 	 	foreach($wijkOverlay as $wijk => $array) {
-	 		$layerName = str_replace('+', '', $wijk);
-	 		$layerName = str_replace('-', '', $layerName);
-	 		$layerName = strtolower($layerName);
+	 		if($wijk == '') {
+	 			$wijk = 'Onbekend';
+	 			$layerName = 'unknown';
+	 		} else {
+	 			$layerName = str_replace('+', '', $wijk);
+	 			$layerName = str_replace('-', '', $layerName);
+	 			$layerName = strtolower($layerName);
+	 		}
+	 		
 	 		$layerName = 'layer_'.$layerName;
 	 		
-	 		$HTML[] = '		var '. $layerName.' = L.layerGroup(['. implode(', ', $array).']);';
-	 		$overlayMaps[] = '"'. urldecode($wijk) .'": '. $layerName;
+	 		$HTML[] = '		var '. $layerName.' = L.layerGroup(['. implode(', ', $array).']).addTo(map);';
+	 			 		
+	 		$overlayMaps[] = '"'. urldecode($wijk) .'": '. $layerName; 		
 	 	}
 	 	
 	 	$HTML[] = "";
 	 	$HTML[] = '		var overlayMaps = {'. implode(', ', $overlayMaps) .'}';
 	 	$HTML[] = "";
-		$HTML[] = "		L.control.layers(baseMaps, overlayMaps).addTo(map);";		
+		$HTML[] = "		L.control.layers(baseMaps, overlayMaps, {\"sortLayers\" : true}).addTo(map);";		
+		//$HTML[] = "		L.control.layers(baseMaps).addTo(map);";		
 	 	$HTML[] = "		</script>\n";
 	 }
 	
