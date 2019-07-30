@@ -42,8 +42,8 @@ if($_REQUEST['datum'] == 0) {
 	$HTML[] = "	<td>". makeSelectionSelection(false, false) ."</td>";
 	$HTML[] = "	<td>&nbsp;</td>";
 	$HTML[] = "</tr>";
-	$HTML[] = "	<td colspan=7><input type=checkbox name=link value=1 checked>Open direct in GoogleMaps ipv downloaden KML-file</td>\n";
-	$HTML[] = "</tr>";
+//	$HTML[] = "	<td colspan=7><input type=checkbox name=link value=1 checked>Open direct in GoogleMaps ipv downloaden KML-file</td>\n";
+//	$HTML[] = "</tr>";
 	$HTML[] = "</table>";
 	$HTML[] = "</form>";
 	
@@ -82,6 +82,17 @@ if($_REQUEST['datum'] == 0) {
 	}
 	$where[]				= "(($TableHuizen.$HuizenEind BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd) OR ($TableHuizen.$HuizenEind > $EindTijd AND $TableHuizen.$HuizenStart < $BeginTijd))";
 	
+	# Opvragen wat de minimale en maximale coordinaten zijn.
+	# Nodig om de kaart te centreren en de zoom-factor te bepalen
+	$sql_coord		= "SELECT MAX($TableHuizen.$HuizenLat) as maxLat, MIN($TableHuizen.$HuizenLat) as minLat, MAX($TableHuizen.$HuizenLon) as maxLon, MIN($TableHuizen.$HuizenLon) as minLon FROM $from WHERE ". implode(" AND ", $where);
+	$result_coord	= mysql_query($sql_coord);
+	$row_coord			= mysql_fetch_array($result_coord);
+	
+	$maxLat = $row_coord['maxLat'];
+	$minLat = $row_coord['minLat'];	
+	$maxLon = $row_coord['maxLon'];
+	$minLon = $row_coord['minLon'];
+	
 	$sql		= "SELECT * FROM $from WHERE ". implode(" AND ", $where);
 	$result	= mysql_query($sql);
 	
@@ -101,33 +112,83 @@ if($_REQUEST['datum'] == 0) {
 	
 	ksort($huizenArray);
 	
-	$KMLTitle = 'Nieuwe huizen in '. $Name .' van '. date("d-m-Y", $BeginTijd) .' t/m '. date("d-m-Y", $EindTijd);
-	include('../include/KML_TopBottom.php');
+	if(isset($kml)) {
+		$KMLTitle = 'Nieuwe huizen in '. $Name .' van '. date("d-m-Y", $BeginTijd) .' t/m '. date("d-m-Y", $EindTijd);
+		include('../include/KML_TopBottom.php');
+	} else {
+		$leaflet = true;
+		include('../include/HTML_TopBottom.php');
+		include('../include/leaflet_init.php');
+		
+		$HTML[] = "<h1>$Name</h1>";
+		$HTML[] = $leaflet_init;	
+	}	
 			
 	foreach($huizenArray as $key => $Huizen) {
 		if(is_array($Huizen)) {
 			$prijsOnder = $key*$stapPrijs;
 			$prijsBoven = ($key+1)*$stapPrijs - 1;
-									
-			$KML_file[] = '<Folder>';
-			$KML_file[] = '<open>0</open>';
-			$KML_file[] = '	<name>Prijsklasse '. number_format($prijsOnder,0,',','.') .' tot '. number_format($prijsBoven,0,',','.') .' ('. count($Huizen).')</name>';
+			
+			if(isset($kml)) {
+				$KML_file[] = '<Folder>';
+				$KML_file[] = '<open>0</open>';
+				$KML_file[] = '	<name>Prijsklasse '. number_format($prijsOnder,0,',','.') .' tot '. number_format($prijsBoven,0,',','.') .' ('. count($Huizen).')</name>';
+			} else {
+				$layerTitle[$key] = 'Prijsklasse '. number_format($prijsOnder,0,',','.') .' tot '. number_format($prijsBoven,0,',','.') .' ('. count($Huizen).')';
+			}
 						
 			foreach($Huizen as $id) {
-				$KML_file[] = makeKMLEntry($id);
+				if(isset($kml)) {
+					$KML_file[] = makeKMLEntry($id);
+				} else {
+					$HTML[] = makeLeafletEntry($id);
+					$prijsOverlay[$key][] = 'funda_'.$id;
+				}
 			}
 			
-			$KML_file[] = '</Folder>';
+			if(isset($kml)) {
+				$KML_file[] = '</Folder>';
+			}
 		}
 	}
-		
-	header("Expires: Mon, 26 Jul 2001 05:00:00 GMT");
-	header("Cache-Control: no-store, no-cache, must-revalidate");
-	header("Cache-Control: post-check=0, pre-check=0", false); 
-	header("Pragma: no-cache");
-	header("Cache-control: private");
-	header('Content-type: application/kml');
-	header('Content-Disposition: attachment; filename="'.  str_replace(' ', '_', $Name .'-'. date("d_M-H\hi\m")) .'.kml"');
 	
-	echo $KML_header.implode("\n", $KML_file).$KML_footer;
+	if(!isset($kml)) {
+		$HTML[] = "";
+	 	
+	 	foreach($prijsOverlay as $index => $array) {
+	 		$layerName = 'layer_'.$index;
+	 		
+	 		$HTML[] = '		var '. $layerName.' = L.layerGroup(['. implode(', ', $array).']);';
+	 		$overlayMaps[] = '"'. $layerTitle[$index] .'": '. $layerName;
+	 	}
+	 	
+	 	$HTML[] = "";
+	 	$HTML[] = '		var overlayMaps = {'. implode(', ', $overlayMaps) .'}';
+	 	$HTML[] = "";
+		$HTML[] = "		L.control.layers(baseMaps, overlayMaps).addTo(map);";		
+	 	$HTML[] = "		</script>\n";
+	}
+	 
+	if(isset($kml)) {
+		header("Expires: Mon, 26 Jul 2001 05:00:00 GMT");
+		header("Cache-Control: no-store, no-cache, must-revalidate");
+		header("Cache-Control: post-check=0, pre-check=0", false); 
+		header("Pragma: no-cache");
+		header("Cache-control: private");
+		header('Content-type: application/kml');
+		header('Content-Disposition: attachment; filename="'.  str_replace(' ', '_', $Name .'-'. date("d_M-H\hi\m")) .'.kml"');
+		echo $KML_header.implode("\n", $KML_file).$KML_footer;
+	} else {
+		echo $HTMLHeader;
+		echo "<tr>\n";
+		echo "<td width='8%'>&nbsp;</td>\n";
+		echo "<td width='84%' valign='top' align='center'>\n";
+		echo showBlock(implode("\n", $HTML));
+		//echo implode("\n", $HTML);
+		echo "</td>\n";
+		echo "<td width='8%'>&nbsp;</td>\n";
+		echo "</tr>\n";
+		echo $HTMLFooter;
+	}
+		
 }

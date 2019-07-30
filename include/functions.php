@@ -446,7 +446,7 @@ function makeLeafletEntry($id) {
 	$temp			= each($Prijzen);
 	$label		= $temp[0];
 	
-	$infowindow[] = "<table border=1>";
+	$infowindow[] = "<table border=0>";
 	$infowindow[] = "<tr>";
 	$infowindow[] = "	<td colspan='3' width='550'><img src='". $data['thumb'] ."'><br><a href='http://www.funda.nl/$id'>funda.nl</a> | <a href='". $ScriptURL ."admin/edit.php?id=". $id ."'>edit</a></td>";
 	$infowindow[] = "</tr>";

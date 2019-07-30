@@ -95,7 +95,7 @@ if($_REQUEST['datum'] == 0) {
 	$minLon = $row_coord['minLon'];
 	
 	# Opvragen welke wijken allemaal voorkomen
-	$sql_wijk		= "SELECT $TableHuizen.$HuizenWijk, MAX($TableHuizen.$HuizenLat) as maxLat, MIN($TableHuizen.$HuizenLat) as minLat, MAX($TableHuizen.$HuizenLon) as maxLon, MIN($TableHuizen.$HuizenLon) as minLon FROM $from WHERE ". implode(" AND ", $where) ." GROUP BY $TableHuizen.$HuizenWijk ORDER BY $TableHuizen.$HuizenPC_c, $TableHuizen.$HuizenPC_l";
+	$sql_wijk		= "SELECT $TableHuizen.$HuizenWijk FROM $from WHERE ". implode(" AND ", $where) ." GROUP BY $TableHuizen.$HuizenWijk ORDER BY $TableHuizen.$HuizenPC_c, $TableHuizen.$HuizenPC_l";
 	$result_wijk= mysql_query($sql_wijk);
 	$row_wijk		= mysql_fetch_array($result_wijk);
 	
@@ -105,58 +105,10 @@ if($_REQUEST['datum'] == 0) {
 	} else {
 		$leaflet = true;
 		include('../include/HTML_TopBottom.php');
+		include('../include/leaflet_init.php');
 		
-		# https://stackoverflow.com/questions/9394190/leaflet-map-api-with-google-satellite-layer
 		$HTML[] = "<h1>$Name</h1>";
-		$HTML[] = "		<div id='map'></div>";
-		$HTML[] = "		<script>";
-		$HTML[] = "";
-		$HTML[] = "		// API token goes here";
-		$HTML[] = "		var key = '$leafletAPI';";
-		$HTML[] = "";
-		$HTML[] = "		// Add layers that we need to the map";
-		$HTML[] = "		var streets = L.tileLayer.Unwired({key: key, scheme: \"streets\"});";
-		$HTML[] = "";		
-		$HTML[] = "		var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{";
-		$HTML[] = "		    maxZoom: 20,";
-		$HTML[] = "		    subdomains:['mt0','mt1','mt2','mt3']";
-		$HTML[] = "		});";
-		$HTML[] = "";
-		$HTML[] = "		googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{";
-		$HTML[] = "		    maxZoom: 20,";
-		$HTML[] = "		    subdomains:['mt0','mt1','mt2','mt3']";
-		$HTML[] = "		});";
-		$HTML[] = "";
-		$HTML[] = "		googleHybrid = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{";
-		$HTML[] = "		    maxZoom: 20,";
-		$HTML[] = "		    subdomains:['mt0','mt1','mt2','mt3']";
-		$HTML[] = "		});";
-		$HTML[] = "";
-		$HTML[] = "		googleTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{";
-		$HTML[] = "		    maxZoom: 20,";
-		$HTML[] = "		    subdomains:['mt0','mt1','mt2','mt3']";
-		$HTML[] = "		});";
-		$HTML[] = "";
-	 	$HTML[] = "		var baseMaps = {";
-	 	$HTML[] = "		    \"OpenStreetMap\": streets,";
-		$HTML[] = "		    \"Google Street\": googleStreets,";
-		$HTML[] = "		    \"Google Hybrid\": googleHybrid,";
-		$HTML[] = "		    \"Google Satellite\": googleSat,";
-		$HTML[] = "		    \"Google Terrain\": googleTerrain";
-		$HTML[] = "		};";		
-		$HTML[] = "";		
-		$HTML[] = "		// Initialize the map";
-		$HTML[] = "		var map = L.map('map', {";
-		$HTML[] = "		        center: [". 0.5*($maxLat+$minLat) ." , ". 0.5*($maxLon+$minLon) ."], //map loads with this location as center";
-		$HTML[] = "		        layers: [googleStreets] // Show 'streets' by default";
-		$HTML[] = "		});";
-		$HTML[] = "";
-		$HTML[] = "		// Zorg dat het past";
-		$HTML[] = "		map.fitBounds([[". $maxLat .",". $maxLon ."],[". $minLat .",". $minLon ."]]);";
-		$HTML[] = "";
-		$HTML[] = "		// Add the 'scale' control";
-		$HTML[] = "		L.control.scale().addTo(map);";
-		$HTML[] = "";		
+		$HTML[] = $leaflet_init;	
 	}	
 	
 	do {
