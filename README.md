@@ -1,5 +1,10 @@
 # funda
 
+## Script werkt maar ten delen
+Funda vind mij niet meer zo lief dus heeft de boel dichtgegooid.
+De branch 'master' werkt bij mij dus niet meer.... misschien bij jou nog wel, maar ik kan het dus niet meer testen en onderhoud die dus ook niet.
+Om toch nog wat data van funda te krijgen heb ik de branch 'api' gemaakt, maar die heeft veel minder functionaliteiten.
+
 ## Introductie
 Funda Alert is een script om funda.nl in de gaten te houden en daar "statistiek" op te doen.
 
