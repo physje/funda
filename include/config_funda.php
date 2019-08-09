@@ -18,3 +18,6 @@ $SubjectPrefix	= '[funda] ';
 # Voor het tonen van kaarten via leaflet is een API nodig
 # https://locationiq.com/
 $leafletAPI = '';
+
+# Voor het opvragen van postcode etc. moet een API van de overheid bekend zijn
+$OverheidAPI = '';
