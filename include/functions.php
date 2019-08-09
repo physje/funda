@@ -1952,11 +1952,12 @@ function send2Pushover($dataArray, $recipients) {
 
 function addUpdateStreetDb($straat, $stad) {
 	global $TableStraten, $StratenID, $StratenActive, $StratenStrLeesbaar, $StratenStrFunda, $StratenStad;
+	$straatFunda = convert2FundaStyle($straat);
 	
-	$sql = "SELECT * FROM $TableStraten WHERE $StratenStrLeesbaar like '$straat' AND $StratenStad like '$stad'";
+	$sql = "SELECT * FROM $TableStraten WHERE $StratenStrFunda like '$straatFunda' AND $StratenStad like '$stad'";
 	$result = mysql_query($sql);
 	if(mysql_num_rows($result) == 0) {		
-		$sql_insert = "INSERT INTO $TableStraten ($StratenActive, $StratenStrLeesbaar, $StratenStad, $StratenStrFunda) VALUES ('1', '". $straat ."', '". $stad. "', '". convert2FundaStyle($straat) ."')";
+		$sql_insert = "INSERT INTO $TableStraten ($StratenActive, $StratenStrLeesbaar, $StratenStad, $StratenStrFunda) VALUES ('1', '". $straat ."', '". $stad. "', '". $straatFunda ."')";
 		mysql_query($sql_insert);				
 	} else {
 		$row = mysql_fetch_array($result);
