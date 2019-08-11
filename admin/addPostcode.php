@@ -49,12 +49,14 @@ $Rechts[] = '</table>';
 
 if(is_numeric($nummer)) {
     $PC = findPCbyAdress($straat, $nummer, $letter, $toevoeging, $data['plaats']);
-
-    if(updatePC($row[$HuizenID], $PC)) {
-        $Links[] = 'Gelukt : '. $PC;
-        $userInteraction = false;
+    
+    if($PC == '') {
+    	$Links[] = 'Geen postcode kunnen vinden';
+    } elseif(updatePC($row[$HuizenID], $PC)) {
+    	$Links[] = 'Gelukt : '. $PC;
+    	$userInteraction = false;
     } else {
-        $Links[] = 'Geen postcode kunnen updaten';
+    	$Links[] = 'Geen postcode kunnen updaten';
     }
 } else {
     $Links[] = 'Controleer input parameters, het huisnummer is niet numeriek : '. $nummer;

@@ -2169,7 +2169,15 @@ function findPCbyAdress($straat, $huisnummer, $huisletter, $toevoeging, $plaats)
     
     $aJSON = json_decode($curl_out, true);
     
-    return $aJSON['_embedded']['adres'][0]['postcode'];
+    $PC = $aJSON['_embedded']['adres'][0]['postcode'];
+    
+    if($PC == '') {
+    	echo $service_url;
+    	return false;
+    } else {
+    	return $PC;
+    }
+    
     //var_dump($aJSON);
 }
 
