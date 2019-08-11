@@ -43,7 +43,7 @@ $Rechts[] = '<tr>';
 $Rechts[] = '	<td>Huisnummertoevoeging</td><td>'. $toevoeging .'</td>';
 $Rechts[] = '</tr>';
 $Rechts[] = '<tr>';
-$Rechts[] = '	<td>Woonplaats : '. $data['plaats'] .'</td>';
+$Rechts[] = '	<td>Woonplaats</td><td>'. $data['plaats'] .'</td>';
 $Rechts[] = '</tr>';
 $Rechts[] = '</table>';
 
