@@ -2,21 +2,21 @@
 include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
 
-connect_db();
+$db = connect_db();
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 
-if($_REQUEST['tijd'] == 'jaar') {
+if(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'jaar') {
 	$startdag = mktime(0, 0, 0, date("n"), date("j")-1, date("Y")-1);
 	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));
-} elseif($_REQUEST['tijd'] == 'kwartaal') {
+} elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'kwartaal') {
 	$startdag = mktime(0, 0, 0, date("n")-3, date("j")-1, date("Y"));
 	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));
-} elseif($_REQUEST['tijd'] == 'maand') {
+} elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'maand') {
 	$startdag = mktime(0, 0, 0, date("n")-1, date("j")-1, date("Y"));
 	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));	
-} elseif($_REQUEST['tijd'] == 'dag') {
+} elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'dag') {
 	$startdag = mktime(0, 0, 0, date("n"), date("j")-3, date("Y"));
 	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));	
 } else {
@@ -32,11 +32,11 @@ $eMaand 	= getParam('eMaand', date("m", $einddag));
 $eJaar		= getParam('eJaar', date("Y", $einddag));
 $selectie	= getParam('selectie', '');
 
-$HTML = array();
+$HTML = $Debug = array();
 if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	$dateSelection = makeDateSelection('','',$bDag,$bMaand,$bJaar , '','',$eDag,$eMaand,$eJaar);
 		
-	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+	$HTML[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 	$HTML[] = "<input type='hidden' name='datum' value='1'>";
 	$HTML[] = "<table>";
 	$HTML[] = "<tr>";
@@ -56,7 +56,7 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	$HTML[] = "	<td>". makeSelectionSelection(true, true) ."</td>";
 	$HTML[] = "	<td>&nbsp;</td>";
 	$HTML[] = "</tr>";
-	$HTML[] = "	<td colspan=7><a href='". $_SERVER[PHP_SELF] ."?tijd=dag'>dag</a> | <a href='". $_SERVER[PHP_SELF] ."?tijd=week'>week</a> | <a href='". $_SERVER[PHP_SELF] ."?tijd=maand'>maand</a> | <a href='". $_SERVER[PHP_SELF] ."?tijd=kwartaal'>kwartaal</a> | <a href='". $_SERVER[PHP_SELF] ."?tijd=jaar'>jaar</a></td>\n";
+	$HTML[] = "	<td colspan=7><a href='". $_SERVER['PHP_SELF'] ."?tijd=dag'>dag</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=week'>week</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=maand'>maand</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=kwartaal'>kwartaal</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=jaar'>jaar</a></td>\n";
 	$HTML[] = "</tr>";
 	$HTML[] = "</table>";
 	$HTML[] = "</form>";
@@ -93,13 +93,13 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	}
 	
 	$sql = implode(" ", $sql_array);	
-	$result	= mysql_query($sql);
+	$result	= mysqli_query($db, $sql);
 	
 	$Debug[] = implode("<br>\n", $sql_array) ."<br>\n";  
-	$Debug[] = mysql_num_rows($result) ." resultaten<br>\n";  
+	$Debug[] = mysqli_num_rows($result) ." resultaten<br>\n";  
 		
-	$result	= mysql_query($sql);	
-	if($row = mysql_fetch_array($result)) {
+	$result	= mysqli_query($db, $sql);	
+	if($row = mysqli_fetch_array($result)) {
 		do {
 			$url = 'http://www.funda.nl/'.$row[$HuizenID];
 			
@@ -111,7 +111,7 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 				$HTML[] = ' -> niet aan beginnen, is offline<br>';
 			}
 
-		} while($row = mysql_fetch_array($result));
+		} while($row = mysqli_fetch_array($result));
 	}
 }
 

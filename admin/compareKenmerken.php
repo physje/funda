@@ -4,7 +4,7 @@ include_once('../include/HTML_TopBottom.php');
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+$db = connect_db();
 
 if(isset($_POST['huizen'])) {
 	header("Expires: Mon, 26 Jul 2001 05:00:00 GMT");
@@ -46,7 +46,7 @@ if(isset($_POST['huizen'])) {
 		}
 	}
 	
-	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+	$HTML[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 	$HTML[] = "<input type='hidden' name='Name' value='$Name'>";
 	foreach($huizen as $huisID) {	
 		$HTML[] = "<input type='hidden' name='huizen[]' value='$huisID'>";
@@ -85,7 +85,7 @@ if(isset($_POST['huizen'])) {
 	$HTML[] = "</table>";
 	$HTML[] = "</form>";	
 } else {
-	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+	$HTML[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 	$HTML[] = "<table>";
 	$HTML[] = "<tr>";
 	$HTML[] = "	<td>Selectie</td>";	

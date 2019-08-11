@@ -1,7 +1,7 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
-connect_db();
+$db = connect_db();
 
 $HuizenArray = array();
 $Opdrachten = getZoekOpdrachten(1, '');

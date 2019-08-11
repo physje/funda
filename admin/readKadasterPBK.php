@@ -3,7 +3,7 @@ include_once(__DIR__.'/../include/config.php');
 include_once($cfgGeneralIncludeDirectory.'/class.phpmailer.php');
 include_once($cfgGeneralIncludeDirectory.'/class.phpPushover.php');
 include_once(__DIR__ . '/../include/HTML_TopBottom.php');
-connect_db();
+$db = connect_db();
 
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
 # Iedereen kan deze pagina dus in principe openen.
@@ -65,13 +65,13 @@ foreach($rijen as $rij) {
 	echo $jaar .';'. $kwartaal .' -> '. $prijsindex.' -> '. $regio .'<br>';
 	
 	$sql_check = "SELECT * FROM $TablePBK WHERE $PBKComment like '". $periode .', '. $regio ."'";
-	$result = mysql_query($sql_check);
-	if(mysql_num_rows($result) == 0) {
+	$result = mysqli_query($db, $sql_check);
+	if(mysqli_num_rows($result) == 0) {
 		$sql = "DELETE FROM $TablePBK WHERE $PBKStart = $start AND $PBKRegio like '$regio'";			
-		mysql_query($sql);
+		mysqli_query($db, $sql);
 			
 		$sql = "INSERT INTO $TablePBK ($PBKStart, $PBKEind, $PBKRegio, $PBKWaarde, $PBKComment) VALUES ($start, $eind, '$regio', $prijsindex, '". $periode .', '. $regio ."')";
-		if(!mysql_query($sql)) {
+		if(!mysqli_query($db, $sql)) {
 			echo $sql;
 		}
 		

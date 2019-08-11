@@ -5,7 +5,7 @@ include_once('../include/HTML_TopBottom.php');
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+$db = connect_db();
 
 if(isset($_POST['doorgaan'])) {
 	if(saveUpdateMember($_POST['member_id'], $_POST['naam'], $_POST['username'], $_POST['password'], $_POST['mail'], $_POST['userkey'], $_POST['token'], $_POST['level'], $_SESSION['UserID'])) {
@@ -18,11 +18,11 @@ if(isset($_POST['doorgaan'])) {
 	
 	foreach($Users as $user) {
 		$data = getMemberDetails($user);
-		$Page .= date("d-m-y H:i", $data['login']). " | <a href='$_SERVER[PHP_SELF]?id=$user'>". $data['naam'] ."</a><br>\n";
+		$Page .= date("d-m-y H:i", $data['login']). " | <a href='". $_SERVER['PHP_SELF'] ."?id=$user'>". $data['naam'] ."</a><br>\n";
 	}
 	
 } else {
-	if($_SESSION['level'] == 3 AND $_REQUEST['id'] != '') {
+	if($_SESSION['level'] == 3 AND isset($_REQUEST['id']) AND $_REQUEST['id'] != '') {
 		$id = $_REQUEST['id'];
 	} elseif(isset($_REQUEST['new']) AND $_SESSION['level'] > 1) {
 		$id = 0;
@@ -32,9 +32,11 @@ if(isset($_POST['doorgaan'])) {
 	
 	if($id > 0) {
 		$data = getMemberDetails($id);
+	} else {
+		$data['naam'] = $data['username'] = $data['mail'] = $data['userkey'] = $data['token'] = $data['level'] = '';
 	}
 	
-	$Page ="<form method='post' action='$_SERVER[PHP_SELF]'>\n";
+	$Page ="<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";
 	$Page .="<input type='hidden' name='member_id' value='$id'>\n";
 	$Page .= "<table>\n";
 	$Page .= "<tr>\n";
@@ -98,10 +100,6 @@ echo "<tr>\n";
 echo "	<td width='50%' valign='top' align='center'>\n";
 echo showBlock($Page);
 echo "	</td>\n";
-echo "	<td width='50%' valign='top' align='center'>\n";
-if($Page_2 != '') {
-	echo showBlock($Page_2);
-}
-echo "	</td>\n";
+echo "	<td width='50%' valign='top' align='center'>&nbsp;</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;

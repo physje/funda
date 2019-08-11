@@ -5,7 +5,7 @@ $minUserLevel = 1;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");
 
-connect_db();
+$db = connect_db();
 
 echo $HTMLHeader;
 
@@ -40,8 +40,8 @@ if(isset($_POST['add'])) {
 	}
 	
 	$i = 1;	
-	echo "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
-	if($showListAdd) echo "<input type='hidden' name='lijst' value='". $_POST['chosenList'] ."'>\n";
+	echo "<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";
+	if(isset($showListAdd) AND $showListAdd) echo "<input type='hidden' name='lijst' value='". $_POST['chosenList'] ."'>\n";
 	echo "<table width='100%' border=0>\n";
 	echo "<tr>\n";
 	echo "	<td align='center' colspan='$aantalCols'><h1>Gallery '$Name'</h1></td>\n";
@@ -97,10 +97,10 @@ if(isset($_POST['add'])) {
 		}
 		
 		$hoverText = '';
-		$hoverText .= "Woonoppervlakte : ". $kenmerken['Wonen (= woonoppervlakte)'] ."\n";
-		$hoverText .= "Perceeloppervlakte : ". $kenmerken['Perceeloppervlakte'] ."\n";
-		$hoverText .= "Inhoud : ". $kenmerken['Inhoud'] ."\n";
-		$hoverText .= "Bouwjaar : ". $kenmerken['Bouwjaar'];
+		if(isset($kenmerken['Wonen (= woonoppervlakte)']))	$hoverText .= "Woonoppervlakte : ". $kenmerken['Wonen (= woonoppervlakte)'] ."\n";
+		if(isset($kenmerken['Perceeloppervlakte']))					$hoverText .= "Perceeloppervlakte : ". $kenmerken['Perceeloppervlakte'] ."\n";
+		if(isset($kenmerken['Inhoud']))											$hoverText .= "Inhoud : ". $kenmerken['Inhoud'] ."\n";
+		if(isset($kenmerken['Bouwjaar']))										$hoverText .= "Bouwjaar : ". $kenmerken['Bouwjaar'];
 		
 		# De HTML van een huis
 		# Let op dat de <div class='float_rechts'> eerst staan, en pas daarna de linkertekst.
@@ -108,7 +108,7 @@ if(isset($_POST['add'])) {
 		$Foto  = "	<a href='". $ScriptURL ."admin/HouseDetails.php?id=$huisID' target='_blank' title='$hoverText'><div class='wrapper'><img src='$image' width='242' class='$imageClass'></a>";
 		if($balk)	$Foto .= "<div class='description'><p class='description_content'>". strtoupper($description) ."</p></div>";
 		$Foto .= "</div><br>\n";		
-		if($showListAdd)	$Foto .= "	<input type='checkbox' name='huis[]' value='$huisID'". (in_array($huisID, $knownHuizen) ? ' checked' : '') .">";
+		if(isset($showListAdd) AND $showListAdd)	$Foto .= "	<input type='checkbox' name='huis[]' value='$huisID'". (in_array($huisID, $knownHuizen) ? ' checked' : '') .">";
 		$Foto .= "	<div class='float_rechts'>". getDoorloptijd($huisID) ."</div><a href='http://funda.nl/$huisID' target='_blank' class='$TextClass' title='Ga naar $adres op funda.nl'>$adresShort</a><br>\n";
 		$Foto .= "	<div class='float_rechts'><b>". formatPercentage($relPrize[5]) ."</b></div><b>". formatPrice(getHuidigePrijs($huisID)) ."</b>\n";
 		
@@ -129,7 +129,7 @@ if(isset($_POST['add'])) {
 	echo "</tr>\n";
 	
 	# Laat een submit-button zien als dat nodig is.
-	if($showListAdd) {
+	if(isset($showListAdd) AND $showListAdd) {
 		echo "<tr>\n";
 		echo "	<td colspan='$aantalCols'>&nbsp;</td>\n";
 		echo "</tr>\n";
@@ -141,9 +141,9 @@ if(isset($_POST['add'])) {
 	echo "</table>\n";
 	echo "</form>\n";	
 } else {
-	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+	$HTML[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 	$HTML[] = "<input type='hidden' name='addHouses' value='". (isset($_REQUEST['addHouses']) ? '1' : '0') ."'>";
-	$HTML[] = "<input type='hidden' name='chosenList' value='". $_REQUEST['chosenList'] ."'>";
+	$HTML[] = "<input type='hidden' name='chosenList' value='". (isset($_REQUEST['chosenList']) ? $_REQUEST['chosenList'] : '') ."'>";
 	$HTML[] = "<table>";
 	$HTML[] = "<tr>";
 	$HTML[] = "	<td>Selectie</td>";	

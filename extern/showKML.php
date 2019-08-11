@@ -1,7 +1,7 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
-connect_db();
+$db = connect_db();
 
 $bUur                = getParam('bDag', 0);
 $bMin                = getParam('bDag', 0);
@@ -15,14 +15,14 @@ $eMaand         = getParam('eMaand', date("m"));
 $eJaar                = getParam('eJaar', date("Y"));
 $selectie        = getParam('selectie', '');
 
-if($_REQUEST['datum'] == 0) {
+if(!isset($_REQUEST['datum'])) {
 	$minUserLevel = 1;
 	$cfgProgDir = '../auth/';
 	include($cfgProgDir. "secure.php");
 	
 	$dateSelection = makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $eDag, $eMaand, $eJaar);
 	
-	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+	$HTML[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 	$HTML[] = "<input type='hidden' name='datum' value='1'>";
 	$HTML[] = "<table>";
 	$HTML[] = "<tr>";
@@ -56,10 +56,6 @@ if($_REQUEST['datum'] == 0) {
 	echo "<td width='8%'>&nbsp;</td>\n";
 	echo "</tr>\n";
 	echo $HTMLFooter;
-} elseif($_REQUEST['link'] == '1') {
-	$redirect = "http://maps.google.nl/maps?q=". urlencode($ScriptURL .'extern/showKML.php?datum=1&selectie='. $_POST[selectie] .'&bDag='. $_POST[bDag] .'&bMaand='. $_POST[bMaand] .'&bJaar='. $_POST[bJaar] .'&eDag='. $_POST[eDag] .'&eMaand='. $_POST[eMaand] .'&eJaar='. $_POST[eJaar]);
-	$url="Location: ". $redirect;
-	header($url);
 } else {
 	$BeginTijd	= mktime($bUur, $bMin, 0, $bMaand, $bDag, $bJaar);
   $EindTijd   = mktime($eUur, $eMin, 59, $eMaand, $eDag, $eJaar);
@@ -86,8 +82,8 @@ if($_REQUEST['datum'] == 0) {
 	# Opvragen wat de minimale en maximale coordinaten zijn.
 	# Nodig om de kaart te centreren en de zoom-factor te bepalen
 	$sql_coord		= "SELECT MAX($TableHuizen.$HuizenLat) as maxLat, MIN($TableHuizen.$HuizenLat) as minLat, MAX($TableHuizen.$HuizenLon) as maxLon, MIN($TableHuizen.$HuizenLon) as minLon FROM $from WHERE ". implode(" AND ", $where);
-	$result_coord	= mysql_query($sql_coord);
-	$row_coord			= mysql_fetch_array($result_coord);
+	$result_coord	= mysqli_query($db, $sql_coord);
+	$row_coord			= mysqli_fetch_array($result_coord);
 	
 	$maxLat = $row_coord['maxLat'];
 	$minLat = $row_coord['minLat'];	
@@ -96,8 +92,8 @@ if($_REQUEST['datum'] == 0) {
 	
 	# Opvragen welke wijken allemaal voorkomen
 	$sql_wijk		= "SELECT $TableHuizen.$HuizenWijk FROM $from WHERE ". implode(" AND ", $where) ." GROUP BY $TableHuizen.$HuizenWijk ORDER BY $TableHuizen.$HuizenPC_c, $TableHuizen.$HuizenPC_l";
-	$result_wijk= mysql_query($sql_wijk);
-	$row_wijk		= mysql_fetch_array($result_wijk);
+	$result_wijk= mysqli_query($db, $sql_wijk);
+	$row_wijk		= mysqli_fetch_array($result_wijk);
 	
 	if(isset($kml)) {
 		$KMLTitle = "Nieuwe huizen in $Name van ". date("d-m-Y", $BeginTijd) .' t/m '. date("d-m-Y", $EindTijd);
@@ -122,8 +118,8 @@ if($_REQUEST['datum'] == 0) {
 			
 		$sql_huis			= "SELECT * FROM $from WHERE ". implode(" AND ", $where) ." AND $TableHuizen.$HuizenWijk like '$wijk' ORDER BY $TableHuizen.$HuizenPC_c, $TableHuizen.$HuizenPC_l";
 				
-		$result_huis	= mysql_query($sql_huis);
-		$row_huis			= mysql_fetch_array($result_huis);
+		$result_huis	= mysqli_query($db, $sql_huis);
+		$row_huis			= mysqli_fetch_array($result_huis);
 	
 		do {
 			if(isset($kml)) {
@@ -132,12 +128,12 @@ if($_REQUEST['datum'] == 0) {
 				$HTML[] = makeLeafletEntry($row_huis[$HuizenID]);
 				$wijkOverlay[$wijk][] = 'funda_'.$row_huis[$HuizenID];
 			}
-		} while($row_huis = mysql_fetch_array($result_huis));
+		} while($row_huis = mysqli_fetch_array($result_huis));
 		
 		if(isset($kml)) {
 			$KML_file[] = '</Folder>';	
 		}
-	} while($row_wijk = mysql_fetch_array($result_wijk));
+	} while($row_wijk = mysqli_fetch_array($result_wijk));
 	
 	 if(!isset($kml)) {
 	 	$HTML[] = "";

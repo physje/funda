@@ -2,7 +2,7 @@
 include_once(__DIR__.'/../include/config.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpmailer.php');
 include_once($cfgGeneralIncludeDirectory.'class.html2text.php');
-connect_db();
+$db = connect_db();
 
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
 # Iedereen kan deze pagina dus in principe openen.
@@ -25,18 +25,18 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	//$sql .= "$TableHuizen.$HuizenEind < $eindGrens AND ";
 	$sql .= "$TableHuizen.$HuizenOffline like '1'";
 	
-	$result	= mysql_query($sql);
-	$row = mysql_fetch_array($result);
+	$result	= mysqli_query($db, $sql);
+	$row = mysqli_fetch_array($result);
 
 	do {
 		$adres		= $row[$HuizenAdres];
 		$PC				= $row[$HuizenPC_c];
 		$id_oud		= $row[$HuizenID];		
 		$sql_2		= "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '$adres' AND $HuizenPC_c like '$PC' AND $HuizenID NOT like '$id_oud'";
-		$result_2	= mysql_query($sql_2);
+		$result_2	= mysqli_query($db, $sql_2);
 		
-		if(mysql_num_rows($result_2) >= 1 AND !in_array($id_oud, $KeyArray) AND !ignoreHouse4Combine($id_oud)) {
-			$row_2	= mysql_fetch_array($result_2);
+		if(mysqli_num_rows($result_2) >= 1 AND !in_array($id_oud, $KeyArray) AND !ignoreHouse4Combine($id_oud)) {
+			$row_2	= mysqli_fetch_array($result_2);
 			$id_new	= $row_2[$HuizenID];
 				
 			if(!in_array($id_new, $KeyArray)) {
@@ -48,7 +48,7 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 				$KeyArray[] = $id_new;
 			}
 		}
-	} while($row = mysql_fetch_array($result));
+	} while($row = mysqli_fetch_array($result));
 }
 
 if(is_array($key_1)) {
@@ -70,7 +70,7 @@ if(is_array($key_1)) {
 			# De begin- en eindtijd voor het nieuwe huis in tabel met huizen updaten
 			# Neem de vroegst bekende starttijd en de laatst bekende eindtijd
 			$sql_update_1 = "UPDATE $TableHuizen SET $HuizenStart = ". min($data_oud['start'], $data_new['start']) .", $HuizenEind = ". max($data_oud['eind'], $data_new['eind']) ." WHERE $HuizenID like '". $id_new ."'";
-			if(!mysql_query($sql_update_1)) {
+			if(!mysqli_query($db, $sql_update_1)) {
 				echo "[$sql_update_1]<br>";		
 				toLog('error', '', $id_oud, "Error verplaatsen data van $id_oud naar $id_new");
 			} else {
@@ -80,7 +80,7 @@ if(is_array($key_1)) {
 			
 			# Tabel met prijzen updaten
 			$sql_update_2 = "UPDATE $TablePrijzen SET $PrijzenID = '$id_new' WHERE $PrijzenID like '$id_oud'";
-			if(!mysql_query($sql_update_2)) {
+			if(!mysqli_query($db, $sql_update_2)) {
 				echo "[$sql_update_2]<br>";
 				toLog('error', '', $id_oud, "Error toewijzen prijzen aan $id_new");
 			} else {
@@ -89,7 +89,7 @@ if(is_array($key_1)) {
 			
 			# Tabel met lijsten updaten
 			$sql_update_3 = "UPDATE $TableListResult SET $ListResultHuis = '$id_new' WHERE $ListResultHuis like '$id_oud'";
-			if(!mysql_query($sql_update_3)) {
+			if(!mysqli_query($db, $sql_update_3)) {
 				echo "[$sql_update_3]<br>";
 				toLog('error', '', $id_oud, "Error toewijzen $id_new op lijst");
 			} else {
@@ -98,7 +98,7 @@ if(is_array($key_1)) {
 			
 			# Tabel met open huizen updaten
 			$sql_update_4 = "UPDATE $TableCalendar SET $CalendarHuis = '$id_new' WHERE $CalendarHuis like '$id_oud'";
-			if(!mysql_query($sql_update_4)) {
+			if(!mysqli_query($db, $sql_update_4)) {
 				echo "[$sql_update_4]<br>";
 				toLog('error', '', $id_oud, "Error toewijzen open huis aan $id_new");
 			} else {
@@ -107,7 +107,7 @@ if(is_array($key_1)) {
 					
 			# Het oude huis uit de tabel met huizen halen
 			$sql_delete_1	= "DELETE FROM $TableHuizen WHERE $HuizenID like '$id_oud'";
-			if(!mysql_query($sql_delete_1)) {
+			if(!mysqli_query($db, $sql_delete_1)) {
 				echo "[$sql_delete_1]<br>";
 				toLog('error', '', $id_oud, "Error verwijderen huis (is identiek aan $id_new)");
 			} else {
@@ -116,7 +116,7 @@ if(is_array($key_1)) {
 			
 			# Het oude huis uit de tabel met kenmerken halen (de nieuwe staan er al in)
 			$sql_delete_2	= "DELETE FROM $TableKenmerken WHERE $KenmerkenID like '$id_oud'";
-			if(!mysql_query($sql_delete_2)) {
+			if(!mysqli_query($db, $sql_delete_2)) {
 				echo "[$sql_delete_2]<br>";
 				toLog('error', '', $id_oud, "Error verwijderen kenmerken (zijn identiek aan $id_new)");
 			} else {
@@ -125,7 +125,7 @@ if(is_array($key_1)) {
 			
 			# Het oude huis uit de tabel met resultaten halen (de nieuwe staat er al in)
 			$sql_delete_3 = "DELETE FROM $TableResultaat WHERE $ResultaatID like '$id_oud'";
-			if(!mysql_query($sql_delete_3)) {
+			if(!mysqli_query($db, $sql_delete_3)) {
 				echo "[$sql_delete_3]<br>";
 				toLog('error', '', $id_oud, "Error verwijderen van $id_oud in opdracht");
 			} else {

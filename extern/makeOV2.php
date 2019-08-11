@@ -1,6 +1,6 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
-connect_db();
+$db = connect_db();
 
 $output = $ov2output = "";
 $grens	= time() - (24*60*60);
@@ -23,8 +23,8 @@ if(isset($_REQUEST['opdracht'])) {
 
 # Kijken of de combinatie user/pass en lijst/opdracht een geldige combi is
 $sql = "SELECT * FROM $tables WHERE $TableUsers.$UsersUsername like '". $_REQUEST['user'] ."' AND $TableUsers.$UsersPassword like '". md5($_REQUEST['pass']) ."' AND ". $sql_postfix;
-$result = mysql_query($sql);
-if(mysql_num_rows($result) == 0) {
+$result = mysqli_query($db, $sql);
+if(mysqli_num_rows($result) == 0) {
 	$dataset = array();
 	exit;
 }

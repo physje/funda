@@ -72,6 +72,10 @@ $TableHuizen		= "funda_huizen";
 $HuizenID 		= "funda_id";
 $HuizenURL	 	= "url";
 $HuizenAdres 		= "adres";
+$HuizenStraat 		= "straat";
+$HuizenNummer 		= "nummer";
+$HuizenLetter 		= "letter";
+$HuizenToevoeging	= "toevoeg";
 $HuizenPC_c 		= "PC_cijfers";
 $HuizenPC_l		= "PC_letters";
 $HuizenPlaats		= "plaats";
@@ -180,10 +184,10 @@ $GemeentesPlaats		= "plaats";
 $GemeentesGemeente	= "gemeente";
 $GemeentesProvincie	= "provincie";
 
-include_once($cfgGeneralIncludeDirectory . 'general_functions.php');
-include_once($cfgGeneralIncludeDirectory . 'general_config.php');
-include_once( __DIR__ .'/functions.php');
-include_once( __DIR__ .'/config_funda.php');
+include ($cfgGeneralIncludeDirectory . 'general_config.php');
+include ($cfgGeneralIncludeDirectory . 'shared_functions.php');
+include ( __DIR__ .'/functions.php');
+include ( __DIR__ .'/config_funda.php');
 
 date_default_timezone_set('Europe/Amsterdam');
 

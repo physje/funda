@@ -9,8 +9,14 @@ include($cfgProgDir. "secure.php");
 $detect = new Mobile_Detect;
 if ($detect->isMobile() ) {
 	$mobile = true;
+} else {
+	$mobile = false;
 }
 
+# Initialiseer de variabelen
+$blockOnderhoud = $blockOpschonen = $blockLinks = $blockAdmin = $blockOpdrachten = '';
+
+# Vraag "achtergrond" data van de gebruiker op
 $UserData = getMemberDetails($_SESSION['UserID']);
 
 # LINKS
@@ -48,23 +54,30 @@ if($_SESSION['level'] > 1) {
 # ONDERHOUD
 if($_SESSION['level'] > 2) {
 	$onderhoud['check.php']											= 'Check funda';
+	$onderhoud['admin/checkOudeHuizen.php']			= 'Zie welke huizen al even van de radar zijn';
+	$onderhoud['admin/details2Download.php']		= 'Overzicht van huizen waar de details van ontbreken';
 	$onderhoud['check_offline.php']							= 'Check de offline opgeslagen pagina\'s';	
 	$onderhoud['admin/loadOfflineHouses.php']		= 'Check de offline opgeslagen huis-pagina\'s';	
-	$onderhoud['admin/checkOudeHuizen.php']			= 'Huizen die al even van de radar zijn';
-	$onderhoud['admin/details2Download.php']		= 'Overzicht van huizen waar de details van ontbreken';
-	$onderhoud['onderhoud/makeGeneralLists.php']						= 'Maak algemene lijsten aan';
-	$onderhoud['admin/readKadasterPBK.php']							= 'Lees de prijs-index van het Kadaster in';
-	$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met openhuizen';
-	$onderhoud['admin/cleanPrice.php']					= 'Prijzen opschonen';
-	$onderhoud['admin/cleanKenmerk.php']				= 'Kenmerken opschonen';
-	$onderhoud['admin/cleanOpenhuis.php']				= 'Open huizen opschonen';
-	$onderhoud['admin/checkTables.php']					= 'Check de verschillende databases';
-	$onderhoud['admin/combine_batch.php']				= 'Voeg hits automatisch samen';
-	$onderhoud['admin/combine_manual.php']			= 'Voeg hits handmatig samen';
-	$onderhoud['admin/cleanUp.php']							= 'Verwijder oude log-items';	
+	$onderhoud['admin/addPostcode.php']					= 'Zoek ontbrekende postcode\'s op';
+	$onderhoud['admin/addWijk.php']						= 'Vul ontbrekende wijken in';
+	$onderhoud['onderhoud/makeGeneralLists.php']	= 'Maak algemene lijsten aan';
+	$onderhoud['admin/readKadasterPBK.php']				= 'Lees de prijs-index van het Kadaster in';
+	$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met open huizen';
+	
+	$opschonen['admin/checkTables.php']					= 'Check de verschillende databases';
+	$opschonen['admin/cleanPrice.php']					= 'Prijzen opschonen';
+	$opschonen['admin/cleanKenmerk.php']				= 'Kenmerken opschonen';
+	$opschonen['admin/cleanOpenhuis.php']				= 'Open huizen opschonen';
+	$opschonen['admin/combine_batch.php']				= 'Voeg hits automatisch samen';
+	$opschonen['admin/combine_manual.php']			= 'Voeg hits handmatig samen';
+	$opschonen['admin/cleanUp.php']							= 'Verwijder oude log-items';	
 	
 	foreach($onderhoud as $url => $titel) {
 		$blockOnderhoud .= "<a href='$url' target='_blank'>$titel</a><br>\n";
+	}
+
+	foreach($opschonen as $url => $titel) {
+		$blockOpschonen .= "<a href='$url' target='_blank'>$titel</a><br>\n";
 	}
 }
 
@@ -106,14 +119,19 @@ if($mobile) {
 
 echo showBlock($blockLinks, $mobile);
 echo "<p>\n";
-echo showBlock($blockAdmin, $mobile);
+echo showBlock('<b>Admin</b><br>'.$blockAdmin, $mobile);
 
 if($blockOnderhoud != '') {
 	echo "<p>\n";
-	echo showBlock($blockOnderhoud, $mobile);	
+	echo showBlock('<b>Onderhoud</b><br>'.$blockOnderhoud, $mobile);	
 }
 
 if(!$mobile)	echo "</td><td width='50%' valign='top' align='center'>\n";
+
+if($blockOpschonen != '') {
+	echo showBlock('<b>Opschonen</b><br>'.$blockOpschonen, $mobile);
+	echo "<p>\n";
+}
 
 echo showBlock($blockAccount, $mobile);
 echo "<p>\n";

@@ -4,7 +4,7 @@ include_once('../include/HTML_TopBottom.php');
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+$db = connect_db();
 
 if(!isset($_REQUEST['bDag']) OR !isset($_REQUEST['bMaand']) OR !isset($_REQUEST['bJaar'])) {
 	$bDag = date('d');
@@ -35,7 +35,7 @@ if(isset($_REQUEST['prijs'])) {
 }
 $regios = array('Totaal', 'Amsterdam', 'Drenthe', 'Flevoland', 'Friesland', 'Gelderland', 'Gravenhage', 'Groningen', 'Limburg', 'Midden-Nederland', 'Noord-Brabant', 'Noord-Holland', 'Noord-Nederland', 'Overijssel', 'Rotterdam', 'Utrecht', 'West-Nederland', 'Zeeland', 'Zuid-Holland', 'Zuid-Nederland');
 
-$zoekScherm[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+$zoekScherm[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 $zoekScherm[] = "<table border=0 align='center'>";
 $zoekScherm[] = "<tr>";
 $zoekScherm[] = "	<td><b>Van</b></td>";
@@ -49,12 +49,12 @@ $zoekScherm[] = "	<td>". $dateSelection[0] ."</td>";
 $zoekScherm[] = "	<td>". $dateSelection[1] ."</td>";
 $zoekScherm[] = "</tr>";
 $zoekScherm[] = "<tr>";
-$zoekScherm[] = "	<td><input type='text' name='prijs' value='". $_REQUEST['prijs'] ."'></td>";
+$zoekScherm[] = "	<td><input type='text' name='prijs' value='". (isset($_REQUEST['prijs']) ? $_REQUEST['prijs'] : '') ."'></td>";
 $zoekScherm[] = "	<td>";
 $zoekScherm[] = "	<select name='regio'>";
 
 foreach($regios as $regio) {
-	$zoekScherm[] = "		<option value='$regio'". ($regio == $_REQUEST['regio'] ? ' selected' : '') .">". ($regio == 'Totaal' ? 'Heel Nederland' : $regio) ."</option>";
+	$zoekScherm[] = "		<option value='$regio'". ((isset($_REQUEST['regio']) AND $regio == $_REQUEST['regio']) ? ' selected' : '') .">". ($regio == 'Totaal' ? 'Heel Nederland' : $regio) ."</option>";
 }
 $zoekScherm[] = "	</select>";
 $zoekScherm[] = "	</td>";

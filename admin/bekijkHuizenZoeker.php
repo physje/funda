@@ -6,7 +6,8 @@ setlocale(LC_ALL, 'nl_NL');
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+$db = connect_db();
+
 $dataset = array();
 if(isset($_REQUEST['id'])) {
 	$dataset = array($_REQUEST['id']);

@@ -2,7 +2,7 @@
 include_once(__DIR__.'/include/config.php');
 include_once('include/HTML_TopBottom.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
-connect_db();
+$db = connect_db();
 
 $straatRun = $opdrachtRun = false;
 
@@ -143,7 +143,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 		
 	if($straatRun) {
 		$sql_update = "UPDATE $TableStraten SET ". ($knownHouses > 0 ? "$StratenLastCheck = '". time() ."'" : "$StratenActive = '0'") ." WHERE $StratenID = ". $straatID;
-		mysql_query($sql_update);
+		mysqli_query($db, $sql_update);
 		toLog('debug', '', '', $sql_update);
 		toLog('info', '', '', $straatData['leesbaar'] .' in '. $straatData['plaats'] . "; $knownHouses ". ($knownHouses == 1 ? 'huis' : 'huizen') ." van ". count($Huizen));
 	}

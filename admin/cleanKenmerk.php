@@ -1,9 +1,12 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
+include_once('../include/HTML_TopBottom.php');
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+$db = connect_db();
+
+$out = array();
 
 if(isset($_REQUEST['id'])) {
 	$sql		= "SELECT * FROM $TableKenmerken WHERE $KenmerkenID like ". $_REQUEST['id'] ." ORDER BY $KenmerkenKenmerk";
@@ -12,8 +15,8 @@ if(isset($_REQUEST['id'])) {
 	$sql		= "SELECT $KenmerkenID, COUNT(*) as aantal FROM $TableKenmerken GROUP BY $KenmerkenID, $KenmerkenKenmerk HAVING aantal > 1";	
 }
 
-$result	= mysql_query($sql);
-$row		= mysql_fetch_array($result);
+$result	= mysqli_query($db, $sql);
+$row		= mysqli_fetch_array($result);
 
 do {
 	$huis			= $row[$KenmerkenID];
@@ -24,33 +27,42 @@ do {
 	if(is_array($data)) {
 		$sql = "DELETE FROM $TableKenmerken WHERE $KenmerkenID = $huis";
 	
-		if(mysql_query($sql)) {
+		if(mysqli_query($db, $sql)) {
 			foreach($moreData as $key => $value) {
 				if($key != 'wijk') {
 					$sql = "INSERT INTO $TableKenmerken ($KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue) VALUES ('$huis', '". urlencode(strip_tags($key)) ."', '". urlencode(strip_tags($value)) ."')";
 										
-					if(!mysql_query($sql)) {
-						echo ' ERROR';
+					if(!mysqli_query($db, $sql)) {
+						$out[] = ' ERROR';
 					}
 				}
 			}			
 		}
 	} else {
-		echo "<em>$huis</em> bestaat niet";
+		$out[] = "<em>$huis</em> bestaat niet";
 				
 		$sql = "DELETE FROM $TableHuizen WHERE $HuizenID = $huis";
-		if(mysql_query($sql)) {
-			echo ", en is verwijderd.\n";
+		if(mysqli_query($db, $sql)) {
+			$out[] = ", en is verwijderd.\n";
 		} else {
-			echo ", maar kon niet worden verwijderd.\n";
+			$out[] = ", maar kon niet worden verwijderd.\n";
 		}
 		
 		$sql = "DELETE FROM $TableKenmerken WHERE $KenmerkenID = $huis";
-		if(mysql_query($sql)) {
-			echo " Data is verwijderd<br>\n";
+		if(mysqli_query($db, $sql)) {
+			$out[] = " Data is verwijderd<br>\n";
 		} else {
-			echo " Data kon niet worden verwijderd<br>\n";
+			$out[] = " Data kon niet worden verwijderd<br>\n";
 		}
 	}
 	
-} while($row = mysql_fetch_array($result));
+} while($row = mysqli_fetch_array($result));
+
+echo $HTMLHeader;
+echo "<tr>\n";
+echo "<td width='50%' valign='top' align='center'>\n";
+echo showBlock(implode('', $out));
+echo "</td>\n";
+echo "<td width='50%' valign='top' align='center'>&nbsp;</td>\n";
+echo "</tr>\n";
+echo $HTMLFooter;

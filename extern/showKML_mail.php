@@ -1,6 +1,6 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
-connect_db();
+$db = connect_db();
 
 $dag		= getParam('dag', date("d"));
 $maand	= getParam('maand', date("m"));
@@ -16,11 +16,11 @@ $KMLTitle = 'Nieuwe huizen in '. $data['naam'] .' voor '. date("d-m-Y", $BeginTi
 include('../include/KML_TopBottom.php');
 
 $sql		= "SELECT * FROM $TableResultaat, $TableHuizen WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID = $regio AND $TableHuizen.$HuizenStart BETWEEN $BeginTijd AND $EindTijd";
-$result	= mysql_query($sql);
-$row		= mysql_fetch_array($result);
+$result	= mysqli_query($db, $sql);
+$row		= mysqli_fetch_array($result);
 do {
 	$KML_file[] = makeKMLEntry($row[$HuizenID]);	
-} while($row = mysql_fetch_array($result));
+} while($row = mysqli_fetch_array($result));
 	
 header("Expires: Mon, 26 Jul 2001 05:00:00 GMT");
 header("Cache-Control: no-store, no-cache, must-revalidate");

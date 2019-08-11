@@ -4,7 +4,7 @@ include_once('../include/HTML_TopBottom.php');
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+$db = connect_db();
 
 if(isset($_REQUEST['id'])) {
 	$sql		= "SELECT * FROM $TableCalendar WHERE $CalendarHuis like ". $_REQUEST['id'] ." ORDER BY $CalendarStart ASC";
@@ -12,8 +12,8 @@ if(isset($_REQUEST['id'])) {
 	# Vraag alle huis-tijd combinaties op
 	$sql		= "SELECT *, COUNT(*) as aantal FROM $TableCalendar GROUP BY $CalendarHuis, $CalendarStart HAVING aantal > 1";
 }
-$result	= mysql_query($sql);
-$row		= mysql_fetch_array($result);
+$result	= mysqli_query($db, $sql);
+$row		= mysqli_fetch_array($result);
 
 $error = array();
 
@@ -32,9 +32,9 @@ do {
 		$sql = "DELETE FROM $TableCalendar WHERE $CalendarHuis = $huis AND $CalendarStart = $start";
 		
 		# Voeg een verschijning van deze huis-tijd combinatie weer toe
-		if(mysql_query($sql)) {
+		if(mysqli_query($db, $sql)) {
 			$sql = "INSERT INTO $TableCalendar ($CalendarHuis, $CalendarStart, $CalendarEnd) VALUES ($huis, $start, $einde)";
-			if(!mysql_query($sql)) {
+			if(!mysqli_query($db, $sql)) {
 				$error[] = "Toevoegen van de openhuis van <b>". $data['adres'] ."</b> ($huis) is mislukt<br>\n";
 			} else {
 				$melding[] = '<b>'. $data['adres'] .'</b> : '. date("d-m H:i", $start)  ." -> ". date("H:i", $einde) ."<br>\n";
@@ -48,13 +48,13 @@ do {
 		
 		# Als het huis niet bestaat kunnen de prijzen verwijderd worden				
 		$sql = "DELETE FROM $TableCalendar WHERE $CalendarHuis = $huis";
-		if(mysql_query($sql)) {
+		if(mysqli_query($db, $sql)) {
 			$error[] = ", en is verwijderd<br>\n";
 		} else {
 			$error[] = ", maar kon niet worden verwijderd<br>\n";
 		}			
 	}	
-} while($row = mysql_fetch_array($result));
+} while($row = mysqli_fetch_array($result));
 
 if(count($error) > 0) {
 	$errorVenster = implode("\n", $error);

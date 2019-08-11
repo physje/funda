@@ -4,7 +4,7 @@ include_once('../include/HTML_TopBottom.php');
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+$db = connect_db();
 
 if(!isset($_REQUEST['id'])) {
 	$deel_1[] = "Onvoldoende gegevens bekend";
@@ -13,8 +13,8 @@ if(!isset($_REQUEST['id'])) {
 	$opdrachten = $_REQUEST['opdracht'];
 
 	$sql = "SELECT * FROM $TableResultaat WHERE $ResultaatID = $huisID";
-	$result = mysql_query($sql);
-	$row = mysql_fetch_array($result);
+	$result = mysqli_query($db, $sql);
+	$row = mysqli_fetch_array($result);
 		
 	do {
 		$zoekID = $row[$ResultaatZoekID];
@@ -22,17 +22,17 @@ if(!isset($_REQUEST['id'])) {
 			$OpdrachtData = getOpdrachtData($zoekID);
 			$deel_1[] = $OpdrachtData['naam'] .' verwijderd<br>';
 			$sql_delete = "DELETE FROM $TableResultaat WHERE $ResultaatID = $huisID AND $ResultaatZoekID = $zoekID";
-			mysql_query($sql_delete);
+			mysqli_query($db, $sql_delete);
 		}
 		
 		unset($opdrachten[$zoekID]);
-	} while($row = mysql_fetch_array($result));
+	} while($row = mysqli_fetch_array($result));
 	
 	foreach($opdrachten as $zoekID => $dummy) {
 		$OpdrachtData = getOpdrachtData($zoekID);
 		$deel_1[] = $OpdrachtData['naam'] .' toegevoegd<br>';
 		$sql_insert = "INSERT INTO $TableResultaat ($ResultaatID, $ResultaatZoekID) VALUES ($huisID, $zoekID)";
-		mysql_query($sql_insert);
+		mysqli_query($db, $sql_insert);
 	}	
 } else {
 	$data = getFundaData($_REQUEST['id']);

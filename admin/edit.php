@@ -6,18 +6,23 @@ setlocale(LC_ALL, 'nl_NL');
 $minUserLevel = 2;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+$db = connect_db();
 $data = array();
 
 if(isset($_REQUEST['id'])) {
 	$id = $_REQUEST['id'];
+	$data = getFundaData($id);
 				
 	if(isset($_POST['save'])) {
 		$begin_tijd = mktime(0, 0, 1, $_POST['bMaand'], $_POST['bDag'], $_POST['bJaar']);
 		$eind_tijd = mktime(23, 59, 59, $_POST['eMaand'], $_POST['eDag'], $_POST['eJaar']);
 		
 		$sql  = "UPDATE $TableHuizen SET ";
-		$sql .= "$HuizenAdres = '". urlencode($_POST['adres']) ."', ";
+		//$sql .= "$HuizenAdres = '". urlencode($_POST['adres']) ."', ";
+		$sql .= "$HuizenStraat = '". $_POST['straat'] ."', ";
+		$sql .= "$HuizenNummer = '". $_POST['nummer'] ."', ";
+		$sql .= "$HuizenLetter = '". $_POST['letter'] ."', ";
+		$sql .= "$HuizenToevoeging = '". $_POST['toevoeging'] ."', ";		
 		$sql .= "$HuizenPC_c = '". $_POST['PC_cijfers'] ."', ";
 		$sql .= "$HuizenPC_l =  '". $_POST['PC_letters'] ."', "; 
 		$sql .= "$HuizenPlaats = '". $_POST['plaats'] ."', ";
@@ -28,24 +33,22 @@ if(isset($_REQUEST['id'])) {
 		$sql .= "$HuizenStart = $begin_tijd, ";
 		$sql .= "$HuizenEind = $eind_tijd WHERE $HuizenID = $id";
 		
-		if(!mysql_query($sql)) {
+		if(!mysqli_query($db, $sql)) {
 			$HTML[] = $sql;
 		} else {
-			$HTML[] = $_POST['adres'] ." is opgeslagen";
+			$HTML[] = $_POST['straat'] .' '. $_POST['nummer'] ." is opgeslagen";
 		}
 	} else {		
-		$data = getFundaData($id);
-		
-		$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+		$HTML[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 		$HTML[] = "<input type='hidden' name='id' value='$id'>";
-		$HTML[] = "<table>";	
+		$HTML[] = "<table border=0 width='100%'>";	
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Adres</td>";
-		$HTML[] = "	<td><input type='text' name='adres' value='". $data['adres'] ."' size='35'></td>";
+		$HTML[] = "	<td>". $data['adres'] ."<br><input type='text' name='straat' value='". $data['straat'] ."' size='15'> <input type='text' name='nummer' value='". $data['nummer'] ."' size='1'> <input type='text' name='letter' value='". $data['letter'] ."' size='1'> <input type='text' name='toevoeging' value='". $data['toevoeging'] ."' size='1'><div class='float_rechts'><a href='http://funda.nl/$id' target='_blank'>funda.nl</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td></td>";
-		$HTML[] = "	<td><input type='text' name='PC_cijfers' value='". $data['PC_c'] ."' size='4'> <input type='text' name='PC_letters' value='". $data['PC_l'] ."' size='2'><div class='float_rechts'><a href='http://funda.nl/$id' target='_blank'>funda.nl</a></div></td>";
+		$HTML[] = "	<td><input type='text' name='PC_cijfers' value='". $data['PC_c'] ."' size='4'> <input type='text' name='PC_letters' value='". $data['PC_l'] ."' size='2'><div class='float_rechts'><a href='addPostcode.php?fundaID=$id' target='_blank'>vernieuw postcode</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Plaats</td>";
@@ -105,7 +108,7 @@ if(isset($_REQUEST['id'])) {
 		$Kenmerk[] = "Prijzen opslaan";
 		
 		$sql = "DELETE FROM $TablePrijzen WHERE $PrijzenID = $id";	
-		if(mysql_query($sql)) {
+		if(mysqli_query($db, $sql)) {
 			foreach($_POST['pDag'] as $key => $value) {				
 				if($_POST['pPrijs'][$key] != 'leeg') {
 					$tijd = mktime(0, 0, 0, $_POST['pMaand'][$key], $_POST['pDag'][$key], $_POST['pJaar'][$key]);
@@ -124,7 +127,7 @@ if(isset($_REQUEST['id'])) {
 			$provincie = findProv($data['plaats']);
 		}
 	
-		$PrijsHistory[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+		$PrijsHistory[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 		$PrijsHistory[] = "<input type='hidden' name='id' value='$id'>";
 		$PrijsHistory[] = "<table>";
 		$PrijsHistory[] = "<tr>";
@@ -186,15 +189,15 @@ if(isset($_REQUEST['id'])) {
 	
 	# Zoekresultaten
 	$sql		= "SELECT $ResultaatZoekID FROM $TableResultaat WHERE $ResultaatID like $id";
-	$result	= mysql_query($sql);
-	if($row	=	mysql_fetch_array($result)) {
+	$result	= mysqli_query($db, $sql);
+	if($row	=	mysqli_fetch_array($result)) {
 		$Resultaten[] = "Gevonden met :\n";
 		$Resultaten[] = "<ul>\n";
 	
 		do {
 			$opdrachtData = getOpdrachtData($row[$ResultaatZoekID]);
 			$Resultaten[] = '<li>'. $opdrachtData['naam'] ."</li>\n";
-		} while($row =	mysql_fetch_array($result));
+		} while($row =	mysqli_fetch_array($result));
 		$Resultaten[] = "</ul>\n";
 	}
 	
@@ -222,7 +225,11 @@ if(isset($_REQUEST['id'])) {
 	}
 	
 	# Foto's
-	$fotos = explode('|', $KenmerkData['foto']);
+	if(isset($KenmerkData['foto'])) {
+		$fotos = explode('|', $KenmerkData['foto']);
+	} else {
+		$fotos = array();
+	}
 	
 	foreach($fotos as $key => $value)	{
 		if($data['offline'] == 1) {
@@ -278,19 +285,19 @@ if(count($Resultaten) > 0) {
 	echo "<p>";
 }
 
-if($OpenHuis != '') {
+if(isset($OpenHuis) AND $OpenHuis != '') {
 	echo showBlock($OpenHuis);
 	echo "<p>";
 }
 
-if($extraString != '') {
+if(isset($extraString) AND $extraString != '') {
 	echo showBlock($extraString);
 	echo "<p>";
 }
 
 echo showBlock(implode("\n", $PrijsHistory));
 
-if($KenmerkData['foto'] != '') {
+if(isset($KenmerkData['foto']) AND $KenmerkData['foto'] != '') {
 	echo "<p>";
 	echo showBlock(implode("\n", $Foto));
 }

@@ -4,7 +4,7 @@ include_once(__DIR__.'/../include/config.php');
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+$db = connect_db();
 
 # Informatie over het zoeken met coordinaten in een MySQL-query heb ik gekopieerd van
 # 	https://developers.google.com/maps/articles/phpsqlsearch_v3
@@ -15,14 +15,14 @@ connect_db();
 
 if($_POST[search]) {	
 	$sql = "SELECT $TableHuizen.$HuizenID, (6371*acos(cos(radians($_POST[latitude]))*cos(radians($HuizenLat))*cos(radians($HuizenLon) - radians($_POST[longitude]))+sin(radians($_POST[latitude])) * sin(radians($HuizenLat)))) AS distance FROM $TableHuizen, $TableZoeken, $TableResultaat, $TableVerdeling WHERE $TableZoeken.$ZoekenKey = $TableResultaat.$ResultaatZoekID AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableVerdeling.$VerdelingOpdracht = $TableZoeken.$ZoekenKey HAVING distance < $_POST[afstand] ORDER BY distance";
-	$result = mysql_query($sql);
+	$result = mysqli_query($db, $sql);
 		
-	if($row = mysql_fetch_array($result)) {
+	if($row = mysqli_fetch_array($result)) {
 		$nieuwNaam = $_POST[afstand] ." km rondom ". $_POST[latitude] .', '. $_POST[longitude];
 		$lijstID = saveUpdateList('', $_SESSION['UserID'], 1, $nieuwNaam);
 		do {
 			$deel_2 .= addHouse2List($row[$HuizenID], $lijstID);			
-		} while($row = mysql_fetch_array($result));
+		} while($row = mysqli_fetch_array($result));
 		
 		$deel_1 = "<p>Selectie opgeslagen als <a href='edit_lijsten.php?list=$lijstID'>$nieuwNaam</a>";
 	} else {
@@ -30,10 +30,10 @@ if($_POST[search]) {
 	}	
 } else {
 	$sql		= "SELECT AVG($TableHuizen.$HuizenLat) as mean_lat, AVG($TableHuizen.$HuizenLon) as mean_lon FROM $TableHuizen, $TableZoeken, $TableResultaat, $TableVerdeling WHERE $TableZoeken.$ZoekenKey = $TableResultaat.$ResultaatZoekID AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableVerdeling.$VerdelingOpdracht = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenUser = ". $_SESSION['account'];
-	$result = mysql_query($sql);
-	$row		= mysql_fetch_array($result);
+	$result = mysqli_query($db, $sql);
+	$row		= mysqli_fetch_array($result);
 		
-	$deel_1 .= "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
+	$deel_1 .= "<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";
 	$deel_1 .= "<table border=0>\n";
 	$deel_1 .= "	<tr>\n";
 	$deel_1 .= "		<td>Latitude:</td>\n";

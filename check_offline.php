@@ -2,7 +2,7 @@
 include_once(__DIR__.'/include/config.php');
 include_once('include/HTML_TopBottom.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
-connect_db();
+$db = connect_db();
 
 for($i=0; $i<2 ; $i++) {
 	$String = $block = array();
@@ -139,13 +139,13 @@ for($i=0; $i<2 ; $i++) {
 				if($data['vov'] > 0) {
 					if(!soldHouseTentative($data['id'])) {
 						$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '2' WHERE $HuizenID like '". $data['id'] ."'";
-						mysql_query($sql);
+						mysqli_query($db, $sql);
 						toLog('info', $OpdrachtID, $data['id'], 'Onder voorbehoud verkocht');
 					}
 				# Het geval dat onder voorbehoud wordt teruggedraaid
 				} elseif(soldHouseTentative($data['id']) AND $data['verkocht'] == 0) {
 					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."'";
-					mysql_query($sql);
+					mysqli_query($db, $sql);
 					toLog('info', $OpdrachtID, $data['id'], 'Niet meer onder voorbehoud verkocht');
 				}
 			}
@@ -154,7 +154,7 @@ for($i=0; $i<2 ; $i++) {
 			if($data['verkocht'] == 1) {
 				if(!soldHouse($data['id'])) {
 					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '1' WHERE $HuizenID like '". $data['id'] ."'";
-					mysql_query($sql);
+					mysqli_query($db, $sql);
 					toLog('info', $OpdrachtID, $data['id'], 'Verkocht');
 					
 					# Aanvinken om in een later stadium de details op te vragen
@@ -163,7 +163,7 @@ for($i=0; $i<2 ; $i++) {
 			# Het geval dat verkocht wordt teruggedraaid (hypotetisch)
 			} elseif(soldHouse($data['id'])) {
 				$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."'";
-				mysql_query($sql);
+				mysqli_query($db, $sql);
 				toLog('info', $OpdrachtID, $data['id'], 'Toch niet meer verkocht');
 			}
 					
@@ -176,7 +176,7 @@ for($i=0; $i<2 ; $i++) {
 			
 				if($tijden[0] != $bestaandeTijden[0] OR $tijden[1] != $bestaandeTijden[1]) {
 					$sql = "DELETE FROM $TableCalendar WHERE $CalendarHuis like ". $data['id'] ." AND $CalendarStart like ". $bestaandeTijden[0] ." AND $CalendarEnd like ". $bestaandeTijden[1];
-					mysql_query($sql);
+					mysqli_query($db, $sql);
 					$changedOpenHuis = true;
 					toLog('info', $OpdrachtID, $data['id'], 'Open Huis gewijzigd');
 				}
@@ -186,11 +186,11 @@ for($i=0; $i<2 ; $i++) {
 					
 					#	toevoegen aan de Google Calendar						
 					$sql = "INSERT INTO $TableCalendar ($CalendarHuis, $CalendarStart, $CalendarEnd) VALUES (". $data['id'] .", ". $tijden[0] .", ". $tijden[1] .")";
-					mysql_query($sql);
+					mysqli_query($db, $sql);
 											
 					#	opnemen in de eerst volgende mail						
 					$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '1' WHERE $HuizenID like '". $data['id'] ."'";
-					mysql_query($sql);
+					mysqli_query($db, $sql);
 				}
 			} else {
 				removeOpenHuis($data['id']);

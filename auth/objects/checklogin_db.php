@@ -15,15 +15,15 @@
 /**************************************************************/
 
 // check login with Database
-connect_db();
+$db = connect_db();
 
 $sql		= "SELECT * FROM $TableUsers WHERE $UsersUsername like '$login' AND $UsersPassword like '$password'";
-$result	= mysql_query($sql);
+$result	= mysqli_query($db, $sql);
 
 // check user and password
-if (mysql_num_rows($result) != 0) {
+if (mysqli_num_rows($result) != 0) {
 	// user exist --> continue
-	$row = mysql_fetch_array($result);
+	$row = mysqli_fetch_array($result);
 	$userLevel	= $row[$UsersLevel];
 	$UserID			= $row[$UsersID]; 
 	
@@ -37,7 +37,7 @@ if (mysql_num_rows($result) != 0) {
 	}
 			
 	$sql = "UPDATE $TableUsers SET $UsersLastLogin = '". time() ."' WHERE $UsersID = ". $row[$UsersID];
-	mysql_query($sql);	
+	mysqli_query($db, $sql);	
 } else {
 	// user not present in database
   $phpSP_message = $strUserNotExist;

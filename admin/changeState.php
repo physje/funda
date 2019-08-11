@@ -4,7 +4,7 @@ include_once('../include/HTML_TopBottom.php');
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+$db = connect_db();
 
 if(!isset($_REQUEST['state']) OR !isset($_REQUEST['id'])) {
 	$deel_1 = "Onvoldoende gegevens bekend";
@@ -19,7 +19,7 @@ if(!isset($_REQUEST['state']) OR !isset($_REQUEST['id'])) {
 		if($_REQUEST['state'] == 'offline')		$sql = "UPDATE $TableHuizen SET $HuizenOffline = '1' WHERE $HuizenID = ".$_REQUEST['id'];
 		if($_REQUEST['state'] == 'ignore')		$sql = "INSERT INTO $TableIgnore ($IgnoreID) VALUES (". $_REQUEST['id'] .")";
 				
-		if(mysql_query($sql)) {
+		if(mysqli_query($db, $sql)) {
 			$deel_1 = "Status van <i>". $details['adres'] ."</i> aangepast naar ". $_REQUEST['state'];
 			if($_REQUEST['state'] == 'verkocht')	mark4Details($_REQUEST['id']);
 			if($_REQUEST['state'] == 'offline')	remove4Details($_REQUEST['id']);

@@ -1,11 +1,11 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
-
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+
+$db = connect_db();
 
 if(isset($_POST['urls'])) {
 	if($_POST['lijstID'] == '') {
@@ -44,7 +44,7 @@ if(isset($_POST['urls'])) {
 } else {
 	$Lijsten = getLijsten($_SESSION['UserID'], '');
 	
-	$deel_1 = "<form method='post' action='$_SERVER[PHP_SELF]'>\n";	
+	$deel_1 = "<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";	
 	$deel_1 .= "<table border=0>\n";
 	$deel_1 .= "<tr>\n";
 	$deel_1 .= "	<td>Voer de funda-url's (http://www.funda.nl/koop/...) in elk op een nieuwe regel</td>\n";

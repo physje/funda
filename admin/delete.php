@@ -1,10 +1,10 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
-$minUserLevel = 1;
+$minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+$db = connect_db();
 
 if(isset($_REQUEST['id'])) {
 	$id = $_REQUEST['id'];
@@ -14,32 +14,32 @@ if(isset($_REQUEST['id'])) {
 	
 	if(isset($_REQUEST['zeker'])) {		
 		$sql_check_unique = "SELECT * FROM $TableResultaat WHERE $ResultaatID like '$id'";
-		$result	= mysql_query($sql_check_unique);
+		$result	= mysqli_query($db, $sql_check_unique);
 		
 		# Als er maar 1 resultaat is, of als men het zeker weet
 		# mag het huis verwijderd worden
-		if(mysql_num_rows($result) =< 1 OR isset($_REQUEST['heelzeker'])) {
+		if(mysqli_num_rows($result) =< 1 OR isset($_REQUEST['heelzeker'])) {
 			# Huis zelf verwijderen
 			$sql = "DELETE FROM $TableHuizen WHERE $HuizenID like '$id'";
-			if(mysql_query($sql)) {
+			if(mysqli_query($db, $sql)) {
 				$deel_1 .= "Huis is verwijderd<br>";
 			}
 			
 			# Kenmerken opschonen			
 			$sql = "DELETE FROM $TableKenmerken WHERE $KenmerkenID like '$id'";
-			if(mysql_query($sql)) {
+			if(mysqli_query($db, $sql)) {
 				$deel_1 .= "Kenmerken zijn verwijderd<br>";
 			}
 			
 			# Prijzen opschonen
 			$sql = "DELETE FROM $TablePrijzen WHERE $PrijzenID like '$id'";
-			if(mysql_query($sql)) {
+			if(mysqli_query($db, $sql)) {
 				$deel_1 .= "Huis uit prijzen verwijderd<br>";
 			}
 			
 			# Resultaten opschonen
 			$sql = "DELETE FROM $TableResultaat WHERE $ResultaatID like '$id'";
-			if(mysql_query($sql)) {
+			if(mysqli_query($db, $sql)) {
 				$deel_1 .= "Huis uit resultaten verwijderd<br>";
 			}
 			

@@ -5,7 +5,7 @@ $minUserLevel = 1;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");
 
-connect_db();
+$db = connect_db();
 
 echo $HTMLHeader;
 $Name = null;
@@ -57,12 +57,12 @@ if(isset($_REQUEST['detail'])) {
 	
 		echo "	<td valign='top'>";
 		
-		$result	= mysql_query($sql);		
-		if($row = mysql_fetch_array($result)) {
+		$result	= mysqli_query($db, $sql);		
+		if($row = mysqli_fetch_array($result)) {
 			do {
 				$data = getFundaData($row[$HuizenID]);
 				echo "<a href='admin/edit.php?id=". $data['id'] ."'>". $data['adres'] ."</a><br>\n";				
-			} while($row = mysql_fetch_array($result));
+			} while($row = mysqli_fetch_array($result));
 		} else {
 			echo "&nbsp;";
 		}
@@ -87,13 +87,13 @@ if(isset($_REQUEST['detail'])) {
 	} 
 	
 	$sql		= "SELECT min($TableHuizen.$HuizenStart) FROM $from WHERE $where";
-	$result	= mysql_query($sql);
-	$row		= mysql_fetch_array($result);
+	$result	= mysqli_query($db, $sql);
+	$row		= mysqli_fetch_array($result);
 	$start_tijd = $row[0];
 	
 	$sql		= "SELECT max($TableHuizen.$HuizenEind) FROM $from WHERE $where";
-	$result	= mysql_query($sql);
-	$row		= mysql_fetch_array($result);
+	$result	= mysqli_query($db, $sql);
+	$row		= mysqli_fetch_array($result);
 	$eind_tijd = $row[0];
 	
 	$startJaar	= date("Y", $start_tijd);
@@ -129,20 +129,20 @@ if(isset($_REQUEST['detail'])) {
 	while($start < $eind_tijd) {
 		$eind		= (mktime(0,0,0,(date('n',$start)+$stap_m),(date('d',$start)+$stap_d), date('Y', $start))-1);
 		$sql		= "SELECT COUNT(*) FROM $from WHERE $where AND ($TableHuizen.$HuizenStart BETWEEN $start AND $eind)";
-		$result	= mysql_query($sql);
-		$row		= mysql_fetch_array($result);
+		$result	= mysqli_query($db, $sql);
+		$row		= mysqli_fetch_array($result);
 		$tekoop[$i] = $row[0];
 		$sql_1[$i] = $sql;
 		
 		$sql		= "SELECT COUNT(*) FROM $from WHERE $where AND $TableHuizen.$HuizenVerkocht = '1' AND ($TableHuizen.$HuizenEind BETWEEN $start AND $eind)";
-		$result	= mysql_query($sql);
-		$row		= mysql_fetch_array($result);
+		$result	= mysqli_query($db, $sql);
+		$row		= mysqli_fetch_array($result);
 		$verkocht[$i] = $row[0];
 		$sql_2[$i] = $sql;
 		
 		$sql		= "SELECT COUNT(*) FROM $from WHERE $where AND $TableHuizen.$HuizenOffline = '1' AND ($TableHuizen.$HuizenEind BETWEEN $start AND $eind)";
-		$result	= mysql_query($sql);
-		$row		= mysql_fetch_array($result);
+		$result	= mysqli_query($db, $sql);
+		$row		= mysqli_fetch_array($result);
 		$offline[$i] = $row[0];
 		$sql_2[$i] = $sql;		
 		
@@ -240,7 +240,7 @@ if(isset($_REQUEST['detail'])) {
 	}
 	echo "</table>\n";
 } else {	
-	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+	$HTML[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 	$HTML[] = "<table>";
 	$HTML[] = "<tr>";
 	$HTML[] = "	<td>Selectie</td>";	

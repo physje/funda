@@ -5,7 +5,7 @@ include_once('../include/HTML_TopBottom.php');
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+$db = connect_db();
 
 $opdrachten = getZoekOpdrachten($_SESSION['account'], '');
 
@@ -18,8 +18,8 @@ foreach($opdrachten as $OpdrachtID) {
 
 $sql = "SELECT * FROM $TableHuizen,$TableResultaat WHERE $TableHuizen.$HuizenID = $TableResultaat.$ResultaatID AND (". implode(" OR ", $resultaat) .") AND $HuizenDetails = '1' AND $HuizenOffline = '0' GROUP BY $TableHuizen.$HuizenID ORDER BY $TableHuizen.$HuizenEind ASC LIMIT 0, 25";
 //$sql = "SELECT * FROM $TableHuizen WHERE $HuizenDetails = '1' AND $HuizenOffline = '0' ORDER BY $HuizenEind ASC LIMIT 0, 25";
-$result	= mysql_query($sql);	
-if($row = mysql_fetch_array($result)) {
+$result	= mysqli_query($db, $sql);	
+if($row = mysqli_fetch_array($result)) {
 	do {
 		$url = 'http://www.funda.nl/'.$row[$HuizenID];
 		
@@ -33,7 +33,7 @@ if($row = mysql_fetch_array($result)) {
 		$HTML[] = "	<td>zet <a href='changeState.php?state=offline&id=". $row[$HuizenID] ."' target='funda_state'>offline</a></td>";
 		//$HTML[] = "	<td>zet <a href='changeState.php?state=verkocht&id=". $row[$HuizenID] ."' target='funda_state'>verkocht</a></td>";
 		$HTML[] = '</tr>';
-	} while($row = mysql_fetch_array($result));
+	} while($row = mysqli_fetch_array($result));
 }
 
 echo $HTMLHeader;

@@ -6,7 +6,7 @@ $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 
-connect_db();
+$db = connect_db();
 
 if(!isset($_REQUEST['bDag']) OR !isset($_REQUEST['bMaand']) OR !isset($_REQUEST['bJaar']) OR !isset($_REQUEST['bUur']) OR !isset($_REQUEST['bMin'])) {
 	$bMin = 0;
@@ -67,6 +67,8 @@ if((isset($_REQUEST['error']) AND $_REQUEST['error'] != '') OR !isset($_REQUEST[
 
 if(isset($_REQUEST['string'])) {
 	$string = $_REQUEST['string'];
+} else {
+	$string = '';
 }
 
 $begin	= mktime($bUur, $bMin, 0, $bMaand, $bDag, $bJaar);
@@ -81,10 +83,13 @@ if(isset($opdracht))	$sql .= " AND $LogOpdracht = '$opdracht'";
 if(isset($huis))			$sql .= " AND $LogHuis = '$huis'";
 if(isset($string))		$sql .= " AND $LogMessage like '%$string%'";
 
-$result	= mysql_query($sql);
-$aantal	= mysql_num_rows($result);
-$row		= mysql_fetch_array($result);
+$result	= mysqli_query($db, $sql);
+$aantal	= mysqli_num_rows($result);
+$row		= mysqli_fetch_array($result);
+
 $i = 0;
+$selectie = '';
+$deel_1 = $deel_2 = '';
 
 do {
 	$fundaData = getFundaData($row[$LogHuis]);
@@ -112,11 +117,11 @@ do {
 	} else {
 		$deel_1 .= $rij;
 	}
-} while($row = mysql_fetch_array($result));
+} while($row = mysqli_fetch_array($result));
 
 $dateSelection = makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $eDag, $eMaand, $eJaar);
 
-$zoekScherm[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+$zoekScherm[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 $zoekScherm[] = "<input type='hidden' name='logSearch' value='ja'>";
 $zoekScherm[] = "<table border=0 align='center'>";
 $zoekScherm[] = "<tr>";
@@ -143,12 +148,12 @@ $zoekScherm[] = "	<td><select name='huis'>";
 $zoekScherm[] = "	<option value=''>Alle</option>";
 
 $sql = "SELECT $TableHuizen.$HuizenID, $TableHuizen.$HuizenAdres FROM $TableHuizen, $TableLog WHERE $TableLog.$LogHuis = $TableHuizen.$HuizenID AND $TableLog.$LogTime BETWEEN $begin AND $eind GROUP BY $TableHuizen.$HuizenID ORDER BY $TableHuizen.$HuizenAdres";
-$result	= mysql_query($sql);
-$row		= mysql_fetch_array($result);
+$result	= mysqli_query($db, $sql);
+$row		= mysqli_fetch_array($result);
 
 do {
 	$zoekScherm[] = "	<option value='". $row[$HuizenID] ."'". ($huis == $row[$HuizenID] ? ' selected' : '') .">". urldecode($row[$HuizenAdres]) ."</option>";
-} while($row = mysql_fetch_array($result));
+} while($row = mysqli_fetch_array($result));
 
 $zoekScherm[] = "	</select></td>";
 //$zoekScherm[] = "	<td>&nbsp;</td>";

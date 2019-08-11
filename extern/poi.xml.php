@@ -1,15 +1,15 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
-connect_db();
+$db = connect_db();
 
 $XML[] = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>";
 $XML[] = "<pois>";
 $XML[] = "  <infourl>$ScriptURL</infourl>";
 
 $sql		= "SELECT * FROM $TableZoeken GROUP BY $ZoekenUser";
-$result	= mysql_query($sql);
+$result	= mysqli_query($db, $sql);
 
-while($row = mysql_fetch_array($result)) {
+while($row = mysqli_fetch_array($result)) {
 	$userID = $row[$ZoekenUser];          
 	$data = getMemberDetails($userID);
 	
@@ -30,9 +30,9 @@ while($row = mysql_fetch_array($result)) {
 }
 
 $sql		= "SELECT * FROM $TableList GROUP BY $ListUser";
-$result	= mysql_query($sql);
+$result	= mysqli_query($db, $sql);
 
-while($row = mysql_fetch_array($result)) {
+while($row = mysqli_fetch_array($result)) {
 	$userID = $row[$ListUser];          
 	$data = getMemberDetails($userID);
 

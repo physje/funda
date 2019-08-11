@@ -4,7 +4,8 @@ include_once('../include/HTML_TopBottom.php');
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+
+$db = connect_db();
 
 $HTML[] = "<table>";
 

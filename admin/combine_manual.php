@@ -4,11 +4,11 @@ include_once('../include/HTML_TopBottom.php');
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+$db = connect_db();
 
 $sql		= "SELECT * FROM $TableHuizen ORDER BY $HuizenAdres, $HuizenStart";
-$result	= mysql_query($sql);
-$row = mysql_fetch_array($result);
+$result	= mysqli_query($db, $sql);
+$row = mysqli_fetch_array($result);
 
 $i = 1;
 $KeyArray = array();
@@ -22,7 +22,7 @@ do {
 	
 	if($huisID == $_REQUEST['id_1']) $start_tijd = $row[$HuizenStart];
 	if($huisID == $_REQUEST['id_2']) $eind_tijd = $row[$HuizenEind];	
-} while($row = mysql_fetch_array($result));
+} while($row = mysqli_fetch_array($result));
 
 $HTML[] = "<form method='post' action='combine_batch.php'>\n";
 $HTML[] = "<input type='hidden' name='thijs' value='ja'>\n";

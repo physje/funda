@@ -4,8 +4,9 @@ include_once('../include/HTML_TopBottom.php');
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+$db = connect_db();
 $data = array();
+$deel_1 = $deel_2 = '';
 
 if(isset($_POST['combine'])) {	
 	$groep_1	= substr($_REQUEST['selectie_1'], 0, 1);
@@ -33,19 +34,19 @@ if(isset($_POST['combine'])) {
 		$dataset_2		= getLijstHuizen($id_2);
 	}
 	
-	if($_POST['exclVerkocht'] == '1') {
+	if(isset($_POST['exclVerkocht']) AND $_POST['exclVerkocht'] == '1') {
 		$exclVerkocht = true;
 	} else {
 		$exclVerkocht = false;
 	}
 	
-	if($_POST['exclVerkochtOV'] == '1') {
+	if(isset($_POST['exclVerkochtOV']) AND $_POST['exclVerkochtOV'] == '1') {
 		$exclVerkochtOV = true;
 	} else {
 		$exclVerkochtOV = false;
 	}
 	
-	if($_POST['exclOffline'] == '1') {
+	if(isset($_POST['exclOffline']) AND $_POST['exclOffline'] == '1') {
 		$exclOffline = true;
 	} else {
 		$exclOffline = false;
@@ -89,8 +90,7 @@ if(isset($_POST['combine'])) {
 		}
 						
 		foreach($dataset_2 as $huisID_2) {
-			if(!(($data['verkocht'] == 1 AND $exclVerkocht) OR in_array($huisID_2, $newDataset) OR ($data['verkocht'] == 2 AND $exclVerkochtOV) OR ($data['offline'] == 1 AND $exclOffline))) {
-			
+			if(!(($data['verkocht'] == 1 AND $exclVerkocht) OR in_array($huisID_2, $newDataset) OR ($data['verkocht'] == 2 AND $exclVerkochtOV) OR ($data['offline'] == 1 AND $exclOffline))) {			
 				$newDataset[] = $huisID_2;
 			}
 		}
@@ -100,7 +100,7 @@ if(isset($_POST['combine'])) {
 	
 	if(count($newDataset) > 0){		
 		$lijstID = saveUpdateList('', $_SESSION['UserID'], 1, $nieuwNaam);
-		
+
 		foreach($newDataset as $huis) {		
 			$deel_2 .= addHouse2List($huis, $lijstID);
 		}
@@ -144,7 +144,7 @@ if(isset($_POST['combine'])) {
 		$list[] = "	</optgroup>\n";
 	}
 
-	$deel_1 = "<form method='post' action='$_SERVER[PHP_SELF]'>\n";	
+	$deel_1 = "<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";	
 	$deel_1 .= "<table border=0>\n";
 	$deel_1 .= "<tr>\n";
 	$deel_1 .= "	<td width='450'>Selectie 1</td>\n";	

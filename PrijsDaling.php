@@ -9,9 +9,11 @@ include($cfgProgDir. "secure.php");
 $detect = new Mobile_Detect;
 if ($detect->isMobile() ) {
 	$mobile = true;
+} else {
+	$mobile = false;
 }
 
-connect_db();
+$db = connect_db();
 
 echo $HTMLHeader;
 
@@ -44,8 +46,8 @@ if(isset($_POST['add'])) {
 		
 	$max_percentage = 33;
 		
-	echo "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
-	if($showListAdd) echo "<input type='hidden' name='lijst' value='". $_POST['chosenList'] ."'>\n";
+	echo "<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";
+	if(isset($showListAdd) AND $showListAdd) echo "<input type='hidden' name='lijst' value='". $_POST['chosenList'] ."'>\n";
 	echo "<table width='100%' border=0>\n";
 	echo "<tr>\n";
 	echo "	<td align='center' colspan='4'><h1>Prijsdaling '$Name'</h1></td>\n";
@@ -102,7 +104,7 @@ if(isset($_POST['add'])) {
 
 		echo "<tr>\n";
 		echo "	<td width='25%'>";
-		if($showListAdd)	echo "	<input type='checkbox' name='huis[]' value='$huisID'". (in_array($huisID, $knownHuizen) ? ' checked' : '') .">";
+		if(isset($showListAdd) AND $showListAdd)	echo "	<input type='checkbox' name='huis[]' value='$huisID'". (in_array($huisID, $knownHuizen) ? ' checked' : '') .">";
 		echo "<a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=$huisID'><img src='images/details.gif' title='Toon opties voor $adres'></a>";
 		echo "<a id='$huisID'> <a href='http://funda.nl/". $huisID ."' target='_blank' class='$TextClass' title='Bezoek $adres op funda.nl'>$adres</a></td>\n";
 		echo "	<td colspan=2>\n";
@@ -137,7 +139,7 @@ if(isset($_POST['add'])) {
 	echo "</tr>\n";
 	
 	# Laat een submit-button zien als dat nodig is.
-	if($showListAdd) {
+	if(isset($showListAdd) AND $showListAdd) {
 		echo "<tr>\n";
 		echo "	<td colspan='$aantalCols'>&nbsp;</td>\n";
 		echo "</tr>\n";
@@ -149,9 +151,9 @@ if(isset($_POST['add'])) {
 	echo "</table>\n";
 	echo "</form>\n";
 } else {
-	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+	$HTML[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 	$HTML[] = "<input type='hidden' name='addHouses' value='". (isset($_REQUEST['addHouses']) ? '1' : '0') ."'>";
-	$HTML[] = "<input type='hidden' name='chosenList' value='". $_REQUEST['chosenList'] ."'>";
+	$HTML[] = "<input type='hidden' name='chosenList' value='". (isset($_REQUEST['chosenList']) ? $_REQUEST['chosenList'] : '') ."'>";
 	$HTML[] = "<table>";
 	$HTML[] = "<tr>";
 	$HTML[] = "	<td>Selectie</td>";	
