@@ -61,8 +61,8 @@ for($i=0 ; $i < $iMax ; $i++) {
 		$data			= RSS2Array($huis);
 		$fundaID	= $data['id'];
 				
-		$String[] = "<a href='". $data['link'] ."'>". $data['adres'] ."</a> ($fundaID)";
-		
+		$String[] = formatPrice($data['prijs']) ." : <a href='". $data['link'] ."'>". $data['adres'] ."</a> ($fundaID)";
+				
 		if($straatRun) {
 			$opdrachten = getOpdrachtenByFundaID($fundaID);
 			$OpdrachtID = $opdrachten[0];
@@ -75,9 +75,9 @@ for($i=0 ; $i < $iMax ; $i++) {
 			# Gegevens over het huis opslaan
 			if(!saveHouseRSS($data)) {
 				$ErrorMessage[] = "Toevoegen van ". $data['adres'] ." aan het script ging niet goed";
-				toLog('error', $OpdrachtID, $fundaID, 'Huis toevoegen aan script mislukt');
+				toLog('error', $OpdrachtID, $fundaID, $data['adres'] .' toevoegen aan script mislukt');
 			} else {					
-				toLog('info', $OpdrachtID, $fundaID, 'Huis toevoegen aan script');
+				toLog('info', $OpdrachtID, $fundaID,  $data['adres'] .' toegevoegd aan script');
 			}
 			
 			# Coordinaten van het huis toevoegen

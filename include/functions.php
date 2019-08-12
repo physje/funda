@@ -2095,9 +2095,10 @@ function sendPushoverNewHouse($fundaID, $OpdrachtID) {
 	if(count($PushMembers) > 0) {
 		$push = array();
 		$push['title']		= "Nieuw huis voor '". $OpdrachtData['naam'] ."'";
-		$push['message']	= $data['adres'] .' is te koop voor '. formatPrice($data['prijs']);
+		$push['message']	= $data['straat'] .' '. $data['nummer'] .' in '. $data['plaats'] .' is te koop voor '. formatPrice($data['prijs']);
 		$push['url']			= 'http://funda.nl/'. $fundaID;
-		$push['urlTitle']	= $data['adres'];				
+		$push['urlTitle']	= $data['adres'];
+		
 		send2Pushover($push, $PushMembers);
 		toLog('debug', $OpdrachtID, $fundaID, 'Pushover-bericht nieuw huis verstuurd');
 	}
@@ -2172,11 +2173,9 @@ function findPCbyAdress($straat, $huisnummer, $huisletter, $toevoeging, $plaats)
     $PC = $aJSON['_embedded']['adres'][0]['postcode'];
     
 		if(isset($aJSON['error'])) {
-    	echo $aJSON['error'];
-    	return false;
+    	return $aJSON['error'];
     } elseif($PC == '') {
-    	echo $service_url;
-    	return false;
+    	return $service_url;
     } else {
     	return $PC;
     }

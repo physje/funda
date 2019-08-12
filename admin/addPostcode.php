@@ -56,8 +56,9 @@ $Rechts[] = '</table>';
 if(is_numeric($nummer)) {
     $PC = findPCbyAdress($straat, $nummer, $letter, $toevoeging, $data['plaats']);
     
-    if($PC == '') {
-    	$Links[] = 'Geen postcode kunnen vinden';
+    if(strlen($PC) <> 6) {
+    	$Links[] = 'Geen postcode kunnen vinden<br>';
+    	$Links[] = '<b>Foutmelding</b> : '. $PC;
     } elseif(updatePC($row[$HuizenID], $PC)) {
     	$Links[] = 'Gelukt : '. $PC;
     	$userInteraction = false;
