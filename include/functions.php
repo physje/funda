@@ -2151,7 +2151,7 @@ function findPCbyAdress($straat, $huisnummer, $huisletter, $toevoeging, $plaats)
     $filter[] = 'filters[woonplaats]='. $plaats;
     $filter[] = 'filters[openbareruimte]='. $straat;
     $filter[] = 'filters[huisnummer]='.$huisnummer;
-    if($huisletter != '')   $filter[] = 'filters[huisletter]='.$huisletter;
+    if($huisletter != '')   $filter[] = 'filters[huisletter]='.strtoupper($huisletter);
     if($toevoeging != '')   $filter[] = 'filters[huisnummertoevoeging]='.$toevoeging;
 
     $service_url = $baseURL.'?'. implode('&', $filter);
@@ -2171,7 +2171,10 @@ function findPCbyAdress($straat, $huisnummer, $huisletter, $toevoeging, $plaats)
     
     $PC = $aJSON['_embedded']['adres'][0]['postcode'];
     
-    if($PC == '') {
+		if(isset($aJSON['error'])) {
+    	echo $aJSON['error'];
+    	return false;
+    } elseif($PC == '') {
     	echo $service_url;
     	return false;
     } else {

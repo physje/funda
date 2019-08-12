@@ -25,7 +25,7 @@ $Rechts[] = '<tr>';
 $Rechts[] = '	<td colspan=2><b>Details</b></td>';
 $Rechts[] = '</tr>';
 $Rechts[] = '<tr>';
-$Rechts[] = '	<td>ID@funda</td><td>'. $row[$HuizenID] .'</td>';
+$Rechts[] = '	<td>ID@funda</td><td><a href=\'edit.php?id='. $row[$HuizenID] .'\'>'. $row[$HuizenID] .'</a></td>';
 $Rechts[] = '</tr>';
 $Rechts[] = '<tr>';
 $Rechts[] = '	<td>Volledige adres</td><td>'.$data['adres'] .'</td>';
@@ -36,12 +36,18 @@ $Rechts[] = '</tr>';
 $Rechts[] = '<tr>';
 $Rechts[] = '	<td>Huisnummer</td><td>'. $nummer .'</td>';
 $Rechts[] = '</tr>';
-$Rechts[] = '<tr>';
-$Rechts[] = '	<td>Huisletter</td><td>'. $letter .'</td>';
-$Rechts[] = '</tr>';
-$Rechts[] = '<tr>';
-$Rechts[] = '	<td>Huisnummertoevoeging</td><td>'. $toevoeging .'</td>';
-$Rechts[] = '</tr>';
+
+if($letter != '') {
+	$Rechts[] = '<tr>';
+	$Rechts[] = '	<td>Huisletter</td><td>'. $letter .'</td>';
+	$Rechts[] = '</tr>';
+}
+
+if($toevoeging != '') {
+	$Rechts[] = '<tr>';
+	$Rechts[] = '	<td>Huisnummertoevoeging</td><td>'. $toevoeging .'</td>';
+	$Rechts[] = '</tr>';
+}
 $Rechts[] = '<tr>';
 $Rechts[] = '	<td>Woonplaats</td><td>'. $data['plaats'] .'</td>';
 $Rechts[] = '</tr>';
@@ -65,7 +71,7 @@ if(is_numeric($nummer)) {
 include_once('../include/HTML_TopBottom.php');
 echo $HTMLHeader;
 echo "<tr>\n";
-echo "<td width='50%' valign='top' align='center'>". showBlock(implode("\n", $Links)) ."</td>";
 echo "<td width='50%' valign='top' align='center'>". showBlock(implode("\n", $Rechts)) ."</td>";
+echo "<td width='50%' valign='top' align='center'>". showBlock(implode("\n", $Links)) ."</td>";
 echo "</tr>\n";
 echo $HTMLFooter;
