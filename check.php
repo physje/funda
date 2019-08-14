@@ -30,17 +30,17 @@ $block = array();
 # Doorloop alle zoekopdrachten
 for($i=0 ; $i < $iMax ; $i++) {
 	# Alles initialiseren		
+	$knownHouses = 0;
+	
 	if($opdrachtRun) {
 		$OpdrachtID			= $Opdrachten[$i];
 		$OpdrachtData		= getOpdrachtData($OpdrachtID);
 		
 		toLog('info', $OpdrachtID, '', 'Start controle '. $OpdrachtData['naam']);
-	} else {
-		$knownHouses = 0;
+	} else {		
 		$straatID = $Straten[$i];
 		$straatData = getStreetByID($straatID);
 		$OpdrachtData['url'] = 'http://www.funda.nl/koop/'.convert2FundaStyle($straatData['plaats']) ."/straat-". $straatData['straat'] ."/";
-		//toLog('info', '', '', 'Start controle '. $straatData['leesbaar'] .' in '. $straatData['plaats']);
 	}
 	
 	$OpdrachtURL	= "http://partnerapi.funda.nl/feeds/Aanbod.svc/rss/?type=koop&zo=". str_replace ("http://www.funda.nl/koop", "", $OpdrachtData['url']);
@@ -72,6 +72,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 		# Huis nog niet bekend in systeem
 		# Maar alleen bij opdrachtRun (dus niet bij straten)
 		if(!knownHouse($fundaID) AND $opdrachtRun) {
+			
 			# Gegevens over het huis opslaan
 			if(!saveHouseRSS($data)) {
 				$ErrorMessage[] = "Toevoegen van ". $data['adres'] ." aan het script ging niet goed";

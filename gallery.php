@@ -98,7 +98,9 @@ if(isset($_POST['add'])) {
 		
 		$hoverText = '';
 		if(isset($kenmerken['Wonen (= woonoppervlakte)']))	$hoverText .= "Woonoppervlakte : ". $kenmerken['Wonen (= woonoppervlakte)'] ."\n";
+		if(isset($kenmerken['Wonen']))											$hoverText .= "Woonoppervlakte : ". $kenmerken['Wonen'] ."\n";
 		if(isset($kenmerken['Perceeloppervlakte']))					$hoverText .= "Perceeloppervlakte : ". $kenmerken['Perceeloppervlakte'] ."\n";
+		if(isset($kenmerken['Perceel']))										$hoverText .= "Perceeloppervlakte : ". $kenmerken['Perceel'] ."\n";
 		if(isset($kenmerken['Inhoud']))											$hoverText .= "Inhoud : ". $kenmerken['Inhoud'] ."\n";
 		if(isset($kenmerken['Bouwjaar']))										$hoverText .= "Bouwjaar : ". $kenmerken['Bouwjaar'];
 		

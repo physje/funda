@@ -58,8 +58,9 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['check.php']											= 'Check funda';
 	$onderhoud['admin/checkOudeHuizen.php']			= 'Zie welke huizen al even van de radar zijn';
 	$onderhoud['admin/details2Download.php']		= 'Overzicht van huizen waar de details van ontbreken';
-	$onderhoud['check_offline.php']							= 'Check de offline opgeslagen pagina\'s';	
-	$onderhoud['admin/loadOfflineHouses.php']		= 'Check de offline opgeslagen huis-pagina\'s';	
+	$onderhoud['upload_offline.php']						= 'Upload files met funda-HTML';	
+	//$onderhoud['check_offline.php']							= 'Check de offline opgeslagen pagina\'s';	
+	//$onderhoud['admin/loadOfflineHouses.php']		= 'Check de offline opgeslagen huis-pagina\'s';	
 	$onderhoud['admin/addPostcode.php']					= 'Zoek ontbrekende postcode\'s op';
 	$onderhoud['admin/addWijk.php']						= 'Vul ontbrekende wijken in';
 	$onderhoud['onderhoud/makeGeneralLists.php']	= 'Maak algemene lijsten aan';
