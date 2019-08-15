@@ -1,9 +1,10 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
+$db = connect_db();
+
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-$db = connect_db();
 
 if(isset($_REQUEST['fundaID'])) {
 	$query = "SELECT * FROM $TableHuizen WHERE $HuizenID = ". $_REQUEST['fundaID'];

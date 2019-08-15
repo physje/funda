@@ -2,7 +2,6 @@
 include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
-
 $db = connect_db();
 
 $pageDir = '../'.$offlineDir.'huis/';

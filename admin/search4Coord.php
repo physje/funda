@@ -1,10 +1,10 @@
 <?php
-
 include_once(__DIR__.'/../include/config.php');
+$db = connect_db();
+
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-$db = connect_db();
 
 # Informatie over het zoeken met coordinaten in een MySQL-query heb ik gekopieerd van
 # 	https://developers.google.com/maps/articles/phpsqlsearch_v3

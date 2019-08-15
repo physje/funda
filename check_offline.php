@@ -3,10 +3,10 @@ include_once(__DIR__.'/include/config.php');
 include_once(__DIR__ .'/include/HTML_TopBottom.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
 $db = connect_db();
+
 $minUserLevel = 3;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");
-
 
 $String = $block = array();
 $success = false;
@@ -49,13 +49,6 @@ foreach($files as $file) {
 	$pageURL		= getString('/koop/', '', $appHeaderLink[0], 0);	
 	$zoekURL		= '/koop/'.$pageURL[0];
 	
-	# Aantal filters in de URL hebben 'geen' waarde en mogen er dus uit
-	$cleanZoekString = str_replace('/verkocht/', '/', $zoekURL);
-	$cleanZoekString = str_replace('/sorteer-afmelddatum-af/', '/', $cleanZoekString);
-
-    # Door hem op te knippen zien wij welke filters er actief zijn
-	$filtersZoeken = explode('/', $cleanZoekString);
-	
 	# Als in de zoekURL de tekst /verkocht/ voorkomt gaat het over een huis wat verkocht is
 	# De variabele $verkocht is dan waar
 	if(strpos($zoekURL, '/verkocht/')) {
@@ -64,7 +57,14 @@ foreach($files as $file) {
 	    $verkocht		= false;
 	}
 	
-	# Doorloop alle opdrachten
+	# Aantal filters in de URL hebben 'geen' waarde en mogen er dus uit
+	$cleanZoekString = str_replace('/verkocht/', '/', $zoekURL);
+	$cleanZoekString = str_replace('/sorteer-afmelddatum-af/', '/', $cleanZoekString);
+	
+	# Door hem op te knippen zien wij welke filters er actief zijn
+	$filtersZoeken = explode('/', $cleanZoekString);	
+	
+	# Doorloop alle opdrachten op zoek naar een match met de filters
 	foreach($opdrachten as $opdracht) {
 		$opdrachtData = getOpdrachtData($opdracht);
 		$cleanOpdrachtURL = str_replace('http://www.funda.nl', '', $opdrachtData['url']);
@@ -78,17 +78,17 @@ foreach($files as $file) {
 		# 1x kijken wij welke filters uit de zoekopdracht voorkomen in de HTML-pagin
 		# Die combi die op beide het beste scoort is met redelijke zekerheid de zoekopdracht
 		foreach($filtersOpdracht as $key => $value) {
-		    if(in_array($value, $kopieFiltersZoeken)) {
-		        $index = array_search ($value, $kopieFiltersZoeken);
-		        unset($kopieFiltersZoeken[$index]);
-		    }
+			if(in_array($value, $kopieFiltersZoeken)) {
+				$index = array_search ($value, $kopieFiltersZoeken);
+				unset($kopieFiltersZoeken[$index]);
+			}				
 		}
 		
-        foreach($filtersZoeken as $key => $value) {
-		    if(in_array($value, $filtersOpdracht)) {
-		        $index = array_search ($value, $filtersOpdracht);
-		        unset($filtersOpdracht[$index]);
-		    }
+		foreach($filtersZoeken as $key => $value) {
+			if(in_array($value, $filtersOpdracht)) {
+				$index = array_search ($value, $filtersOpdracht);
+				unset($filtersOpdracht[$index]);
+			}
 		}
 		
 		//echo $opdracht .' -> '. count($kopieFiltersZoeken) .'|'. count($filtersOpdracht) .' = '. (count($kopieFiltersZoeken)+count($filtersOpdracht)) .'<br>';
@@ -102,10 +102,10 @@ foreach($files as $file) {
 	
 	# Als de laagste totale score 0 of 1 is, is het aannemelijk dat we een match hebben
 	if(min($score_tot) < 2) {
-	    $OpdrachtID = array_search (min($score_tot), $score_tot);
+		$OpdrachtID = array_search (min($score_tot), $score_tot);
 		$overzicht = true;
 	} else {
-	    $overzicht = false;
+		$overzicht = false;
 	}
 
 	

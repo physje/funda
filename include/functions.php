@@ -832,11 +832,11 @@ function updateHouse($data, $kenmerken, $erase = false) {
 
 
 function soldBefore($id) {
-	global $db, $TableHuizen, $HuizenAdres, $HuizenPC_c, $HuizenID, $HuizenVerkocht;
+	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenID, $HuizenVerkocht;
 	
 	$data = getFundaData($id);
 	
-	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '". urlencode($data['adres']) ."' AND $HuizenPC_c like '". $data['PC_c'] ."' AND $HuizenVerkocht like '1' AND $HuizenID not like '$id'";
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer like '". $data['nummer'] ."' AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging like '". $data['toevoeging'] ."' AND $HuizenPC_c like '". $data['PC_c'] ."' AND $HuizenVerkocht like '1' AND $HuizenID not like '$id'";
 		
 	$result	= mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) == 0) {
@@ -849,11 +849,11 @@ function soldBefore($id) {
 
 
 function onlineBefore($id) {
-	global $db, $TableHuizen, $HuizenAdres, $HuizenPC_c, $HuizenID, $HuizenOffline, $HuizenVerkocht;
+	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenID, $HuizenOffline, $HuizenVerkocht;
 	
 	$data = getFundaData($id);
 	
-	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '". urlencode($data['adres']) ."' AND $HuizenPC_c like '". $data['PC_c'] ."' AND $HuizenOffline like '1' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";
+	$sql = "SELECT * FROM $TableHuizen WHERE WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer like '". $data['nummer'] ."' AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging like '". $data['toevoeging'] ."' AND $HuizenPC_c like '". $data['PC_c'] ."' AND $HuizenOffline like '1' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";
 		
 	$result	= mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) == 0) {
@@ -866,11 +866,11 @@ function onlineBefore($id) {
 
 
 function alreadyOnline($id) {
-	global $db, $TableHuizen, $HuizenAdres, $HuizenPC_c, $HuizenID, $HuizenOffline, $HuizenVerkocht;
+	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenID, $HuizenOffline, $HuizenVerkocht;
 		
 	$data = getFundaData($id);
 	
-	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '". urlencode($data['adres']) ."' AND $HuizenPC_c like '". $data['PC_c'] ."' AND $HuizenOffline like '0' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";		
+	$sql = "SELECT * FROM $TableHuizen WHERE WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer like '". $data['nummer'] ."' AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging like '". $data['toevoeging'] ."' AND $HuizenPC_c like '". $data['PC_c'] ."' AND $HuizenOffline like '0' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";		
 	$result	= mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) == 0) {
 		return false;
@@ -2047,10 +2047,15 @@ function addUpdateStreetDb($straat, $stad) {
 
 function convert2FundaStyle($string) {
 	$string = str_replace ('.', '',$string);
+	$string = str_replace ('(', '',$string);
+	$string = str_replace (')', '',$string);
 	$string = str_replace (' ', '-',$string);
 	$string = str_replace ('é', 'e',$string);
 	$string = str_replace ('ë', 'e',$string);
-	
+	$string = str_replace ('&#232;', 'e',$string);
+	$string = str_replace ('&#233;', 'e',$string);
+	$string = str_replace ('&#235;', 'e',$string);
+		
 	return strtolower($string);
 }
 
@@ -2118,11 +2123,27 @@ function sendPushoverNewHouse($fundaID, $OpdrachtID) {
 	$OpdrachtData		= getOpdrachtData($OpdrachtID);
 	$PushMembers		= getMembers4Opdracht($OpdrachtID, 'push');
 	
+	$soldBefore			= soldBefore($fundaID);
+	$alreadyOnline	= alreadyOnline($fundaID);
+	$onlineBefore		= onlineBefore($fundaID);
+		
 	# Pushover-bericht opstellen
 	if(count($PushMembers) > 0) {
 		$push = array();
 		$push['title']		= "Nieuw huis voor '". $OpdrachtData['naam'] ."'";
 		$push['message']	= $data['straat'] .' '. $data['nummer'] .' in '. $data['plaats'] .' is te koop voor '. formatPrice($data['prijs']);
+		
+		if(is_numeric($soldBefore)) {
+			$extraData = getFundaData($soldBefore);
+			$push['message'] .= "\n\nAl eens verkocht op ". date("d-m-Y", $extraData['eind'])." ($soldBefore)";
+		} elseif(is_numeric($alreadyOnline)) {
+			$extraData = getFundaData($alreadyOnline);
+			$push['message'] .= "\n\nOok online bij ". $extraData['makelaar']." ($alreadyOnline)";
+		} elseif(is_numeric($onlineBefore)) {
+			$extraData = getFundaData($onlineBefore);
+			$push['message'] .= "\n\n".implode(" & ", getTimeBetween($extraData['eind'], $data['start'])) ." offline geweest ($onlineBefore)";
+		}
+				
 		$push['url']			= 'http://funda.nl/'. $fundaID;
 		$push['urlTitle']	= $data['adres'];
 		
@@ -2145,7 +2166,7 @@ function sendPushoverChangedPrice($fundaID, $OpdrachtID) {
 	# Pushover-bericht opstellen
 	if(count($PushMembers) > 0) {
 		$push = array();
-		$push['title']		= $fundaData['adres'] ." is in prijs verlaagd voor '". $OpdrachtData['naam'] ."'";
+		$push['title']		= $fundaData['straat'] .' '. $fundaData['nummer'] ." is in prijs verlaagd voor '". $OpdrachtData['naam'] ."'";
 		$push['message']	= "Van ". formatPrice(prev($prijzen_array)) .' voor '. formatPrice(end($prijzen_array));
 		$push['url']			= 'http://funda.nl/'. $fundaID;
 		$push['urlTitle']	= $fundaData['adres'];				

@@ -1,10 +1,11 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
+$db = connect_db();
+
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-$db = connect_db();
 
 if(isset($_POST['ids'])) {
 	if(strpos($_POST['ids'], ';')) {

@@ -1,9 +1,10 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
+$db = connect_db();
+
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-$db = connect_db();
 
 $Page_1 = $Page_2 = $Page_3 = $Page_4 = '';
 

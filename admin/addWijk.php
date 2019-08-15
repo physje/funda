@@ -1,9 +1,10 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
+$db = connect_db();
+
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-$db = connect_db();
 
 if(isset($_POST['save_wijk'])) {
 	$sql = "UPDATE $TableHuizen SET $HuizenWijk = '". urlencode($_POST['insert_wijk']) ."' WHERE $HuizenPC_c = '". $_POST['insert_c'] ."' AND $HuizenPC_l like '". $_POST['insert_l'] ."'";

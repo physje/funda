@@ -1,10 +1,11 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
+$db = connect_db();
+
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-$db = connect_db();
 
 if(isset($_POST['huizen'])) {
 	header("Expires: Mon, 26 Jul 2001 05:00:00 GMT");

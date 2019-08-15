@@ -1,12 +1,12 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
+$db = connect_db();
+
 setlocale(LC_ALL, 'nl_NL');
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-
-$db = connect_db();
 
 if(!isset($_REQUEST['bDag']) OR !isset($_REQUEST['bMaand']) OR !isset($_REQUEST['bJaar']) OR !isset($_REQUEST['bUur']) OR !isset($_REQUEST['bMin'])) {
 	$bMin = 0;

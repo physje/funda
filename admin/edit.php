@@ -1,12 +1,13 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
-
 include_once('../include/HTML_TopBottom.php');
+$db = connect_db();
+
 setlocale(LC_ALL, 'nl_NL');
 $minUserLevel = 2;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-$db = connect_db();
+
 $data = array();
 
 if(isset($_REQUEST['id'])) {
@@ -187,6 +188,9 @@ if(isset($_REQUEST['id'])) {
 		$PrijsHistory[] = "</form>";
 	}
 	
+	//$shortcut[] = "zet <a href='changeState.php?state=offline&id=$id'>offline</a>";
+	//$shortcut[] = "zet <a href='changeState.php?state=verkocht&id=$id'>verkocht</a>";
+	
 	# Zoekresultaten
 	$sql		= "SELECT $ResultaatZoekID FROM $TableResultaat WHERE $ResultaatID like $id";
 	$result	= mysqli_query($db, $sql);
@@ -249,13 +253,13 @@ if(isset($_REQUEST['id'])) {
 	
 	if(is_numeric($soldBefore)) {
 		$extraData = getFundaData($soldBefore);
-		$extraString = "<a href='http://funda.nl/$soldBefore'>Al eens verkocht op ". date("d-m-Y", $extraData['eind']) ."</a>";
+		$extraString = "<a href='?id=$soldBefore'>Al eens verkocht op ". date("d-m-Y", $extraData['eind']) ."</a>";
 	} elseif(is_numeric($alreadyOnline)) {
 		$extraData = getFundaData($alreadyOnline);
-		$extraString = "<a href='http://funda.nl/$alreadyOnline'>Ook online bij ". $extraData['makelaar'] ."</a>";
+		$extraString = "<a href='?id=$alreadyOnline'>Ook online bij ". $extraData['makelaar'] ."</a>";
 	} elseif(is_numeric($onlineBefore)) {
 		$extraData = getFundaData($onlineBefore);
-		$extraString = implode(" & ", getTimeBetween($extraData['eind'], $data['start'])) ." offline geweest";
+		$extraString = "<a href='?id=$onlineBefore'>".implode(" & ", getTimeBetween($extraData['eind'], $data['start'])) ." offline geweest</a>";
 	}
 	
 	# Open huis

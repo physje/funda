@@ -2,10 +2,11 @@
 include_once(__DIR__.'/../include/config.php');
 include_once($cfgGeneralIncludeDirectory.'/class.phpPushover.php');
 include_once('../include/HTML_TopBottom.php');
+$db = connect_db();
+
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-$db = connect_db();
 
 if(isset($_POST['doorgaan'])) {
 	if(saveUpdateMember($_POST['member_id'], $_POST['naam'], $_POST['username'], $_POST['password'], $_POST['mail'], $_POST['userkey'], $_POST['token'], $_POST['level'], $_SESSION['UserID'])) {

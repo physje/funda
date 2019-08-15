@@ -1,11 +1,11 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
+$db = connect_db();
+
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-
-$db = connect_db();
 
 if(isset($_POST['urls'])) {
 	if($_POST['lijstID'] == '') {

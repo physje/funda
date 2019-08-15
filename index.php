@@ -25,6 +25,7 @@ $UserData = getMemberDetails($_SESSION['UserID']);
 $links['TimeLine.php']							= 'Tijdslijn';
 $links['PrijsDaling.php']						= 'Prijs-afname';
 $links['gallery.php']								= 'Fotoalbum';
+$links['dubbeleHuizen.php']					= 'Dubbele huizen';
 $links['admin/edit_lijsten.php']		= 'Lijsten';
 $links['admin/edit_opdrachten.php']	= 'Zoekopdrachten';	
 

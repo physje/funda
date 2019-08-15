@@ -1,9 +1,11 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
+$db = connect_db();
+
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-$db = connect_db();
+
 $deel_1 = $deel_2 = $id = '';
 
 if(isset($_REQUEST['id'])) {

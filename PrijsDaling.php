@@ -2,6 +2,8 @@
 include_once(__DIR__.'/include/config.php');
 include_once(__DIR__ .'/include/HTML_TopBottom.php');
 include_once($cfgGeneralIncludeDirectory.'class.MobileDetect.php');
+$db = connect_db();
+
 $minUserLevel = 1;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");

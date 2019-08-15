@@ -2,11 +2,11 @@
 include_once(__DIR__.'/include/config.php');
 include_once(__DIR__ .'/include/HTML_TopBottom.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
+$db = connect_db();
+
 $minUserLevel = 3;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");
-
-$db = connect_db();
 
 if(isset($_POST['opslaan'])) {
 	$files = array_filter($_FILES['upload']['name']);

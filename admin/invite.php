@@ -3,10 +3,11 @@ include_once(__DIR__.'/../include/config.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpmailer.php');
 include_once($cfgGeneralIncludeDirectory.'class.html2text.php');
 include_once('../include/HTML_TopBottom.php');
+$db = connect_db();
+
 $minUserLevel = 2;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-$db = connect_db();
 $data = array();
 
 if(isset($_POST['invite'])) {
