@@ -836,7 +836,7 @@ function soldBefore($id) {
 	
 	$data = getFundaData($id);
 	
-	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer like '". $data['nummer'] ."' AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging like '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenVerkocht like '1' AND $HuizenID not like '$id'";
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer = ". $data['nummer'] ." AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging = '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenVerkocht like '1' AND $HuizenID not like '$id'";
 		
 	$result	= mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) == 0) {
@@ -853,8 +853,8 @@ function onlineBefore($id) {
 	
 	$data = getFundaData($id);
 	
-	$sql = "SELECT * FROM $TableHuizen WHERE WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer like '". $data['nummer'] ."' AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging like '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenOffline like '1' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";
-		
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer = ". $data['nummer'] ." AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging = '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenOffline like '1' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";
+
 	$result	= mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) == 0) {
 		return false;
@@ -870,7 +870,7 @@ function alreadyOnline($id) {
 		
 	$data = getFundaData($id);
 	
-	$sql = "SELECT * FROM $TableHuizen WHERE WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer like '". $data['nummer'] ."' AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging like '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenOffline like '0' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";		
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer = ". $data['nummer'] ." AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging = '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenOffline like '0' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";		
 	$result	= mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) == 0) {
 		return false;
