@@ -1,16 +1,15 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpmailer.php');
-include_once($cfgGeneralIncludeDirectory.'class.html2text.php');
+include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
 $db = connect_db();
 
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
 # Iedereen kan deze pagina dus in principe openen.
 
 $manual = false;
-$HTMLMessageNeg = $HTMLMessage = array();
-$key_1 = null;
-$key_2 = null;
+$HTMLMessageNeg = $HTMLMessage = $key_1 = $key_2 = array();
+
 if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	$key_1[0] = $_REQUEST['id_1'];
 	$key_2[0] = $_REQUEST['id_2'];
@@ -23,6 +22,7 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	$sql .= "FROM $TableHuizen ";
 	$sql .= "WHERE ";
 	$sql .= "$HuizenVerkocht like '0' AND ";
+	$sql .= "$HuizenNummer != '' AND ";
 	$sql .= "$HuizenOffline like '1'";
 	
 	$result	= mysqli_query($db, $sql);
@@ -45,9 +45,7 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 		
 		$result_2	= mysqli_query($db, $sql_2);
 		
-		if(mysqli_num_rows($result_2) >= 1 AND !in_array($id_oud, $KeyArray) AND !ignoreHouse4Combine($id_oud)) {
-			echo $sql_2;
-			
+		if(mysqli_num_rows($result_2) > 0 AND !in_array($id_oud, $KeyArray) AND !ignoreHouse4Combine($id_oud)) {
 			$row_2	= mysqli_fetch_array($result_2);
 			$id_new	= $row_2[$HuizenID];
 				
@@ -63,7 +61,6 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	} while($row = mysqli_fetch_array($result));
 }
 
-unset($key_1);
 
 if(is_array($key_1)) {
 	foreach($key_1 as $key => $value) {
@@ -73,14 +70,10 @@ if(is_array($key_1)) {
 		
 		$data_oud = getFundaData($id_oud);
 		$data_new = getFundaData($id_new);
-						
+				
 		# Huizen die niet een paar dagen offline zijn geweest zijn 'verdacht' en worden dus niet automatisch samengevoegd
 		if(($data_new['start'] - $data_oud['eind']) > 0 OR $manual) {
-			# Actie-lijst :
-			#		Vervang begintijd_2 door begintijd_1		
-			#		Vervang ID_1 door ID_2 in prijzen-, open huis- en lijsten-tabel
-			# 	Verwijder key_1 in huizen-, kenmerken- en resultaten-tabel
-						
+	
 			# De begin- en eindtijd voor het nieuwe huis in tabel met huizen updaten
 			# Neem de vroegst bekende starttijd en de laatst bekende eindtijd
 			$sql_update_1 = "UPDATE $TableHuizen SET $HuizenStart = ". min($data_oud['start'], $data_new['start']) .", $HuizenEind = ". max($data_oud['eind'], $data_new['eind']) ." WHERE $HuizenID like '". $id_new ."'";
@@ -216,11 +209,7 @@ if(is_array($key_1)) {
 		
 		$HTMLMail .= $HTMLPreFooter;
 		$HTMLMail .= $HTMLFooter;
-		
-		//$html =& new html2text($HTMLMail);
-		//$html->set_base_url($ScriptURL);
-		//$PlainText = $html->get_text();
-			
+				
 		$mail = new PHPMailer;
 		$mail->From     = $ScriptMailAdress;
 		$mail->FromName = $ScriptTitle;
@@ -228,9 +217,6 @@ if(is_array($key_1)) {
 		$mail->Subject	= $SubjectPrefix. "Funda opruiming";
 		$mail->IsHTML(true);
 		$mail->Body			= $HTMLMail;
-		//$mail->AltBody	= $PlainText;
-		
-		//echo $HTMLMail;
 		
 		if(!$mail->Send()) {
 			echo "Versturen van mail is mislukt<br>";
@@ -243,5 +229,4 @@ if(is_array($key_1)) {
 	}
 } else {
 	echo "Geen werk aan de winkel";
-	//toLog('info', '', '', "Geen opschoonwerkzaamheden verricht");
 }
