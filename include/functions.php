@@ -832,11 +832,11 @@ function updateHouse($data, $kenmerken, $erase = false) {
 
 
 function soldBefore($id) {
-	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenID, $HuizenVerkocht;
+	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPlaats, $HuizenID, $HuizenVerkocht;
 	
 	$data = getFundaData($id);
 	
-	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer like '". $data['nummer'] ."' AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging like '". $data['toevoeging'] ."' AND $HuizenPC_c like '". $data['PC_c'] ."' AND $HuizenVerkocht like '1' AND $HuizenID not like '$id'";
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer like '". $data['nummer'] ."' AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging like '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenVerkocht like '1' AND $HuizenID not like '$id'";
 		
 	$result	= mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) == 0) {
@@ -849,11 +849,11 @@ function soldBefore($id) {
 
 
 function onlineBefore($id) {
-	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenID, $HuizenOffline, $HuizenVerkocht;
+	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPlaats, $HuizenID, $HuizenOffline, $HuizenVerkocht;
 	
 	$data = getFundaData($id);
 	
-	$sql = "SELECT * FROM $TableHuizen WHERE WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer like '". $data['nummer'] ."' AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging like '". $data['toevoeging'] ."' AND $HuizenPC_c like '". $data['PC_c'] ."' AND $HuizenOffline like '1' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";
+	$sql = "SELECT * FROM $TableHuizen WHERE WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer like '". $data['nummer'] ."' AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging like '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenOffline like '1' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";
 		
 	$result	= mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) == 0) {
@@ -866,11 +866,11 @@ function onlineBefore($id) {
 
 
 function alreadyOnline($id) {
-	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenID, $HuizenOffline, $HuizenVerkocht;
+	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPlaats, $HuizenID, $HuizenOffline, $HuizenVerkocht;
 		
 	$data = getFundaData($id);
 	
-	$sql = "SELECT * FROM $TableHuizen WHERE WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer like '". $data['nummer'] ."' AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging like '". $data['toevoeging'] ."' AND $HuizenPC_c like '". $data['PC_c'] ."' AND $HuizenOffline like '0' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";		
+	$sql = "SELECT * FROM $TableHuizen WHERE WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer like '". $data['nummer'] ."' AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging like '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenOffline like '0' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";		
 	$result	= mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) == 0) {
 		return false;
