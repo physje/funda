@@ -22,20 +22,32 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	$sql  = "SELECT * ";
 	$sql .= "FROM $TableHuizen ";
 	$sql .= "WHERE ";
-	//$sql .= "$TableHuizen.$HuizenEind < $eindGrens AND ";
-	$sql .= "$TableHuizen.$HuizenOffline like '1'";
+	$sql .= "$HuizenVerkocht like '0' AND ";
+	$sql .= "$HuizenOffline like '1'";
 	
 	$result	= mysqli_query($db, $sql);
 	$row = mysqli_fetch_array($result);
 
 	do {
-		$adres		= $row[$HuizenAdres];
-		$PC				= $row[$HuizenPC_c];
-		$id_oud		= $row[$HuizenID];		
-		$sql_2		= "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '$adres' AND $HuizenPC_c like '$PC' AND $HuizenID NOT like '$id_oud'";
+		$id_oud     = $row[$HuizenID];
+		$data       = getFundaData($id_oud);
+		$jaarLater  = $data['eind']+(175*24*60*60);
+		$jaarEerder = $data['start']-(175*24*60*60);
+		
+		$sql_2	 = "SELECT * FROM $TableHuizen WHERE ";
+		$sql_2  .= "$HuizenStraat like '". urlencode($data['straat']) ."' AND ";
+		$sql_2  .= "$HuizenNummer = ". $data['nummer'] ." AND ";
+		$sql_2  .= "$HuizenLetter like '". urlencode($data['letter']) ."' AND ";
+		$sql_2  .= "$HuizenToevoeging = '". $data['toevoeging'] ."' AND ";
+		$sql_2  .= "$HuizenPlaats like '". urlencode($data['plaats']) ."' AND ";
+		$sql_2  .= "(($HuizenStart BETWEEN ". $data['eind'] ." AND $jaarLater) OR ($HuizenEind BETWEEN $jaarEerder AND ". $data['start'] .")) AND ";
+		$sql_2  .= "$HuizenID NOT like '$id_oud'";
+		
 		$result_2	= mysqli_query($db, $sql_2);
 		
 		if(mysqli_num_rows($result_2) >= 1 AND !in_array($id_oud, $KeyArray) AND !ignoreHouse4Combine($id_oud)) {
+			echo $sql_2;
+			
 			$row_2	= mysqli_fetch_array($result_2);
 			$id_new	= $row_2[$HuizenID];
 				
@@ -50,6 +62,8 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 		}
 	} while($row = mysqli_fetch_array($result));
 }
+
+unset($key_1);
 
 if(is_array($key_1)) {
 	foreach($key_1 as $key => $value) {
@@ -203,9 +217,9 @@ if(is_array($key_1)) {
 		$HTMLMail .= $HTMLPreFooter;
 		$HTMLMail .= $HTMLFooter;
 		
-		$html =& new html2text($HTMLMail);
-		$html->set_base_url($ScriptURL);
-		$PlainText = $html->get_text();
+		//$html =& new html2text($HTMLMail);
+		//$html->set_base_url($ScriptURL);
+		//$PlainText = $html->get_text();
 			
 		$mail = new PHPMailer;
 		$mail->From     = $ScriptMailAdress;
@@ -214,7 +228,7 @@ if(is_array($key_1)) {
 		$mail->Subject	= $SubjectPrefix. "Funda opruiming";
 		$mail->IsHTML(true);
 		$mail->Body			= $HTMLMail;
-		$mail->AltBody	= $PlainText;
+		//$mail->AltBody	= $PlainText;
 		
 		//echo $HTMLMail;
 		
