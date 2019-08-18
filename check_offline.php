@@ -307,7 +307,7 @@ foreach($files as $file) {
 	
 	# Alleen als de import succesvol is verlopen mag de pagina verwijderd worden
 	if($success) {
-		//unlink($bestand);
+		unlink($bestand);
 	}
 	
 	$block[] = implode("\n", $String);

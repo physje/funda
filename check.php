@@ -143,10 +143,13 @@ for($i=0 ; $i < $iMax ; $i++) {
 	$String = array();
 		
 	if($straatRun) {
-		$sql_update = "UPDATE $TableStraten SET ". ($knownHouses > 0 ? "$StratenLastCheck = '". time() ."'" : "$StratenActive = '0'") ." WHERE $StratenID = ". $straatID;
-		mysqli_query($db, $sql_update);
-		toLog('debug', '', '', $sql_update);
-		toLog('info', '', '', $straatData['leesbaar'] .' in '. $straatData['plaats'] . "; $knownHouses ". ($knownHouses == 1 ? 'huis' : 'huizen') ." van ". count($Huizen));
+		if($knownHouses > 0) {
+			setStreetSeen($straatID);
+			toLog('info', '', '', $straatData['leesbaar'].' in '.$straatData['plaats']."; [$knownHouses/".count($Huizen).']');
+		} else {
+			inactivateStreet($straatID); 
+			toLog('info', '', '', $straatData['leesbaar'].' in '.$straatData['plaats'].' niet meer actief');
+		}
 	}
 }
 

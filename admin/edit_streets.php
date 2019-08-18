@@ -105,20 +105,27 @@ if(isset($_POST['doorgaan'])) {
 		$sort = $_REQUEST['sort'];
 	}
 	
+	if(isset($_REQUEST['asc'])) {
+		$richting = '';
+	} else {
+		$richting = '&asc';
+	}
+		
+	
 	$Kop[] = "<tr>\n";
-	$Kop[] = "	<td><b><a href='". $_SERVER['PHP_SELF']."?sort=street'>Straat</a><b></td>";
-	$Kop[] = "	<td><b><a href='". $_SERVER['PHP_SELF']."?sort=city'>Plaats</a></b></td>";
-	$Kop[] = "	<td><b><a href='". $_SERVER['PHP_SELF']."?sort=time'>Check</a></td>";
+	$Kop[] = "	<td><b><a href='". $_SERVER['PHP_SELF']."?sort=street$richting'>Straat</a><b></td>";
+	$Kop[] = "	<td><b><a href='". $_SERVER['PHP_SELF']."?sort=city$richting'>Plaats</a></b></td>";
+	$Kop[] = "	<td><b><a href='". $_SERVER['PHP_SELF']."?sort=time$richting'>Check</a></td>";
 	$Kop[] = "</tr>\n";
 	
 	$sql = "SELECT * FROM $TableStraten";
 	
 	if($sort == 'time') {
-		$sql .= " ORDER BY $StratenLastCheck DESC";
+		$sql .= " ORDER BY $StratenLastCheck ". (!isset($_REQUEST['asc']) ? 'DESC' : 'ASC');
 	} elseif($sort == 'city') {
-		$sql .= " ORDER BY $StratenStad, $StratenStrLeesbaar";
+		$sql .= " ORDER BY $StratenStad ". (!isset($_REQUEST['asc']) ? 'DESC' : 'ASC') .", $StratenStrLeesbaar ". (!isset($_REQUEST['asc']) ? 'DESC' : 'ASC');
 	} elseif($sort == 'street') {
-		$sql .= " ORDER BY $StratenStrLeesbaar";
+		$sql .= " ORDER BY $StratenStrLeesbaar ". (!isset($_REQUEST['asc']) ? 'DESC' : 'ASC');
 	}
 	
 	$result = mysqli_query($db, $sql);

@@ -737,9 +737,7 @@ function saveHouse($data, $moreData) {
 	$sql .= "($HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind) ";
 	$sql .= "VALUES ";
 	$sql .= "('". $data['id'] ."', '". urlencode($data['url']) ."', '". urlencode($data['adres']) ."', '". urlencode($data['straat']) ."', '". $data['nummer'] ."', '". urlencode($data['letter']) ."', '". $data['toevoeging'] ."', '". $data['PC_c'] ."', '". $data['PC_l'] ."', '". urlencode($data['plaats']) ."', '". urlencode($data['wijk']) ."', '". urlencode($data['thumb']) ."', '". urlencode($data['makelaar']) ."', '$begin_tijd', '$eind_tijd')";
-	
-	echo $sql;
-			
+				
 	if(!mysqli_query($db, $sql)) {		
 		return false;
 	}
@@ -2068,7 +2066,7 @@ function addUpdateStreetDb($straat, $stad) {
 	$sql = "SELECT * FROM $TableStraten WHERE $StratenStrFunda like '$straatFunda' AND $StratenStad like '$stad'";
 	$result = mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) == 0) {		
-		$sql_insert = "INSERT INTO $TableStraten ($StratenActive, $StratenStrLeesbaar, $StratenStad, $StratenStrFunda) VALUES ('1', '". $straat ."', '". $stad. "', '". $straatFunda ."')";
+		$sql_insert = "INSERT INTO $TableStraten ($StratenActive, $StratenStrLeesbaar, $StratenStad, $StratenStrFunda, $StratenLastCheck) VALUES ('1', '". $straat ."', '". $stad. "', '". $straatFunda ."', ". time() .")";
 		mysqli_query($db, $sql_insert);				
 	} else {
 		$row = mysqli_fetch_array($result);
@@ -2122,6 +2120,22 @@ function getStreetByID($id) {
 	$data['last'] = $row[$StratenLastCheck];
 	
 	return $data;
+}
+
+
+function setStreetSeen($id) {
+	global $db, $TableStraten, $StratenID, $StratenLastCheck;
+	
+	$sql_seen = "UPDATE $TableStraten SET $StratenLastCheck = '". time() ."' WHERE $StratenID = $id";
+	return mysqli_query($db, $sql_seen);
+}
+
+
+function inactivateStreet($id) {
+	global $db, $TableStraten, $StratenID, $StratenActive;
+	
+	$sql_inactive = "UPDATE $TableStraten SET $StratenActive = '0' WHERE $StratenID = $id";
+	return mysqli_query($db, $sql_inactive);
 }
 
 

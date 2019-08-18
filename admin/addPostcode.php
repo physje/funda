@@ -62,7 +62,7 @@ if(is_numeric($nummer)) {
     	$Links[] = '<b>Foutmelding</b> : '. $PC;
     } elseif(updatePC($row[$HuizenID], $PC)) {
     	$Links[] = 'Gelukt : '. $PC;
-    	$userInteraction = false;
+    	if(!isset($_REQUEST['fundaID']))	$userInteraction = false;
     } else {
     	$Links[] = 'Geen postcode kunnen updaten';
     }
