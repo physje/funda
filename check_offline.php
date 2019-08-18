@@ -20,7 +20,6 @@ if ($handle = opendir($offlineDir)) {
 	closedir($handle);
 }
 
-$opdrachten = getZoekOpdrachten($_SESSION['account'], '', false);
 
 $debug = 0;
 
@@ -48,100 +47,28 @@ foreach($files as $file) {
 	$appHeaderLink	= getString('appheader-English-link" class="app-header__link" href="', '" hreflang=', $contents, 0);
 	$pageURL		= getString('/koop/', '', $appHeaderLink[0], 0);	
 	$zoekURL		= '/koop/'.$pageURL[0];
+		
+	$OpdrachtID	= guessOpdrachtIDFromHTML($zoekURL);
+	$fundaID		= guessFundaIDFromHTML($zoekURL);
+
+	if($OpdrachtID > 0) {
+		$overzicht = true;
+		$detail = false;		
+	}
+	
+	if($fundaID > 0) {
+		$detail = true;
+		$overzicht = false;
+	}
 	
 	# Als in de zoekURL de tekst /verkocht/ voorkomt gaat het over een huis wat verkocht is
 	# De variabele $verkocht is dan waar
 	if(strpos($zoekURL, '/verkocht/')) {
 		$verkocht		= true;
 	} else {
-	    $verkocht		= false;
+		$verkocht		= false;
 	}
-	
-	# Aantal filters in de URL hebben 'geen' waarde en mogen er dus uit
-	$cleanZoekString = str_replace('/verkocht/', '/', $zoekURL);
-	$cleanZoekString = str_replace('/sorteer-afmelddatum-af/', '/', $cleanZoekString);
-	
-	# Door hem op te knippen zien wij welke filters er actief zijn
-	$filtersZoeken = explode('/', $cleanZoekString);	
-	
-	# Doorloop alle opdrachten op zoek naar een match met de filters
-	foreach($opdrachten as $opdracht) {
-		$opdrachtData = getOpdrachtData($opdracht);
-		$cleanOpdrachtURL = str_replace('http://www.funda.nl', '', $opdrachtData['url']);
-		$filtersOpdracht = explode('/', $cleanOpdrachtURL);
 		
-		# Wij gaan gevonden filters verwijderen dus maken even een kopie van het orgineel
-		$kopieFiltersZoeken = $filtersZoeken;
-		
-		# Wij lopen 2x de filters door
-		# 1x kijken wij welke filters uit de HTML-pagina voorkomen in de zoekopdracht
-		# 1x kijken wij welke filters uit de zoekopdracht voorkomen in de HTML-pagin
-		# Die combi die op beide het beste scoort is met redelijke zekerheid de zoekopdracht
-		foreach($filtersOpdracht as $key => $value) {
-			if(in_array($value, $kopieFiltersZoeken)) {
-				$index = array_search ($value, $kopieFiltersZoeken);
-				unset($kopieFiltersZoeken[$index]);
-			}				
-		}
-		
-		foreach($filtersZoeken as $key => $value) {
-			if(in_array($value, $filtersOpdracht)) {
-				$index = array_search ($value, $filtersOpdracht);
-				unset($filtersOpdracht[$index]);
-			}
-		}
-		
-		//echo $opdracht .' -> '. count($kopieFiltersZoeken) .'|'. count($filtersOpdracht) .' = '. (count($kopieFiltersZoeken)+count($filtersOpdracht)) .'<br>';
-		//echo implode('|', $kopieFiltersZoeken) .' niet gevonden<br>';
-		//echo '<br>';
-		
-		$score_zoek[$opdracht] = count($kopieFiltersZoeken);
-		$score_opdracht[$opdracht] = count($filtersOpdracht);
-		$score_tot[$opdracht] = count($kopieFiltersZoeken)+count($filtersOpdracht);
-	}
-	
-	# Als de laagste totale score 0 of 1 is, is het aannemelijk dat we een match hebben
-	if(min($score_tot) < 2) {
-		$OpdrachtID = array_search (min($score_tot), $score_tot);
-		$overzicht = true;
-	} else {
-		$overzicht = false;
-	}
-
-	
-	# Het lijkt geen overzichtspagina te zijn
-	# Onderzoek de optie detailpagina
-	if(!$overzicht) {
-		$mappen = explode("/", $zoekURL);
-		 
-		if($verkocht) {
-			$delen 		= explode("-", $mappen[4]);
-		} else {
-			$delen 		= explode("-", $mappen[3]);
-		}
-		
-		$fundaID	= $delen[1];
-		
-		if(is_numeric($fundaID) AND count($mappen) > 4 AND count($delen) > 3) {
-			$detail = true;
-		}
-	}	
-	
-	/*
-	if($verkocht) {
-		if($overzicht) {
-			$String[] = $file .' -> VERKOCHT | '. $OpdrachtID .'<br>';
-		} else {
-			$String[] = $file .' -> VERKOCHT | '. $fundaID .'<br>';
-		}
-	} else {
-		if($overzicht) {
-			$String[] = $file .' -> '. $OpdrachtID .'<br>';
-		} else {
-			$String[] = $file .' -> '. $fundaID .'<br>';
-		}
-	}
-	*/
 	
 	# 
 	# De routine als geen van beide gevonden is
@@ -279,28 +206,11 @@ foreach($files as $file) {
 					
 			# Huis kan openhuis hebben
 			if($data['openhuis'] == 1) {
-				# data online vergelijken met data in de database
-				$changedOpenHuis	= false;
-				$tijden			= extractOpenHuisData($data['id']);
-				$bestaandeTijden	= getNextOpenhuis($data['id']);
-			
-				if($tijden[0] != $bestaandeTijden[0] OR $tijden[1] != $bestaandeTijden[1]) {
-					$sql = "DELETE FROM $TableCalendar WHERE $CalendarHuis like ". $data['id'] ." AND $CalendarStart like ". $bestaandeTijden[0] ." AND $CalendarEnd like ". $bestaandeTijden[1];
-					mysqli_query($db, $sql);
-					$changedOpenHuis = true;
-					toLog('info', $OpdrachtID, $data['id'], 'Open Huis gewijzigd');
-				}
-	
-				if(!hasOpenHuis($data['id']) OR $changedOpenHuis) {
+				if(!hasOpenHuis($data['id'])) {
 					toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd');
 					
-					#	toevoegen aan de Google Calendar						
-					$sql = "INSERT INTO $TableCalendar ($CalendarHuis, $CalendarStart, $CalendarEnd) VALUES (". $data['id'] .", ". $tijden[0] .", ". $tijden[1] .")";
-					mysqli_query($db, $sql);
-											
-					#	opnemen in de eerst volgende mail						
-					$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '1' WHERE $HuizenID like '". $data['id'] ."'";
-					mysqli_query($db, $sql);
+					# Aanvinken om in een later stadium de details (met daarin de openhuis data) op te vragen
+					mark4Details($data['id']);										
 				}
 			} else {
 				removeOpenHuis($data['id']);
@@ -343,6 +253,7 @@ foreach($files as $file) {
 	} elseif($detail) {
 		$allData = extractFundaDataFromPage($contents);
 		$data = $allData[0];
+		$extraData = $allData[1];
 		
 		if($fundaID != $data['id']) {
 			$String[] = "Klopt dit wel ?";
@@ -357,7 +268,7 @@ foreach($files as $file) {
 					
 			# Meestal zal het huis wel bekend zijn
 			} else {
-				updateHouse($data, $allData[1]);
+				updateHouse($data, $extraData);
 				addCoordinates($data['adres'], $data['PC_c'], $data['plaats'], $fundaID);
 				updatePrice($fundaID, $data['prijs'], time());
 				
@@ -368,8 +279,23 @@ foreach($files as $file) {
 		
 				# Als hij wel verkocht is moeten we de administratie daarvan even bijwerken
 				} else {
-					$temp = updateVerkochtDataFromPage($data, $allData[1]);
+					$temp = updateVerkochtDataFromPage($data, $extraData);
 					$String[] = implode("<br>\n", $temp)."<br>\n";
+				}
+				
+				# Hij heeft open huis, data invoegen in de database
+				if($data['openhuis'] == 1) {
+					$bestaandeTijden	= getNextOpenhuis($fundaID);
+					$tijden = $data['oh-tijden'];
+			
+					if($bestaandeTijden[0] != '' AND ($tijden[0] != $bestaandeTijden[0] OR $tijden[1] != $bestaandeTijden[1])) {
+						deleteOpenhuis($fundaID, $bestaandeTijden[0]);
+						addOpenhuis($fundaID, $tijden);
+						toLog('info', $OpdrachtID, $data['id'], 'Open Huis gewijzigd');
+					} elseif($bestaandeTijden[0] == '') {
+						addOpenhuis($fundaID, $tijden);
+						toLog('info', $OpdrachtID, $data['id'], 'Open Huis toegevoegd');
+					}
 				}
 				
 				toLog('info', '', $fundaID, 'Offline pagina ingeladen');
@@ -381,7 +307,7 @@ foreach($files as $file) {
 	
 	# Alleen als de import succesvol is verlopen mag de pagina verwijderd worden
 	if($success) {
-		unlink($bestand);
+		//unlink($bestand);
 	}
 	
 	$block[] = implode("\n", $String);

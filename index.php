@@ -45,12 +45,12 @@ $admin['admin/compareKenmerken.php']		= 'Exporteer kenmerken in CSV-formaat';
 $admin['admin/downloadDailyExport.php']	= 'Download XLS-file';
 
 if($_SESSION['level'] > 1) {
-	$admin['admin/dailyExport.php']				= 'Genereer excel-bestand';
-	$admin['admin/HouseDetails.php']			= 'Bekijk details van een huis';
+	$admin['admin/dailyExport.php']				= 'Genereer excel-bestand';	
 	$admin['teKoopVerkocht.php']				= 'Overzicht van nieuwe/verkochte huizen per periode';
 	$admin['admin/showVerdeling.php']			= 'Overzicht van welke opdracht wanneer wordt uitgevoerd';
-	$admin['admin/determineCorrectPrice.php']		= 'Bepaal gecorrigeerde prijs op specifieke datum';
 }
+$admin['admin/HouseDetails.php']			= 'Bekijk details van een huis';
+$admin['admin/determineCorrectPrice.php']		= 'Bepaal gecorrigeerde prijs op specifieke datum';
 
 
 
@@ -62,6 +62,7 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['upload_offline.php']						= 'Upload files met funda-HTML';	
 	//$onderhoud['check_offline.php']							= 'Check de offline opgeslagen pagina\'s';	
 	//$onderhoud['admin/loadOfflineHouses.php']		= 'Check de offline opgeslagen huis-pagina\'s';	
+	$onderhoud['admin/edit_streets.php']				= 'Wijzig de straten';
 	$onderhoud['admin/addPostcode.php']					= 'Zoek ontbrekende postcode\'s op';
 	$onderhoud['admin/addWijk.php']						= 'Vul ontbrekende wijken in';
 	$onderhoud['onderhoud/makeGeneralLists.php']	= 'Maak algemene lijsten aan';

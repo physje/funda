@@ -19,12 +19,12 @@ if($_SESSION['level'] > 1) {
 }
 
 # Abbonementen aanpassen
-if(isset($_POST['mail']) AND isset($_POST['push'])) {
+if(isset($_POST['push'])) {
 	foreach($Opdrachten as $opdracht) {
-		removeMember4Opdracht($opdracht, $_SESSION['account'], 'mail');
+		//removeMember4Opdracht($opdracht, $_SESSION['account'], 'mail');
 		removeMember4Opdracht($opdracht, $_SESSION['account'], 'push');
 		
-		if(array_key_exists($opdracht, $_POST['mail']))	addMember2Opdracht($opdracht, $_SESSION['account'], 'mail');
+		//if(array_key_exists($opdracht, $_POST['mail']))	addMember2Opdracht($opdracht, $_SESSION['account'], 'mail');
 		if(array_key_exists($opdracht, $_POST['push']))	addMember2Opdracht($opdracht, $_SESSION['account'], 'push');
 	}
 }
@@ -164,7 +164,6 @@ if(isset($_POST['doorgaan'])) {
 	$Page .= "<table border=0>".NL;
 	$Page .= "<tr>\n";
 	$Page .= "	<td colspan='10'>&nbsp;</td>";
-	//$Page .= "	<td align='center'><img src='../images/mail_yes.gif'></td>";
 	$Page .= "	<td align='center'><img src='../images/pushover.png'></td>";
 	$Page .= "</tr>\n";
 		
@@ -192,18 +191,12 @@ if(isset($_POST['doorgaan'])) {
 				$Page .= "	<td>&nbsp;</td>".NL;
 				$Page .= "	<td><a href='". $OpdrachtData['url'] ."'><img src='../images/renew.png' width='16' height='16' title=\"Bekijk '". $OpdrachtData['naam'] ."' op funda.nl\"></a></td>".NL;
 				$Page .= "	<td>&nbsp;</td>".NL;
-				//$Page .= "	<td><a href='getVerkochteHuizen.php?OpdrachtID=$OpdrachtID'><img src='../images/sold.ico' title=\"Zoek naar verkochte huizen voor '". $OpdrachtData['naam'] ."'\"></a></td>".NL;
-				//$Page .= "	<td>&nbsp;</td>".NL;
 				$Page .= "	<td><a href='invite.php?OpdrachtID=$OpdrachtID'><img src='../images/invite.gif' title=\"Nodig iemand uit voor '". $OpdrachtData['naam'] ."'\"></a></td>".NL;
 				$Page .= "	<td>&nbsp;</td>".NL;
 				$Page .= "	<td><a href='bekijkHuizenZoeker.php?selectie=Z$OpdrachtID'><img src='../images/huizenzoeker.png' title=\"Zoek naar ontbrekende gegevens voor '". $OpdrachtData['naam'] ."' op huizenzoeker.nl\"></a></td>".NL;
-				$Page .= "	<td>&nbsp;</td>".NL;
-				//$Page .= "	<td><a href='../../../download/". str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. removeFilenameCharacters($OpdrachtData['naam']) .".ics'><img src='../images/ical.png' title=\"Bekijk de huizen met Open Huis in iCal-formaat voor '". $OpdrachtData['naam'] ."'\"></a></td>".NL;
-				//$Page .= "	<td>&nbsp;</td>".NL;
-				
+				$Page .= "	<td>&nbsp;</td>".NL;			
 			}
-			
-			//$Page .= "	<td><input type='checkbox' name='mail[$OpdrachtID]' value='1'". (in_array($_SESSION['account'] ,$Abonnees) ? ' checked' : '') ." title=\"Aanvinken om mails voor '". $OpdrachtData['naam'] ."' te ontvangen\" onChange=\"this.form.submit()\"></td>".NL;
+						
 			$Page .= "	<td><input type='checkbox' name='push[$OpdrachtID]' value='1'". (in_array($_SESSION['account'] ,$POMembers) ? ' checked' : '') ." title=\"Aanvinken om push-berichten voor '". $OpdrachtData['naam'] ."' te ontvangen\" onChange=\"this.form.submit()\"$disabled></td>".NL;
 		} else {
 			$Page .= "	<td colspan='15'>&nbsp;</td>".NL;

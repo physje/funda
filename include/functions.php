@@ -552,12 +552,26 @@ function extractFundaDataFromPage($offlineHTML) {
 		$verkocht		= 0;
 	}
 	
+	# Als er een class object-promolabel__open-huis-dates is heeft openhuis => $openhuis = 1
+	# Als geen van beide het geval is, is hij nog beschikbaar => $openhuis = 0
+	if(strpos($contents, '<ol class="object-promolabel__open-huis-dates">')) {
+		$openhuis		= 1;
+	} else {
+		$openhuis		= 0;
+	}
+	
 	if($verkocht == 1) {
 		$Aangeboden 	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
 		$KenmerkData['Aangeboden sinds'] = substr(trim($Aangeboden[0]), 4);
 				
 		$Verkoopdatum 	= getString('<dt>Verkoopdatum</dt>','</dd>', $contents, 0);
 		$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
+	}
+	
+	if($openhuis == 1) {
+		$data['oh-tijden'] = extractOpenHuisData($contents);
+	}	else {
+		$data['oh-tijden'] = 0;
 	}
 			
 	# Navigatie-gedeelte
@@ -573,7 +587,7 @@ function extractFundaDataFromPage($offlineHTML) {
 		$prijs			= getString('<strong class="object-header__price--historic">', '</strong>', $contents, 0);
 	} else {
 		$prijs			= getString('<strong class="object-header__price">', '</strong>', $contents, 0);
-	}	
+	}
 	
 	$makelHTML	= getString('<h3 class="object-contact-aanbieder-name">', '</h3>', $contents, 0);
 	$PC					= getString('<span class="object-header__address-city">', '</span>', $contents, 0);
@@ -597,6 +611,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	$data['makelaar']	= trim($makelaar[0]);
 	$data['prijs']		= cleanPrice($prijs[0]);
 	$data['verkocht']	= $verkocht;
+	$data['openhuis']	= $openhuis;
 	
 	# Omschrijving		
 	$descrHTML		= getString('<div class="object-description-body"', '</div>', $contents, 0);
@@ -722,6 +737,8 @@ function saveHouse($data, $moreData) {
 	$sql .= "($HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind) ";
 	$sql .= "VALUES ";
 	$sql .= "('". $data['id'] ."', '". urlencode($data['url']) ."', '". urlencode($data['adres']) ."', '". urlencode($data['straat']) ."', '". $data['nummer'] ."', '". urlencode($data['letter']) ."', '". $data['toevoeging'] ."', '". $data['PC_c'] ."', '". $data['PC_l'] ."', '". urlencode($data['plaats']) ."', '". urlencode($data['wijk']) ."', '". urlencode($data['thumb']) ."', '". urlencode($data['makelaar']) ."', '$begin_tijd', '$eind_tijd')";
+	
+	echo $sql;
 			
 	if(!mysqli_query($db, $sql)) {		
 		return false;
@@ -1865,15 +1882,14 @@ function hasOpenHuis($id) {
 	}
 }
 
-
-function extractOpenHuisData($id) {
-	$data			= getFundaData($id);
-	$contents	= file_get_contents_retry('http://www.funda.nl'.$data['url']);
+function extractOpenHuisData($contents) {
+	//$data			= getFundaData($id);
+	//$contents	= file_get_contents_retry('http://www.funda.nl'.$data['url']);
 	
 	$propertie	= getString('<ol class="object-promolabel__open-huis-dates">', '</ol>', $contents, 0);
 	$datum			= getString('open-huis-date">', ' van ', $propertie[0], 0);
 	$tijden			= getString(' van ', ' uur.</li>', $datum[1], 0);
-		
+			
 	$temp				= explode('-', guessDate($datum[0]));
 		
 	$dag			= $temp[0];
@@ -1889,7 +1905,6 @@ function extractOpenHuisData($id) {
 	
 	return array($start, $eind);
 }
-
 
 function removeOpenHuis($id) {
 	global $db, $TableHuizen, $HuizenOpenHuis, $HuizenID, $TableResultaat, $ResultaatOpenHuis, $ResultaatID;
@@ -1912,6 +1927,24 @@ function getNextOpenhuis($id) {
 	$row		= mysqli_fetch_array($result);
 	
 	return array($row[$CalendarStart], $row[$CalendarEnd]);
+}
+
+
+function deleteOpenhuis($fundaID, $begin) {
+	global $db, $TableCalendar, $CalendarHuis, $CalendarStart;
+	
+	$sql = "DELETE FROM $TableCalendar WHERE $CalendarHuis like $fundaID AND $CalendarStart like $begin";
+	return mysqli_query($db, $sql);
+}
+
+function addOpenhuis($fundaID, $tijden) {
+	global $db, $TableCalendar, $CalendarHuis, $CalendarStart, $CalendarEnd;
+	
+	$begin = $tijden[0];
+	$eind = $tijden[1];
+	
+	$sql = "INSERT INTO $TableCalendar ($CalendarHuis, $CalendarStart, $CalendarEnd) VALUES ($fundaID, $begin, $eind)";
+	return mysqli_query($db, $sql);
 }
 
 
@@ -2076,15 +2109,17 @@ function getStreet2Check($limit) {
 
 
 function getStreetByID($id) {
-	global $db, $TableStraten, $StratenID, $StratenStrFunda, $StratenStad, $StratenStrLeesbaar;
+	global $db, $TableStraten, $StratenActive, $StratenID, $StratenStrFunda, $StratenStad, $StratenStrLeesbaar, $StratenLastCheck;
 	
 	$sql 		= "SELECT * FROM $TableStraten WHERE $StratenID = $id";	
 	$result = mysqli_query($db, $sql);
 	$row		=	mysqli_fetch_array($result);
 	
+	$data['active'] = $row[$StratenActive];
 	$data['straat'] = $row[$StratenStrFunda];
 	$data['plaats'] = $row[$StratenStad];
 	$data['leesbaar'] = $row[$StratenStrLeesbaar];
+	$data['last'] = $row[$StratenLastCheck];
 	
 	return $data;
 }
@@ -2146,6 +2181,7 @@ function sendPushoverNewHouse($fundaID, $OpdrachtID) {
 				
 		$push['url']			= 'http://funda.nl/'. $fundaID;
 		$push['urlTitle']	= $data['adres'];
+		$push['priority']	= 0;
 		
 		send2Pushover($push, $PushMembers);
 		toLog('debug', $OpdrachtID, $fundaID, 'Pushover-bericht nieuw huis verstuurd');
@@ -2169,7 +2205,9 @@ function sendPushoverChangedPrice($fundaID, $OpdrachtID) {
 		$push['title']		= $fundaData['straat'] .' '. $fundaData['nummer'] ." is in prijs verlaagd voor '". $OpdrachtData['naam'] ."'";
 		$push['message']	= "Van ". formatPrice(prev($prijzen_array)) .' voor '. formatPrice(end($prijzen_array));
 		$push['url']			= 'http://funda.nl/'. $fundaID;
-		$push['urlTitle']	= $fundaData['adres'];				
+		$push['urlTitle']	= $fundaData['adres'];
+		$push['priority']	= 0;
+		
 		send2Pushover($push, $PushMembers);
 		toLog('debug', $OpdrachtID, $fundaID, 'Pushover-bericht prijsdaling verstuurd');
 	}
@@ -2193,39 +2231,48 @@ function remove4Details($fundaID) {
 
 
 function findPCbyAdress($straat, $huisnummer, $huisletter, $toevoeging, $plaats) {
-    global $db, $OverheidAPI;
+    global $db, $OverheidAPI, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenPC_c, $HuizenPC_l;
     
     $baseURL = 'https://api.overheid.io/bag';
     
-    $filter[] = 'filters[woonplaats]='. $plaats;
-    $filter[] = 'filters[openbareruimte]='. $straat;
-    $filter[] = 'filters[huisnummer]='.$huisnummer;
-    if($huisletter != '')   $filter[] = 'filters[huisletter]='.strtoupper($huisletter);
-    if($toevoeging != '')   $filter[] = 'filters[huisnummertoevoeging]='.$toevoeging;
-
-    $service_url = $baseURL.'?'. implode('&', $filter);
-    
-    //echo $service_url;
-    
-    $ch = curl_init();
-    curl_setopt ($ch, CURLOPT_URL, $service_url);
-    curl_setopt ($ch, CURLOPT_HEADER, false);
-    curl_setopt ($ch, CURLOPT_HTTPHEADER, array("ovio-api-key:". $OverheidAPI));
-    curl_setopt ($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    $curl_out = curl_exec($ch);
-    curl_close($curl);
-    
-    $aJSON = json_decode($curl_out, true);
-    
-    $PC = $aJSON['_embedded']['adres'][0]['postcode'];
-    
-		if(isset($aJSON['error'])) {
-    	return $aJSON['error'];
-    } elseif($PC == '') {
-    	return $service_url;
-    } else {
-    	return $PC;
+    # Eerst even zoeken of dit adres (en dus postcode) niet al bestaat in de database
+    $sql		= "SELECT $HuizenPC_c, $HuizenPC_l FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($straat) ."' AND $HuizenNummer = $huisnummer AND $HuizenPC_c != ''";
+    $result	= mysqli_query($db, $sql);
+        
+    if(mysqli_num_rows($result) > 0) {    	
+    	$row =	mysqli_fetch_array($result);
+    	return $row[$HuizenPC_c].$row[$HuizenPC_l];
+    	
+    # Zo niet (= 0), dan gebruiken wij een API om de postcode erbij te zoeken
+    } else {    	    	
+    	$filter[] = 'filters[woonplaats]='. $plaats;
+    	$filter[] = 'filters[openbareruimte]='. $straat;
+    	$filter[] = 'filters[huisnummer]='.$huisnummer;
+    	if($huisletter != '')   $filter[] = 'filters[huisletter]='.strtoupper($huisletter);
+    	if($toevoeging != '')   $filter[] = 'filters[huisnummertoevoeging]='.$toevoeging;
+    	
+    	$service_url = $baseURL.'?'. implode('&', $filter);
+    	
+    	$ch = curl_init();
+    	curl_setopt ($ch, CURLOPT_URL, $service_url);
+    	curl_setopt ($ch, CURLOPT_HEADER, false);
+    	curl_setopt ($ch, CURLOPT_HTTPHEADER, array("ovio-api-key:". $OverheidAPI));
+    	curl_setopt ($ch, CURLOPT_RETURNTRANSFER, true);
+    	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    	$curl_out = curl_exec($ch);
+    	curl_close($curl);
+    	
+    	$aJSON = json_decode($curl_out, true);
+    	
+    	$PC = $aJSON['_embedded']['adres'][0]['postcode'];
+    	
+			if(isset($aJSON['error'])) {
+    		return $aJSON['error'];
+    	} elseif($PC == '') {
+    		return $service_url;
+    	} else {
+    		return $PC;
+    	}
     }
     
     //var_dump($aJSON);
@@ -2249,6 +2296,95 @@ function scrapePCInfo($PC) {
 	} else {
 		$data = getString('<th>Buurt</th>', '</a>', $contents, 0);
 		return trim(strip_tags($data[0]));	
+	}
+}
+
+function guessOpdrachtIDFromHTML($zoekURL) {
+	$opdrachten = getZoekOpdrachten($_SESSION['account'], '', false);
+	
+	# Als in de zoekURL de tekst /verkocht/ voorkomt gaat het over een huis wat verkocht is
+	# De variabele $verkocht is dan waar
+	if(strpos($zoekURL, '/verkocht/')) {
+		$verkocht		= true;
+	} else {
+		$verkocht		= false;
+	}
+	
+	# Aantal filters in de URL hebben 'geen' waarde en mogen er dus uit
+	$cleanZoekString = str_replace('/verkocht/', '/', $zoekURL);
+	$cleanZoekString = str_replace('/sorteer-afmelddatum-af/', '/', $cleanZoekString);
+	
+	# Door hem op te knippen zien wij welke filters er actief zijn
+	$filtersZoeken = explode('/', $cleanZoekString);	
+	
+	# Doorloop alle opdrachten op zoek naar een match met de filters
+	foreach($opdrachten as $opdracht) {
+		$opdrachtData			= getOpdrachtData($opdracht);		
+		$filtersOpdracht	= explode('/', getSearchString($opdrachtData['url']));
+		
+		# Wij gaan gevonden filters verwijderen dus maken even een kopie van het orgineel
+		$kopieFiltersZoeken = $filtersZoeken;
+		
+		# Wij lopen 2x de filters door
+		# 1x kijken wij welke filters uit de HTML-pagina voorkomen in de zoekopdracht
+		# 1x kijken wij welke filters uit de zoekopdracht voorkomen in de HTML-pagin
+		# Die combi die op beide het beste scoort is met redelijke zekerheid de zoekopdracht
+		foreach($filtersOpdracht as $key => $value) {
+			if(in_array($value, $kopieFiltersZoeken)) {
+				$index = array_search ($value, $kopieFiltersZoeken);
+				unset($kopieFiltersZoeken[$index]);
+			}				
+		}
+		
+		foreach($filtersZoeken as $key => $value) {
+			if(in_array($value, $filtersOpdracht)) {
+				$index = array_search ($value, $filtersOpdracht);
+				unset($filtersOpdracht[$index]);
+			}
+		}
+		
+		$score_tot[$opdracht] = count($kopieFiltersZoeken)+count($filtersOpdracht);
+	}
+	
+	# Als de laagste totale score 0 of 1 is, is het aannemelijk dat we een match hebben
+	if(min($score_tot) < 2) {
+		return array_search (min($score_tot), $score_tot);
+	} else {
+		return 0;		
+	}	
+}
+
+function guessFundaIDFromHTML($zoekURL) {
+	if(strpos($zoekURL, '/verkocht/')) {
+		$verkocht		= true;
+	} else {
+		$verkocht		= false;
+	}
+	
+	$mappen = explode("/", $zoekURL);
+		 
+	if($verkocht) {
+		$delen 		= explode("-", $mappen[4]);
+	} else {
+		$delen 		= explode("-", $mappen[3]);
+	}
+		
+	$fundaID	= $delen[1];
+	
+	if(is_numeric($fundaID) AND count($mappen) > 4 AND count($delen) > 3) {
+		return $fundaID;
+	}	else {
+		return 0;
+	}
+}
+
+function getSearchString($url, $exclude = false) {
+	$delen = parse_url($url);
+	
+	if(!$exclude) {
+		return $delen['path'];
+	} else {
+		return substr($delen['path'], 5);
 	}
 }
 

@@ -43,7 +43,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 		$OpdrachtData['url'] = 'http://www.funda.nl/koop/'.convert2FundaStyle($straatData['plaats']) ."/straat-". $straatData['straat'] ."/";
 	}
 	
-	$OpdrachtURL	= "http://partnerapi.funda.nl/feeds/Aanbod.svc/rss/?type=koop&zo=". str_replace ("http://www.funda.nl/koop", "", $OpdrachtData['url']);
+	$OpdrachtURL	= "http://partnerapi.funda.nl/feeds/Aanbod.svc/rss/?type=koop&zo=". getSearchString($OpdrachtData['url'], true);
 	$content			= file_get_contents_retry($OpdrachtURL);
 
 	if($opdrachtRun) {
