@@ -65,7 +65,7 @@ if(isset($_POST['doorgaan'])) {
 	$HTML[] = "</tr>\n";
 	$HTML[] = "<tr>\n";
 	$HTML[] = "	<td>Straatnaam :</td>\n";
-	$HTML[] = "	<td><input type='text' name='leesbaar' value='". $straatData['leesbaar'] ."'></td>\n";
+	$HTML[] = "	<td><input type='text' name='leesbaar' value='". $straatData['leesbaar'] ."'> (<a href='http://www.funda.nl/koop/". convert2FundaStyle($straatData['plaats']) .'/straat-'. $straatData['straat'] ."/"'>funda.nl</a>)</td>\n";
 	$HTML[] = "</tr>\n";
 	$HTML[] = "<tr>\n";
 	$HTML[] = "	<td>Funda straatnaam :</td>\n";
