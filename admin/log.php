@@ -23,8 +23,8 @@ if(!isset($_REQUEST['bDag']) OR !isset($_REQUEST['bMaand']) OR !isset($_REQUEST[
 }
 
 if(!isset($_REQUEST['eDag']) OR !isset($_REQUEST['eMaand']) OR !isset($_REQUEST['eJaar']) OR !isset($_REQUEST['eUur']) OR !isset($_REQUEST['eMin'])) {
-	$eMin = 5*ceil(date('i')/5);
-	$eUur = date('H');
+	$eMin = 55;
+	$eUur = 23;
 	$eDag = date('d');
 	$eMaand = date('m');
 	$eJaar = date('Y');	
