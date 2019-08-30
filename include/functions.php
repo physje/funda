@@ -2074,9 +2074,9 @@ function addUpdateStreetDb($straat, $stad) {
 		# Als $StratenActive = 0, is het een bekende maar inactieve straat die weer actief geworden is.
 		# Die hoeft dus niet weer gelijk gecheckt te worden.
 		# Als $StratenActive = 1, is het een straat die actief is, dan hoeft de last-check-tijd niet aangepast te worden
-		sql_update = "UPDATE $TableStraten SET $StratenActive = '1'";
-		if($row[$StratenActive] == '0')	sql_update .= ", $StratenLastCheck = ". time();		
-		sql_update .= " WHERE $StratenID = ". $row[$StratenID];
+		$sql_update = "UPDATE $TableStraten SET $StratenActive = '1'";
+		if($row[$StratenActive] == '0')	$sql_update .= ", $StratenLastCheck = ". time();		
+		$sql_update .= " WHERE $StratenID = ". $row[$StratenID];
 		mysqli_query($db, $sql_update);		
 	}
 }
