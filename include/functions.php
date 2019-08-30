@@ -2060,7 +2060,7 @@ function send2Pushover($dataArray, $recipients) {
 
 
 function addUpdateStreetDb($straat, $stad) {
-	global $db, $TableStraten, $StratenID, $StratenActive, $StratenStrLeesbaar, $StratenStrFunda, $StratenStad;
+	global $db, $TableStraten, $StratenID, $StratenActive, $StratenStrLeesbaar, $StratenStrFunda, $StratenStad, $StratenLastCheck;
 	$straatFunda = convert2FundaStyle($straat);
 	
 	$sql = "SELECT * FROM $TableStraten WHERE $StratenStrFunda like '$straatFunda' AND $StratenStad like '$stad'";
@@ -2068,10 +2068,16 @@ function addUpdateStreetDb($straat, $stad) {
 	if(mysqli_num_rows($result) == 0) {		
 		$sql_insert = "INSERT INTO $TableStraten ($StratenActive, $StratenStrLeesbaar, $StratenStad, $StratenStrFunda, $StratenLastCheck) VALUES ('1', '". $straat ."', '". $stad. "', '". $straatFunda ."', ". time() .")";
 		mysqli_query($db, $sql_insert);				
-	} else {
+	} else {		
 		$row = mysqli_fetch_array($result);
-		$sql_update = "UPDATE $TableStraten SET $StratenActive = '1' WHERE $StratenID = ". $row[$StratenID];
-		mysqli_query($db, $sql_update);
+		
+		# Als $StratenActive = 0, is het een bekende maar inactieve straat die weer actief geworden is.
+		# Die hoeft dus niet weer gelijk gecheckt te worden.
+		# Als $StratenActive = 1, is het een straat die actief is, dan hoeft de last-check-tijd niet aangepast te worden
+		sql_update = "UPDATE $TableStraten SET $StratenActive = '1'";
+		if($row[$StratenActive] == '0')	sql_update = ", $StratenLastCheck = ". time();		
+		sql_update = " WHERE $StratenID = ". $row[$StratenID];
+		mysqli_query($db, $sql_update);		
 	}
 }
 
