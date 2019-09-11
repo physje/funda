@@ -38,7 +38,7 @@ function getString($start, $end, $string, $offset) {
 	return array($text, $rest);
 }
 
-unction getCoordinates($straat, $postcode, $plaats, $land = 'Nederland') {
+function getCoordinates($straat, $postcode, $plaats, $land = 'Nederland') {
 	# Get your own at https://www.locationiq.com/
 	$AccessToken = "";
 		
