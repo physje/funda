@@ -2190,7 +2190,7 @@ function sendPushoverNewHouse($fundaID, $OpdrachtID) {
 		
 		if(is_numeric($soldBefore)) {
 			$extraData = getFundaData($soldBefore);
-			$push['message'] .= "\n\nAl eens verkocht op ". date("d-m-Y", $extraData['eind'])." ($soldBefore)";
+			$push['message'] .= "\n\nAl eerder verkocht op ". date("d-m-Y", $extraData['eind'])." voor ". formatPrice(getHuidigePrijs($soldBefore));
 		} elseif(is_numeric($alreadyOnline)) {
 			$extraData = getFundaData($alreadyOnline);
 			$push['message'] .= "\n\nOok online bij ". $extraData['makelaar']." ($alreadyOnline)";
@@ -2223,7 +2223,12 @@ function sendPushoverChangedPrice($fundaID, $OpdrachtID) {
 	if(count($PushMembers) > 0) {
 		$push = array();
 		$push['title']		= $fundaData['straat'] .' '. $fundaData['nummer'] ." is in prijs verlaagd voor '". $OpdrachtData['naam'] ."'";
-		$push['message']	= "Van ". formatPrice(prev($prijzen_array)) .' voor '. formatPrice(end($prijzen_array));
+		$push['message']	= "Van ". formatPrice(prev($prijzen_array)) .' naar '. formatPrice(end($prijzen_array));
+		
+		if(prev($prijzen_array) != reset($prijzen_array)) {
+		    $push['message']	.= ", oorspronkelijke vraagprijs was ". formatPrice(reset($prijzen_array));
+		}
+		
 		$push['url']			= 'http://funda.nl/'. $fundaID;
 		$push['urlTitle']	= $fundaData['adres'];
 		$push['priority']	= 0;

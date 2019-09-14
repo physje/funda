@@ -15,7 +15,7 @@ if(isset($_REQUEST['OpdrachtID'])) {
 	$Opdrachten = array($_REQUEST['OpdrachtID']);
 	$opdrachtRun = true;
 	$iMax = 1;
-} elseif(date('i') > 5) {
+} elseif(date('i') > 4) {
 	$straatRun = true;
 	$iMax = 1;
 	$Straten = getStreet2Check($iMax);
@@ -135,8 +135,28 @@ for($i=0 ; $i < $iMax ; $i++) {
 			
 			# Pushover-bericht opstellen
 			sendPushoverNewHouse($fundaID, $OpdrachtID);
-		} elseif(changedPrice($fundaID, $data['prijs'], $OpdrachtID) AND $opdrachtRun) sendPushoverChangedPrice($fundaID, $OpdrachtID);
-		if($opdrachtRun)	addUpdateStreetDb($data['straat'], $data['plaats']);
+			#echo "sendPushoverNewHouse($fundaID, $OpdrachtID);";
+		}
+		
+		# Bij een straatopdracht even opzoeken welke opdrachten daarbij horen
+		if($straatRun) {
+		    $opdrachtArray = getOpdrachtenByFundaID($fundaID);
+		
+		    
+		# Bij een 'echte' opdracht indien nodig de straat + plaats toevoegen aan straten-lijst
+		# En de array met opdrachten gelijkstellen aan de opdrachtID
+		} else {
+		    addUpdateStreetDb($data['straat'], $data['plaats']);
+		    $opdrachtArray = array($OpdrachtID);
+		}
+		
+		# Doorloop alle opdrachten om te kijken of er een push-melding uit moet
+		foreach($opdrachtArray as $OpdrachtID) {
+		    if(knownHouse($fundaID) AND changedPrice($fundaID, $data['prijs'], $OpdrachtID)) {
+		        sendPushoverChangedPrice($fundaID, $OpdrachtID);
+		        #echo "sendPushoverChangedPrice($fundaID, $OpdrachtID);";
+		    }
+		}
 	}
 	
 	$block[] = implode("<br>\n", $String);
@@ -145,7 +165,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 	if($straatRun) {
 		if($knownHouses > 0) {
 			setStreetSeen($straatID);
-			toLog('info', '', '', $straatData['leesbaar'].' in '.$straatData['plaats']."; [$knownHouses/".count($Huizen).']');
+			toLog('info', '', '', $straatData['leesbaar'].' in '.$straatData['plaats']." [$knownHouses/".count($Huizen).']');
 		} else {
 			inactivateStreet($straatID); 
 			toLog('info', '', '', $straatData['leesbaar'].' in '.$straatData['plaats'].' niet meer actief');
