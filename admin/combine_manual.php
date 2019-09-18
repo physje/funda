@@ -19,6 +19,9 @@ do {
 		
 	$option_1[] = "<option value='$huisID'". ($huisID == $_REQUEST['id_1'] ? ' selected' : '') .">$adres</option>";
 	$option_2[] = "<option value='$huisID'". ($huisID == $_REQUEST['id_2'] ? ' selected' : '') .">$adres</option>";
+	
+	if($huisID == $_REQUEST['id_1']) $start_tijd = $row[$HuizenStart];
+	if($huisID == $_REQUEST['id_2']) $eind_tijd = $row[$HuizenEind];	
 } while($row = mysql_fetch_array($result));
 
 $HTML[] = "<form method='post' action='combine_batch.php'>\n";
@@ -41,8 +44,8 @@ $HTML[] = "</tr>";
 $HTML[] = "</table>\n";
 $HTML[] = "<input type='submit' name='uitvoeren' value='uitvoeren'>\n";
 $HTML[] = "</form>\n";
-$HTML[] = 
 $HTML[] = "Starttijd van huis 1 toevoegen aan huis 2";
+$HTML[] = date("d M Y", $start_tijd) .' tot '. date("d M Y", $eind_tijd);
 
 echo $HTMLHeader;
 echo "<tr>\n";

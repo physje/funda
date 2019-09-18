@@ -2107,4 +2107,27 @@ function send2Pushover($dataArray, $recipients) {
 	}
 }
 
+function findPCbyAdress($straat, $huisnummer, $plaats) {
+    global $OverheidAPI;
+    
+    $baseURL = 'https://api.overheid.io/bag';
+    $service_url = $baseURL.'?';
+    $service_url .= 'filters[woonplaats]='. $plaats.'&';
+    $service_url .= 'filters[openbareruimte]='. $straat.'&';
+    $service_url .= 'filters[huisnummer]='.$huisnummer.'&';
+    
+    $ch = curl_init();
+    curl_setopt ($ch, CURLOPT_URL, $service_url);
+    curl_setopt ($ch, CURLOPT_HEADER, false);
+    curl_setopt ($ch, CURLOPT_HTTPHEADER, array("ovio-api-key:". $OverheidAPI));
+    curl_setopt ($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    $curl_out = curl_exec($ch);
+    curl_close($curl);
+    
+    $aJSON = json_decode($curl_out, true);
+    
+    return $aJSON['_embedded']['adres'][0]['postcode'];
+}
+
 ?>
