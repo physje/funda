@@ -2,6 +2,7 @@
 
 ## Introductie
 Funda Alert is een script om funda.nl in de gaten te houden en daar "statistiek" op te doen.
+Funda heeft mij geblockt, dus deze code wordt al "jaren" niet meer gebruikt en onderhouden.
 
 ## Configureren
 Om te beginnen moeten alle bestanden op een server geplaatst worden die verbinding heeft met internet (duh). Vergeet niet de bestanden uit de map MOVE_THIS_FOLDER naar de juiste plek te verplaatsen op de server. Als alle bestanden op de juiste plek staan moeten de variabelen in /include/config.php en ../general_include/general_config.php worden aangepast naar de in jouw geval geldende waarden. Verder moeten de MySQL-tabellen worden aangemaakt, de SQL-queries hiervoor staan in /onderhoud/tabel_{datum}.sql. Vervolgens moeten een aantal cronjobs worden ingesteld zodat het geheel automatisch kan functioneren.
