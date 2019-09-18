@@ -44,7 +44,7 @@ if(isset($googleMaps)) {
 	$HTMLHeader	.= "<body>\n";
 }
 $HTMLHeader	.= "<center>\n";
-$HTMLHeader	.= "<table width='100%' align='center' border=0>\n";
+$HTMLHeader	.= "<table width='100%' align='center' border=0></center>\n";
 
 
 
