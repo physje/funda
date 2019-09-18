@@ -1,10 +1,12 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
+$db = connect_db();
+
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
-$deel_2 = $id = null;
+
+$deel_1 = $deel_2 = $id = '';
 
 if(isset($_REQUEST['id'])) {
 	$id = $_REQUEST['id'];
@@ -19,8 +21,9 @@ if($id != '') {
 	$deel_2	= $adres;
 	
 	$links['http://www.funda.nl/'.$id] 				= "Bekijk $adres op funda.nl";
-	$links['renewData.php?id='. $id]					= "Haal de gegevens van $adres opnieuw van funda.nl";	
-	$links['edit.php?id='. $id]								= "Wijzig de gegevens van $adres";	
+	//$links['renewData.php?id='. $id]					= "Haal de gegevens van $adres opnieuw van funda.nl";	
+	$links['edit.php?id='. $id]								= "Wijzig de gegevens van $adres";
+	$links['overviewOpdrachtenHuis.php?id='. $id]	= "Bekijk zoekopdrachten waar $adres gevonden is";
 	$links['checkOudeHuizen.php?id='. $id] 		= "Haal verkoop-gegevens van $adres op";
 	$links['bekijkHuizenZoeker.php?id='. $id]	= "Zoek $adres op HuizenZoeker.nl";
 	$links['delete.php?id='. $id]							= "Verwijder $adres uit de database";
@@ -42,7 +45,7 @@ if($id != '') {
 	}
 } else {
 	$autocomplete = true; 
-	$deel_1 = "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
+	$deel_1 = "<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";
 	$deel_1 .= "Voer adres of funda_id in om te zoeken.<br>\n";
 	$deel_1 .= "<input type='text' name='extra_huis' id=\"huizen\" size='50'><br>";
 	$deel_1 .= "<br>\n";
@@ -58,7 +61,7 @@ echo "<td width='50%' valign='top' align='center'>\n";
 echo showBlock($deel_1);
 echo "</td>\n";
 
-if($deel2 != '') {
+if($deel_2 != '') {
 	echo "<td width='50%' valign='top' align='center'>\n";
 	echo showBlock($deel_2);
 	echo "</td>\n";

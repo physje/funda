@@ -38,31 +38,31 @@ function getString($start, $end, $string, $offset) {
 	return array($text, $rest);
 }
 
-function getCoordinates($straat, $postcode, $plaats, $land = 'Nederland') {
-	$q		= urlencode($straat) .",+". urlencode($postcode) ."+". urlencode($plaats) .",+". urlencode($land);
-	$url	= "http://maps.googleapis.com/maps/api/geocode/xml?address=$q&sensor=false";
+unction getCoordinates($straat, $postcode, $plaats, $land = 'Nederland') {
+	# Get your own at https://www.locationiq.com/
+	$AccessToken = "";
 		
-	$contents	= file_get_contents($url);
+	if($straat != '')		$q[] = urlencode(html_entity_decode($straat));
+	if($postcode != '')	$q[] = urlencode($postcode);
+	if($plaats != '')		$q[] = urlencode(html_entity_decode($plaats));
+	if($land != '')			$q[] = urlencode(html_entity_decode($land));
 	
-	$status	= getString('<status>', '</status>', $contents, 0);
-
-	if($status[0] == 'OK') {
-		$location				= getString('<location>', '</location>', $contents, 0);
-		$location_type	= getString('<location_type>', '</location_type>', $contents, 0);
-		
-		$lat					= getString('<lat>', '</lat>', $location[0], 0);;
-		$lon					= getString('<lng>', '</lng>', $location[0], 0);;
-		$latitude			= explode('.', $lat[0]);
-		$longitude		= explode('.', $lon[0]);		
-
-		return array($latitude[0], $latitude[1], $longitude[0], $longitude[1], $location_type[0]);
-	} else {
-		return array(0, 0, 0, 0, '');
-	}
+	$url = "https://eu1.locationiq.com/v1/search.php?key=$AccessToken";	
+	$url .= "&q=". implode(",+", $q);
+	$url .= "&format=json";
+	
+	$contents		= file_get_contents($url);
+	$json				= json_decode($contents, true);		
+	$lat				= $json[0]['lat'];
+	$lon				= $json[0]['lon'];
+	$latitude		= explode('.', $lat);
+	$longitude	= explode('.', $lon);
+	
+	return array($latitude[0], substr($latitude[1], 0, 5), $longitude[0], substr($longitude[1], 0, 5), $json[0]['importance']);	
 }
 
 function getDistance($coord1, $coord2) {
-	//http://www.postcode.nl/index.php?PageID=151
+	# http://www.postcode.nl/index.php?PageID=151
 		
 	DEFINE ('R', 6367000); // Radius of the Earth in meters
 
@@ -72,13 +72,13 @@ function getDistance($coord1, $coord2) {
 	$lat2 = $coord2[0] .'.'. $coord2[1];
 	$lon2 = $coord2[2] .'.'. $coord2[3];
 	
-	//convert degrees to radians
+	# convert degrees to radians
 	$lat1 = ($lat1 * pi() ) / 180;
 	$lon1 = ($lon1 * pi() ) / 180;
 	$lat2 = ($lat2 * pi() ) / 180;
 	$lon2 = ($lon2 * pi() ) / 180;
 
-	//Haversine Formula (http://www.movable-type.co.uk/scripts/GIS-FAQ-5.1.html)
+	# Haversine Formula (http://www.movable-type.co.uk/scripts/GIS-FAQ-5.1.html)
 	$dlon = $lon2 - $lon1;
 	$dlat = $lat2 - $lat1;
 	$a = pow(sin($dlat/2), 2) + cos($lat1) * cos($lat2) * pow(sin($dlon/2), 2);

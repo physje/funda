@@ -3,10 +3,11 @@ include_once(__DIR__.'/../include/config.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpmailer.php');
 include_once($cfgGeneralIncludeDirectory.'class.html2text.php');
 include_once('../include/HTML_TopBottom.php');
+$db = connect_db();
+
 $minUserLevel = 2;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
 $data = array();
 
 if(isset($_POST['invite'])) {
@@ -55,7 +56,7 @@ if(isset($_POST['invite'])) {
 } else {
 	$selection = makeSelectionSelection(true, false, 'Z'.$_REQUEST['OpdrachtID']);
 
-	$text[] = "<form action='$_SERVER[PHP_SELF]' method='post'>\n";
+	$text[] = "<form action='". $_SERVER['PHP_SELF']."' method='post'>\n";
 	$text[] = "<table>";
 	$text[] = "<tr>";
 	$text[] = "	<td colspan='2'>Geef hieronder aan wie je wilt uitnodigen om zich te abbonneren op welke zoekopdracht ?</td>";
@@ -69,12 +70,12 @@ if(isset($_POST['invite'])) {
 	$text[] = "	<td>";
 	
 	$sql		= "SELECT * FROM $TableUsers WHERE $UsersAccount like '". $_SESSION['UserID']."'";
-	$result	= mysql_query($sql);
-	if(mysql_num_rows($result) > 0) {
+	$result	= mysqli_query($db, $sql);
+	if(mysqli_num_rows($result) > 0) {
 		$text[] = "<select name='gebruiker'>";
 		do {
 			$text[] = "<option value='". $row[$UsersID] ."'>". $row[$UsersName] ."</option>";
-		} while($row = mysql_fetch_array($result));
+		} while($row = mysqli_fetch_array($result));
 		$text[] = "</select>";
 	} else {
 		$text[] = "Er zijn geen volgers bij jouw account.";

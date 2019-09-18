@@ -1,16 +1,15 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpmailer.php');
-include_once($cfgGeneralIncludeDirectory.'class.html2text.php');
-connect_db();
+include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
+$db = connect_db();
 
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
 # Iedereen kan deze pagina dus in principe openen.
 
 $manual = false;
-$HTMLMessageNeg = $HTMLMessage = array();
-$key_1 = null;
-$key_2 = null;
+$HTMLMessageNeg = $HTMLMessage = $key_1 = $key_2 = array();
+
 if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	$key_1[0] = $_REQUEST['id_1'];
 	$key_2[0] = $_REQUEST['id_2'];
@@ -22,21 +21,32 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	$sql  = "SELECT * ";
 	$sql .= "FROM $TableHuizen ";
 	$sql .= "WHERE ";
-	//$sql .= "$TableHuizen.$HuizenEind < $eindGrens AND ";
-	$sql .= "$TableHuizen.$HuizenOffline like '1'";
+	$sql .= "$HuizenVerkocht like '0' AND ";
+	$sql .= "$HuizenNummer != '' AND ";
+	$sql .= "$HuizenOffline like '1'";
 	
-	$result	= mysql_query($sql);
-	$row = mysql_fetch_array($result);
+	$result	= mysqli_query($db, $sql);
+	$row = mysqli_fetch_array($result);
 
 	do {
-		$adres		= $row[$HuizenAdres];
-		$PC				= $row[$HuizenPC_c];
-		$id_oud		= $row[$HuizenID];		
-		$sql_2		= "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '$adres' AND $HuizenPC_c like '$PC' AND $HuizenID NOT like '$id_oud'";
-		$result_2	= mysql_query($sql_2);
+		$id_oud     = $row[$HuizenID];
+		$data       = getFundaData($id_oud);
+		$jaarLater  = $data['eind']+(175*24*60*60);
+		$jaarEerder = $data['start']-(175*24*60*60);
 		
-		if(mysql_num_rows($result_2) >= 1 AND !in_array($id_oud, $KeyArray) AND !ignoreHouse4Combine($id_oud)) {
-			$row_2	= mysql_fetch_array($result_2);
+		$sql_2	 = "SELECT * FROM $TableHuizen WHERE ";
+		$sql_2  .= "$HuizenStraat like '". urlencode($data['straat']) ."' AND ";
+		$sql_2  .= "$HuizenNummer = ". $data['nummer'] ." AND ";
+		$sql_2  .= "$HuizenLetter like '". urlencode($data['letter']) ."' AND ";
+		$sql_2  .= "$HuizenToevoeging = '". $data['toevoeging'] ."' AND ";
+		$sql_2  .= "$HuizenPlaats like '". urlencode($data['plaats']) ."' AND ";
+		$sql_2  .= "(($HuizenStart BETWEEN ". $data['eind'] ." AND $jaarLater) OR ($HuizenEind BETWEEN $jaarEerder AND ". $data['start'] .")) AND ";
+		$sql_2  .= "$HuizenID NOT like '$id_oud'";
+		
+		$result_2	= mysqli_query($db, $sql_2);
+		
+		if(mysqli_num_rows($result_2) > 0 AND !in_array($id_oud, $KeyArray) AND !ignoreHouse4Combine($id_oud)) {
+			$row_2	= mysqli_fetch_array($result_2);
 			$id_new	= $row_2[$HuizenID];
 				
 			if(!in_array($id_new, $KeyArray)) {
@@ -48,8 +58,9 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 				$KeyArray[] = $id_new;
 			}
 		}
-	} while($row = mysql_fetch_array($result));
+	} while($row = mysqli_fetch_array($result));
 }
+
 
 if(is_array($key_1)) {
 	foreach($key_1 as $key => $value) {
@@ -59,18 +70,14 @@ if(is_array($key_1)) {
 		
 		$data_oud = getFundaData($id_oud);
 		$data_new = getFundaData($id_new);
-						
+				
 		# Huizen die niet een paar dagen offline zijn geweest zijn 'verdacht' en worden dus niet automatisch samengevoegd
 		if(($data_new['start'] - $data_oud['eind']) > 0 OR $manual) {
-			# Actie-lijst :
-			#		Vervang begintijd_2 door begintijd_1		
-			#		Vervang ID_1 door ID_2 in prijzen-, open huis- en lijsten-tabel
-			# 	Verwijder key_1 in huizen-, kenmerken- en resultaten-tabel
-						
+	
 			# De begin- en eindtijd voor het nieuwe huis in tabel met huizen updaten
 			# Neem de vroegst bekende starttijd en de laatst bekende eindtijd
 			$sql_update_1 = "UPDATE $TableHuizen SET $HuizenStart = ". min($data_oud['start'], $data_new['start']) .", $HuizenEind = ". max($data_oud['eind'], $data_new['eind']) ." WHERE $HuizenID like '". $id_new ."'";
-			if(!mysql_query($sql_update_1)) {
+			if(!mysqli_query($db, $sql_update_1)) {
 				echo "[$sql_update_1]<br>";		
 				toLog('error', '', $id_oud, "Error verplaatsen data van $id_oud naar $id_new");
 			} else {
@@ -80,7 +87,7 @@ if(is_array($key_1)) {
 			
 			# Tabel met prijzen updaten
 			$sql_update_2 = "UPDATE $TablePrijzen SET $PrijzenID = '$id_new' WHERE $PrijzenID like '$id_oud'";
-			if(!mysql_query($sql_update_2)) {
+			if(!mysqli_query($db, $sql_update_2)) {
 				echo "[$sql_update_2]<br>";
 				toLog('error', '', $id_oud, "Error toewijzen prijzen aan $id_new");
 			} else {
@@ -89,7 +96,7 @@ if(is_array($key_1)) {
 			
 			# Tabel met lijsten updaten
 			$sql_update_3 = "UPDATE $TableListResult SET $ListResultHuis = '$id_new' WHERE $ListResultHuis like '$id_oud'";
-			if(!mysql_query($sql_update_3)) {
+			if(!mysqli_query($db, $sql_update_3)) {
 				echo "[$sql_update_3]<br>";
 				toLog('error', '', $id_oud, "Error toewijzen $id_new op lijst");
 			} else {
@@ -98,7 +105,7 @@ if(is_array($key_1)) {
 			
 			# Tabel met open huizen updaten
 			$sql_update_4 = "UPDATE $TableCalendar SET $CalendarHuis = '$id_new' WHERE $CalendarHuis like '$id_oud'";
-			if(!mysql_query($sql_update_4)) {
+			if(!mysqli_query($db, $sql_update_4)) {
 				echo "[$sql_update_4]<br>";
 				toLog('error', '', $id_oud, "Error toewijzen open huis aan $id_new");
 			} else {
@@ -107,7 +114,7 @@ if(is_array($key_1)) {
 					
 			# Het oude huis uit de tabel met huizen halen
 			$sql_delete_1	= "DELETE FROM $TableHuizen WHERE $HuizenID like '$id_oud'";
-			if(!mysql_query($sql_delete_1)) {
+			if(!mysqli_query($db, $sql_delete_1)) {
 				echo "[$sql_delete_1]<br>";
 				toLog('error', '', $id_oud, "Error verwijderen huis (is identiek aan $id_new)");
 			} else {
@@ -116,7 +123,7 @@ if(is_array($key_1)) {
 			
 			# Het oude huis uit de tabel met kenmerken halen (de nieuwe staan er al in)
 			$sql_delete_2	= "DELETE FROM $TableKenmerken WHERE $KenmerkenID like '$id_oud'";
-			if(!mysql_query($sql_delete_2)) {
+			if(!mysqli_query($db, $sql_delete_2)) {
 				echo "[$sql_delete_2]<br>";
 				toLog('error', '', $id_oud, "Error verwijderen kenmerken (zijn identiek aan $id_new)");
 			} else {
@@ -125,7 +132,7 @@ if(is_array($key_1)) {
 			
 			# Het oude huis uit de tabel met resultaten halen (de nieuwe staat er al in)
 			$sql_delete_3 = "DELETE FROM $TableResultaat WHERE $ResultaatID like '$id_oud'";
-			if(!mysql_query($sql_delete_3)) {
+			if(!mysqli_query($db, $sql_delete_3)) {
 				echo "[$sql_delete_3]<br>";
 				toLog('error', '', $id_oud, "Error verwijderen van $id_oud in opdracht");
 			} else {
@@ -160,8 +167,8 @@ if(is_array($key_1)) {
 		
 		if(!$verwijderd) {
 			$Item .= "<tr>\n";
-			$Item .= "	<td align='center'><a href='". $ScriptURL ."admin/combine_manual.php?id_1=$id_oud&id_2=$id_new'>deze verwijderen</a></td>\n";
-			$Item .= "	<td align='center'><a href='". $ScriptURL ."admin/combine_manual.php?id_1=$id_new&id_2=$id_oud'>deze verwijderen</a></td>\n";
+			$Item .= "	<td align='center'><a href='". $ScriptURL ."admin/combine_manual.php?id_1=$id_oud&id_2=$id_new'>deze verwijderen</a> | <a href='". $ScriptURL ."admin/changeState.php?state=ignore&id=$id_oud'>deze negeren</a></td>\n";
+			$Item .= "	<td align='center'><a href='". $ScriptURL ."admin/combine_manual.php?id_1=$id_new&id_2=$id_oud'>deze verwijderen</a> | <a href='". $ScriptURL ."admin/changeState.php?state=ignore&id=$id_new'>deze negeren</a></td>\n";
 			$Item .= "</tr>\n";
 		}
 		$Item .= "</table>\n";
@@ -202,11 +209,7 @@ if(is_array($key_1)) {
 		
 		$HTMLMail .= $HTMLPreFooter;
 		$HTMLMail .= $HTMLFooter;
-		
-		$html =& new html2text($HTMLMail);
-		$html->set_base_url($ScriptURL);
-		$PlainText = $html->get_text();
-			
+				
 		$mail = new PHPMailer;
 		$mail->From     = $ScriptMailAdress;
 		$mail->FromName = $ScriptTitle;
@@ -214,9 +217,6 @@ if(is_array($key_1)) {
 		$mail->Subject	= $SubjectPrefix. "Funda opruiming";
 		$mail->IsHTML(true);
 		$mail->Body			= $HTMLMail;
-		$mail->AltBody	= $PlainText;
-		
-		//echo $HTMLMail;
 		
 		if(!$mail->Send()) {
 			echo "Versturen van mail is mislukt<br>";
@@ -229,5 +229,4 @@ if(is_array($key_1)) {
 	}
 } else {
 	echo "Geen werk aan de winkel";
-	//toLog('info', '', '', "Geen opschoonwerkzaamheden verricht");
 }

@@ -1,18 +1,21 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
+$db = connect_db();
+
 $minUserLevel = 1;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+
+$Page_1 = $Page_2 = $Page_3 = $Page_4 = '';
 
 # Lijst verwijderen
 if(isset($_POST['delete_list'])) {
 	if(isset($_POST['delete_yes'])) {
 		$sql_delete_list = "DELETE FROM $TableList WHERE $ListID like ". $_POST['list'];
-		mysql_query($sql_delete_list);
+		mysqli_query($db, $sql_delete_list);
 		
 		$sql_delete_result = "DELETE FROM $TableListResult WHERE $ListResultList like ". $_POST['list'];
-		mysql_query($sql_delete_result);
+		mysqli_query($db, $sql_delete_result);
 		
 		$Page_1 = "De lijst incl. huizen is verwijderd";
 	} elseif(isset($_POST['delete_no'])) {	
@@ -21,7 +24,7 @@ if(isset($_POST['delete_list'])) {
 	# Weet je het heeeel zeker
 	} else {
 		$Page_1 = "Weet u zeker dat u deze lijst wilt verwijderen ?";
-		$Page_1 .= "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
+		$Page_1 .= "<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";
 		$Page_1 .= "<input type='hidden' name='delete_list' value='true'>\n";
 		$Page_1 .= "<input type='hidden' name='list' value='". $_POST['list'] ."'>\n";
 		$Page_1 .= "<input type='submit' name='delete_yes' value='Ja'> <input type='submit' name='delete_no' value='Nee'>";
@@ -45,7 +48,7 @@ if(isset($_POST['delete_list'])) {
 # Array met huizen voor lijst toekennen aan lijst nadat eerst de lijst 'geleegd' is
 } elseif(isset($_POST['save_houses'])) {
 	$sql_delete = "DELETE FROM $TableListResult WHERE $ListResultList like ". $_POST['list'];
-	mysql_query($sql_delete);
+	mysqli_query($db, $sql_delete);
 	
 	foreach($_POST['huis'] as $huis) {
 		$Page_1 .= addHouse2List($huis, $_POST['list']);
@@ -63,7 +66,7 @@ if(isset($_POST['delete_list'])) {
 	# Door de boolean $autocomplete op true te zetten wordt javascript-code opgenomen op de pagina.
 	$autocomplete = true;
 	
-	$Page_1 ="<form method='post' action='$_SERVER[PHP_SELF]'>\n";
+	$Page_1 ="<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";
 	
 	# Als er een lijst-id bekend is kunnen er knoppen getoond worden om hier huizen aan toe te kennen
 	if($list != 0) {
@@ -89,10 +92,13 @@ if(isset($_POST['delete_list'])) {
 		$Page_3 .= "</form>";
 
 		$Page_3 .="<a href='bekijkHuizenZoeker.php?selectie=L$list'>Voer aan HuizenZoeker.nl</a>";
-		$Page_3 .="<p>";
-		$Page_3 .="<a href='renewData.php?selectie=L$list'>Haal alle funda-gegevens opnieuw op</a>";
+		//$Page_3 .="<p>";
+		//$Page_3 .="<a href='renewData.php?selectie=L$list'>Haal alle funda-gegevens opnieuw op</a>";
 
-	}
+	} else {
+		$data['active'] = 1;
+		$data['naam'] = 'Lijst '.date('d-m-Y');
+	}		
 	
 	# Formulier om lijst-gegevens te wijzigen
 	$Page_1 .= "<table border=0>\n";
@@ -119,7 +125,7 @@ if(isset($_POST['delete_list'])) {
 		
 		# Als er huizen op deze lijst staan moeten die getoond worden
 		if(count($Huizen) > 0) {
-			$Page_2 ="<form method='post' action='$_SERVER[PHP_SELF]'>\n";
+			$Page_2 ="<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";
 			$Page_2 .= "<input type='hidden' name='list' value='$list'>\n";
 		
 			foreach($Huizen as $huis) {
@@ -146,7 +152,7 @@ if(isset($_POST['delete_list'])) {
 		}
 		
 		# Formulier met autocomplete-textveld om handmatig een adres in te voeren		
-		$Page_4 ="<form method='post' action='$_SERVER[PHP_SELF]'>\n";
+		$Page_4 ="<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";
 		$Page_4 .= "<input type='hidden' name='list' value='$list'>\n";
 		$Page_4 .= "Voer adres of funda_id in om handmatig een huis toe te voegen.<br>\n";
 		$Page_4 .= "<input type='text' name='extra_huis' id=\"huizen\" size='50'><br>";

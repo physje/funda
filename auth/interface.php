@@ -5,7 +5,7 @@ echo "<tr>\n";
 echo "<td width='25%' valign='top' align='center'>&nbsp;</td>\n";
 echo "<td width='50%' valign='top' align='center'>";
 
-echo "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
+echo "<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";
 echo "<input type='hidden' name='interface' value='true'>\n";
 echo "<table align='center' border=0>\n";
 echo "<tr>\n";

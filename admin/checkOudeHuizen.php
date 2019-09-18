@@ -2,21 +2,21 @@
 include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
 
-connect_db();
+$db = connect_db();
 $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 
-if($_REQUEST['tijd'] == 'jaar') {
+if(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'jaar') {
 	$startdag = mktime(0, 0, 0, date("n"), date("j")-1, date("Y")-1);
 	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));
-} elseif($_REQUEST['tijd'] == 'kwartaal') {
+} elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'kwartaal') {
 	$startdag = mktime(0, 0, 0, date("n")-3, date("j")-1, date("Y"));
 	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));
-} elseif($_REQUEST['tijd'] == 'maand') {
+} elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'maand') {
 	$startdag = mktime(0, 0, 0, date("n")-1, date("j")-1, date("Y"));
 	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));	
-} elseif($_REQUEST['tijd'] == 'dag') {
+} elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'dag') {
 	$startdag = mktime(0, 0, 0, date("n"), date("j")-3, date("Y"));
 	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));	
 } else {
@@ -32,14 +32,11 @@ $eMaand 	= getParam('eMaand', date("m", $einddag));
 $eJaar		= getParam('eJaar', date("Y", $einddag));
 $selectie	= getParam('selectie', '');
 
-# Als hij een pagina opvraagt die niet bestaat krijg je veel errors/warnings.
-# Dat is niet handig, dus even onderdrukken
-error_reporting(0);
-$HTML = array();
+$HTML = $Debug = array();
 if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	$dateSelection = makeDateSelection('','',$bDag,$bMaand,$bJaar , '','',$eDag,$eMaand,$eJaar);
 		
-	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+	$HTML[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 	$HTML[] = "<input type='hidden' name='datum' value='1'>";
 	$HTML[] = "<table>";
 	$HTML[] = "<tr>";
@@ -59,7 +56,7 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	$HTML[] = "	<td>". makeSelectionSelection(true, true) ."</td>";
 	$HTML[] = "	<td>&nbsp;</td>";
 	$HTML[] = "</tr>";
-	$HTML[] = "	<td colspan=7><a href='". $_SERVER[PHP_SELF] ."?tijd=dag'>dag</a> | <a href='". $_SERVER[PHP_SELF] ."?tijd=week'>week</a> | <a href='". $_SERVER[PHP_SELF] ."?tijd=maand'>maand</a> | <a href='". $_SERVER[PHP_SELF] ."?tijd=kwartaal'>kwartaal</a> | <a href='". $_SERVER[PHP_SELF] ."?tijd=jaar'>jaar</a></td>\n";
+	$HTML[] = "	<td colspan=7><a href='". $_SERVER['PHP_SELF'] ."?tijd=dag'>dag</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=week'>week</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=maand'>maand</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=kwartaal'>kwartaal</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=jaar'>jaar</a></td>\n";
 	$HTML[] = "</tr>";
 	$HTML[] = "</table>";
 	$HTML[] = "</form>";
@@ -96,31 +93,25 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	}
 	
 	$sql = implode(" ", $sql_array);	
-	$result	= mysql_query($sql);
+	$result	= mysqli_query($db, $sql);
 	
 	$Debug[] = implode("<br>\n", $sql_array) ."<br>\n";  
-	$Debug[] = mysql_num_rows($result) ." resultaten<br>\n";  
+	$Debug[] = mysqli_num_rows($result) ." resultaten<br>\n";  
 		
-	$result	= mysql_query($sql);	
-	if($row = mysql_fetch_array($result)) {
+	$result	= mysqli_query($db, $sql);	
+	if($row = mysqli_fetch_array($result)) {
 		do {
-			set_time_limit (30); 
+			$url = 'http://www.funda.nl/'.$row[$HuizenID];
 			
-			if($row[$HuizenVerkocht] == 1) {
-				$url			= "http://www.funda.nl". changeURLLocation($row[$HuizenURL]);
-			} else {
-				$url			= "http://www.funda.nl". $row[$HuizenURL];
-			}
-			$HTML[] = '<b>'. urldecode($row[$HuizenAdres]) ."</b> (<a href='$url'>url</a>, ". urldecode($row[$HuizenPlaats]) .")<br>";
+			$HTML[] = '<b>'. urldecode($row[$HuizenAdres]) ."</b> (". urldecode($row[$HuizenPlaats]) .")<br>";
 			$HTML[] = "[van ". date("d-m-Y", $row[$HuizenStart]) ." tot ". date("d-m-Y", $row[$HuizenEind]) ."]<br>";
+			$HTML[] = "<a href='$url' target='funda_huis'>funda.nl</a> | <a href='edit.php?id=". $row[$HuizenID] ."' target='funda_detail'>details</a> | zet <a href='changeState.php?state=offline&id=". $row[$HuizenID] ."' target='funda_state'>offline</a>, <a href='changeState.php?state=verkocht&id=". $row[$HuizenID] ."' target='funda_state'>verkocht</a><br>";
 			
-			if($row[$HuizenOffline] == 0) {
-				$HTML_temp = extractAndUpdateVerkochtData($row[$HuizenID]);				
-			} else {
-				$HTML_temp[] = ' -> niet aan begonnen, is offline<br>';
+			if($row[$HuizenOffline] != 0) {
+				$HTML[] = ' -> niet aan beginnen, is offline<br>';
 			}
-			$HTML = array_merge($HTML, $HTML_temp);
-		} while($row = mysql_fetch_array($result));
+
+		} while($row = mysqli_fetch_array($result));
 	}
 }
 

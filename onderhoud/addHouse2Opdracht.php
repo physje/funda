@@ -1,7 +1,7 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
 
-connect_db();
+$db = connect_db();
 
 if(isset($_REQUEST['huis']) AND isset($_REQUEST['opdracht'])) {
 	$prijzen = getPriceHistory($_REQUEST['huis']);
@@ -16,7 +16,7 @@ if(isset($_REQUEST['huis']) AND isset($_REQUEST['opdracht'])) {
 } else {	
 	$opdrachten = getZoekOpdrachten(1, '');
 	
-	echo "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
+	echo "<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";
 	echo "<table>\n";
 	echo "<tr>";
 	echo "	<td>Opdracht</td>";
@@ -36,12 +36,12 @@ if(isset($_REQUEST['huis']) AND isset($_REQUEST['opdracht'])) {
 	echo "	<td><select name='huis'>";
 	
 	$sql		= "SELECT * FROM $TableHuizen ORDER BY $HuizenAdres, $HuizenStart";
-	$result	= mysql_query($sql);
-	$row = mysql_fetch_array($result);
+	$result	= mysqli_query($db, $sql);
+	$row = mysqli_fetch_array($result);
 		
 	do {
 		echo "<option value='". $row[$HuizenID] ."'>". urldecode($row[$HuizenAdres]) ."; ". urldecode($row[$HuizenPlaats]) ." (". $row[$HuizenID] .")</option>";
-	} while($row = mysql_fetch_array($result));
+	} while($row = mysqli_fetch_array($result));
 	
 	echo "	</select></td>";	
 	echo "</tr>";

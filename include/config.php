@@ -1,5 +1,4 @@
 <?php
-
 $debug			= 0;			# Wel (1) of geen (0) debug-info op het scherm tonen
 $stapPrijs		= 25000;		# Stapjes in prijs in de Google Maps view
 $colPhoto		= 3;			# Aantal kolommen met foto in mail
@@ -18,7 +17,9 @@ $cfgUserLevels = array(
 );
 
 $randomCheck = true;			# Random checken, ja (true) of nee (false). Funda blockt robots, random kan handig zijn.
-$randomFactor = 0.5;			# Getal tussen 0 en 1, waarbij 0 is nooit checken en 1 altijd. 
+$randomFactor = 1;			# Getal tussen 0 en 1, waarbij 0 is nooit checken en 1 altijd. 
+
+$offlineDir = 'offline/';
 
 # Deze zaken zijn standaard aangevinkt bij een export naar EXCEL
 $cfgCSVExport[] = 'Inhoud';
@@ -71,6 +72,10 @@ $TableHuizen		= "funda_huizen";
 $HuizenID 		= "funda_id";
 $HuizenURL	 	= "url";
 $HuizenAdres 		= "adres";
+$HuizenStraat 		= "straat";
+$HuizenNummer 		= "nummer";
+$HuizenLetter 		= "letter";
+$HuizenToevoeging	= "toevoeg";
 $HuizenPC_c 		= "PC_cijfers";
 $HuizenPC_l		= "PC_letters";
 $HuizenPlaats		= "plaats";
@@ -85,6 +90,7 @@ $HuizenAfmeld		= "afgemeld";
 $HuizenVerkocht		= "verkocht";
 $HuizenOffline		= "offline";
 $HuizenOpenHuis		= "open_huis";
+$HuizenDetails		= "details";
 
 $TableCalendar		= "funda_kalender";
 $CalendarHuis		= "huis";
@@ -130,6 +136,7 @@ $UsersLastLogin		= "lastLogin";
 $TablePBK		= "funda_PBK";
 $PBKStart		= "start";
 $PBKEind		= "eind";
+$PBKRegio		= "regio";
 $PBKWaarde		= "waarde";
 $PBKComment		= "comment";
 
@@ -149,6 +156,9 @@ $ResultaatID		= "funda_id";
 $ResultaatPrijs		= "prijs";
 $ResultaatVerkocht	= "verkocht";
 $ResultaatOpenHuis	= "open_huis";
+$ResultaatNew				= "nieuw";
+$ResultaatPrijsMail	= "mail_prijs";
+
 
 $TableVerdeling		= "funda_verdeling";
 $VerdelingUur		= "uur";
@@ -160,12 +170,25 @@ $ZoekenUser		= "user";
 $ZoekenNaam		= "naam";
 $ZoekenURL		= "url";
 
-include_once($cfgGeneralIncludeDirectory . 'general_functions.php');
-include_once($cfgGeneralIncludeDirectory . 'general_config.php');
-include_once( __DIR__ .'/functions.php');
-include_once( __DIR__ .'/config_url.php');
+$TableStraten				= "funda_straten";
+$StratenID					= "id";
+$StratenActive 			= "active";
+$StratenStrLeesbaar = "naam_leesbaar";
+$StratenStrFunda		= "naam_funda";
+$StratenStad				= "stad";
+$StratenLastCheck		= "last_checked";
+
+$TableGemeentes			= "funda_gemeentes";
+$GemeentesPC				= "PC";
+$GemeentesPlaats		= "plaats";
+$GemeentesGemeente	= "gemeente";
+$GemeentesProvincie	= "provincie";
+
+include ($cfgGeneralIncludeDirectory . 'general_config.php');
+include ($cfgGeneralIncludeDirectory . 'shared_functions.php');
+include ( __DIR__ .'/functions.php');
+include ( __DIR__ .'/config_funda.php');
 
 date_default_timezone_set('Europe/Amsterdam');
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
 
 ?>

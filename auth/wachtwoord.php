@@ -4,17 +4,17 @@ include_once($cfgGeneralIncludeDirectory.'class.phpmailer.php');
 include_once($cfgGeneralIncludeDirectory.'class.html2text.php');
 
 include_once('../include/HTML_TopBottom.php');
-connect_db();
+$db = connect_db();
 
 if(isset($_POST['opvragen'])) {
 	$invoer	= $_POST['invoer'];
 	$sql		= "SELECT * FROM $TableUsers WHERE $UsersUsername like '$invoer' OR $UsersAdres like '$invoer'";
-	$result = mysql_query($sql);
+	$result = mysqli_query($db, $sql);
 	
-	if(mysql_num_rows($result) == 0) {
+	if(mysqli_num_rows($result) == 0) {
 		$text[] = "Er is helaas niks gevonden met '$invoer'";
 	} else {
-		$row	= mysql_fetch_array($result);
+		$row	= mysqli_fetch_array($result);
 		$id		= $row[$UsersID];
 		$data	= getMemberDetails($id);
 		
@@ -55,7 +55,7 @@ if(isset($_POST['opvragen'])) {
 		}		
 	}	
 } else {
-	$text[] = "<form action='$_SERVER[PHP_SELF]' method='post'>\n";
+	$text[] = "<form action='". $_SERVER['PHP_SELF']."' method='post'>\n";
 	$text[] = "<table>";
 	$text[] = "<tr>";
 	$text[] = "	<td>Voer uw loginnaam of email-adres in. Het systeem zal dan een nieuw wachtwoord mailen.</td>";

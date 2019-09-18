@@ -1,10 +1,11 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
-$minUserLevel = 1;
+$db = connect_db();
+
+$minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
 
 if(isset($_POST['ids'])) {
 	if(strpos($_POST['ids'], ';')) {
@@ -26,7 +27,7 @@ if(isset($_POST['ids'])) {
 		$deel_1 = "<p>Selectie bevat geen huizen";
 	}
 } else {
-	$deel_1 = "<form method='post' action='$_SERVER[PHP_SELF]'>\n";	
+	$deel_1 = "<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";	
 	$deel_1 .= "<table border=0>\n";
 	$deel_1 .= "<tr>\n";
 	$deel_1 .= "	<td>Voer de funda-ID's in gescheiden door een puntkomma (;) of elke op een nieuwe regel</td>\n";

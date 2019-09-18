@@ -1,23 +1,29 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
-
 include_once('../include/HTML_TopBottom.php');
+$db = connect_db();
+
 setlocale(LC_ALL, 'nl_NL');
 $minUserLevel = 2;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+
 $data = array();
 
 if(isset($_REQUEST['id'])) {
 	$id = $_REQUEST['id'];
+	$data = getFundaData($id);
 				
 	if(isset($_POST['save'])) {
 		$begin_tijd = mktime(0, 0, 1, $_POST['bMaand'], $_POST['bDag'], $_POST['bJaar']);
 		$eind_tijd = mktime(23, 59, 59, $_POST['eMaand'], $_POST['eDag'], $_POST['eJaar']);
 		
 		$sql  = "UPDATE $TableHuizen SET ";
-		$sql .= "$HuizenAdres = '". urlencode($_POST['adres']) ."', ";
+		//$sql .= "$HuizenAdres = '". urlencode($_POST['adres']) ."', ";
+		$sql .= "$HuizenStraat = '". $_POST['straat'] ."', ";
+		$sql .= "$HuizenNummer = '". $_POST['nummer'] ."', ";
+		$sql .= "$HuizenLetter = '". $_POST['letter'] ."', ";
+		$sql .= "$HuizenToevoeging = '". $_POST['toevoeging'] ."', ";		
 		$sql .= "$HuizenPC_c = '". $_POST['PC_cijfers'] ."', ";
 		$sql .= "$HuizenPC_l =  '". $_POST['PC_letters'] ."', "; 
 		$sql .= "$HuizenPlaats = '". $_POST['plaats'] ."', ";
@@ -28,24 +34,22 @@ if(isset($_REQUEST['id'])) {
 		$sql .= "$HuizenStart = $begin_tijd, ";
 		$sql .= "$HuizenEind = $eind_tijd WHERE $HuizenID = $id";
 		
-		if(!mysql_query($sql)) {
+		if(!mysqli_query($db, $sql)) {
 			$HTML[] = $sql;
 		} else {
-			$HTML[] = $_POST['adres'] ." is opgeslagen";
+			$HTML[] = $_POST['straat'] .' '. $_POST['nummer'] ." is opgeslagen";
 		}
 	} else {		
-		$data = getFundaData($id);
-		
-		$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+		$HTML[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 		$HTML[] = "<input type='hidden' name='id' value='$id'>";
-		$HTML[] = "<table>";	
+		$HTML[] = "<table border=0 width='100%'>";	
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Adres</td>";
-		$HTML[] = "	<td><input type='text' name='adres' value='". $data['adres'] ."' size='35'></td>";
+		$HTML[] = "	<td>". $data['adres'] ."<br><input type='text' name='straat' value='". $data['straat'] ."' size='15'> <input type='text' name='nummer' value='". $data['nummer'] ."' size='1'> <input type='text' name='letter' value='". $data['letter'] ."' size='1'> <input type='text' name='toevoeging' value='". $data['toevoeging'] ."' size='1'><div class='float_rechts'><a href='http://funda.nl/$id' target='_blank'>funda.nl</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td></td>";
-		$HTML[] = "	<td><input type='text' name='PC_cijfers' value='". $data['PC_c'] ."' size='4'> <input type='text' name='PC_letters' value='". $data['PC_l'] ."' size='2'><div class='float_rechts'><a href='http://funda.nl/$id' target='_blank'>funda.nl</a></div></td>";
+		$HTML[] = "	<td><input type='text' name='PC_cijfers' value='". $data['PC_c'] ."' size='4'> <input type='text' name='PC_letters' value='". $data['PC_l'] ."' size='2'><div class='float_rechts'><a href='addPostcode.php?fundaID=$id' target='_blank'>vernieuw postcode</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Plaats</td>";
@@ -53,7 +57,7 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "</tr>";	
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Coordinaten</td>";
-		$HTML[] = "	<td><input type='text' name='latitude' value='". $data['lat'] ."' size='7'>,<input type='text' name='longitude' value='". $data['long'] ."' size=7'><div class='float_rechts'><a href='../extern/redirect.php?id=$id' target='_blank'>Google Maps</a></div></td>";
+		$HTML[] = "	<td><input type='text' name='latitude' value='". $data['lat'] ."' size='7'>,<input type='text' name='longitude' value='". $data['long'] ."' size=7'><div class='float_rechts'><a href='../extern/redirect.php?id=$id' target='_blank'>Google Maps</a> | <a href='renewCoord.php?fundaID=$id' target='_blank'>vernieuw</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Makelaar</td>";
@@ -105,20 +109,26 @@ if(isset($_REQUEST['id'])) {
 		$Kenmerk[] = "Prijzen opslaan";
 		
 		$sql = "DELETE FROM $TablePrijzen WHERE $PrijzenID = $id";	
-		if(mysql_query($sql)) {
+		if(mysqli_query($db, $sql)) {
 			foreach($_POST['pDag'] as $key => $value) {				
 				if($_POST['pPrijs'][$key] != 'leeg') {
 					$tijd = mktime(0, 0, 0, $_POST['pMaand'][$key], $_POST['pDag'][$key], $_POST['pJaar'][$key]);
 					$prijs = $_POST['pPrijs'][$key];
 					updatePrice($id, $prijs, $tijd);
 				}
-			}
+			}   
 		}
 	} else {
 		# Prijshistorie
 		$Prijzen = getPriceHistory($id);
+		
+		if($data['PC_c'] != '') {
+			$provincie = findProv($data['PC_c']);
+		} else {
+			$provincie = findProv($data['plaats']);
+		}
 	
-		$PrijsHistory[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+		$PrijsHistory[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 		$PrijsHistory[] = "<input type='hidden' name='id' value='$id'>";
 		$PrijsHistory[] = "<table>";
 		$PrijsHistory[] = "<tr>";
@@ -148,12 +158,12 @@ if(isset($_REQUEST['id'])) {
 				$bMaand = date('m', $key);
 				$bJaar	= date('Y', $key);				
 				if($data['verkocht'] == '1' || $data['offline'] == '1') {
-					$nieuwePrijs	= corrigeerPrice($key, $value, $data['eind']);					
+					$nieuwePrijs	= corrigeerPrice($key, $value, $data['eind'], $provincie);					
 					$eDag		= date('d', $data['eind']);
 					$eMaand	= date('m', $data['eind']);
 					$eJaar	= date('Y', $data['eind']);
 				} else {
-					$nieuwePrijs	= corrigeerPrice($key, $value);
+					$nieuwePrijs	= corrigeerPrice($key, $value, '', $provincie);
 					$eDag		= date('d');
 					$eMaand	= date('m');
 					$eJaar	= date('Y');
@@ -163,7 +173,7 @@ if(isset($_REQUEST['id'])) {
 				$percentage		= number_format ((100*($nieuwePrijs-$value)/$value), 1);				
 				if($percentage > 0)	$percentage = '+'.$percentage;
 				
-				$PrijsHistory[] = "<td><a href='determineCorrectPrice.php?prijs=$prijs&bDag=$bDag&bMaand=$bMaand&bJaar=$bJaar&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar' target='_blank'>". ($data['verkocht'] == '1' || $data['offline'] == '1' ? '<i>' : '') . formatPrice($nieuwePrijs) . ($data['verkocht'] == '1' || $data['offline'] == '1' ? '</i>' : '') . "</a> ($percentage %)</td>";
+				$PrijsHistory[] = "<td><a href='determineCorrectPrice.php?prijs=$prijs&bDag=$bDag&bMaand=$bMaand&bJaar=$bJaar&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar&regio=$provincie' target='_blank'>". ($data['verkocht'] == '1' || $data['offline'] == '1' ? '<i>' : '') . formatPrice($nieuwePrijs) . ($data['verkocht'] == '1' || $data['offline'] == '1' ? '</i>' : '') . "</a> ($percentage %)</td>";
 				$PrijsHistory[] = "</tr>";
 			}
 		}
@@ -178,17 +188,20 @@ if(isset($_REQUEST['id'])) {
 		$PrijsHistory[] = "</form>";
 	}
 	
+	//$shortcut[] = "zet <a href='changeState.php?state=offline&id=$id'>offline</a>";
+	//$shortcut[] = "zet <a href='changeState.php?state=verkocht&id=$id'>verkocht</a>";
+	
 	# Zoekresultaten
 	$sql		= "SELECT $ResultaatZoekID FROM $TableResultaat WHERE $ResultaatID like $id";
-	$result	= mysql_query($sql);
-	if($row	=	mysql_fetch_array($result)) {
+	$result	= mysqli_query($db, $sql);
+	if($row	=	mysqli_fetch_array($result)) {
 		$Resultaten[] = "Gevonden met :\n";
 		$Resultaten[] = "<ul>\n";
 	
 		do {
 			$opdrachtData = getOpdrachtData($row[$ResultaatZoekID]);
 			$Resultaten[] = '<li>'. $opdrachtData['naam'] ."</li>\n";
-		} while($row =	mysql_fetch_array($result));
+		} while($row =	mysqli_fetch_array($result));
 		$Resultaten[] = "</ul>\n";
 	}
 	
@@ -216,7 +229,11 @@ if(isset($_REQUEST['id'])) {
 	}
 	
 	# Foto's
-	$fotos = explode('|', $KenmerkData['foto']);
+	if(isset($KenmerkData['foto'])) {
+		$fotos = explode('|', $KenmerkData['foto']);
+	} else {
+		$fotos = array();
+	}
 	
 	foreach($fotos as $key => $value)	{
 		if($data['offline'] == 1) {
@@ -236,13 +253,13 @@ if(isset($_REQUEST['id'])) {
 	
 	if(is_numeric($soldBefore)) {
 		$extraData = getFundaData($soldBefore);
-		$extraString = "<a href='http://funda.nl/$soldBefore'>Al eens verkocht op ". date("d-m-Y", $extraData['eind']) ."</a>";
+		$extraString = "<a href='?id=$soldBefore'>Al eens verkocht op ". date("d-m-Y", $extraData['eind']) ."</a>";
 	} elseif(is_numeric($alreadyOnline)) {
 		$extraData = getFundaData($alreadyOnline);
-		$extraString = "<a href='http://funda.nl/$alreadyOnline'>Ook online bij ". $extraData['makelaar'] ."</a>";
+		$extraString = "<a href='?id=$alreadyOnline'>Ook online bij ". $extraData['makelaar'] ."</a>";
 	} elseif(is_numeric($onlineBefore)) {
 		$extraData = getFundaData($onlineBefore);
-		$extraString = implode(" & ", getTimeBetween($extraData['eind'], $data['start'])) ." offline geweest";
+		$extraString = "<a href='?id=$onlineBefore'>".implode(" & ", getTimeBetween($extraData['eind'], $data['start'])) ." offline geweest</a>";
 	}
 	
 	# Open huis
@@ -257,8 +274,11 @@ echo $HTMLHeader;
 echo "<tr>\n";
 echo "<td width='50%' valign='top' align='center'>\n";
 echo showBlock(implode("\n", $HTML));
-echo "<p>";
-echo showBlock(implode("\n", $Kenmerken));
+
+if(count($KenmerkData) > 0) {
+	echo "<p>";
+	echo showBlock(implode("\n", $Kenmerken));
+}
 echo "</td>";
 echo "<td width='50%' valign='top' align='center'>\n";
 echo showBlock(implode("\n", $Thumb));
@@ -269,19 +289,22 @@ if(count($Resultaten) > 0) {
 	echo "<p>";
 }
 
-if($OpenHuis != '') {
+if(isset($OpenHuis) AND $OpenHuis != '') {
 	echo showBlock($OpenHuis);
 	echo "<p>";
 }
 
-if($extraString != '') {
+if(isset($extraString) AND $extraString != '') {
 	echo showBlock($extraString);
 	echo "<p>";
 }
 
 echo showBlock(implode("\n", $PrijsHistory));
-echo "<p>";
-echo showBlock(implode("\n", $Foto));
+
+if(isset($KenmerkData['foto']) AND $KenmerkData['foto'] != '') {
+	echo "<p>";
+	echo showBlock(implode("\n", $Foto));
+}
 echo "</td>";
 echo "</tr>\n";
 echo $HTMLFooter;

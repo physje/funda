@@ -4,6 +4,11 @@
 $HTMLHeader	 = "<!--     Deze pagina is onderdeel van $ScriptTitle $Version gemaakt door Matthijs Draijer     -->\n\n";
 $HTMLHeader	.= "<html>\n";
 $HTMLHeader	.= "<head>\n";
+
+if(isset($userInteraction) AND !$userInteraction) {
+	$HTMLHeader	.= "	<meta http-equiv=\"refresh\" content=\"2; url=\" />\n";
+}
+
 $HTMLHeader	.= "	<title>$ScriptTitle $Version</title>\n";
 $HTMLHeader	.= "	<link rel='stylesheet' type='text/css' href='". $ScriptURL ."extern/style.css'>\n";
 
@@ -16,12 +21,12 @@ if(isset($autocomplete)) {
 	$HTMLHeader .= "		$(function() {\n";
 	
 	$sql		= "SELECT $TableHuizen.$HuizenID, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenPlaats FROM $TableHuizen, $TableZoeken, $TableResultaat, $TableVerdeling WHERE $TableZoeken.$ZoekenKey = $TableResultaat.$ResultaatZoekID AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableVerdeling.$VerdelingOpdracht = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenUser = ". $_SESSION['account'] ." GROUP BY $TableHuizen.$HuizenID";
-	$result	= mysql_query($sql);
-	$row		= mysql_fetch_array($result);
+	$result	= mysqli_query($db, $sql);
+	$row		= mysqli_fetch_array($result);
 	
 	do {
 		$return_arr[] = convertToReadable(urldecode($row[$HuizenAdres]).', '.urldecode($row[$HuizenPlaats]).' ['.urldecode($row[$HuizenID]) .']');
-	} while($row = mysql_fetch_array($result));
+	} while($row = mysqli_fetch_array($result));
 			
 	$HTMLHeader .= '		var availableTags = ["'. implode('","', $return_arr).'"];'.NL;	
 	$HTMLHeader .= "		$( \"#huizen\" ).autocomplete({\n";
@@ -34,6 +39,15 @@ if(isset($autocomplete)) {
 if(isset($googleMaps)) {
 	$HTMLHeader .= "	<script src='../include/if_gmap.js'></script>\n";
 	$HTMLHeader .= "	<script type='text/javascript' src='http://maps.google.com/maps/api/js?sensor=false'></script>\n";
+}
+
+if(isset($leaflet)) {
+	$HTMLHeader	.= "        <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.0.3/dist/leaflet.css\" />\n";
+	$HTMLHeader	.= "        <script src=\"https://unpkg.com/leaflet@1.0.3/dist/leaflet.js\"></script>\n";
+	$HTMLHeader	.= "        <script src=\"https://tiles.unwiredmaps.com/js/leaflet-unwired.js\"></script>\n";
+	$HTMLHeader	.= "        <style>\n";
+	$HTMLHeader	.= "            #map { height: 630px; }\n";
+	$HTMLHeader	.= "        </style>\n";
 }
 
 $HTMLHeader	.= "</head>\n";
