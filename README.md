@@ -1,9 +1,10 @@
 # funda
 
 ## Script werkt maar ten delen
-Funda vind mij niet meer zo lief dus heeft de boel dichtgegooid.
-De branch 'master' werkt bij mij dus niet meer.... misschien bij jou nog wel, maar ik kan het dus niet meer testen en onderhoud die dus ook niet.
-Om toch nog wat data van funda te krijgen heb ik de branch 'api' gemaakt, maar die heeft veel minder functionaliteiten.
+Funda vindt mij niet meer zo lief dus heeft de boel dichtgegooid.
+Heb de code tot dantoe in de branch 'scraper' ondergebracht voor wie geintereseerd is. Maar die branch werkt bij mij dus niet meer.... misschien bij jou nog wel, maar ik kan het dus niet meer testen en onderhoud die dus ook niet.
+
+De 'master-branch' heb ik omgebouwd, die werkt nu op basis van de RSS-feeds van funda.nl. Die feeds zijn echter veel minder uitgebreid dus die branch heeft veel minder functionaliteiten.
 
 ## Introductie
 Funda Alert is een script om funda.nl in de gaten te houden en daar "statistiek" op te doen.
