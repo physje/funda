@@ -2412,6 +2412,7 @@ function getSearchString($url, $exclude = false) {
 	}
 }
 
+/*
 function findPCbyAdress($straat, $huisnummer, $plaats) {
     global $OverheidAPI;
     
@@ -2434,4 +2435,5 @@ function findPCbyAdress($straat, $huisnummer, $plaats) {
     
     return $aJSON['_embedded']['adres'][0]['postcode'];
 }
+*/
 ?>
