@@ -16,6 +16,9 @@ if(isset($_REQUEST['id'])) {
 		$begin_tijd = mktime(0, 0, 1, $_POST['bMaand'], $_POST['bDag'], $_POST['bJaar']);
 		$eind_tijd = mktime(23, 59, 59, $_POST['eMaand'], $_POST['eDag'], $_POST['eJaar']);
 		
+		//below is not for safety, just to catch ' and similar characters in input (e.g. street names)
+		foreach($_POST as $k => $v) $_POST[$k] = mysqli_real_escape_string($db,$v);
+		
 		$sql  = "UPDATE $TableHuizen SET ";
 		$sql .= "$HuizenAdres = '". urlencode($_POST['adres']) ."', ";
 		$sql .= "$HuizenPC_c = '". $_POST['PC_cijfers'] ."', ";
@@ -41,7 +44,7 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "<table>";	
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Adres</td>";
-		$HTML[] = "	<td><input type='text' name='adres' value='". $data['adres'] ."' size='35'></td>";
+		$HTML[] = "	<td><input type='text' name='adres' value=\"". $data['adres'] ."\" size='35'></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td></td>";
