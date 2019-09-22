@@ -18,6 +18,9 @@ if(isset($_REQUEST['id'])) {
 		$begin_tijd = mktime(0, 0, 1, $_POST['bMaand'], $_POST['bDag'], $_POST['bJaar']);
 		$eind_tijd = mktime(23, 59, 59, $_POST['eMaand'], $_POST['eDag'], $_POST['eJaar']);
 		
+		//below is not for safety, just to catch ' and similar characters in input (e.g. street names)
+		foreach($_POST as $k => $v) $_POST[$k] = mysqli_real_escape_string($db,$v);
+		
 		$sql  = "UPDATE $TableHuizen SET ";
 		//$sql .= "$HuizenAdres = '". urlencode($_POST['adres']) ."', ";
 		$sql .= "$HuizenStraat = '". $_POST['straat'] ."', ";
@@ -45,7 +48,7 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "<table border=0 width='100%'>";	
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Adres</td>";
-		$HTML[] = "	<td>". $data['adres'] ."<br><input type='text' name='straat' value='". $data['straat'] ."' size='15'> <input type='text' name='nummer' value='". $data['nummer'] ."' size='1'> <input type='text' name='letter' value='". $data['letter'] ."' size='1'> <input type='text' name='toevoeging' value='". $data['toevoeging'] ."' size='1'><div class='float_rechts'><a href='http://funda.nl/$id' target='_blank'>funda.nl</a></div></td>";
+		$HTML[] = "	<td>". $data['adres'] ."<br><input type='text' name='straat' value=\"". $data['straat'] ."\" size='15'> <input type='text' name='nummer' value='". $data['nummer'] ."' size='1'> <input type='text' name='letter' value='". $data['letter'] ."' size='1'> <input type='text' name='toevoeging' value='". $data['toevoeging'] ."' size='1'><div class='float_rechts'><a href='http://funda.nl/$id' target='_blank'>funda.nl</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td></td>";
