@@ -45,7 +45,7 @@ foreach($files as $file) {
 	# in de HTML-code staat altijd de bezochte URL
 	# Die moeten wij zien te vinden
 	$appHeaderLink	= getString('appheader-English-link" class="app-header__link" href="', '" hreflang=', $contents, 0);
-	$pageURL		= getString('/koop/', '', $appHeaderLink[0], 0);	
+	$pageURL		= getString('/koop/', '', urldecode($appHeaderLink[0]), 0);	
 	$zoekURL		= '/koop/'.$pageURL[0];
 		
 	$OpdrachtID	= guessOpdrachtIDFromHTML($zoekURL);
