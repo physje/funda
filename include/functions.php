@@ -260,7 +260,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 	}
 	$key_parts = explode("-", $key);
 	$id			= $key_parts[1];
-	$adres	= getString('<h3 class="search-result-title">', '</h3>', $HuisURL[1], 0);
+	$adres	= getString('class="search-result-title">', '</h', $HuisURL[1], 0);
 	$PC			= getString('<small class="search-result-subtitle">', '</small>', $adres[1], 0);
 	$prijs	= getString('<span class="search-result-price">', '</span>', $PC[1], 0);
 	
@@ -283,7 +283,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 		$voorbehoud = 0;
 	}
 	
-	if(strpos($param[0], 'label-open-huis') OR strpos($param[0], '<span class="item-open nvm-open-huizen-dag" title="')) {
+	if(strpos($param[0], 'label-open-huis') OR strpos($param[0], 'label-nvm-open-huizen-dag"')) {
 		$openhuis = 1;
 	} else {
 		$openhuis = 0;
@@ -554,7 +554,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	
 	# Als er een class object-promolabel__open-huis-dates is heeft openhuis => $openhuis = 1
 	# Als geen van beide het geval is, is hij nog beschikbaar => $openhuis = 0
-	if(strpos($contents, '<ol class="object-promolabel__open-huis-dates">')) {
+	if(strpos($contents, '<li class="label label label-nvm-open-huizen-dag">')) {
 		$openhuis		= 1;
 	} else {
 		$openhuis		= 0;
@@ -2337,6 +2337,7 @@ function guessOpdrachtIDFromHTML($zoekURL) {
 	# Aantal filters in de URL hebben 'geen' waarde en mogen er dus uit
 	$cleanZoekString = str_replace('/verkocht/', '/', $zoekURL);
 	$cleanZoekString = str_replace('/sorteer-afmelddatum-af/', '/', $cleanZoekString);
+	$cleanZoekString = str_replace('/open-huis/', '/', $cleanZoekString);
 	
 	# Door hem op te knippen zien wij welke filters er actief zijn
 	$filtersZoeken = explode('/', $cleanZoekString);	

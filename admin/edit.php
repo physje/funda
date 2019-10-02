@@ -72,23 +72,23 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Begin</td>";
-		$HTML[] = "	<td><select name='bDag'>\n";
-		for($d=1 ; $d<=31 ; $d++)	{	$HTML[] = "<option value='$d'". ($d == date("d", $data['start']) ? ' selected' : '') .">$d</option>\n";	}
-		$HTML[] = "	</select><select name='bMaand'>\n";
-		for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $data['start']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
-		$HTML[] = "	</select><select name='bJaar'>\n";
-		for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['start']) ? ' selected' : '') .">$j</option>\n";	}
-		$HTML[] = "	</select></td>\n";
+		$HTML[] = "	<td><select name='bDag'>";
+		for($d=1 ; $d<=31 ; $d++)	{	$HTML[] = "<option value='$d'". ($d == date("d", $data['start']) ? ' selected' : '') .">$d</option>";	}
+		$HTML[] = "	</select><select name='bMaand'>";
+		for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $data['start']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>";	}
+		$HTML[] = "	</select><select name='bJaar'>";
+		for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['start']) ? ' selected' : '') .">$j</option>";	}
+		$HTML[] = "	</select></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";	
 		$HTML[] = "	<td>Eind</td>";
-		$HTML[] = "	<td><select name='eDag'>\n";
-		for($d=1 ; $d<=31 ; $d++)	{	$HTML[] = "<option value='$d'". ($d == date("d", $data['eind']) ? ' selected' : '') .">$d</option>\n";	}
-		$HTML[] = "	</select><select name='eMaand'>\n";
-		for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $data['eind']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
-		$HTML[] = "	</select><select name='eJaar'>\n";
-		for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['eind']) ? ' selected' : '') .">$j</option>\n";	}
-		$HTML[] = "	</select></td>\n";
+		$HTML[] = "	<td><select name='eDag'>";
+		for($d=1 ; $d<=31 ; $d++)	{	$HTML[] = "<option value='$d'". ($d == date("d", $data['eind']) ? ' selected' : '') .">$d</option>";	}
+		$HTML[] = "	</select><select name='eMaand'>";
+		for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $data['eind']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>";	}
+		$HTML[] = "	</select><select name='eJaar'>";
+		for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['eind']) ? ' selected' : '') .">$j</option>";	}
+		$HTML[] = "	</select></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Offline</td>";
@@ -145,13 +145,13 @@ if(isset($_REQUEST['id'])) {
 		foreach($Prijzen as $key => $value)	{
 			if($key != 0) {
 				$PrijsHistory[] = "<tr>";
-				$PrijsHistory[] = "	<td><select name='pDag[]'>\n";
-				for($d=1 ; $d<=31 ; $d++)	{	$PrijsHistory[] = "<option value='$d'". ($d == date("d", $key) ? ' selected' : '') .">$d</option>\n";	}
-				$PrijsHistory[] = "	</select><select name='pMaand[]'>\n";
-				for($m=1 ; $m<=12 ; $m++)	{	$PrijsHistory[] = "<option value='$m'". ($m == date("m", $key) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
-				$PrijsHistory[] = "	</select><select name='pJaar[]'>\n";
-				for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$PrijsHistory[] = "<option value='$j'". ($j == date("Y", $key) ? ' selected' : '') .">$j</option>\n";	}
-				$PrijsHistory[] = "	</select></td>\n";
+				$PrijsHistory[] = "	<td><select name='pDag[]'>";
+				for($d=1 ; $d<=31 ; $d++)	{	$PrijsHistory[] = "<option value='$d'". ($d == date("d", $key) ? ' selected' : '') .">$d</option>";	}
+				$PrijsHistory[] = "	</select><select name='pMaand[]'>";
+				for($m=1 ; $m<=12 ; $m++)	{	$PrijsHistory[] = "<option value='$m'". ($m == date("m", $key) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>";	}
+				$PrijsHistory[] = "	</select><select name='pJaar[]'>";
+				for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$PrijsHistory[] = "<option value='$j'". ($j == date("Y", $key) ? ' selected' : '') .">$j</option>";	}
+				$PrijsHistory[] = "	</select></td>";
 				$PrijsHistory[] = "<td> -> </td>";
 				$PrijsHistory[] = "<td><input type='text' size='5' name='pPrijs[]' value='$value'></td>";
 				$PrijsHistory[] = "<td>&nbsp;</td>";
