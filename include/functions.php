@@ -554,7 +554,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	
 	# Als er een class object-promolabel__open-huis-dates is heeft openhuis => $openhuis = 1
 	# Als geen van beide het geval is, is hij nog beschikbaar => $openhuis = 0
-	if(strpos($contents, '<li class="label label label-nvm-open-huizen-dag">')) {
+	if(strpos($contents, 'open-huis-dag">')) {
 		$openhuis		= 1;
 	} else {
 		$openhuis		= 0;
@@ -1883,7 +1883,7 @@ function extractOpenHuisData($contents) {
 	//$data			= getFundaData($id);
 	//$contents	= file_get_contents_retry('http://www.funda.nl'.$data['url']);
 	
-	$propertie	= getString('<ol class="object-promolabel__open-huis-dates">', '</ol>', $contents, 0);
+	$propertie	= getString('<ol class="object-promolabel__open-huis-dag">', '</ol>', $contents, 0);
 	$datum			= getString('open-huis-date">', ' van ', $propertie[0], 0);
 	$tijden			= getString(' van ', ' uur.</li>', $datum[1], 0);
 			
