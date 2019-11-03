@@ -2088,9 +2088,12 @@ function convert2FundaStyle($string) {
 	$string = str_replace (' ', '-',$string);
 	$string = str_replace ('é', 'e',$string);
 	$string = str_replace ('ë', 'e',$string);
+	$string = str_replace ('&#224;', 'a',$string);
+	$string = str_replace ('&#225;', 'a',$string);
+	$string = str_replace ('&#228;', 'a',$string);
 	$string = str_replace ('&#232;', 'e',$string);
 	$string = str_replace ('&#233;', 'e',$string);
-	$string = str_replace ('&#235;', 'e',$string);
+	$string = str_replace ('&#235;', 'e',$string);	
 		
 	return strtolower($string);
 }
