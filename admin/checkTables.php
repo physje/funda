@@ -99,18 +99,19 @@ $sql		= "SELECT * FROM $TableHuizen GROUP BY $HuizenID";
 $result	= mysqli_query($db, $sql);
 $row = mysqli_fetch_array($result);
 do {
-	$huisID = $row[$HuizenID];
+	$huisID = $row[$HuizenID];	
+	$adres = $row[$HuizenAdres];
 	
 	if(!in_array($huisID, $Resultaat)) {
-		$error[] = "<a href='HouseDetails.php?id=$huisID' target='_blank'>". $huisID . "</a> is niet gevonden in de resultaten-database | <a href='delete.php?id=$huisID' target='_blank'>verwijder</a><br>";
+		$error[] = "<a href='HouseDetails.php?id=$huisID' target='_blank'>". $huisID . "</a> ($adres) is niet gevonden in de resultaten-database | <a href='delete.php?id=$huisID' target='_blank'>verwijder</a><br>";
 	}
 	
 	if(!in_array($huisID, $Prijzen)) {
-		$error[] = "<a href='HouseDetails.php?id=$huisID' target='_blank'>". $huisID . "</a> is niet gevonden in de prijzen-database<br>";
+		$error[] = "<a href='HouseDetails.php?id=$huisID' target='_blank'>". $huisID . "</a> ($adres) is niet gevonden in de prijzen-database<br>";
 	}
 	
 	if(!in_array($huisID, $Kenmerken)) {
-		$error[] = "<a href='HouseDetails.php?id=$huisID' target='_blank'>". $huisID . "</a> is niet gevonden in de kenmerken-database<br>";
+		$error[] = "<a href='HouseDetails.php?id=$huisID' target='_blank'>". $huisID . "</a> ($adres) is niet gevonden in de kenmerken-database<br>";
 	}
 } while($row = mysqli_fetch_array($result));
 
@@ -123,12 +124,13 @@ $sql		= "SELECT * FROM $TableHuizen WHERE $HuizenOpenHuis = '1'";
 $result	= mysqli_query($db, $sql);
 $row = mysqli_fetch_array($result);
 do {
-	$huisID = $row[$ResultaatID];
+	$huisID = $row[$HuizenID];
+	$adres = $row[$HuizenAdres];
 	
 	$result_2	= mysqli_query($db, "SELECT * FROM $TableCalendar WHERE $CalendarHuis like '$huisID' AND $CalendarEnd > ". mktime(0,0,0));
 	if(mysqli_num_rows($result_2) == 0) {		
 		removeOpenHuis($huisID);
-		$error[] = "<a href='HouseDetails.php?id=$huisID' target='_blank'>". $huisID . "</a> is niet gevonden in de open huis-database<br>";
+		$error[] = "<a href='HouseDetails.php?id=$huisID' target='_blank'>". $huisID . "</a> ($adres) is niet gevonden in de open huis-database<br>";
 	}	
 } while($row = mysqli_fetch_array($result));
 
