@@ -26,7 +26,7 @@ do {
 	$data = getFundaData($huisID);
 	
 	if(!is_array($data)) {
-		$error[] = "<a href='HouseDetails.php?id=$huisID'>". $huisID . "</a> uit kenmerken-database niet gevonden in de huizen-database<br>";
+		$error[] = "<a href='HouseDetails.php?id=$huisID'>". $huisID . "</a> (". $data['adres'] .") uit kenmerken-database niet gevonden in de huizen-database<br>";
 		$delete_kenmerken[] = $huisID;
 	} else {
 		$Kenmerken[] = $huisID;
@@ -46,7 +46,7 @@ do {
 	$data = getFundaData($huisID);
 	
 	if(!is_array($data)) {
-		$error[] = "<a href='HouseDetails.php?id=$huisID'>". $huisID . "</a> uit prijzen-database niet gevonden in de huizen-database<br>";
+		$error[] = "<a href='HouseDetails.php?id=$huisID'>". $huisID . "</a> (". $data['adres'] .") uit prijzen-database niet gevonden in de huizen-database<br>";
 		$delete_prijzen[] = $huisID;
 	} else {
 		$Prijzen[] = $huisID;
@@ -66,7 +66,7 @@ do {
 	$data = getFundaData($huisID);
 	
 	if(!is_array($data)) {
-		$error[] = "<a href='HouseDetails.php?id=$huisID'>". $huisID . "</a> uit resultaten-database niet gevonden in de huizen-database<br>";
+		$error[] = "<a href='HouseDetails.php?id=$huisID'>". $huisID . "</a> (". $data['adres'] .") uit resultaten-database niet gevonden in de huizen-database<br>";
 		$delete_resultaten[] = $huisID;
 	} else {
 		$Resultaat[] = $huisID;
@@ -86,7 +86,7 @@ do {
 	$data = getFundaData($huisID);
 	
 	if(!is_array($data)) {
-		$error[] = "<a href='HouseDetails.php?id=$huisID'>". $huisID . "</a> uit lijsten-database niet gevonden in de huizen-database<br>";
+		$error[] = "<a href='HouseDetails.php?id=$huisID'>". $huisID . "</a> (". $data['adres'] .") uit lijsten-database niet gevonden in de huizen-database<br>";
 		$delete_lijsten[] = $huisID;
 	}
 } while($row = mysqli_fetch_array($result));
@@ -100,7 +100,7 @@ $result	= mysqli_query($db, $sql);
 $row = mysqli_fetch_array($result);
 do {
 	$huisID = $row[$HuizenID];	
-	$adres = $row[$HuizenAdres];
+	$adres = urldecode($row[$HuizenAdres]);
 	
 	if(!in_array($huisID, $Resultaat)) {
 		$error[] = "<a href='HouseDetails.php?id=$huisID' target='_blank'>". $huisID . "</a> ($adres) is niet gevonden in de resultaten-database | <a href='delete.php?id=$huisID' target='_blank'>verwijder</a><br>";
@@ -125,7 +125,7 @@ $result	= mysqli_query($db, $sql);
 $row = mysqli_fetch_array($result);
 do {
 	$huisID = $row[$HuizenID];
-	$adres = $row[$HuizenAdres];
+	$adres = urldecode($row[$HuizenAdres]);
 	
 	$result_2	= mysqli_query($db, "SELECT * FROM $TableCalendar WHERE $CalendarHuis like '$huisID' AND $CalendarEnd > ". mktime(0,0,0));
 	if(mysqli_num_rows($result_2) == 0) {		
@@ -154,9 +154,10 @@ if(count($error) == 0) {
 	$error[] = "Geen foutmeldingen";
 }
 
-$autoDelete = false;
+$autoDelete = true;
 
 if($autoDelete) {
+	/*
 	foreach($delete_kenmerken as $id) {
 		$sql = "DELETE FROM $TableKenmerken WHERE $KenmerkenID like $id";
 		mysqli_query($db, $sql);
@@ -166,6 +167,7 @@ if($autoDelete) {
 		$sql = "DELETE FROM $TablePrijzen WHERE $PrijzenID like $id";
 		mysqli_query($db, $sql);
 	}
+	*/
 	
 	foreach($delete_resultaten as $id) {
 		$sql = "DELETE FROM $TableResultaat WHERE $ResultaatID like $id";
