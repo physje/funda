@@ -115,7 +115,7 @@ foreach($files as $file) {
 				}
 				$block[] = implode('<br>', $tempItems);
 			}
-			
+						
 			# Huis is nog niet bekend bij het script, dus moet worden toegevoegd
 			if(!knownHouse($data['id'])) {
 				$extraData = array();
@@ -147,11 +147,15 @@ foreach($files as $file) {
 				
 				# Aanvinken om in een later stadium de details op te vragen
 				mark4Details($data['id']);
-			} 
+			} else {
+				# Pagina is nog steeds beschikbaar
+				setOnline($data['id']);
+			}
 			
 			# Huis is al bekend bij het script
 			# We moeten dus aangeven dat hij nog steeds op de markt is
 			if(!$verkocht) {
+				
 				if(!updateAvailability($data['id'])) {
 					echo "<font color='red'>Updaten van <b>". $data['adres'] ."</b> is mislukt</font> | $sql<br>\n";
 					$ErrorMessage[] = "Updaten van ". $data['adres'] ." is mislukt";

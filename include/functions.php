@@ -927,6 +927,18 @@ function updateAvailability($id, $begin = '') {
 }
 
 
+function setOnline($id) {
+	global $db, $TableHuizen, $HuizenOffline, $HuizenID;
+				
+	$sql = "UPDATE $TableHuizen SET $HuizenOffline = '0' WHERE $HuizenID like '$id'";
+	
+	if(!mysqli_query($db, $sql)) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
 function newPrice($key, $price) {
 	$history = getPriceHistory($key);
 		
