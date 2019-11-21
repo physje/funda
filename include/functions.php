@@ -2354,13 +2354,36 @@ function guessOpdrachtIDFromHTML($zoekURL) {
 	$cleanZoekString = str_replace('/sorteer-afmelddatum-af/', '/', $cleanZoekString);
 	$cleanZoekString = str_replace('/open-huis/', '/', $cleanZoekString);
 	
+	// echo "<b>$cleanZoekString</b><br>";
+	
 	# Door hem op te knippen zien wij welke filters er actief zijn
-	$filtersZoeken = explode('/', $cleanZoekString);	
+	$filtersZoekenTemp = explode('/', $cleanZoekString);
+	foreach($filtersZoekenTemp as $key => $value) {
+		$temp = explode(',', $value);
+		if(count($temp) > 1) {
+			$filtersZoeken = array_merge($filtersZoeken, $temp);
+		} else {
+			$filtersZoeken[] = $value;
+		}
+	}
 	
 	# Doorloop alle opdrachten op zoek naar een match met de filters
 	foreach($opdrachten as $opdracht) {
+		$score = 0;
 		$opdrachtData			= getOpdrachtData($opdracht);		
-		$filtersOpdracht	= explode('/', getSearchString($opdrachtData['url']));
+		$filtersOpdrachtTemp	= explode('/', getSearchString($opdrachtData['url']));
+		
+		// echo '<i>'. getSearchString($opdrachtData['url']) .'</i><br>';
+		
+		$filtersOpdracht = array();
+		foreach($filtersOpdrachtTemp as $key => $value) {
+			$temp = explode(',', $value);
+			if(count($temp) > 1) {
+				$filtersOpdracht = array_merge($filtersOpdracht, $temp);
+			} else {
+				$filtersOpdracht[] = $value;
+			}
+		}
 		
 		# Wij gaan gevonden filters verwijderen dus maken even een kopie van het orgineel
 		$kopieFiltersZoeken = $filtersZoeken;
@@ -2382,10 +2405,12 @@ function guessOpdrachtIDFromHTML($zoekURL) {
 				unset($filtersOpdracht[$index]);
 			}
 		}
-		
+				
 		$score_tot[$opdracht] = count($kopieFiltersZoeken)+count($filtersOpdracht);
+		
+		// echo $opdracht .' -> '.count($kopieFiltersZoeken).'+'.count($filtersOpdracht) .'<br>';		
 	}
-	
+					
 	# Als de laagste totale score 0 of 1 is, is het aannemelijk dat we een match hebben
 	if(min($score_tot) < 2) {
 		return array_search (min($score_tot), $score_tot);
