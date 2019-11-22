@@ -20,7 +20,25 @@ if(isset($autocomplete)) {
 	$HTMLHeader .= "		<script>\n";
 	$HTMLHeader .= "		$(function() {\n";
 	
-	$sql		= "SELECT $TableHuizen.$HuizenID, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenPlaats FROM $TableHuizen, $TableZoeken, $TableResultaat, $TableVerdeling WHERE $TableZoeken.$ZoekenKey = $TableResultaat.$ResultaatZoekID AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableVerdeling.$VerdelingOpdracht = $TableZoeken.$ZoekenKey AND $TableZoeken.$ZoekenUser = ". $_SESSION['account'] ." GROUP BY $TableHuizen.$HuizenID";
+	/*
+	$sql		= "SELECT ";
+	$sql		.= "$TableHuizen.$HuizenID, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenPlaats ";
+	$sql		.= "FROM ";
+	$sql		.= "$TableHuizen, $TableZoeken, $TableResultaat, $TableVerdeling ";
+	$sql		.= "WHERE ";
+	$sql		.= "$TableZoeken.$ZoekenKey = $TableResultaat.$ResultaatZoekID AND ";
+	$sql		.= "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ";
+	$sql		.= "$TableVerdeling.$VerdelingOpdracht = $TableZoeken.$ZoekenKey AND ";
+	$sql		.= "$TableZoeken.$ZoekenUser = ". $_SESSION['account'];
+	$sql		.= " GROUP BY $TableHuizen.$HuizenID";
+	*/
+	
+	$sql		= "SELECT ";
+	$sql		.= "$HuizenID, $HuizenAdres, $HuizenPlaats ";
+	$sql		.= "FROM ";
+	$sql		.= "$TableHuizen ";
+	$sql		.= "GROUP BY $HuizenID";
+
 	$result	= mysqli_query($db, $sql);
 	$row		= mysqli_fetch_array($result);
 	

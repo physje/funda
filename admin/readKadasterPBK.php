@@ -85,30 +85,13 @@ toLog('info', '', '', 'Kadaster PBK-ingelezen');
 
 # Als de ingelezen data "nieuwer" is dan de data in de dB, is er nieuwe data en moet er een mail worden gestuurd.
 if($newEntry) {
-	//$melding[] = "<a href='$url'>Prijsindex Bestaande Woningen</a> is ingelezen.";
-	//$melding[] = "";
-	//$melding[] = "<b>$mailMaand $mailJaar</b> : $percentage, was $oud_perc (". number_format ((100*($percentage-$oud_perc))/$percentage,1) ."%)";	
-	//
-	//# Stuur even een mail met de nieuwe cijfers
-	//include('../include/HTML_TopBottom.php');
-	//$HTMLMail = $HTMLHeader;
-	//$HTMLMail .= "<tr>\n";
-	//$HTMLMail .= "	<td width='25%'>&nbsp;</td>\n";
-	//$HTMLMail .= "	<td valign='top' align='center' colspan=2>". showBlock(implode("<br>\n", $melding)) ."</td>\n";
-	//$HTMLMail .= "	<td width='25%'>&nbsp;</td>\n";
-	//$HTMLMail .= "</tr>\n";
-	//$HTMLMail .= $HTMLFooter;
-	//	
-	//$mail = new PHPMailer;
-	//$mail->From     = $ScriptMailAdress;
-	//$mail->FromName = $ScriptTitle;
-	//$mail->AddAddress($ScriptMailAdress, 'Matthijs');
-	//$mail->Subject	= $SubjectPrefix."PBK van $oud_perc naar $percentage";
-	//$mail->IsHTML(true);
-	//$mail->Body			= $HTMLMail;
-	//$mail->Send();
-	
-	send2Pushover(array('title' => 'Prijsindex', 'message' => "In ". strtolower(strftime ('%B %Y', $start)) ." is de prijsindex van $oud_prijsindex naar $prijsindex gegaan (". number_format ((100*($prijsindex-$oud_prijsindex))/$prijsindex,1) .'%)'), array(1));
+	$percentage = (100*($prijsindex-$oud_prijsindex))/$prijsindex;
+	if($percentage > 0) {
+		$percentageString = '+'.number_format ($percentage,1);
+	} else {
+		$percentageString = number_format ($percentage,1);
+	}
+	send2Pushover(array('title' => 'Prijsindex', 'message' => "In ". strtolower(strftime ('%B %Y', $start)) ." is de prijsindex van $oud_prijsindex naar $prijsindex gegaan (". $percentageString .'%)'), array(1));
 }
 
 ?>

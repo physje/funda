@@ -337,9 +337,13 @@ function RSS2Array($string) {
 	
 	$onderdelen		= splitStreetAndNumberFromAdress($adres[0]);
 	
+	if($prijs[0] == 'Prijs op aanvraag') {
+		$prijs[0] = ' € 1';
+	}	
+	
 	$data['id']					= $fundaID;
 	$data['link']				= $link[0];
-	//$data['title']		= $title[0];
+	$data['title']		= $title[0];
 	$data['descr']			= $description[0];	
 	$data['thumb']			= $thumb[0];
 	$data['straat']			= $onderdelen['straat'];
@@ -348,7 +352,7 @@ function RSS2Array($string) {
 	$data['toevoeging']	= $onderdelen['toevoeging'];
 	$data['adres']			= trim($adres[0]);
 	$data['plaats']			= trim($plaats[0]);
-	$data['prijs']			= str_replace('.','' ,substr($prijs[0], 5));
+	$data['prijs']			= str_replace('.','',substr($prijs[0], 5));	
 	$data['oppervl']		= $oppervlakte[0];
 	$data['kamers']			= $kamers[0];
 	$data['begin']			= strtotime($pubDate[0]);
