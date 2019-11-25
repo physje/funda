@@ -4,7 +4,8 @@ include_once('include/HTML_TopBottom.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
 $db = connect_db();
 
-$straatRun = $opdrachtRun = false;
+$straatRun = $wijkRun = $opdrachtRun = false;
+$checkStreets = false;
 
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
 # Iedereen kan deze pagina dus in principe openen.
@@ -15,10 +16,16 @@ if(isset($_REQUEST['OpdrachtID'])) {
 	$Opdrachten = array($_REQUEST['OpdrachtID']);
 	$opdrachtRun = true;
 	$iMax = 1;
-} elseif(date('i') > 4) {
-	$straatRun = true;
+//} elseif(date('i') > 4) {
+} elseif(true) {
 	$iMax = 1;
-	$Straten = getStreet2Check($iMax);
+	if($checkStreets) {
+		$straatRun = true;
+		$Straten = getStreet2Check($iMax);
+	} else {
+		$wijkRun = true;
+		$Wijken = getWijk2Check($iMax);
+	}
 } else {
 	$Opdrachten = getZoekOpdrachten('', date('G'));
 	$opdrachtRun = true;
@@ -37,10 +44,14 @@ for($i=0 ; $i < $iMax ; $i++) {
 		$OpdrachtData		= getOpdrachtData($OpdrachtID);
 		
 		toLog('info', $OpdrachtID, '', 'Start controle '. $OpdrachtData['naam']);
-	} else {		
+	} elseif($straatRun) {
 		$straatID = $Straten[$i];
 		$straatData = getStreetByID($straatID);
 		$OpdrachtData['url'] = 'http://www.funda.nl/koop/'.convert2FundaStyle($straatData['plaats']) ."/straat-". $straatData['straat'] ."/";
+	} else {
+		$wijkID = $Wijken[$i];
+		$wijkData = getWijkByID($wijkID);
+		$OpdrachtData['url'] = 'http://www.funda.nl/koop/'.convert2FundaStyle($wijkData['plaats']) ."/". $wijkData['wijk'] ."/";
 	}
 	
 	$OpdrachtURL	= "http://partnerapi.funda.nl/feeds/Aanbod.svc/rss/?type=koop&zo=". getSearchString($OpdrachtData['url'], true);
@@ -49,8 +60,11 @@ for($i=0 ; $i < $iMax ; $i++) {
 	if($opdrachtRun) {
 		$String[] = "<a href='$OpdrachtURL'>RSS</a> -> <a href='". $OpdrachtData['url'] ."'>". $OpdrachtData['naam'] ."</a>";
 		toLog('debug', $OpdrachtID, '', $OpdrachtURL);
-	} else {
+	} elseif($straatRun) {
 		$String[] = "<a href='$OpdrachtURL'>RSS</a> -> <a href='". $OpdrachtData['url'] ."'>". $straatData['leesbaar'] ."</a> (". $straatData['plaats'] .")";
+		toLog('debug', '', '', $OpdrachtURL);
+	} else {
+		$String[] = "<a href='$OpdrachtURL'>RSS</a> -> <a href='". $OpdrachtData['url'] ."'>". $wijkData['leesbaar'] ."</a> (". $wijkData['plaats'] .")";
 		toLog('debug', '', '', $OpdrachtURL);
 	}
 		
@@ -63,7 +77,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 				
 		$String[] = formatPrice($data['prijs']) ." : <a href='". $data['link'] ."'>". $data['adres'] ."</a> ($fundaID)";
 				
-		if($straatRun) {
+		if($straatRun OR $wijkRun) {
 			$opdrachten = getOpdrachtenByFundaID($fundaID);
 			$OpdrachtID = $opdrachten[0];
 			$OpdrachtData		= getOpdrachtData($OpdrachtID);
@@ -135,11 +149,10 @@ for($i=0 ; $i < $iMax ; $i++) {
 			
 			# Pushover-bericht opstellen
 			sendPushoverNewHouse($fundaID, $OpdrachtID);
-			#echo "sendPushoverNewHouse($fundaID, $OpdrachtID);";
 		}
 		
 		# Bij een straatopdracht even opzoeken welke opdrachten daarbij horen
-		if($straatRun) {
+		if($straatRun OR $wijkRun) {
 		    $opdrachtArray = getOpdrachtenByFundaID($fundaID);
 		
 		    
@@ -152,10 +165,9 @@ for($i=0 ; $i < $iMax ; $i++) {
 		
 		# Doorloop alle opdrachten om te kijken of er een push-melding uit moet
 		foreach($opdrachtArray as $OpdrachtID) {
-		    if(knownHouse($fundaID) AND changedPrice($fundaID, $data['prijs'], $OpdrachtID) AND is_numeric($data['prijs']) AND $data['prijs'] > 0) {
-		        sendPushoverChangedPrice($fundaID, $OpdrachtID);
-	    	    #echo "sendPushoverChangedPrice($fundaID, $OpdrachtID);";
-		    }
+			if(knownHouse($fundaID) AND changedPrice($fundaID, $data['prijs'], $OpdrachtID) AND is_numeric($data['prijs']) AND $data['prijs'] > 0) {
+				sendPushoverChangedPrice($fundaID, $OpdrachtID);
+			}
 		}
 	}
 	
@@ -171,6 +183,16 @@ for($i=0 ; $i < $iMax ; $i++) {
 			toLog('info', '', '', $straatData['leesbaar'].' in '.$straatData['plaats'].' niet meer actief');
 		}
 	}
+		
+	if($wijkRun) {
+		if($knownHouses > 0) {
+			setWijkSeen($wijkID);
+			toLog('info', '', '', 'De wijk '. $wijkData['leesbaar'].' in '.$wijkData['plaats']." [$knownHouses/".count($Huizen).']');
+		} else {
+			inactivateWijk($wijkID); 
+			toLog('info', '', '', 'De wijk '. $wijkData['leesbaar'].' in '.$wijkData['plaats'].' niet meer actief');
+		}
+	}	
 }
 
 # Laat de resultaten vam de check netjes op het scherm zien.

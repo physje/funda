@@ -9,13 +9,13 @@ include($cfgProgDir. "secure.php");
 
 if(isset($_POST['doorgaan'])) {
 	if(isset($_REQUEST['id']) AND $_REQUEST['id'] != 0) {
-		$sql = "UPDATE $TableStraten SET ";
-		$sql .= "$StratenActive = '". (isset($_POST['active']) ? '1' : '0') ."', ";
-		$sql .= "$StratenStrLeesbaar = '". $_POST['leesbaar'] ."', ";
-		$sql .= "$StratenStrFunda = '". $_POST['straat'] ."', ";
-		$sql .= "$StratenStad = '". $_POST['plaats'] ."', ";
-		$sql .= "$StratenLastCheck = '". mktime($_POST['uur'], $_POST['minuut'], 0, $_POST['maand'], $_POST['dag'], $_POST['jaar']) ."' ";
-		$sql .= "WHERE $StratenID = ". $_POST['id'];
+		$sql = "UPDATE $TableWijken SET ";
+		$sql .= "$WijkenActive = '". (isset($_POST['active']) ? '1' : '0') ."', ";
+		$sql .= "$WijkenLeesbaar = '". $_POST['leesbaar'] ."', ";
+		$sql .= "$WijkenFunda = '". $_POST['straat'] ."', ";
+		$sql .= "$WijkenStad = '". $_POST['plaats'] ."', ";
+		$sql .= "$WijkenLastCheck = '". mktime($_POST['uur'], $_POST['minuut'], 0, $_POST['maand'], $_POST['dag'], $_POST['jaar']) ."' ";
+		$sql .= "WHERE $WijkenID = ". $_POST['id'];
 		
 		if(!mysqli_query($db, $sql)) {
 			$HTML[] = $_POST['leesbaar'] ." kon niet worden opgeslagen";
@@ -28,19 +28,19 @@ if(isset($_POST['doorgaan'])) {
 	$HTML[] = "<p><a href='". $_SERVER["PHP_SELF"] ."'>Start</a>";
 } elseif(isset($_REQUEST['delete'])) {
 	if(isset($_POST['delete_yes'])) {				
-		$sql_delete_straat = "DELETE FROM $TableStraten WHERE $StratenID like ". $_POST['streetID'];
-		if(!mysqli_query($db, $sql_delete_straat)) $HTML[] = $sql_delete_straat.'<br>';	
+		$sql_delete_wijk = "DELETE FROM $TableWijken WHERE $WijkenID like ". $_POST['wijkID'];
+		if(!mysqli_query($db, $sql_delete_wijk)) $HTML[] = $sql_delete_wijk.'<br>';	
 				
-		$HTML[] = "De straat is verwijderd";
+		$HTML[] = "De wijk is verwijderd";
 	} elseif(isset($_POST['delete_no'])) {	
 		$HTML[] = "Gelukkig !";
 		
 	# Weet je het heeeel zeker
 	} else {
-		$HTML[] = "Weet u zeker dat u deze straat wilt verwijderen ?";
+		$HTML[] = "Weet u zeker dat u deze wijk wilt verwijderen ?";
 		$HTML[] = "<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";
 		$HTML[] = "<input type='hidden' name='delete' value='true'>\n";
-		$HTML[] = "<input type='hidden' name='streetID' value='". $_REQUEST['id'] ."'>\n";
+		$HTML[] = "<input type='hidden' name='wijkID' value='". $_REQUEST['id'] ."'>\n";
 		$HTML[] = "<input type='submit' name='delete_yes' value='Ja'> <input type='submit' name='delete_no' value='Nee'>";
 		$HTML[] = "</form>";
 	}
@@ -49,44 +49,44 @@ if(isset($_POST['doorgaan'])) {
 		$HTML[] = "<p><a href='". $_SERVER["PHP_SELF"] ."'>Start</a>";
 	}
 } elseif(isset($_REQUEST['id'])) {
-	$streetID = $_REQUEST['id'];
-	$straatData = getStreetByID($streetID);
+	$wijkID = $_REQUEST['id'];
+	$wijkData = getWijkByID($wijkID);
 	
 	$HTML[] = "<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";
 	
-	if($streetID != 0) {
-		$HTML[] = "<input type='hidden' name='id' value='$streetID'>\n";
+	if($wijkID != 0) {
+		$HTML[] = "<input type='hidden' name='id' value='$wijkID'>\n";
 	}
 		
 	$HTML[] = "<table border=0>\n";
 	$HTML[] = "<tr>\n";
-	$HTML[] = "	<td><input type='checkbox' name='active'". ($straatData['active'] == 1 ? ' checked' : '') ."></td>\n";
+	$HTML[] = "	<td><input type='checkbox' name='active'". ($wijkData['active'] == 1 ? ' checked' : '') ."></td>\n";
 	$HTML[] = "	<td>Actief</td>\n";
 	$HTML[] = "</tr>\n";
 	$HTML[] = "<tr>\n";
-	$HTML[] = "	<td>Straatnaam :</td>\n";
-	$HTML[] = "	<td><input type='text' name='leesbaar' value='". $straatData['leesbaar'] ."'> (<a href='http://www.funda.nl/koop/". convert2FundaStyle($straatData['plaats']) ."/straat-". $straatData['straat'] ."/'>funda.nl</a>)</td>\n";
+	$HTML[] = "	<td>Wijk :</td>\n";
+	$HTML[] = "	<td><input type='text' name='leesbaar' value='". $wijkData['leesbaar'] ."'> (<a href='http://www.funda.nl/koop/". convert2FundaStyle($wijkData['plaats']) ."/". $wijkData['wijk'] ."/'>funda.nl</a>)</td>\n";
 	$HTML[] = "</tr>\n";
 	$HTML[] = "<tr>\n";
-	$HTML[] = "	<td>Funda straatnaam :</td>\n";
-	$HTML[] = "	<td><input type='text' name='straat' value='". $straatData['straat'] ."'></td>\n";
+	$HTML[] = "	<td>Funda wijknaam :</td>\n";
+	$HTML[] = "	<td><input type='text' name='straat' value='". $wijkData['wijk'] ."'></td>\n";
 	$HTML[] = "</tr>\n";
 	$HTML[] = "<tr>\n";
 	$HTML[] = "	<td>Plaats :</td>\n";
-	$HTML[] = "	<td><input type='text' name='plaats' value='". $straatData['plaats'] ."'></td>\n";
+	$HTML[] = "	<td><input type='text' name='plaats' value='". $wijkData['plaats'] ."'></td>\n";
 	$HTML[] = "</tr>\n";
 	$HTML[] = "<tr>\n";
 	$HTML[] = "	<td>Laatste controle :</td>\n";
 	$HTML[] = "	<td><select name='dag'>\n";
-	for($d=1 ; $d<=31 ; $d++)	{	$HTML[] = "<option value='$d'". ($d == date("d", $straatData['last']) ? ' selected' : '') .">$d</option>\n";	}
+	for($d=1 ; $d<=31 ; $d++)	{	$HTML[] = "<option value='$d'". ($d == date("d", $wijkData['last']) ? ' selected' : '') .">$d</option>\n";	}
 	$HTML[] = "	</select><select name='maand'>\n";
-	for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $straatData['last']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
+	for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $wijkData['last']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
 	$HTML[] = "	</select><select name='jaar'>\n";
-	for($j=2018 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $straatData['last']) ? ' selected' : '') .">$j</option>\n";	}
+	for($j=2018 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $wijkData['last']) ? ' selected' : '') .">$j</option>\n";	}
 	$HTML[] = "	</select> <select name='uur'>\n";
-	for($h=0 ; $h<=24 ; $h++)	{	$HTML[] = "<option value='$h'". ($h == date("H", $straatData['last']) ? ' selected' : '') .">$h</option>\n";	}
+	for($h=0 ; $h<=24 ; $h++)	{	$HTML[] = "<option value='$h'". ($h == date("H", $wijkData['last']) ? ' selected' : '') .">$h</option>\n";	}
 	$HTML[] = "	</select><select name='minuut'>\n";
-	for($m=0 ; $m<=59 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("i", $straatData['last']) ? ' selected' : '') .">$m</option>\n";	}
+	for($m=0 ; $m<=59 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("i", $wijkData['last']) ? ' selected' : '') .">$m</option>\n";	}
 	$HTML[] = "	</select></td>\n";
 	$HTML[] = "</tr>\n";		
 	$HTML[] = "<tr>\n";
@@ -113,19 +113,19 @@ if(isset($_POST['doorgaan'])) {
 		
 	
 	$Kop[] = "<tr>\n";
-	$Kop[] = "	<td><b><a href='". $_SERVER['PHP_SELF']."?sort=street$richting'>Straat</a><b></td>";
+	$Kop[] = "	<td><b><a href='". $_SERVER['PHP_SELF']."?sort=wijk$richting'>Wijk</a><b></td>";
 	$Kop[] = "	<td><b><a href='". $_SERVER['PHP_SELF']."?sort=city$richting'>Plaats</a></b></td>";
 	$Kop[] = "	<td><b><a href='". $_SERVER['PHP_SELF']."?sort=time$richting'>Check</a></td>";
 	$Kop[] = "</tr>\n";
 	
-	$sql = "SELECT * FROM $TableStraten";
+	$sql = "SELECT * FROM $TableWijken";
 	
 	if($sort == 'time') {
-		$sql .= " ORDER BY $StratenLastCheck ". (!isset($_REQUEST['asc']) ? 'DESC' : 'ASC');
+		$sql .= " ORDER BY $WijkenLastCheck ". (!isset($_REQUEST['asc']) ? 'DESC' : 'ASC');
 	} elseif($sort == 'city') {
-		$sql .= " ORDER BY $StratenStad ". (!isset($_REQUEST['asc']) ? 'DESC' : 'ASC') .", $StratenStrLeesbaar ". (!isset($_REQUEST['asc']) ? 'DESC' : 'ASC');
-	} elseif($sort == 'street') {
-		$sql .= " ORDER BY $StratenStrLeesbaar ". (!isset($_REQUEST['asc']) ? 'DESC' : 'ASC');
+		$sql .= " ORDER BY $WijkenStad ". (!isset($_REQUEST['asc']) ? 'DESC' : 'ASC') .", $WijkenLeesbaar ". (!isset($_REQUEST['asc']) ? 'DESC' : 'ASC');
+	} elseif($sort == 'wijk') {
+		$sql .= " ORDER BY $WijkenLeesbaar ". (!isset($_REQUEST['asc']) ? 'DESC' : 'ASC');
 	}
 	
 	$result = mysqli_query($db, $sql);
@@ -133,8 +133,8 @@ if(isset($_POST['doorgaan'])) {
 	
 	do {
 		$regel = array();
-		$streetID = $row[$StratenID];
-		$straatData = getStreetByID($streetID);
+		$wijkID = $row[$WijkenID];
+		$wijkData = getWijkByID($wijkID);
 		
 		if($row['active'] == 0) {
 			$class = 'offline';
@@ -143,9 +143,9 @@ if(isset($_POST['doorgaan'])) {
 		}
 		
 		$regel[] = "<tr>";
-		$regel[] = "	<td><a href='?id=$streetID' class='$class'>". $straatData['leesbaar'] ."</a></td>";
-		$regel[] = "	<td>". $straatData['plaats'] ."</td>";
-		$regel[] = "	<td>". ago($straatData['last']) ."</td>";
+		$regel[] = "	<td><a href='?id=$wijkID' class='$class'>". $wijkData['leesbaar'] ."</a></td>";
+		$regel[] = "	<td>". $wijkData['plaats'] ."</td>";
+		$regel[] = "	<td>". ago($wijkData['last']) ."</td>";
 		$regel[] = "</tr>";
 		
 		$rij[] = implode(NL, $regel);

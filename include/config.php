@@ -178,6 +178,14 @@ $StratenStrFunda		= "naam_funda";
 $StratenStad				= "stad";
 $StratenLastCheck		= "last_checked";
 
+$TableWijken				= "funda_wijken";
+$WijkenID						= "id";
+$WijkenActive 			= "active";
+$WijkenLeesbaar 		= "naam_leesbaar";
+$WijkenFunda				= "naam_funda";
+$WijkenStad					= "stad";
+$WijkenLastCheck		= "last_checked";
+
 $TableGemeentes			= "funda_gemeentes";
 $GemeentesPC				= "PC";
 $GemeentesPlaats		= "plaats";

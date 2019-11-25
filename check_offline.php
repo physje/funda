@@ -280,6 +280,7 @@ foreach($files as $file) {
 				if($data['verkocht'] != 1) {
 					updateAvailability($fundaID);
 					addUpdateStreetDb($data['straat'], $data['plaats']);
+					addUpdateWijkDb($data['wijk'], $data['plaats']);
 		
 				# Als hij wel verkocht is moeten we de administratie daarvan even bijwerken
 				} else {
@@ -303,7 +304,7 @@ foreach($files as $file) {
 				}
 				
 				toLog('info', '', $fundaID, 'Offline pagina ingeladen');
-				remove4Details($fundaID);
+				remove4Details($fundaID);				
 				$success = true;
 			}
 		}

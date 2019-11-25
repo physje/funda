@@ -37,7 +37,8 @@ if(isset($autocomplete)) {
 	$sql		.= "$HuizenID, $HuizenAdres, $HuizenPlaats ";
 	$sql		.= "FROM ";
 	$sql		.= "$TableHuizen ";
-	$sql		.= "GROUP BY $HuizenID";
+	$sql		.= "GROUP BY $HuizenID ";
+	$sql		.= "ORDER BY $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging";
 
 	$result	= mysqli_query($db, $sql);
 	$row		= mysqli_fetch_array($result);

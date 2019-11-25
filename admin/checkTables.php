@@ -8,6 +8,7 @@ $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 
 $error = $delete_kenmerken = $delete_prijzen = $delete_resultaten = $delete_lijsten = array();
+$Kenmerken = $Prijzen = $Resultaat = array();
 
 $autoDelete['kenmerk'] = false;
 $autoDelete['prijs'] = false;
@@ -17,7 +18,7 @@ $autoDelete['list'] = false;
 $check['kenmerk'] = false;
 $check['prijs'] = false;
 $check['result'] = false;
-$check['list'] = true;
+$check['list'] = false;
 $check['open'] = false;
 
 $autoCollect = false;

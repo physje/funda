@@ -63,6 +63,7 @@ if($_SESSION['level'] > 2) {
 	//$onderhoud['check_offline.php']							= 'Check de offline opgeslagen pagina\'s';	
 	//$onderhoud['admin/loadOfflineHouses.php']		= 'Check de offline opgeslagen huis-pagina\'s';	
 	$onderhoud['admin/edit_streets.php']				= 'Wijzig de straten';
+	$onderhoud['admin/edit_wijken.php']				= 'Wijzig de wijken';
 	$onderhoud['admin/addPostcode.php']					= 'Zoek ontbrekende postcode\'s op';
 	$onderhoud['admin/addWijk.php']						= 'Vul ontbrekende wijken in';
 	$onderhoud['onderhoud/makeGeneralLists.php']	= 'Maak algemene lijsten aan';

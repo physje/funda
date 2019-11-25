@@ -2163,6 +2163,77 @@ function inactivateStreet($id) {
 }
 
 
+function getWijk2Check($limit) {
+	global $db, $TableWijken, $WijkenID, $WijkenActive, $WijkenLastCheck;
+	$Straten = array();
+	
+	$sql = "SELECT $WijkenID FROM $TableWijken WHERE $WijkenActive = '1' ORDER BY $WijkenLastCheck ASC LIMIT 0, $limit";
+	$result = mysqli_query($db, $sql);
+	$row = mysqli_fetch_array($result);
+	do {
+		$Wijken[] = $row[$WijkenID];
+	} while($row = mysqli_fetch_array($result));
+	
+	return $Wijken;
+}
+
+
+function getWijkByID($id) {
+	global $db, $TableWijken, $WijkenActive, $WijkenID, $WijkenFunda, $WijkenStad, $WijkenLeesbaar, $WijkenLastCheck;
+	
+	$sql 		= "SELECT * FROM $TableWijken WHERE $WijkenID = $id";	
+	$result = mysqli_query($db, $sql);
+	$row		=	mysqli_fetch_array($result);
+	
+	$data['active'] 	= $row[$WijkenActive];
+	$data['wijk'] 		= urldecode(strtolower($row[$WijkenFunda]));
+	$data['plaats'] 	= urldecode($row[$WijkenStad]);
+	$data['leesbaar'] = urldecode($row[$WijkenLeesbaar]);
+	$data['last']			= $row[$WijkenLastCheck];
+	
+	return $data;
+}
+
+
+function setWijkSeen($id) {
+	global $db, $TableWijken, $WijkenID, $WijkenLastCheck;
+	
+	$sql_seen = "UPDATE $TableWijken SET $WijkenLastCheck = '". time() ."' WHERE $WijkenID = $id";
+	return mysqli_query($db, $sql_seen);
+}
+
+
+function inactivateWijk($id) {
+	global $db, $TableWijken, $WijkenID, $WijkenActive;
+	
+	$sql_inactive = "UPDATE $TableWijken SET $WijkenActive = '0' WHERE $WijkenID = $id";
+	return mysqli_query($db, $sql_inactive);
+}
+
+
+function addUpdateWijkDb($wijk, $stad) {
+	global $db, $TableWijken, $WijkenID, $WijkenActive, $WijkenLeesbaar, $WijkenFunda, $WijkenStad, $WijkenLastCheck;
+	$wijkFunda = convert2FundaStyle($wijk);
+	
+	$sql = "SELECT * FROM $TableWijken WHERE $WijkenFunda like '$wijkFunda' AND $WijkenStad like '$stad'";
+	$result = mysqli_query($db, $sql);
+	if(mysqli_num_rows($result) == 0) {		
+		$sql_insert = "INSERT INTO $TableWijken ($WijkenActive, $WijkenLeesbaar, $WijkenStad, $WijkenFunda, $WijkenLastCheck) VALUES ('1', '". $wijk ."', '". $stad. "', '". $wijkFunda ."', ". time() .")";
+		mysqli_query($db, $sql_insert);				
+	} else {		
+		$row = mysqli_fetch_array($result);
+		
+		# Als $WijkenActive = 0, is het een bekende maar inactieve wijk die weer actief geworden is.
+		# Die hoeft dus niet weer gelijk gecheckt te worden.
+		# Als $WijkenActive = 1, is het een wijk die actief is, dan hoeft de last-check-tijd niet aangepast te worden
+		$sql_update = "UPDATE $TableWijken SET $WijkenActive = '1'";
+		if($row[$WijkenActive] == '0')	$sql_update .= ", $WijkenLastCheck = ". time();		
+		$sql_update .= " WHERE $WijkenID = ". $row[$WijkenID];
+		mysqli_query($db, $sql_update);		
+	}
+}
+
+
 function getOpdrachtenByFundaID($fundaID) {
 	global $db, $TableResultaat, $ResultaatZoekID, $ResultaatID, $AboType, $TableAbo, $AboZoekID;
 	$Opdrachten = array();
@@ -2457,28 +2528,5 @@ function getSearchString($url, $exclude = false) {
 	}
 }
 
-/*
-function findPCbyAdress($straat, $huisnummer, $plaats) {
-    global $OverheidAPI;
-    
-    $baseURL = 'https://api.overheid.io/bag';
-    $service_url = $baseURL.'?';
-    $service_url .= 'filters[woonplaats]='. $plaats.'&';
-    $service_url .= 'filters[openbareruimte]='. $straat.'&';
-    $service_url .= 'filters[huisnummer]='.$huisnummer.'&';
-    
-    $ch = curl_init();
-    curl_setopt ($ch, CURLOPT_URL, $service_url);
-    curl_setopt ($ch, CURLOPT_HEADER, false);
-    curl_setopt ($ch, CURLOPT_HTTPHEADER, array("ovio-api-key:". $OverheidAPI));
-    curl_setopt ($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    $curl_out = curl_exec($ch);
-    curl_close($curl);
-    
-    $aJSON = json_decode($curl_out, true);
-    
-    return $aJSON['_embedded']['adres'][0]['postcode'];
-}
-*/
+
 ?>
