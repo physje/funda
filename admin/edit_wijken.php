@@ -65,7 +65,7 @@ if(isset($_POST['doorgaan'])) {
 	$HTML[] = "</tr>\n";
 	$HTML[] = "<tr>\n";
 	$HTML[] = "	<td>Wijk :</td>\n";
-	$HTML[] = "	<td><input type='text' name='leesbaar' value='". $wijkData['leesbaar'] ."'> (<a href='http://www.funda.nl/koop/". convert2FundaStyle($wijkData['plaats']) ."/". $wijkData['wijk'] ."/'>funda.nl</a>)</td>\n";
+	$HTML[] = "	<td><input type='text' name='leesbaar' value='". $wijkData['leesbaar'] ."'></td>\n";
 	$HTML[] = "</tr>\n";
 	$HTML[] = "<tr>\n";
 	$HTML[] = "	<td>Funda wijknaam :</td>\n";
@@ -88,7 +88,11 @@ if(isset($_POST['doorgaan'])) {
 	$HTML[] = "	</select><select name='minuut'>\n";
 	for($m=0 ; $m<=59 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("i", $wijkData['last']) ? ' selected' : '') .">$m</option>\n";	}
 	$HTML[] = "	</select></td>\n";
-	$HTML[] = "</tr>\n";		
+	$HTML[] = "</tr>\n";
+	$HTML[] = "<tr>\n";
+	$HTML[] = "	<td>&nbsp;</td>\n";
+	$HTML[] = "	<td><a href='http://www.funda.nl/koop/". convert2FundaStyle($wijkData['plaats']) ."/". $wijkData['wijk'] ."/'>funda.nl</a> | <a href='../check.php?wijkID=$wijkID'>check</a></td>\n";
+	$HTML[] = "</tr>\n";	
 	$HTML[] = "<tr>\n";
 	$HTML[] = "	<td colspan='2'>&nbsp;</td>\n";
 	$HTML[] = "</tr>\n";

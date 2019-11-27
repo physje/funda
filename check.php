@@ -14,7 +14,15 @@ if(isset($_REQUEST['OpdrachtID'])) {
 	$Opdrachten = array($_REQUEST['OpdrachtID']);
 	$opdrachtRun = true;
 	$iMax = 1;
-} elseif(date('i') > 2) {
+} elseif(isset($_REQUEST['straatID'])) {
+	$iMax = 1;
+	$straatRun = true;
+	$Straten = array($_REQUEST['straatID']);
+} elseif(isset($_REQUEST['wijkID'])) {
+	$iMax = 1;
+	$wijkRun = true;
+	$Wijken = array($_REQUEST['wijkID']);
+} elseif(date('i') > 2) {	
 	# Hoeveel straten zijn er te controleren
 	$sql = "SELECT * FROM $TableStraten WHERE $StratenActive = '1'";
 	$result = mysqli_query($db, $sql);
@@ -31,9 +39,9 @@ if(isset($_REQUEST['OpdrachtID'])) {
 	# Beetje willekeurig verdelen of een straat of wijk wordt gecheckt
 	$dice = rand (0, 100);
 	if($dice < $grens) {
-	    $checkStreets = false;
+		$checkStreets = false;
 	} else {
-	    $checkStreets = true;
+		$checkStreets = true;
 	}
 	
 	$iMax = 1;  	
@@ -43,6 +51,10 @@ if(isset($_REQUEST['OpdrachtID'])) {
 	} else {
 		$wijkRun = true;
 		$Wijken = getWijk2Check($iMax);
+	}
+	
+	if(date('G') < 1 AND date('i') < 6) {
+		toLog('debug', '', '', "Actieve straten: $aantalStraten, Actieve wijken: $aantalWijken");
 	}	
 } else {
 	$Opdrachten = getZoekOpdrachten('', date('G'));
@@ -85,6 +97,8 @@ for($i=0 ; $i < $iMax ; $i++) {
 		$String[] = "<a href='$OpdrachtURL'>RSS</a> -> <a href='". $OpdrachtData['url'] ."'>". $wijkData['leesbaar'] ."</a> (". $wijkData['plaats'] .")";
 		toLog('debug', '', '', $OpdrachtURL);
 	}
+	
+	$String[] = '<ol>';
 		
 	$Huizen = explode('<item>', $content);
 	array_shift($Huizen);
@@ -93,7 +107,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 		$data			= RSS2Array($huis);
 		$fundaID	= $data['id'];
 				
-		$String[] = formatPrice($data['prijs']) ." : <a href='". $data['link'] ."'>". $data['adres'] ."</a> ($fundaID)";
+		$String[] = '<li>'. formatPrice($data['prijs']) ." : <a href='". $data['link'] ."'>". $data['adres'] ."</a> (<a href='admin/edit.php?id=$fundaID'>$fundaID</a>)</li>";
 				
 		if($straatRun OR $wijkRun) {
 			$opdrachten = getOpdrachtenByFundaID($fundaID);
@@ -189,7 +203,8 @@ for($i=0 ; $i < $iMax ; $i++) {
 		}
 	}
 	
-	$block[] = implode("<br>\n", $String);
+	$String[] = '</ol>';
+	$block[] = implode("\n", $String);
 	$String = array();
 		
 	if($straatRun) {

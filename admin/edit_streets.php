@@ -65,7 +65,7 @@ if(isset($_POST['doorgaan'])) {
 	$HTML[] = "</tr>\n";
 	$HTML[] = "<tr>\n";
 	$HTML[] = "	<td>Straatnaam :</td>\n";
-	$HTML[] = "	<td><input type='text' name='leesbaar' value='". $straatData['leesbaar'] ."'> (<a href='http://www.funda.nl/koop/". convert2FundaStyle($straatData['plaats']) ."/straat-". $straatData['straat'] ."/'>funda.nl</a>)</td>\n";
+	$HTML[] = "	<td><input type='text' name='leesbaar' value='". $straatData['leesbaar'] ."'></td>\n";
 	$HTML[] = "</tr>\n";
 	$HTML[] = "<tr>\n";
 	$HTML[] = "	<td>Funda straatnaam :</td>\n";
@@ -89,6 +89,10 @@ if(isset($_POST['doorgaan'])) {
 	for($m=0 ; $m<=59 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("i", $straatData['last']) ? ' selected' : '') .">$m</option>\n";	}
 	$HTML[] = "	</select></td>\n";
 	$HTML[] = "</tr>\n";		
+	$HTML[] = "<tr>\n";
+	$HTML[] = "	<td>&nbsp;</td>\n";
+	$HTML[] = "	<td><a href='http://www.funda.nl/koop/". convert2FundaStyle($straatData['plaats']) ."/straat-". $straatData['straat'] ."/'>funda.nl</a> | <a href='../check.php?straatID=$streetID'>check</a></td>\n";
+	$HTML[] = "</tr>\n";
 	$HTML[] = "<tr>\n";
 	$HTML[] = "	<td colspan='2'>&nbsp;</td>\n";
 	$HTML[] = "</tr>\n";
