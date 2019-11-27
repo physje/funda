@@ -1,4 +1,4 @@
-<<?php
+<?php
 include_once(__DIR__.'/include/config.php');
 include_once('include/HTML_TopBottom.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
@@ -35,15 +35,15 @@ if(isset($_REQUEST['OpdrachtID'])) {
 	} else {
 	    $checkStreets = true;
 	}
-  	
+	
+	$iMax = 1;  	
 	if($checkStreets) {
 		$straatRun = true;
 		$Straten = getStreet2Check($iMax);
 	} else {
 		$wijkRun = true;
 		$Wijken = getWijk2Check($iMax);
-	}
-	$iMax = 1;	
+	}	
 } else {
 	$Opdrachten = getZoekOpdrachten('', date('G'));
 	$opdrachtRun = true;
