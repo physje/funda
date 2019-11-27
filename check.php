@@ -1,14 +1,12 @@
-<?php
+<<?php
 include_once(__DIR__.'/include/config.php');
 include_once('include/HTML_TopBottom.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
 $db = connect_db();
 
-$straatRun = $wijkRun = $opdrachtRun = false;
-$checkStreets = false;
-
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
 # Iedereen kan deze pagina dus in principe openen.
+$straatRun = $wijkRun = $opdrachtRun = false;
 
 # Als er een OpdrachtID is meegegeven hoeft alleen die uitgevoerd te worden.
 # In alle andere gevallen gewoon alle actieve zoekopdrachten
@@ -16,9 +14,28 @@ if(isset($_REQUEST['OpdrachtID'])) {
 	$Opdrachten = array($_REQUEST['OpdrachtID']);
 	$opdrachtRun = true;
 	$iMax = 1;
-//} elseif(date('i') > 4) {
-} elseif(true) {
-	$iMax = 1;
+} elseif(date('i') > 2) {
+	# Hoeveel straten zijn er te controleren
+	$sql = "SELECT * FROM $TableStraten WHERE $StratenActive = '1'";
+	$result = mysqli_query($db, $sql);
+	$aantalStraten = mysqli_num_rows($result);
+	
+	# Hoeveel wijken zijn er te controleren
+	$sql = "SELECT * FROM $TableWijken WHERE $WijkenActive = '1'";
+	$result = mysqli_query($db, $sql);
+	$aantalWijken = mysqli_num_rows($result);
+	
+	# Bepaal grens
+	$grens = $aantalWijken/($aantalWijken+$aantalStraten)*100;
+	
+	# Beetje willekeurig verdelen of een straat of wijk wordt gecheckt
+	$dice = rand (0, 100);
+	if($dice < $grens) {
+	    $checkStreets = false;
+	} else {
+	    $checkStreets = true;
+	}
+  	
 	if($checkStreets) {
 		$straatRun = true;
 		$Straten = getStreet2Check($iMax);
@@ -26,6 +43,7 @@ if(isset($_REQUEST['OpdrachtID'])) {
 		$wijkRun = true;
 		$Wijken = getWijk2Check($iMax);
 	}
+	$iMax = 1;	
 } else {
 	$Opdrachten = getZoekOpdrachten('', date('G'));
 	$opdrachtRun = true;
