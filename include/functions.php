@@ -558,7 +558,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	
 	# Als er een class object-promolabel__open-huis-dates is heeft openhuis => $openhuis = 1
 	# Als geen van beide het geval is, is hij nog beschikbaar => $openhuis = 0
-	if(strpos($contents, 'open-huis-dag">')) {
+	if(strpos($contents, 'open-huis-date">')) {
 		$openhuis		= 1;
 	} else {
 		$openhuis		= 0;
@@ -1895,14 +1895,19 @@ function hasOpenHuis($id) {
 	}
 }
 
-function extractOpenHuisData($contents) {
-	//$data			= getFundaData($id);
-	//$contents	= file_get_contents_retry('http://www.funda.nl'.$data['url']);
+function setOpenHuis($id) {
+	global $db, $TableHuizen, $HuizenOpenHuis, $HuizenID;
 	
-	$propertie	= getString('<ol class="object-promolabel__open-huis-dag">', '</ol>', $contents, 0);
-	$datum			= getString('open-huis-date">', ' van ', $propertie[0], 0);
-	$tijden			= getString(' van ', ' uur.</li>', $datum[1], 0);
-			
+	$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '1' WHERE $HuizenID = '$id'";
+		
+	return mysqli_query($db, $sql);	
+}
+
+function extractOpenHuisData($contents) {	
+	$propertie	= getString('<li class="object-promolabel__open-huis-date">', '</li>', $contents, 0);
+	$datum			= getString('', ' van ', $propertie[0], 0);
+	$tijden			= getString(' van ', '', $datum[1], 0);
+				
 	$temp				= explode('-', guessDate($datum[0]));
 		
 	$dag			= $temp[0];
