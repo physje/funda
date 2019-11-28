@@ -107,7 +107,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 		$data			= RSS2Array($huis);
 		$fundaID	= $data['id'];
 				
-		$String[] = '<li>'. formatPrice($data['prijs']) ." : <a href='". $data['link'] ."'>". $data['adres'] ."</a> (<a href='admin/edit.php?id=$fundaID'>$fundaID</a>)</li>";
+		$String[] = '<li>'. formatPrice($data['prijs']) ." : <a href='". $data['link'] ."'>". $data['adres'] ."</a> (". (knownHouse($fundaID) : "<a href='admin/edit.php?id=$fundaID'>$fundaID</a>" ? $fundaID).")</li>";
 				
 		if($straatRun OR $wijkRun) {
 			$opdrachten = getOpdrachtenByFundaID($fundaID);
