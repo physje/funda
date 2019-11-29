@@ -33,7 +33,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		$String[] = "<li><a href='". $data['link'] ."'>". $data['adres'] ."</a> (<a href='admin/edit.php?id=$fundaID'>$fundaID</a>)</li>";
 		
 		if(!hasOpenHuis($fundaID)) {
-			toLog('info', '', $fundaID, 'Open huis aangekondigd');
+			toLog('info', $OpdrachtID, $fundaID, 'Open huis aangekondigd');
 			setOpenHuis($fundaID);
 			mark4Details($fundaID);
 		}
