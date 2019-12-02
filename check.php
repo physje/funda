@@ -54,7 +54,7 @@ if(isset($_REQUEST['OpdrachtID'])) {
 	}
 	
 	if(date('G') < 1 AND date('i') < 6) {
-		toLog('debug', '', '', "Actieve straten: $aantalStraten, Actieve wijken: $aantalWijken");
+		toLog('debug', '', '', "Actieve straten: $aantalStraten, Actieve wijken: $aantalWijken; Totaal: ". ($aantalStraten+$aantalWijken));
 	}	
 } else {
 	$Opdrachten = getZoekOpdrachten('', date('G'));

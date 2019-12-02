@@ -2161,9 +2161,9 @@ function setStreetSeen($id) {
 
 
 function inactivateStreet($id) {
-	global $db, $TableStraten, $StratenID, $StratenActive;
+	global $db, $TableStraten, $StratenID, $StratenLastCheck, $StratenActive;
 	
-	$sql_inactive = "UPDATE $TableStraten SET $StratenActive = '0' WHERE $StratenID = $id";
+	$sql_inactive = "UPDATE $TableStraten SET $StratenActive = '0', $StratenLastCheck = ". time() ." WHERE $StratenID = $id";
 	return mysqli_query($db, $sql_inactive);
 }
 
