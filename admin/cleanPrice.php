@@ -47,7 +47,7 @@ do {
 			if($tijd < $data['start']) {
 				$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $tijd WHERE $HuizenID like $huis";
 				if(mysqli_query($db, $sql_update)) {
-					$melding[] = 'Begintijd <b>'. $data['adres'] .'</b> : '. date("d-m-Y", $tijd)  ." (was ". date("d-m-Y", $data['start']) .")<br>\n";	
+					$melding[] = '<b>'. $data['adres'] .'</b> : begintijd aangepast naar '. date("d-m-Y", $tijd)  ." (was ". date("d-m-Y", $data['start']) .")<br>\n";	
 				}
 			}	
 			

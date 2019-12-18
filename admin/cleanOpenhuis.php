@@ -57,6 +57,22 @@ do {
 	}	
 } while($row = mysqli_fetch_array($result));
 
+
+$sql = "SELECT $HuizenID FROM $TableHuizen WHERE $HuizenOpenHuis like '1' AND $HuizenDetails like '0'";
+$result	= mysqli_query($db, $sql);
+$row		= mysqli_fetch_array($result);
+
+do {	
+	$fundaID = $row[$HuizenID];	
+	$openhuis = getNextOpenhuis($fundaID);
+	
+	if($openhuis[0] == 0 AND $openhuis[1] == 0) {
+		removeOpenHuis($fundaID);
+	}
+	
+} while($row = mysqli_fetch_array($result));
+
+
 if(count($error) > 0) {
 	$errorVenster = implode("\n", $error);
 } else {
