@@ -57,7 +57,9 @@ do {
 	}	
 } while($row = mysqli_fetch_array($result));
 
-
+# Iets dergelijks gebeurd ookal dagelijks bij het genereren van de iCal-bestanden
+# met open huis
+/*
 $sql = "SELECT $HuizenID FROM $TableHuizen WHERE $HuizenOpenHuis like '1' AND $HuizenDetails like '0'";
 $result	= mysqli_query($db, $sql);
 $row		= mysqli_fetch_array($result);
@@ -71,7 +73,7 @@ do {
 	}
 	
 } while($row = mysqli_fetch_array($result));
-
+*/
 
 if(count($error) > 0) {
 	$errorVenster = implode("\n", $error);

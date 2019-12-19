@@ -109,12 +109,12 @@ for($i = 0 ; $i < $loop ; $i++) {
 						
 				$ics[] = "BEGIN:VEVENT";	
 				$ics[] = "UID:FUNDA_OPEN_HUIS-". $fundaID .'-'. date("Ymd", $start);
-				$ics[] = "DTSTART;TZID=Europe/Amsterdam:". date("Ymd¥THis", $start);
-				$ics[] = "DTEND;TZID=Europe/Amsterdam:". date("Ymd¥THis", $einde);	
-				$ics[] = "LAST-MODIFIED:". date("Ymd¥THis", time());
+				$ics[] = "DTSTART;TZID=Europe/Amsterdam:". date("Ymd\THis", $start);
+				$ics[] = "DTEND;TZID=Europe/Amsterdam:". date("Ymd\THis", $einde);	
+				$ics[] = "LAST-MODIFIED:". date("Ymd\THis", time());
 				$ics[] = "SUMMARY:Open Huis '". convertToReadable($data['adres']) ."'";
 				$ics[] = "LOCATION:". convertToReadable($data['adres']) .", ". $data['plaats'];
-				$ics[] = "DESCRIPTION:". implode('¥n', $description);
+				$ics[] = "DESCRIPTION:". implode('\n', $description);
 				$ics[] = "STATUS:CONFIRMED";	
 				$ics[] = "TRANSP:TRANSPARENT";
 				$ics[] = "END:VEVENT";
@@ -129,11 +129,11 @@ for($i = 0 ; $i < $loop ; $i++) {
 			header("Cache-control: private");
 			header('Content-type: application/ics');
 			header('Content-Disposition: attachment; filename="'. formatAddress($data['adres']) .'.ics"');
-			echo implode("¥r¥n", $header);
-			echo "¥r¥n";
-			echo implode("¥r¥n", $ics);
-			echo "¥r¥n";
-			echo implode("¥r¥n", $footer);		
+			echo implode("\r\n", $header);
+			echo "\r\n";
+			echo implode("\r\n", $ics);
+			echo "\r\n";
+			echo implode("\r\n", $footer);		
 		} else {
 			if($opdrachten) {
 				$filename = '../../../download/'. str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. removeFilenameCharacters($OpdrachtData['naam']) .'.ics';
@@ -144,37 +144,19 @@ for($i = 0 ; $i < $loop ; $i++) {
 				$filename = '../../../download/'. str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. removeFilenameCharacters($UserData['naam']) .'.ics';
 				echo "<a href='$filename'>". $UserData['naam'] ."</a>";
 			}
-			echo "¥n<p>¥n";
+			echo "\n<p>\n";
 		
 			$file = fopen($filename, 'w+');
-			fwrite($file, implode("¥r¥n", $header));
-			fwrite($file, "¥r¥n");
-			fwrite($file, implode("¥r¥n", $ics));
-			fwrite($file, "¥r¥n");
-			fwrite($file, implode("¥r¥n", $footer));
+			fwrite($file, implode("\r\n", $header));
+			fwrite($file, "\r\n");
+			fwrite($file, implode("\r\n", $ics));
+			fwrite($file, "\r\n");
+			fwrite($file, implode("\r\n", $footer));
 			fclose ($file);			
 		}
 	}
 }
+
 if(!isset($_REQUEST['id'])) {
 	toLog('info', '', '', "Kalender aangemaakt");
-}
-function formatAddress($string) {
-	$string	= ucwords($string);
-	$string = str_replace('Van ', 'van ', $string);
-	$string = str_replace('De ', 'de ', $string);
-	$string = str_replace(' ', '', $string);
-	return $string;
-}
-
-function removeFilenameCharacters($string) {
-	$string = str_replace('ﾃつｲ', '', $string);
-	$string = str_replace(',', '', $string);
-	$string = str_replace('!', '', $string);
-	$string = str_replace('[', '', $string);
-	$string = str_replace(']', '', $string);
-	$string = str_replace(' ', '-', $string);
-	$string = html_entity_decode($string);
-	
-	return $string;
 }

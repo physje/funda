@@ -2533,5 +2533,38 @@ function getSearchString($url, $exclude = false) {
 	}
 }
 
+function formatAddress($string) {
+	$string	= ucwords($string);
+	$string = str_replace('Van ', 'van ', $string);
+	$string = str_replace('De ', 'de ', $string);
+	$string = str_replace(' ', '', $string);
+	return $string;
+}
 
+function removeFilenameCharacters($string) {
+	$string = str_replace('ﾃつｲ', '', $string);
+	$string = str_replace(',', '', $string);
+	$string = str_replace('!', '', $string);
+	$string = str_replace('[', '', $string);
+	$string = str_replace(']', '', $string);
+	$string = str_replace(' ', '-', $string);
+	$string = html_entity_decode($string);
+	
+	return $string;
+}
+
+function updateAvailable() {
+	global $ScriptURL;	
+	$updateDir = $ScriptURL.'update';
+	
+	if($handle = opendir($updateDir)) {
+		while (false !== ($entry = readdir($handle))) {
+			if(strpos($entry, 'update_')) {
+				return true;
+			}
+		}
+		closedir($handle);
+	}
+	return false;
+}
 ?>
