@@ -1,7 +1,7 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
-include_once('../include/HTML_TopBottom.php');
-connect_db();
+$db = connect_db();
+
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
 # Iedereen kan deze pagina dus in principe openen.
 $header[] = "BEGIN:VCALENDAR";
@@ -31,16 +31,17 @@ if(!isset($_REQUEST['id'])) {
 	# Kijken welke huizen uit de kalender-database gisteren open huis gehad hebben.
 	# Deze huizen moeten klaar gemaakt worden zodat er weer een trigger komt mochten zij open huis hebben 
 	$start	= mktime(0, 0, 0, date('m'), date('d')-1, date('Y'));
-	$end		= mktime(23, 59, 59, date('m'), date('d')-1, date('Y'));
+	$end	= mktime(23, 59, 59, date('m'), date('d')-1, date('Y'));
 	
-	$sql		= "SELECT * FROM $TableCalendar	WHERE $CalendarEnd BETWEEN $start AND $end";
-	$result	= mysql_query($sql);
-	$row		= mysql_fetch_array($result);
+	$sql	= "SELECT * FROM $TableCalendar	WHERE $CalendarEnd BETWEEN $start AND $end";
+	$result	= mysqli_query($db, $sql);
+	$row	= mysqli_fetch_array($result);
 	do {
 		removeOpenHuis($row[$CalendarHuis]);	
 		toLog('info', '', $row[$CalendarHuis], "Open Huis verwijderd");
-	} while($row = mysql_fetch_array($result));
+	} while($row = mysqli_fetch_array($result));
 }
+
 $maandGeleden	= mktime(0, 0, 0, date('m')-1, date('d'), date('Y'));
 $enkelHuis = $enkelZoekopdracht = $gebruiker = false;
 if(isset($_REQUEST['id'])) {
@@ -94,9 +95,9 @@ for($i = 0 ; $i < $loop ; $i++) {
 		}
 	
 		$ics = array();
-		$result = mysql_query($sql);
+		$result = mysqli_query($db, $sql);
 		$data = array();
-		if($row = mysql_fetch_array($result)) {	
+		if($row = mysqli_fetch_array($result)) {	
 			do {
 				$start		= $row[$CalendarStart];
 				$einde		= $row[$CalendarEnd];
@@ -108,16 +109,16 @@ for($i = 0 ; $i < $loop ; $i++) {
 						
 				$ics[] = "BEGIN:VEVENT";	
 				$ics[] = "UID:FUNDA_OPEN_HUIS-". $fundaID .'-'. date("Ymd", $start);
-				$ics[] = "DTSTART;TZID=Europe/Amsterdam:". date("Ymd\THis", $start);
-				$ics[] = "DTEND;TZID=Europe/Amsterdam:". date("Ymd\THis", $einde);	
-				$ics[] = "LAST-MODIFIED:". date("Ymd\THis", time());
+				$ics[] = "DTSTART;TZID=Europe/Amsterdam:". date("Ymd¥THis", $start);
+				$ics[] = "DTEND;TZID=Europe/Amsterdam:". date("Ymd¥THis", $einde);	
+				$ics[] = "LAST-MODIFIED:". date("Ymd¥THis", time());
 				$ics[] = "SUMMARY:Open Huis '". convertToReadable($data['adres']) ."'";
 				$ics[] = "LOCATION:". convertToReadable($data['adres']) .", ". $data['plaats'];
-				$ics[] = "DESCRIPTION:". implode('\n', $description);
+				$ics[] = "DESCRIPTION:". implode('¥n', $description);
 				$ics[] = "STATUS:CONFIRMED";	
 				$ics[] = "TRANSP:TRANSPARENT";
 				$ics[] = "END:VEVENT";
-			} while($row = mysql_fetch_array($result));
+			} while($row = mysqli_fetch_array($result));
 		}
 		
 		if($enkelHuis) {
@@ -128,11 +129,11 @@ for($i = 0 ; $i < $loop ; $i++) {
 			header("Cache-control: private");
 			header('Content-type: application/ics');
 			header('Content-Disposition: attachment; filename="'. formatAddress($data['adres']) .'.ics"');
-			echo implode("\r\n", $header);
-			echo "\r\n";
-			echo implode("\r\n", $ics);
-			echo "\r\n";
-			echo implode("\r\n", $footer);		
+			echo implode("¥r¥n", $header);
+			echo "¥r¥n";
+			echo implode("¥r¥n", $ics);
+			echo "¥r¥n";
+			echo implode("¥r¥n", $footer);		
 		} else {
 			if($opdrachten) {
 				$filename = '../../../download/'. str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. removeFilenameCharacters($OpdrachtData['naam']) .'.ics';
@@ -143,14 +144,14 @@ for($i = 0 ; $i < $loop ; $i++) {
 				$filename = '../../../download/'. str_replace(' ', '-', $ScriptTitle) .'_Open-Huis_'. removeFilenameCharacters($UserData['naam']) .'.ics';
 				echo "<a href='$filename'>". $UserData['naam'] ."</a>";
 			}
-			echo "\n<p>\n";
+			echo "¥n<p>¥n";
 		
 			$file = fopen($filename, 'w+');
-			fwrite($file, implode("\r\n", $header));
-			fwrite($file, "\r\n");
-			fwrite($file, implode("\r\n", $ics));
-			fwrite($file, "\r\n");
-			fwrite($file, implode("\r\n", $footer));
+			fwrite($file, implode("¥r¥n", $header));
+			fwrite($file, "¥r¥n");
+			fwrite($file, implode("¥r¥n", $ics));
+			fwrite($file, "¥r¥n");
+			fwrite($file, implode("¥r¥n", $footer));
 			fclose ($file);			
 		}
 	}
@@ -163,5 +164,17 @@ function formatAddress($string) {
 	$string = str_replace('Van ', 'van ', $string);
 	$string = str_replace('De ', 'de ', $string);
 	$string = str_replace(' ', '', $string);
+	return $string;
+}
+
+function removeFilenameCharacters($string) {
+	$string = str_replace('ﾃつｲ', '', $string);
+	$string = str_replace(',', '', $string);
+	$string = str_replace('!', '', $string);
+	$string = str_replace('[', '', $string);
+	$string = str_replace(']', '', $string);
+	$string = str_replace(' ', '-', $string);
+	$string = html_entity_decode($string);
+	
 	return $string;
 }
