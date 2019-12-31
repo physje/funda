@@ -34,6 +34,8 @@ if(isset($_REQUEST['id'])) {
 		$sql .= "$HuizenLon = '". $_POST['longitude'] ."', ";
 		$sql .= "$HuizenVerkocht = '". $_POST['verkocht'] ."', ";
 		$sql .= "$HuizenOffline = '". $_POST['offline'] ."', ";
+		$sql .= "$HuizenOpenHuis = '". $_POST['openhuis'] ."', ";
+		$sql .= "$HuizenDetails = '". $_POST['details'] ."', ";
 		$sql .= "$HuizenStart = $begin_tijd, ";
 		$sql .= "$HuizenEind = $eind_tijd WHERE $HuizenID = $id";
 		
@@ -95,9 +97,17 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "	<td><input type='radio' name='offline' value='0'". ($data['offline'] == '0' ? ' checked' : '') .">Nee&nbsp;<input type='radio' name='offline' value='1'". ($data['offline'] == '1' ? ' checked' : '') .">Ja</td>";
 		$HTML[] = "</tr>";		
 		$HTML[] = "<tr>";
+		$HTML[] = "	<td>Open huis</td>";
+		$HTML[] = "	<td><input type='radio' name='openhuis' value='0'". ($data['openhuis'] == '0' ? ' checked' : '') .">Nee&nbsp;<input type='radio' name='openhuis' value='1'". ($data['openhuis'] == '1' ? ' checked' : '') .">Ja</td>";
+		$HTML[] = "</tr>";		
+		$HTML[] = "<tr>";
+		$HTML[] = "	<td>Details</td>";
+		$HTML[] = "	<td><input type='radio' name='details' value='0'". ($data['details'] == '0' ? ' checked' : '') .">Nee&nbsp;<input type='radio' name='details' value='1'". ($data['details'] == '1' ? ' checked' : '') .">Ja</td>";
+		$HTML[] = "</tr>";
+		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Verkocht</td>";
 		$HTML[] = "	<td><input type='radio' name='verkocht' value='0'". ($data['verkocht'] == '0' ? ' checked' : '') .">Nee&nbsp;<input type='radio' name='verkocht' value='1'". ($data['verkocht'] == '1' ? ' checked' : '') .">Ja&nbsp;<input type='radio' name='verkocht' value='2'". ($data['verkocht'] == '2' ? ' checked' : '') .">Onder voorbehoud</td>";
-		$HTML[] = "</tr>";
+		$HTML[] = "</tr>";		
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td colspan='2'>&nbsp;</td>";
 		$HTML[] = "</tr>";

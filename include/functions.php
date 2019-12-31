@@ -990,7 +990,7 @@ function changedPrice($id, $price, $opdracht) {
 
 
 function getFundaData($id) {
-	global $db, $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht, $HuizenOpenHuis;
+	global $db, $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht, $HuizenOpenHuis, $HuizenDetails;
 	$data = array();
 	 
   if($id != 0) {
@@ -1020,6 +1020,7 @@ function getFundaData($id) {
 			$data['verkocht']	= $row[$HuizenVerkocht];
 			$data['offline']	= $row[$HuizenOffline];
 			$data['openhuis']	= $row[$HuizenOpenHuis];
+			$data['details']	= $row[$HuizenDetails];
 			
 			return $data;
 		} else {
