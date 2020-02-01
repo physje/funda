@@ -16,25 +16,41 @@ if(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'jaar') {
 } elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'maand') {
 	$startdag = mktime(0, 0, 0, date("n")-1, date("j")-1, date("Y"));
 	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));	
+} elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'week') {
+	$startdag = mktime(0, 0, 0, date("n"), date("j")-9, date("Y"));
+	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));
 } elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'dag') {
 	$startdag = mktime(0, 0, 0, date("n"), date("j")-3, date("Y"));
 	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));	
 } else {
-	$startdag = mktime(0, 0, 0, date("n"), date("j")-9, date("Y"));
-	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));
+	$sql_straat			= "SELECT min($StratenLastCheck) as min FROM $TableStraten WHERE $StratenActive like '1'";
+	$result_straat	= mysqli_query($db, $sql_straat);
+	$row_straat			= mysqli_fetch_array($result_straat);
+	
+	$sql_wijk				= "SELECT min($WijkenLastCheck) as min FROM $TableWijken WHERE $WijkenActive like '1'";
+	$result_wijk		= mysqli_query($db, $sql_wijk);
+	$row_wijk				= mysqli_fetch_array($result_wijk);
+	
+	$startdag				= mktime(0, 0, 0, 1, 1, date("Y"));
+	$einddag				= min(array($row_straat['min'], $row_wijk['min']));
 }
 
 $bDag			= getParam('bDag', date("d", $startdag));
 $bMaand		= getParam('bMaand', date("m", $startdag));
 $bJaar		= getParam('bJaar', date("Y", $startdag));
+$bUur			= getParam('bUur', date("H", $startdag));
+$bMin			= getParam('bMin', date("i", $startdag));
 $eDag			= getParam('eDag', date("d", $einddag));
 $eMaand 	= getParam('eMaand', date("m", $einddag));
 $eJaar		= getParam('eJaar', date("Y", $einddag));
+$eUur			= getParam('eUur', date("H", $einddag));
+$eMin			= getParam('eMin', date("i", $einddag));
+
 $selectie	= getParam('selectie', '');
 
 $HTML = $Debug = array();
 if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
-	$dateSelection = makeDateSelection('','',$bDag,$bMaand,$bJaar , '','',$eDag,$eMaand,$eJaar);
+	$dateSelection = makeDateSelection($bUur,$bMin,$bDag,$bMaand,$bJaar , $eUur,$eMin,$eDag,$eMaand,$eJaar);
 		
 	$HTML[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 	$HTML[] = "<input type='hidden' name='datum' value='1'>";
