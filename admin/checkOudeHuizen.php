@@ -83,8 +83,8 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 		$sql_array[] = "SELECT * FROM $TableHuizen WHERE $HuizenID like ". $_REQUEST['id'];
 		$HTML[] = '<h1>'. $_REQUEST['id'] ."</h1><br>\n";
 	} elseif(isset($_POST['submit'])) {		
-		$beginGrens = mktime(0, 0, 0, $_POST['bMaand'], $_POST['bDag'], $_POST['bJaar']);
-		$eindGrens	= mktime(23, 59, 59, $_POST['eMaand'], $_POST['eDag'], $_POST['eJaar']);
+		$beginGrens = mktime($_POST['bUur'], $_POST['bMin'], 0, $_POST['bMaand'], $_POST['bDag'], $_POST['bJaar']);
+		$eindGrens	= mktime($_POST['eUur'], $_POST['eMin'], 59, $_POST['eMaand'], $_POST['eDag'], $_POST['eJaar']);
 		$titel = 'Huizen voor het laatst gezien tussen '. date('d-m-y', $beginGrens) .' en '. date('d-m-y', $eindGrens);
 				
 		$sql_array[] = "SELECT * ";
