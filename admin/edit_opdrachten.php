@@ -40,7 +40,7 @@ if(isset($_POST['doorgaan'])) {
 	if(!mysqli_query($db, $sql_opdracht)) {
 		$Page .= $sql_opdracht;
 	} else {
-		$OpdrachtID = mysqli_insert_id();
+		$OpdrachtID = mysqli_insert_id($db);
 		addMember2Opdracht($OpdrachtID, $_SESSION['account'], 'mail');
 	}
 	
