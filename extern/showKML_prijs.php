@@ -102,9 +102,8 @@ if(!isset($_REQUEST['datum'])) {
 			$prijs		= $temp[1];
 	
 			$index = floor($prijs/$stapPrijs);
-			if(isset($huizenArray[$index]))	$verzameling  = $huizenArray[$index];
-			$verzameling[] = $id;
-			$huizenArray[$index] = $verzameling;
+			if(!isset($huizenArray[$index])) $huizenArray[$index] = array();
+			$huizenArray[$index][] = $id;
 		} while($row = mysqli_fetch_array($result));
 	}	
 	
