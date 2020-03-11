@@ -19,15 +19,16 @@ if(isset($_POST['urls'])) {
 		
 	if(count($dataset) > 0){		
 		foreach($dataset as $huis) {
-			//$deel_2 .= addHouse2List($huis, $lijstID);
 			$huis = str_replace('http://www.funda.nl', '', $huis);
+			$huis = str_replace('https://www.funda.nl', '', $huis);
+						
 			$mappen = explode("/", $huis);						
 			$delen = explode("-", $mappen[3]);
 			
 			$data['url'] = $huis;
 			$data['id'] = $delen[1];
 			$data['adres'] = implode(' ', array_slice($delen, 2));
-			
+						
 			if(!saveHouse($data, array())) {
 				$deel_1 .= $data['adres']. " aan dB toevoegen is mislukt<br>\n";
 			} else {
@@ -36,7 +37,7 @@ if(isset($_POST['urls'])) {
 				} else {
 					$deel_1 .= $data['adres']. " toegevoegd<br>\n";
 				}
-			}					
+			}
 		}
 	} else {
 		$deel_1 = "<p>Selectie bevat geen huizen";
@@ -77,17 +78,8 @@ if(isset($_POST['urls'])) {
 
 echo $HTMLHeader;
 echo "<tr>\n";
-echo "<td width='50%' valign='top' align='center'>\n";
-echo showBlock($deel_1);
-echo "</td>\n";
-if($deel_2 != "") {
-	echo "<td width='50%' valign='top' align='center'>\n";
-	echo showBlock($deel_2);
-	echo "</td>\n";
-} else {
-	echo "<td width='50%' valign='top' align='center'>\n";
-	echo "&nbsp;";
-	echo "</td>\n";
-}
+echo "	<td width='25%'>&nbsp;</td>\n";
+echo "	<td width='50%' valign='top' align='center'>". showBlock($deel_1) . "</td>\n";
+echo "	<td width='25%'>&nbsp;</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;

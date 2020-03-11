@@ -50,6 +50,7 @@ if($_SESSION['level'] > 1) {
 	$admin['admin/showVerdeling.php']			= 'Overzicht van welke opdracht wanneer wordt uitgevoerd';
 }
 $admin['admin/HouseDetails.php']			= 'Bekijk details van een huis';
+$admin['admin/addUnknownHouse.php']		= 'Voeg (nog) onbekend huis toe';
 $admin['admin/determineCorrectPrice.php']		= 'Bepaal gecorrigeerde prijs op specifieke datum';
 
 
@@ -116,6 +117,19 @@ if(count($Opdrachten) == 0) {
 
 echo $HTMLHeader;
 echo "<tr>\n";
+
+if(updateAvailable()) {
+	if($mobile) {
+		echo "<td valign='top' align='left'>\n";
+	} else {
+		echo "<td colspan='2' valign='top' align='center'>\n";
+	}
+
+	echo showBlock("Er is een update beschikbaar. Voer <a href='update.php'>deze</a> voor de zekerheid eerst uit om zeker te weten dat het script werkt als bedacht.", $mobile);
+	echo "	</td>\n";
+	echo "</tr>\n";
+	echo "<tr>\n";
+}
 
 if($mobile) {
 	echo "<td valign='top' align='left'>\n";
