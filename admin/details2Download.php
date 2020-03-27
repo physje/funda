@@ -29,12 +29,16 @@ if($row = mysqli_fetch_array($result)) {
 		# om de 20 huizen een balk toe
 		# Bij mij is 20 ook het maximaal aantal huizen wat ik in 1x kan uploaden
 		if($rij == 20) {
-		    $HTML[] = "<tr>";
-		    $HTML[] = "	<td colspan='5'><hr></td>";
-		    $HTML[] = "</tr>";
-		    $rij=1;
+			$HTML[] = "<tr>";
+		  $HTML[] = "	<td colspan='5'><a href='../onderhoud/openAll.php?ids=". implode('|', $ids) ."' target='_blank'>open al deze huizen</a></td>";
+		  $HTML[] = "</tr>";
+			$HTML[] = "<tr>";
+		  $HTML[] = "	<td colspan='5'><hr></td>";
+		  $HTML[] = "</tr>";
+		  $ids = array();
+		  $rij=1;
 		} else {
-		    $rij++;
+		  $rij++;
 		}
 		
 		$url = 'http://www.funda.nl/'.$row[$HuizenID];
@@ -45,8 +49,13 @@ if($row = mysqli_fetch_array($result)) {
 		$HTML[] = '	<td width=20>&nbsp;</td>';
 		$HTML[] = "	<td>zet <a href='changeState.php?state=offline&id=". $row[$HuizenID] ."' target='funda_state'>offline</a></td>";
 		$HTML[] = '</tr>';
+		$ids[] = $row[$HuizenID];
 		
-	} while($row = mysqli_fetch_array($result));	
+	} while($row = mysqli_fetch_array($result));
+	
+	$HTML[] = "<tr>";
+	$HTML[] = "	<td colspan='5'><a href='../onderhoud/openAll.php?ids=". implode('|', $ids) ."' target='_blank'>open al deze huizen</a></td>";		  
+	$HTML[] = "</tr>";	
 	$HTML[] = '</table>';
 	$HTML[] = '</ol>';
 } else {

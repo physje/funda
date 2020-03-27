@@ -61,6 +61,7 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['admin/checkOudeHuizen.php']			= 'Zie welke huizen al even van de radar zijn';
 	$onderhoud['admin/details2Download.php']		= 'Overzicht van huizen waar de details van ontbreken';
 	$onderhoud['upload_offline.php']						= 'Upload files met funda-HTML';	
+	$onderhoud['check_online.php']							= 'Controleer of huizen nog online zijn';	
 	//$onderhoud['check_offline.php']							= 'Check de offline opgeslagen pagina\'s';	
 	//$onderhoud['admin/loadOfflineHouses.php']		= 'Check de offline opgeslagen huis-pagina\'s';	
 	$onderhoud['admin/edit_streets.php']				= 'Wijzig de straten';
