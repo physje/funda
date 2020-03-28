@@ -1,6 +1,6 @@
 <?php
-include_once(__DIR__.'/../include/config.php');
-include_once(__DIR__.'/../include/HTML_TopBottom.php');
+include_once(__DIR__.'/include/config.php');
+include_once(__DIR__.'/include/HTML_TopBottom.php');
 
 $db = connect_db();
 
