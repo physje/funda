@@ -26,15 +26,19 @@ if(isset($_POST['urls'])) {
 			$delen = explode("-", $mappen[3]);
 			
 			$data['url'] = $huis;
-			$data['id'] = $delen[1];
-			$data['adres'] = implode(' ', array_slice($delen, 2));
-						
+			$data['id'] = $fundaID = $delen[1];
+			$data['adres'] = ucfirst(implode(' ', array_slice($delen, 2)));
+			
 			if(!saveHouse($data, array())) {
 				$deel_1 .= $data['adres']. " aan dB toevoegen is mislukt<br>\n";
 			} else {
-				if(!addHouse2List($data['id'], $lijstID)) {
+				if(!addHouse2List($fundaID, $lijstID)) {
 					$deel_1 .= $data['adres']. " aan lijst $lijstID toevoegen is mislukt<br>\n";
-				} else {
+				} else {					
+					mark4Details($fundaID);
+					$stad = $mappen[2];
+					$straat = extractStreetFromAdress($data['adres']);			
+					addUpdateStreetDb($straat, $stad);
 					$deel_1 .= $data['adres']. " toegevoegd<br>\n";
 				}
 			}
