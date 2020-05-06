@@ -25,10 +25,14 @@ if(isset($_POST['urls'])) {
 			$mappen = explode("/", $huis);						
 			$delen = explode("-", $mappen[3]);
 			
-			$data['url'] = $huis;
+			$data['url'] = implode('/', array_slice($mappen, 0, 4));
 			$data['id'] = $fundaID = $delen[1];
-			$data['adres'] = ucfirst(implode(' ', array_slice($delen, 2)));
+			$data['adres'] = ucwords(implode(' ', array_slice($delen, 2)));
+			$data['plaats'] = ucwords($mappen[2]);
 			
+			$temp = splitStreetAndNumberFromAdress($data['adres']);
+			$data = array_merge($data, $temp);
+						
 			if(!saveHouse($data, array())) {
 				$deel_1 .= $data['adres']. " aan dB toevoegen is mislukt<br>\n";
 			} else {
@@ -36,9 +40,7 @@ if(isset($_POST['urls'])) {
 					$deel_1 .= $data['adres']. " aan lijst $lijstID toevoegen is mislukt<br>\n";
 				} else {					
 					mark4Details($fundaID);
-					$stad = $mappen[2];
-					$straat = extractStreetFromAdress($data['adres']);			
-					addUpdateStreetDb($straat, $stad);
+					addUpdateStreetDb($data['straat'], $data['plaats']);
 					$deel_1 .= $data['adres']. " toegevoegd<br>\n";
 				}
 			}
@@ -74,7 +76,7 @@ if(isset($_POST['urls'])) {
 	$deel_1 .= "	<td>&nbsp;</td>\n";
 	$deel_1 .= "</tr>\n";	
 	$deel_1 .= "<tr>\n";
-	$deel_1 .= "	<td align='center'><input type='submit' name='toevoegen' value='Weergeven'></td>\n";
+	$deel_1 .= "	<td align='center'><input type='submit' name='toevoegen' value='Voeg toe'></td>\n";
 	$deel_1 .= "</tr>\n";
 	$deel_1 .= "</table>\n";
 	$deel_1 .= "</form>\n";
