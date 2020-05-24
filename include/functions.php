@@ -1707,7 +1707,10 @@ function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $
 		for($u=0 ; $u<=23 ; $u++)	$begin[] = "	<option value='$u'". ($u == $bUur ? ' selected' : '') .">". substr('0'.$u, -2) ."</option>";
 		$begin[] = "	</select>:";
 		$begin[] = "	<select name='bMin'>";
-		for($m=0 ; $m<=59 ; $m=$m+5)	$begin[] = "	<option value='$m'". ($m == $bMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
+		
+		# Omdat we in stappen van 5 minuten lopen, even afronden om 5 minuten.
+		$selectMin = (floor($bMin/5)*5);
+		for($m=0 ; $m<=59 ; $m=$m+5)	$begin[] = "	<option value='$m'". ($m == $selectMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
 		$begin[] = "	</select>";
 	}
 	
@@ -1726,7 +1729,10 @@ function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $
 		for($u=0 ; $u<=23 ; $u++)	$eind[] = "	<option value='$u'". ($u == $eUur ? ' selected' : '') .">". substr('0'.$u, -2) ."</option>";
 		$eind[] = "	</select>:";
 		$eind[] = "	<select name='eMin'>";
-		for($m=0 ; $m<=59 ; $m=$m+5)	$eind[] = "	<option value='$m'". ($m == $eMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
+		
+		# Omdat we in stappen van 5 minuten lopen, even afronden om 5 minuten.
+		$selectMin = (floor($eMin/5)*5);
+		for($m=0 ; $m<=59 ; $m=$m+5)	$eind[] = "	<option value='$m'". ($m == $selectMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
 		$eind[] = "	</select>";
 	}
 	
@@ -2516,8 +2522,8 @@ function guessFundaIDFromHTML($zoekURL) {
 	}
 		
 	$fundaID	= $delen[1];
-	
-	if(is_numeric($fundaID) AND count($mappen) > 4 AND count($delen) > 3) {
+		
+	if(is_numeric($fundaID) AND count($mappen) > 4 AND count($delen) > 2) {
 		return $fundaID;
 	}	else {
 		return 0;
