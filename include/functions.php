@@ -563,21 +563,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	} else {
 		$openhuis		= 0;
 	}
-	
-	if($verkocht == 1) {
-		$Aangeboden 	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
-		$KenmerkData['Aangeboden sinds'] = substr(trim($Aangeboden[0]), 4);
-				
-		$Verkoopdatum 	= getString('<dt>Verkoopdatum</dt>','</dd>', $contents, 0);
-		$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
-	}
-	
-	if($openhuis == 1) {
-		$data['oh-tijden'] = extractOpenHuisData($contents);
-	}	else {
-		$data['oh-tijden'] = 0;
-	}
-			
+		
 	# Navigatie-gedeelte
 	$navigatie	= getString('<ol class="container breadcrumb-list">', '</ol>', $contents, 0);
 	$stappen		= explode('<li class="breadcrumb-listitem">', $navigatie[0]);
@@ -616,6 +602,25 @@ function extractFundaDataFromPage($offlineHTML) {
 	$data['prijs']		= cleanPrice($prijs[0]);
 	$data['verkocht']	= $verkocht;
 	$data['openhuis']	= $openhuis;
+	
+	if($verkocht == 1) {
+		$oldData = getFundaData($data['id']);
+		$Aangeboden 	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
+		$KenmerkData['Aangeboden sinds'] = substr(trim($Aangeboden[0]), 4);
+				
+		$Verkoopdatum 	= getString('<dt>Verkoopdatum</dt>','</dd>', $contents, 0);
+		$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
+		
+		if($oldData['afmeld'] == 0) {
+			$data['afmeld'] = $oldData['eind'];
+		}
+	}
+	
+	if($openhuis == 1) {
+		$data['oh-tijden'] = extractOpenHuisData($contents);
+	}	else {
+		$data['oh-tijden'] = 0;
+	}
 	
 	# Omschrijving		
 	$descrHTML		= getString('<div class="object-description-body"', '</div>', $contents, 0);
@@ -802,21 +807,30 @@ function saveHouseRSS($data) {
 }
 
 function updateHouse($data, $kenmerken, $erase = false) {
-	global $db, $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenAfmeld, $HuizenVerkocht;
+	global $db, $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenVerkocht;
 	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
 			
+	$onderdelen = splitStreetAndNumberFromAdress($data['adres']);
+	
+	$data['straat']			= $onderdelen['straat'];
+	$data['nummer']			= $onderdelen['nummer'];
+	$data['letter']			= $onderdelen['letter'];
+	$data['toevoeging']	= $onderdelen['toevoeging'];
+			
 	$velden = array(
-		'id'				=> $HuizenID,       
 		'url'				=> $HuizenURL,    
-		'adres'			=> $HuizenAdres,  
+		'adres'			=> $HuizenAdres,		
+		'straat'		=> $HuizenStraat,
+		'nummer'		=> $HuizenNummer,
+		'letter'		=> $HuizenLetter,
+		'toevoeging'=> $HuizenToevoeging,		 
 		'PC_c'			=> $HuizenPC_c,   
 		'PC_l'			=> $HuizenPC_l,   
 		'plaats'		=> $HuizenPlaats, 
 		'wijk'			=> $HuizenWijk,  
 		'thumb'			=> $HuizenThumb,  
 		'makelaar'	=> $HuizenMakelaar,
-		'verkocht'	=> $HuizenVerkocht,
-		'afmeld'		=> $HuizenAfmeld
+		'verkocht'	=> $HuizenVerkocht
 	);
 		
 	foreach($data as $key => $value) {
@@ -990,7 +1004,7 @@ function changedPrice($id, $price, $opdracht) {
 
 
 function getFundaData($id) {
-	global $db, $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht, $HuizenOpenHuis, $HuizenDetails;
+	global $db, $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenOffline, $HuizenVerkocht, $HuizenOpenHuis, $HuizenDetails;
 	$data = array();
 	 
   if($id != 0) {
@@ -1017,6 +1031,7 @@ function getFundaData($id) {
 			$data['long']			= $row[$HuizenLon];
 			$data['start']		= $row[$HuizenStart];
 			$data['eind']			= $row[$HuizenEind];
+			$data['afmeld']		= $row[$HuizenAfmeld];
 			$data['verkocht']	= $row[$HuizenVerkocht];
 			$data['offline']	= $row[$HuizenOffline];
 			$data['openhuis']	= $row[$HuizenOpenHuis];
@@ -1525,7 +1540,7 @@ function updateVerkochtDataFromPage($generalData, $data) {
 	# Alles weer opnieuw initialiseren.
 	$Aanmelddatum = $Verkoopdatum = $LaatsteVraagprijs = $AangebodenSinds = $OorspronkelijkeVraagprijs = $Vraagprijs = 0;
 	$naam = '';
-	$offline = false;	
+	$offline = $changed_end = $changed_start = false;	
 	$prijs = $startdata = array();
 	
 	$fundaID = $generalData['id'];
@@ -1533,8 +1548,9 @@ function updateVerkochtDataFromPage($generalData, $data) {
 			
 	if(isset($generalData['afmeld']) AND $generalData['afmeld'] != "") {
 		$sql_update = "UPDATE $TableHuizen SET $HuizenAfmeld = ". $generalData['afmeld'] ." WHERE $HuizenID like $fundaID";
+		//echo $sql_update ."<br>\n";
 		if(mysqli_query($db, $sql_update)) {
-			$HTML[] = " -> afgemeld<br>";
+			$HTML[] = " -> afgemeld";
 		}			
 	}
 			
@@ -1650,39 +1666,43 @@ function updateVerkochtDataFromPage($generalData, $data) {
 			toLog('error', '', $fundaID, "Error met toevoegen $value als ". $naam[$key]);
 		}
 	}
+			
+	# Als er een verkoopdatum bekend is => die datum als eindtijd invoeren
+	if($Verkoopdatum > 10) {
+		$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $startDatum, $HuizenEind = $Verkoopdatum, $HuizenVerkocht = '1' WHERE $HuizenID like $fundaID";
+		
+		if(mysqli_query($db, $sql_update)) {
+			$HTML[] = " -> begin- en eindtijd aangepast (verkocht)";
+			toLog('info', '', $fundaID, "Huis is verkocht");
+			$changed_end = $changed_start = true;
+		} else {
+			toLog('error', '', $fundaID, "Error met verwerken verkocht huis");
+			$HTML[] = $sql_update;
+		}
+	}
 	
 	# Als er een startdatum gevonden is die verder terugligt dan die bekend was => invoegen
-	if($startDatum != $FundaData['start'] AND !$offline) {
+	if($startDatum != $FundaData['start'] AND !$offline AND !$changed_start) {
 		$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $startDatum WHERE $HuizenID like $fundaID";
-		
+				
 		if(mysqli_query($db, $sql_update)) {
 			$HTML[] = " -> begintijd aangepast";
 		} else {
 			toLog('error', '', $fundaID, "Error met verwerken begintijd");
-		}				
+			$HTML[] = $sql_update;
+		}					
 	}
 
 	# Als er geen verkoopdatum bekend is, is hij niet verkocht en dus nog online
-	if($Verkoopdatum == '' AND !$offline) {
+	if($Verkoopdatum == '' AND !$offline AND !$changed_end) {
 		$sql_update = "UPDATE $TableHuizen SET $HuizenEind = ". time() ." WHERE $HuizenID like $fundaID";
 		
 		if(mysqli_query($db, $sql_update)) {
 			$HTML[] = " -> eindtijd aangepast<br>";
 		} else {
 			toLog('error', '', $fundaID, "Error met verwerken begintijd");
-		}				
-	}
-		
-	# Als er een verkoopdatum bekend is => die datum als eindtijd invoeren
-	if($Verkoopdatum > 10) {
-		$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $startDatum, $HuizenEind = $Verkoopdatum, $HuizenVerkocht = '1' WHERE $HuizenID like $fundaID";
-				
-		if(mysqli_query($db, $sql_update)) {
-			$HTML[] = " -> begin- en eindtijd aangepast (verkocht)";
-			toLog('info', '', $fundaID, "Huis is verkocht");
-		} else {
-			toLog('error', '', $fundaID, "Error met verwerken verkocht huis");
-		}			
+			$HTML[] = $sql_update;
+		}
 	}
 	
 	return $HTML;
