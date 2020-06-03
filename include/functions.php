@@ -558,7 +558,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	
 	# Als er een class object-promolabel__open-huis-dates is heeft openhuis => $openhuis = 1
 	# Als geen van beide het geval is, is hij nog beschikbaar => $openhuis = 0
-	if(strpos($contents, 'open-huis-date">')) {
+	if(strpos($contents, 'class="object-promolabel__open-huis')) {
 		$openhuis		= 1;
 	} else {
 		$openhuis		= 0;
