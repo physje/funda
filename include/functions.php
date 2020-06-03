@@ -807,7 +807,7 @@ function saveHouseRSS($data) {
 }
 
 function updateHouse($data, $kenmerken, $erase = false) {
-	global $db, $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenVerkocht;
+	global $db, $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenVerkocht, $HuizenOpenHuis;
 	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
 			
 	$onderdelen = splitStreetAndNumberFromAdress($data['adres']);
@@ -829,8 +829,9 @@ function updateHouse($data, $kenmerken, $erase = false) {
 		'plaats'		=> $HuizenPlaats, 
 		'wijk'			=> $HuizenWijk,  
 		'thumb'			=> $HuizenThumb,  
-		'makelaar'	=> $HuizenMakelaar,
-		'verkocht'	=> $HuizenVerkocht
+		'makelaar'	=> $HuizenMakelaar,		
+		'verkocht'	=> $HuizenVerkocht,
+		'openhuis'	=> $HuizenOpenHuis
 	);
 		
 	foreach($data as $key => $value) {
@@ -1930,13 +1931,13 @@ function setOpenHuis($id) {
 	return mysqli_query($db, $sql);	
 }
 
-function extractOpenHuisData($contents) {	
-	$propertie	= getString('<li class="object-promolabel__open-huis-date">', '</li>', $contents, 0);
-	$datum			= getString('', ' van ', $propertie[0], 0);
+function extractOpenHuisData($contents) {
+	$propertie	= getString('<li class="object-promolabel__open-huis', '</li>', $contents, 0);
+	$datum			= getString('>', ' van ', $propertie[0], 0);
 	$tijden			= getString(' van ', '', $datum[1], 0);
-				
+	
 	$temp				= explode('-', guessDate($datum[0]));
-		
+	
 	$dag			= $temp[0];
 	$maand		= $temp[1];
 	$jaar			= $temp[2];	
