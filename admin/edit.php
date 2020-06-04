@@ -17,7 +17,7 @@ if(isset($_REQUEST['id'])) {
 	if(isset($_POST['save'])) {
 		$begin_tijd = mktime(0, 0, 1, $_POST['bMaand'], $_POST['bDag'], $_POST['bJaar']);
 		$eind_tijd = mktime(23, 59, 59, $_POST['eMaand'], $_POST['eDag'], $_POST['eJaar']);
-		
+				
 		//below is not for safety, just to catch ' and similar characters in input (e.g. street names)
 		foreach($_POST as $k => $v) $_POST[$k] = mysqli_real_escape_string($db,$v);
 		
@@ -36,8 +36,14 @@ if(isset($_REQUEST['id'])) {
 		$sql .= "$HuizenOffline = '". $_POST['offline'] ."', ";
 		$sql .= "$HuizenOpenHuis = '". $_POST['openhuis'] ."', ";
 		$sql .= "$HuizenDetails = '". $_POST['details'] ."', ";
+		if(isset($_POST['afgemeld']) AND $_POST['afgemeld'] == 1) {
+			$afmeld_tijd = mktime(12, 12, 12, $_POST['aMaand'], $_POST['aDag'], $_POST['aJaar']);
+			$sql .= "$HuizenAfmeld = $afmeld_tijd ,";
+		}		
 		$sql .= "$HuizenStart = $begin_tijd, ";
 		$sql .= "$HuizenEind = $eind_tijd WHERE $HuizenID = $id";
+		
+		
 		
 		if(!mysqli_query($db, $sql)) {
 			$HTML[] = $sql;
@@ -92,6 +98,22 @@ if(isset($_REQUEST['id'])) {
 		for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['eind']) ? ' selected' : '') .">$j</option>";	}
 		$HTML[] = "	</select></td>";
 		$HTML[] = "</tr>";
+		
+		if($data['afmeld'] > 10) {		
+			$HTML[] = "<input type='hidden' name='afgemeld' value='1'>";
+			$HTML[] = "<tr>";	
+			$HTML[] = "	<td>Afgemeld</td>";
+			$HTML[] = "	<td><select name='aDag'>";
+			for($d=1 ; $d<=31 ; $d++)	{	$HTML[] = "<option value='$d'". ($d == date("d", $data['afmeld']) ? ' selected' : '') .">$d</option>";	}
+			$HTML[] = "	</select><select name='aMaand'>";
+			for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $data['afmeld']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>";	}
+			$HTML[] = "	</select><select name='aJaar'>";
+			for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['afmeld']) ? ' selected' : '') .">$j</option>";	}
+			$HTML[] = "	</select></td>";
+			$HTML[] = "</tr>";
+		}	else {
+			$HTML[] = "<input type='hidden' name='afgemeld' value='0'>";
+		}
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Offline</td>";
 		$HTML[] = "	<td><input type='radio' name='offline' value='0'". ($data['offline'] == '0' ? ' checked' : '') .">Nee&nbsp;<input type='radio' name='offline' value='1'". ($data['offline'] == '1' ? ' checked' : '') .">Ja</td>";
