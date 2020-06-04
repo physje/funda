@@ -238,6 +238,7 @@ if(isset($_REQUEST['id'])) {
 			$Resultaten[] = '<li>'. $opdrachtData['naam'] ."</li>\n";
 		} while($row =	mysqli_fetch_array($result));
 		$Resultaten[] = "</ul>\n";
+		$Resultaten[] = "<a href='overviewOpdrachtenHuis.php?id=$id'>wijzigen</a>\n";
 	}
 	
 	# Kenmerken
