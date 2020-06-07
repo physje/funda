@@ -12,13 +12,11 @@ if(isset($_REQUEST['type'])) { $type = $_REQUEST['type']; } else { $type = 'alle
 
 if($type == 'regio') {
 	$url = "https://vastgoeddashboard.kadaster.nl/vgd/woningen/PrijsindexPerRegio.csv?years_back=1";
+	toLog('debug', '', '', 'PBK opgevraagd voor alle regios');
 } else {
 	$url = "https://vastgoeddashboard.kadaster.nl/vgd/woningen/prijsindex.csv?years_back=1";
+	toLog('debug', '', '', 'PBK opgevraagd voor heel Nederland');
 }
-//$csvFile = 'local_PBK.csv';
-//$fp = fopen($csvFile, 'w+');
-//fwrite($fp, file_get_contents_retry($url));
-//fclose($fp);
 
 $data = file_get_contents_retry($url);
 $rijen = explode("\n", $data);
@@ -77,13 +75,16 @@ foreach($rijen as $rij) {
 		
 		if($type != 'regio') {
 			$newEntry = true;
+			toLog('info', '', '', 'Nieuwe PBK voor heel Nederland');
+		} else {
+			toLog('info', '', '', 'Nieuwe PBK voor de verschillende regios');
 		}
 	}
 }
 
 toLog('info', '', '', 'Kadaster PBK-ingelezen');
 
-# Als de ingelezen data "nieuwer" is dan de data in de dB, is er nieuwe data en moet er een mail worden gestuurd.
+# Als de ingelezen data "nieuwer" is dan de data in de dB, is er nieuwe data en moet er een pushover-bericht worden gestuurd.
 if($newEntry) {
 	$percentage = (100*($prijsindex-$oud_prijsindex))/$prijsindex;
 	if($percentage > 0) {

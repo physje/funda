@@ -43,7 +43,7 @@ if($row = mysqli_fetch_array($result)) {
 		
 		$url = 'http://www.funda.nl/'.$row[$HuizenID];
 		$HTML[] = '<tr>';
-		$HTML[] = '	<td><li><b>'. urldecode($row[$HuizenAdres]) ."</b> (". urldecode($row[$HuizenPlaats]) .")</li></td>";
+		$HTML[] = '	<td><li><b>'. formatStreetAndNumber($row[$HuizenID]) ."</b> (". urldecode($row[$HuizenPlaats]) .")</li></td>";
 		$HTML[] = '	<td>&nbsp;</td>';
 		$HTML[] = "	<td><a href='$url' target='_blank'>open op funda.nl</a></td>";
 		$HTML[] = '	<td width=20>&nbsp;</td>';
@@ -58,9 +58,8 @@ if($row = mysqli_fetch_array($result)) {
 	$HTML[] = "</tr>";	
 	$HTML[] = '</table>';
 	$HTML[] = '</ol>';
-} else {
-	$HTML[] = "<a href='". $_SERVER['PHP_SELF'] ."?all'>Geef overzicht van alle huizen</a>";
-}
+} 
+$HTML[] = "<a href='". $_SERVER['PHP_SELF'] ."?all'>Geef overzicht van alle huizen</a>";
 
 echo $HTMLHeader;
 echo "<tr>\n";

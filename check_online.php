@@ -38,7 +38,7 @@ if($row = mysqli_fetch_array($result)) {
   	  	
   	echo "	<td width='$rowWidth'>\n";
   	echo "	<h1>Vorige</h1><br>\n";
-  	echo $data['adres'] ."<br>\n";
+  	echo formatStreetAndNumber($fundaID) ."<br>\n";
   	echo "	Laatst gezien :". date('d-m-Y', $data['eind']) ."<br>\n";
   	
   	if($data['offline'] == 1) {

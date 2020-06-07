@@ -47,7 +47,7 @@ do {
 			if($tijd < $data['start']) {
 				$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $tijd WHERE $HuizenID like $huis";
 				if(mysqli_query($db, $sql_update)) {
-					$melding[] = '<b>'. $data['adres'] .'</b> : begintijd aangepast naar '. date("d-m-Y", $tijd)  ." (was ". date("d-m-Y", $data['start']) .")<br>\n";	
+					$melding[] = '<b>'. formatStreetAndNumber($huis) .'</b> : begintijd aangepast naar '. date("d-m-Y", $tijd)  ." (was ". date("d-m-Y", $data['start']) .")<br>\n";	
 				}
 			}	
 			
@@ -58,9 +58,9 @@ do {
 			if(mysqli_query($db, $sql)) {
 				$sql = "INSERT INTO $TablePrijzen ($PrijzenID, $PrijzenPrijs, $PrijzenTijd) VALUES ('$huis', $prijs, $tijd)";
 				if(!mysqli_query($db, $sql)) {
-					$error[] = "Toevoegen van de prijs van <b>". $data['adres'] ."</b> ($huis) is mislukt<br>\n";
+					$error[] = "Toevoegen van de prijs van <b>". formatStreetAndNumber($huis) ."</b> ($huis) is mislukt<br>\n";
 				} else {
-					$melding[] = '<b>'. $data['adres'] .'</b> : '. date("d-m-Y", $tijd)  ." -> ". formatPrice($prijs) ."<br>\n";
+					$melding[] = '<b>'. formatStreetAndNumber($huis) .'</b> : '. date("d-m-Y", $tijd)  ." -> ". formatPrice($prijs) ."<br>\n";
 				}
 			}
 		}	

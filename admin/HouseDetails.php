@@ -17,7 +17,7 @@ if(isset($_REQUEST['id'])) {
 
 if($id != '') {	
 	$data = getFundaData($id);
-	$adres = convertToReadable($data['adres']);
+	$adres = formatStreetAndNumber($id);//convertToReadable($data['adres']);
 	$deel_2	= $adres;
 	
 	$links['http://www.funda.nl/'.$id] 				= "Bekijk $adres op funda.nl";

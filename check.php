@@ -22,7 +22,7 @@ if(isset($_REQUEST['OpdrachtID'])) {
 	$iMax = 1;
 	$wijkRun = true;
 	$Wijken = array($_REQUEST['wijkID']);
-} elseif(date('i') > 2) {	
+} else {	
 	# Hoeveel straten zijn er te controleren
 	$sql = "SELECT * FROM $TableStraten WHERE $StratenActive = '1'";
 	$result = mysqli_query($db, $sql);
@@ -33,33 +33,37 @@ if(isset($_REQUEST['OpdrachtID'])) {
 	$result = mysqli_query($db, $sql);
 	$aantalWijken = mysqli_num_rows($result);
 	
-	# Bepaal grens
-	$grens = $aantalWijken/($aantalWijken+$aantalStraten)*100;
+	# Als er geen wijken en geen straten zijn heeft controleren geen nut			
+	if($aantalWijken > 0 AND $aantalStraten > 0 AND date('i') > 2) {
+		# Bepaal grens
+		$grens = $aantalWijken/($aantalWijken+$aantalStraten)*100;
 	
-	# Beetje willekeurig verdelen of een straat of wijk wordt gecheckt
-	$dice = rand (0, 100);
-	if($dice < $grens) {
-		$checkStreets = false;
-	} else {
-		$checkStreets = true;
+		# Beetje willekeurig verdelen of een straat of wijk wordt gecheckt
+		$dice = rand (0, 100);
+		if($dice < $grens) {
+			$checkStreets = false;
+		} else {
+			$checkStreets = true;
+		}
+	
+		$iMax = 1;  	
+		if($checkStreets) {
+			$straatRun = true;
+			$Straten = getStreet2Check($iMax);
+		} else {
+			$wijkRun = true;
+			$Wijken = getWijk2Check($iMax);
+		}
+		
+		if(date('G') < 1 AND date('i') < 6) {
+			# Een keer per dag (eerste run na middernacht) even in logfiles wegschrijven hoeveel straten en wijken actief zijn
+			toLog('debug', '', '', "Actieve straten: $aantalStraten, Actieve wijken: $aantalWijken; Totaal: ". ($aantalStraten+$aantalWijken));
+		}
+	} else {		
+		$Opdrachten = getZoekOpdrachten('', date('G'));
+		$opdrachtRun = true;
+		$iMax = count($Opdrachten);
 	}
-	
-	$iMax = 1;  	
-	if($checkStreets) {
-		$straatRun = true;
-		$Straten = getStreet2Check($iMax);
-	} else {
-		$wijkRun = true;
-		$Wijken = getWijk2Check($iMax);
-	}
-	
-	if(date('G') < 1 AND date('i') < 6) {
-		toLog('debug', '', '', "Actieve straten: $aantalStraten, Actieve wijken: $aantalWijken; Totaal: ". ($aantalStraten+$aantalWijken));
-	}	
-} else {
-	$Opdrachten = getZoekOpdrachten('', date('G'));
-	$opdrachtRun = true;
-	$iMax = count($Opdrachten);
 }
 
 $block = array();
@@ -107,7 +111,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 		$data			= RSS2Array($huis);
 		$fundaID	= $data['id'];
 				
-		$String[] = '<li>'. formatPrice($data['prijs']) ." : <a href='". $data['link'] ."'>". $data['adres'] ."</a> (". (knownHouse($fundaID) ? "<a href='admin/edit.php?id=$fundaID'>$fundaID</a>" : $fundaID).")</li>";
+		$String[] = '<li>'. formatPrice($data['prijs']) ." : <a href='". $data['link'] ."'>". formatStreetAndNumber($fundaID) ."</a> (". (knownHouse($fundaID) ? "<a href='admin/edit.php?id=$fundaID'>$fundaID</a>" : $fundaID).")</li>";
 				
 		if($straatRun OR $wijkRun) {
 			$opdrachten = getOpdrachtenByFundaID($fundaID);
@@ -121,7 +125,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 			
 			# Gegevens over het huis opslaan
 			if(!saveHouseRSS($data)) {
-				$ErrorMessage[] = "Toevoegen van ". $data['adres'] ." aan het script ging niet goed";
+				$ErrorMessage[] = "Toevoegen van ". formatStreetAndNumber($fundaID) ." aan het script ging niet goed";
 				toLog('error', $OpdrachtID, $fundaID, $data['adres'] .' toevoegen aan script mislukt');
 			} else {					
 				toLog('info', $OpdrachtID, $fundaID,  $data['adres'] .' toegevoegd aan script');
@@ -129,7 +133,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 			
 			# Coordinaten van het huis toevoegen
 			if(!addCoordinates($data['adres'], '', $data['plaats'], $fundaID)) {					
-				$ErrorMessage[] = "Toevoegen van coordinaten aan ". $data['adres'] ." ging niet goed";	
+				$ErrorMessage[] = "Toevoegen van coordinaten aan ". formatStreetAndNumber($fundaID) ." ging niet goed";	
 				toLog('error', $OpdrachtID, $data['id'], 'Coordinaten toevoegen mislukt');
 			} else {
 				toLog('debug', $OpdrachtID, $data['id'], 'Coordinaten toegevoegd');
@@ -137,7 +141,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 				
 			# Prijs van het huis opslaan
 			if(!updatePrice($fundaID, $data['prijs'])) {
-				$ErrorMessage[] = "Toevoegen van prijs (". $data['prijs'] .") aan ". $data['adres'] ." ging niet goed";
+				$ErrorMessage[] = "Toevoegen van prijs (". $data['prijs'] .") aan ". formatStreetAndNumber($fundaID) ." ging niet goed";
 				toLog('error', $OpdrachtID, $fundaID, 'Prijs toevoegen mislukt');
 			} else {
 				toLog('debug', $OpdrachtID, $fundaID, 'Prijs ('. $data['prijs'] .') toegevoegd');
@@ -150,7 +154,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 			# Huis is al bekend bij het script
 			# We moeten dus aangeven dat hij nog steeds op de markt is
 			if(!updateAvailability($fundaID, $data['begin'])) {
-				echo "<font color='red'>Updaten van <b>". $data['adres'] ."</b> is mislukt</font> | $sql<br>\n";
+				echo "<font color='red'>Updaten van <b>". formatStreetAndNumber($fundaID) ."</b> is mislukt</font> | $sql<br>\n";
 				$ErrorMessage[] = "Updaten van ". $data['adres'] ." is mislukt";
 				toLog('error', $OpdrachtID, $fundaID, "Update van huis kon niet worden gedaan");
 			} else {

@@ -30,7 +30,7 @@ foreach($Opdrachten as $OpdrachtID) {
 		$data			= RSS2Array($huis);
 		$fundaID	= $data['id'];
 		
-		$String[] = "<li><a href='". $data['link'] ."'>". $data['adres'] ."</a> (<a href='admin/edit.php?id=$fundaID'>$fundaID</a>)</li>";
+		$String[] = "<li><a href='". $data['link'] ."'>". formatStreetAndNumber($fundaID) ."</a> (<a href='admin/edit.php?id=$fundaID'>$fundaID</a>)</li>";
 		
 		if(!hasOpenHuis($fundaID)) {
 			toLog('info', $OpdrachtID, $fundaID, 'Open huis aangekondigd');

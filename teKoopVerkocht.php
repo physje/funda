@@ -59,9 +59,8 @@ if(isset($_REQUEST['detail'])) {
 		
 		$result	= mysqli_query($db, $sql);		
 		if($row = mysqli_fetch_array($result)) {
-			do {
-				$data = getFundaData($row[$HuizenID]);
-				echo "<a href='admin/edit.php?id=". $data['id'] ."'>". $data['adres'] ."</a><br>\n";				
+			do {				
+				echo "<a href='admin/edit.php?id=". $row[$HuizenID] ."'>". formatStreetAndNumber($row[$HuizenID]) ."</a><br>\n";				
 			} while($row = mysqli_fetch_array($result));
 		} else {
 			echo "&nbsp;";

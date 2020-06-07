@@ -34,14 +34,14 @@ if(isset($_POST['urls'])) {
 			$data = array_merge($data, $temp);
 						
 			if(!saveHouse($data, array())) {
-				$deel_1 .= $data['adres']. " aan dB toevoegen is mislukt<br>\n";
+				$deel_1 .= formatStreetAndNumber($fundaID). " aan dB toevoegen is mislukt<br>\n";
 			} else {
 				if(!addHouse2List($fundaID, $lijstID)) {
-					$deel_1 .= $data['adres']. " aan lijst $lijstID toevoegen is mislukt<br>\n";
+					$deel_1 .= formatStreetAndNumber($fundaID). " aan lijst $lijstID toevoegen is mislukt<br>\n";
 				} else {					
 					mark4Details($fundaID);
 					addUpdateStreetDb($data['straat'], $data['plaats']);
-					$deel_1 .= $data['adres']. " toegevoegd<br>\n";
+					$deel_1 .= formatStreetAndNumber($fundaID). " toegevoegd<br>\n";
 				}
 			}
 		}

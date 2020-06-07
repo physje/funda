@@ -122,7 +122,7 @@ foreach($files as $file) {
 				
 				# Gegevens over het huis opslaan
 				if(!saveHouse($data, $extraData)) {
-					$ErrorMessage[] = "Toevoegen van ". $data['adres'] ." aan het script ging niet goed";
+					$ErrorMessage[] = "Toevoegen van ". formatStreetAndNumber($data['id']) ." aan het script ging niet goed";
 					toLog('error', $OpdrachtID, $data['id'], 'Huis toevoegen aan script mislukt');
 					$success = false;
 				} else {					
@@ -131,7 +131,7 @@ foreach($files as $file) {
 					
 				# Coordinaten van het huis toevoegen
 				if(!addCoordinates($data['adres'], $data['PC_c'], $data['plaats'], $data['id'])) {					
-					$ErrorMessage[] = "Toevoegen van coordinaten aan ". $data['adres'] ." ging niet goed";	
+					$ErrorMessage[] = "Toevoegen van coordinaten aan ". formatStreetAndNumber($data['id']) ." ging niet goed";	
 					toLog('error', $OpdrachtID, $data['id'], 'Coordinaten toevoegen mislukt');
 				} else {
 					toLog('debug', $OpdrachtID, $data['id'], "Coordinaten toegevoegd");
@@ -139,7 +139,7 @@ foreach($files as $file) {
 					
 				# Prijs van het huis opslaan
 				if(!updatePrice($data['id'], $data['prijs'])) {
-					$ErrorMessage[] = "Toevoegen van prijs (". $data['prijs'] .") aan ". $data['adres'] ." ging niet goed";
+					$ErrorMessage[] = "Toevoegen van prijs (". $data['prijs'] .") aan ". formatStreetAndNumber($data['id']) ." ging niet goed";
 					toLog('error', $OpdrachtID, $data['id'], 'Prijs toevoegen mislukt');
 				} else {
 					toLog('debug', $OpdrachtID, $data['id'], "Prijs toegevoegd");
@@ -157,8 +157,8 @@ foreach($files as $file) {
 			if(!$verkocht) {
 				
 				if(!updateAvailability($data['id'])) {
-					echo "<font color='red'>Updaten van <b>". $data['adres'] ."</b> is mislukt</font> | $sql<br>\n";
-					$ErrorMessage[] = "Updaten van ". $data['adres'] ." is mislukt";
+					echo "<font color='red'>Updaten van <b>". formatStreetAndNumber($data['id']) ."</b> is mislukt</font> | $sql<br>\n";
+					$ErrorMessage[] = "Updaten van ". formatStreetAndNumber($data['id']) ." is mislukt";
 					toLog('error', $OpdrachtID, $data['id'], "Update van huis kon niet worden gedaan");
 				} else {
 					toLog('debug', $OpdrachtID, $data['id'], 'Huis geupdate');
@@ -168,8 +168,8 @@ foreach($files as $file) {
 				# Dat moeten we dus controleren en indien nodig opslaan en melding van maken
 				if(newPrice($data['id'], $data['prijs']) AND !$verkocht) {							
 					if(!updatePrice($data['id'], $data['prijs'])) {
-						echo "Toevoegen van de prijs van <b>". $data['adres'] ."</b> is mislukt | $sql<br>\n";
-						$ErrorMessage[] = "Updaten van prijs (". $data['prijs'] .") aan ". $data['adres'] ." ging niet goed";
+						echo "Toevoegen van de prijs van <b>". formatStreetAndNumber($data['id']) ."</b> is mislukt | $sql<br>\n";
+						$ErrorMessage[] = "Updaten van prijs (". $data['prijs'] .") aan ". formatStreetAndNumber($data['id']) ." ging niet goed";
 						toLog('error', $OpdrachtID, $data['id'], "Nieuwe prijs van ". $data['prijs'] ." kon niet worden toegevoegd");
 					} else {
 						toLog('debug', $OpdrachtID, $data['id'], "Nieuwe vraagprijs");
@@ -223,7 +223,7 @@ foreach($files as $file) {
 			# Kijk of dit huis al vaker gevonden is voor deze opdracht
 			if(newHouse($data['id'], $OpdrachtID)) {				
 				if(!addHouse($data, $OpdrachtID)) {
-					$ErrorMessage[] = "Toevoegen van ". $data['adres'] ." aan opdracht $OpdrachtID ging niet goed";
+					$ErrorMessage[] = "Toevoegen van ". formatStreetAndNumber($data['id']) ." aan opdracht $OpdrachtID ging niet goed";
 					toLog('error', $OpdrachtID, $data['id'], 'Huis toekennen aan opdracht mislukt');
 				} else {
 					toLog('debug', $OpdrachtID, $data['id'], 'Huis toegekend aan opdracht');
@@ -263,7 +263,7 @@ foreach($files as $file) {
 			$String[] = "Klopt dit wel ?";
 			$success = false;
 		} else {
-			$String[] = "Details van <a href='". $ScriptURL ."admin/edit.php?id=$fundaID'>". $data['adres'] ."</a> ingelezen<br>\n";
+			$String[] = "Details van <a href='". $ScriptURL ."admin/edit.php?id=$fundaID'>". formatStreetAndNumber($data['id']) ."</a> ingelezen<br>\n";
 			
 			# Als wij een huis niet kennen klopt er iets niet
 			if(!knownHouse($fundaID)) {

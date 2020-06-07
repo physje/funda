@@ -442,6 +442,17 @@ function splitStreetAndNumberFromAdress($adres) {
 }
 
 
+function formatStreetAndNumber($id) {
+	$data = getFundaData($id);
+	
+	if($data['toevoeging'] == '') {
+		return $data['straat'].' '.$data['nummer'].strtoupper($data['letter']);
+	} else {
+		return $data['straat'].' '.$data['nummer'].' '.strtoupper($data['letter']).$data['toevoeging'];
+	}
+}
+
+
 function cleanPrice($HuisPrijs) {
 	$cleanPrice = '';
 	for($i=0 ; $i < strlen($HuisPrijs) ; $i++) {
@@ -519,7 +530,7 @@ function makeLeafletEntry($id) {
 	$infowindow[] = "	<td colspan='3' width='550'><img src='". $data['thumb'] ."'><br><a href='http://www.funda.nl/$id'>funda.nl</a> | <a href='". $ScriptURL ."admin/edit.php?id=". $id ."'>edit</a></td>";
 	$infowindow[] = "</tr>";
 	$infowindow[] = "<tr>";
-	$infowindow[] = "	<td valign='top' width='150'><b>". $data['adres'] .'<br>'. $data['PC_c'] .' '. $data['PC_l'] .' '. $data['plaats'] .'</b></td>';
+	$infowindow[] = "	<td valign='top' width='150'><b>". formatStreetAndNumber($id) .'<br>'. $data['PC_c'] .' '. $data['PC_l'] .' '. $data['plaats'] .'</b></td>';
 	$infowindow[] = "	<td valign='top'>&nbsp;</td>";
 	$infowindow[] = "	<td valign='top' width='250'>";
 	
