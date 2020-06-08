@@ -6,7 +6,7 @@ $HTMLHeader	.= "<html>\n";
 $HTMLHeader	.= "<head>\n";
 
 if(isset($userInteraction) AND !$userInteraction) {
-	$HTMLHeader	.= "	<meta http-equiv=\"refresh\" content=\"2; url=\" />\n";
+	$HTMLHeader	.= "	<meta http-equiv='refresh' content='2; url=$forwardURL' />\n";
 }
 
 $HTMLHeader	.= "	<title>$ScriptTitle $Version</title>\n";

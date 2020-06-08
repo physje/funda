@@ -86,32 +86,34 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 		$beginGrens = mktime($_POST['bUur'], $_POST['bMin'], 0, $_POST['bMaand'], $_POST['bDag'], $_POST['bJaar']);
 		$eindGrens	= mktime($_POST['eUur'], $_POST['eMin'], 59, $_POST['eMaand'], $_POST['eDag'], $_POST['eJaar']);
 		$titel = 'Huizen voor het laatst gezien tussen '. date('d-m-y', $beginGrens) .' en '. date('d-m-y', $eindGrens);
-				
-		$sql_array[] = "SELECT * ";
-		$sql_array[] = "FROM $TableVerdeling, $TableHuizen, $TableResultaat ";
-		$sql_array[] = "WHERE ";
-		$sql_array[] = "$TableResultaat.$ResultaatZoekID = $TableVerdeling.$VerdelingOpdracht AND ";
-		$sql_array[] = "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND ";
-		$sql_array[] = "$TableHuizen.$HuizenVerkocht NOT like '1' AND";
-		//$sql_array[] = "$TableHuizen.$HuizenVerkocht like '1' AND";
-		$sql_array[] = "$TableHuizen.$HuizenOffline like '0' AND";
+		
+		$from[] = $TableHuizen;
+		
+		$where[] = "$TableHuizen.$HuizenVerkocht NOT like '1'";
+		$where[] = "$TableHuizen.$HuizenOffline like '0'";
+		$where[] = "(($TableHuizen.$HuizenEind BETWEEN $beginGrens AND $eindGrens))";
 		
 		if($_REQUEST['selectie'] != '') {
 			$OpdrachtData = getOpdrachtData($opdracht);
-			$sql_array[] = "$TableResultaat.$ResultaatZoekID like '$opdracht' AND";
+			
+			$from[] = $TableVerdeling;
+			$from[] = $TableResultaat;
+			
+			$where[] = "$TableResultaat.$ResultaatZoekID = $TableVerdeling.$VerdelingOpdracht";
+			$where[] = "$TableResultaat.$ResultaatID = $TableHuizen.$HuizenID";
+			$where[] = "$TableResultaat.$ResultaatZoekID like '$opdracht'";
+									
 			$titel .= " voor ". $OpdrachtData['naam'];
 		}
 		
-		$sql_array[] = "(($TableHuizen.$HuizenEind BETWEEN $beginGrens AND $eindGrens))";
-		$sql_array[] = "GROUP BY $TableHuizen.$HuizenID";
+		$sql = "SELECT * FROM ". implode(', ', $from) ." WHERE ". implode(' AND ', $where) ." GROUP BY $TableHuizen.$HuizenID";
 				
 		$HTML[] = "<h1>$titel</h1><br>\n";
 	}
-	
-	$sql = implode(" ", $sql_array);	
+		
 	$result	= mysqli_query($db, $sql);
 	
-	$Debug[] = implode("<br>\n", $sql_array) ."<br>\n";  
+	$Debug[] = $sql ."<br>\n";  
 	$Debug[] = mysqli_num_rows($result) ." resultaten<br>\n";  
 		
 	$result	= mysqli_query($db, $sql);	
