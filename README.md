@@ -39,7 +39,7 @@ Standaard bestaat er een admin-account ('Admin'/'admin') waarmee je als administ
   * Tijdslijn : hier wordt van alle huizen met een balk getoond hoe lang deze huizen al te koop staan.
   * Prijs-afname : hier wordt van alle huizen met een balk getoond hoeveel zij al in prijs gedaald zijn.
   * Fotoalbum : hier wordt van alle huizen een kleine foto getoond met daaronder adres, huidige prijs, totale prijsdaling en hoe lang ze al te koop staan.
-  * Google Maps (wijk) : Het heet Google Maps, maar eigenlijk gebruik ik LeafletJS (https://leafletjs.com/) om een kaart te tonen waarin alle huizen op wijk gegroepeerd zijn.
+  * Google Maps (wijk) : Het heet Google Maps, maar eigenlijk gebruik ik LeafletJS (locationiq.com / leafletjs.com) om een kaart te tonen waarin alle huizen op wijk gegroepeerd zijn.
   * Google Maps (prijs) : idem, maar dan waarin alle huizen op prijs-klasse gegroepeerd zijn.
   * POI-Edit XML-file : Dit is een XML-file die gebruikt kan worden om POI-edit (http://www.poiedit.com/) te vertellen welke POI-files er beschikbaar zijn voor TomTom.
 

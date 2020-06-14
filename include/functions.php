@@ -260,8 +260,8 @@ function extractFundaData($HuisText, $verkocht = false) {
 	}
 	$key_parts = explode("-", $key);
 	$id			= $key_parts[1];
-	$adres	= getString('class="search-result-title">', '</h', $HuisURL[1], 0);
-	$PC			= getString('<small class="search-result-subtitle">', '</small>', $adres[1], 0);
+	$adres	= getString('result-header-title>', '</h', $HuisURL[1], 0);
+	$PC			= getString('result-header-subtitle>', '</h', $adres[1], 0);
 	$prijs	= getString('<span class="search-result-price">', '</span>', $PC[1], 0);
 	
 	if(strpos($HuisText, 'search-result-makelaar"')) {
@@ -2355,7 +2355,7 @@ function sendPushoverChangedPrice($fundaID, $OpdrachtID) {
 	# Pushover-bericht opstellen
 	if(count($PushMembers) > 0) {
 		$push = array();
-		$push['title']		= $fundaData['straat'] .' '. $fundaData['nummer'] ." is in prijs verlaagd voor '". $OpdrachtData['naam'] ."'";
+		$push['title']		= formatStreetAndNumber($fundaID) ." is in prijs verlaagd voor '". $OpdrachtData['naam'] ."'";
 		$push['message']	= "Van ". formatPrice(prev($prijzen_array)) .' naar '. formatPrice(end($prijzen_array));
 		
 		if(prev($prijzen_array) != reset($prijzen_array)) {
@@ -2371,6 +2371,28 @@ function sendPushoverChangedPrice($fundaID, $OpdrachtID) {
 	}
 }
 
+
+function sendPushoverOpenHuis($fundaID, $OpdrachtID) {
+	$fundaData			= getFundaData($fundaID);
+	$OpdrachtData		= getOpdrachtData($OpdrachtID);
+	$OpenHuisData		= getNextOpenhuis($fundaID);
+				
+	$PushMembers		= getMembers4Opdracht($OpdrachtID, 'push');
+			
+	# Pushover-bericht opstellen
+	if(count($PushMembers) > 0) {
+		$push = array();
+		$push['title']		= formatStreetAndNumber($fundaID) ." heeft open huis voor '". $OpdrachtData['naam'] ."'";
+		$push['message']	= "Open huis op ". strftime('%a %e %b', $OpenHuisData[0]) .' van '. strftime('%H:%M', $OpenHuisData[0]) .' tot '. strftime('%H:%M', $OpenHuisData[1]);
+				
+		$push['url']			= 'http://funda.nl/'. $fundaID;
+		$push['urlTitle']	= $fundaData['adres'];
+		$push['priority']	= 0;
+		
+		send2Pushover($push, $PushMembers);
+		toLog('debug', $OpdrachtID, $fundaID, 'Pushover-bericht open huis verstuurd');
+	}
+}
 
 function mark4Details($fundaID) {
 	global $db, $TableHuizen, $HuizenDetails, $HuizenID;

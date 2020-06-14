@@ -61,13 +61,24 @@ if(isset($googleMaps)) {
 }
 
 if(isset($leaflet)) {
-	$HTMLHeader	.= "        <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.0.3/dist/leaflet.css\" />\n";
-	$HTMLHeader	.= "        <script src=\"https://unpkg.com/leaflet@1.0.3/dist/leaflet.js\"></script>\n";
+	$HTMLHeader	.= "        <link rel=\"stylesheet\" href=\"https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.css\" />\n";
+	$HTMLHeader	.= "        <script src=\"https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js\"></script>\n";
 	$HTMLHeader	.= "        <script src=\"https://tiles.unwiredmaps.com/js/leaflet-unwired.js\"></script>\n";
 	$HTMLHeader	.= "        <style>\n";
 	$HTMLHeader	.= "            #map { height: 630px; }\n";
 	$HTMLHeader	.= "        </style>\n";
 }
+
+if(isset($mapbox)) {
+	$HTMLHeader	.= "<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />\n";
+	$HTMLHeader	.= "<script src='https://api.mapbox.com/mapbox-gl-js/v1.8.0/mapbox-gl.js'></script>\n";
+	$HTMLHeader	.= "<link href='https://api.mapbox.com/mapbox-gl-js/v1.8.0/mapbox-gl.css' rel='stylesheet' />\n";
+	$HTMLHeader	.= "<style>\n";
+	$HTMLHeader	.= "	body { margin:0px; padding:0px; }\n";
+	$HTMLHeader	.= "	#map { position:absolute; top:0px; bottom:0px; width:100%; }\n";
+	$HTMLHeader	.= "</style>\n";	
+}
+
 
 $HTMLHeader	.= "</head>\n";
 
