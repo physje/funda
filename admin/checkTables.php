@@ -15,11 +15,11 @@ $autoDelete['prijs'] = false;
 $autoDelete['result'] = false;
 $autoDelete['list'] = false;
 
-$check['kenmerk'] = false;
-$check['prijs'] = false;
-$check['result'] = false;
-$check['list'] = false;
-$check['open'] = false;
+$check['kenmerk'] = true;
+$check['prijs'] = true;
+$check['result'] = true;
+$check['list'] = true
+$check['open'] = true;
 
 $autoCollect = false;
 

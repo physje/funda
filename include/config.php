@@ -1,4 +1,7 @@
 <?php
+# Mocht er geen timezone bekend zijn : Europe/Amsterdam
+date_default_timezone_set('Europe/Amsterdam');
+
 $debug			= 0;			# Wel (1) of geen (0) debug-info op het scherm tonen
 $stapPrijs		= 25000;		# Stapjes in prijs in de Google Maps view
 $colPhoto		= 3;			# Aantal kolommen met foto in mail
@@ -191,6 +194,13 @@ $GemeentesPC				= "PC";
 $GemeentesPlaats		= "plaats";
 $GemeentesGemeente	= "gemeente";
 $GemeentesProvincie	= "provincie";
+
+$TableWOZ						= "funda_woz";
+$WOZID							= "id";
+$WOZFundaID					= "fundaID";
+$WOZJaar						= "jaar";
+$WOZPrijs						= "price";
+$WOZLastCheck				= "last_check";
 
 include ($cfgGeneralIncludeDirectory . 'general_config.php');
 include ($cfgGeneralIncludeDirectory . 'shared_functions.php');

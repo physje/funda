@@ -31,6 +31,7 @@ function getString($start, $end, $string, $offset) {
 
 
 function getCoordinates($straat, $postcode, $plaats, $land = 'Nederland') {
+	# Get your own at https://www.locationiq.com/
 	$AccessToken = "";
 		
 	if($straat != '')		$q[] = urlencode(html_entity_decode($straat));
@@ -40,10 +41,6 @@ function getCoordinates($straat, $postcode, $plaats, $land = 'Nederland') {
 	
 	$url = "https://eu1.locationiq.com/v1/search.php?key=$AccessToken";	
 	$url .= "&q=". implode(",+", $q);
-	//$url .= "&street=".urlencode(html_entity_decode($straat));
-	//$url .= "&city=".urlencode(html_entity_decode($plaats));
-	//$url .= "&country=".urlencode(html_entity_decode($land));
-	//$url .= "&postalcode=".urlencode(html_entity_decode($postcode));
 	$url .= "&format=json";
 			
 	$contents		= file_get_contents($url);

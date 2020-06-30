@@ -63,11 +63,8 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['upload_offline.php']						= 'Upload files met funda-HTML';	
 	$onderhoud['check_online.php']							= 'Controleer of huizen nog online zijn';	
 	$onderhoud['check_openhuis.php']							= 'Check welke huizen open huis hebben';	
-	//$onderhoud['admin/loadOfflineHouses.php']		= 'Check de offline opgeslagen huis-pagina\'s';	
 	$onderhoud['admin/edit_streets.php']				= 'Wijzig de straten';
 	$onderhoud['admin/edit_wijken.php']				= 'Wijzig de wijken';
-	//$onderhoud['admin/addPostcode.php']					= 'Zoek ontbrekende postcode\'s op';
-	//$onderhoud['admin/addWijk.php']						= 'Vul ontbrekende wijken in';
 	$onderhoud['onderhoud/makeGeneralLists.php']	= 'Maak algemene lijsten aan';
 	$onderhoud['admin/readKadasterPBK.php']				= 'Lees de prijs-index van het Kadaster in';
 	$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met open huizen';
@@ -119,6 +116,7 @@ if(count($Opdrachten) == 0) {
 echo $HTMLHeader;
 echo "<tr>\n";
 
+/*
 if(updateAvailable()) {
 	if($mobile) {
 		echo "<td valign='top' align='left'>\n";
@@ -131,6 +129,7 @@ if(updateAvailable()) {
 	echo "</tr>\n";
 	echo "<tr>\n";
 }
+*/
 
 if($mobile) {
 	echo "<td valign='top' align='left'>\n";

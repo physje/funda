@@ -387,6 +387,7 @@ function extractStreetFromAdress($adres) {
 
 
 function splitStreetAndNumberFromAdress($adres) {
+	$straat = $nummer = $letter = $toevoeging = '';
 	$nogStraat = true;
 	$i = 0;
 	
@@ -2014,10 +2015,10 @@ function makeHuizenZoekerURL($data) {
 	$string = str_replace(" -", "-", $string);
 	$string = str_replace("- ", "-", $string);
 	$string = str_replace(" ", "-", $string);
-	
+			
 	$string = str_replace("###", "/", $string);
 	
-	return 'http://www.huizenzoeker.nl/koop/'. $string ."/details.html";
+	return 'https://www.huizenzoeker.nl/koop/'. $string ."/details.html";
 }
 
 
@@ -2033,7 +2034,7 @@ function findProv($string) {
 	$result = mysqli_query($db, $sql);
 	$row		= mysqli_fetch_array($result);
 	
-	return str_replace(' ', '-', $row[$GemeentesProvincie]);
+	return str_replace(' ', '-', $row[$GemeentesProvincie]);	
 }
 
 
@@ -2614,6 +2615,7 @@ function removeFilenameCharacters($string) {
 	return $string;
 }
 
+/*
 function updateAvailable() {
 	global $ScriptURL;	
 	$updateDir = $ScriptURL.'update';
@@ -2628,4 +2630,5 @@ function updateAvailable() {
 	}
 	return false;
 }
+*/
 ?>

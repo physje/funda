@@ -6,7 +6,9 @@ $db = connect_db();
 
 $run = false;
 $rowWidth = 215;
-$vorigID = $_REQUEST['id'];
+if(isset($_REQUEST['id']) {
+	$vorigID = $_REQUEST['id'];
+}
 
 if(isset($_REQUEST['offline'])) {
     $sql = "UPDATE $TableHuizen SET $HuizenOffline = '1' WHERE $HuizenID = $vorigID";

@@ -23,7 +23,7 @@ if(isset($_POST['ids'])) {
 		}
 		
 		$deel_1 = "<p>Selectie opgeslagen als <a href='edit_lijsten.php?list=$lijstID'>$nieuwNaam</a>";
-} else {
+	} else {
 		$deel_1 = "<p>Selectie bevat geen huizen";
 	}
 } else {

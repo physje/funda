@@ -18,10 +18,12 @@ De tweede en derde manier is door op straat- en wijkniveau funda te checken. Van
 Beide manieren van checken gebeuren in check.php. Afhankelijk van het aantal minuten na het hele uur wordt of de 1ste of de 2de/3de manier gekozen.
 
 ## Configureren
-Om te beginnen moeten alle bestanden op een server geplaatst worden die verbinding heeft met internet (duh). Vergeet niet de bestanden uit de map MOVE_THIS_FOLDER naar de juiste plek te verplaatsen op de server. Als alle bestanden op de juiste plek staan moeten de variabelen in /include/config.php en ../general_include/general_config.php worden aangepast naar de in jouw geval geldende waarden. Verder moeten de MySQL-tabellen worden aangemaakt, de SQL-queries hiervoor staan in /onderhoud/tabel_{datum}.sql. Vervolgens moeten een aantal cronjobs worden ingesteld zodat het geheel automatisch kan functioneren.
+Om te beginnen moeten alle bestanden op een server geplaatst worden die verbinding heeft met internet (duh). Vergeet niet de bestanden uit de map MOVE_THIS_FOLDER naar de juiste plek te verplaatsen op de server. Als alle bestanden op de juiste plek staan moeten de variabelen in /include/config.php en ../general_include/general_config.php worden aangepast naar de in jouw geval geldende waarden. Verder moeten de MySQL-tabellen worden aangemaakt (of bijgewerkt als je al een keer een fork gemaakt hebt), de SQL-queries hiervoor staan in /onderhoud/tabel_{datum}.sql en /onderhoud/onderhoud_{datum}.php. Afhankelijk van de huidige datum kan je op basis van de bestandsdatum bepalen welke queries voor jou van belang zijn.
+Vervolgens moeten een aantal cronjobs worden ingesteld zodat het geheel automatisch kan functioneren.
 De tijdstippen kan je zelf varieëren, maar ik heb de volgende jobs draaien :
 - */6	* 	* 	* 	* 	wget -q -O /dev/null https://www.example.com/funda/check.php
 - 42 	2 	* 	* 	0 	wget -q -O /dev/null https://www.example.com/funda/admin/cleanUp.php
+- 33 	* 	* 	* 	0 	wget -q -O /dev/null https://www.example.com/funda/admin/WOZ.php
 - 11	5	*/3	*	*	wget -q -O /dev/null https://www.example.com/funda/admin/readKadasterPBK.php
 - 42 	1 	*/5 	* 	*	wget -q -O /dev/null http://www.example.com/funda/admin/combine_batch.php
 
@@ -34,7 +36,7 @@ Standaard bestaat er een admin-account ('Admin'/'admin') waarmee je als administ
 * Je kan ook een lijst aanmaken ("Lijsten" -> Nieuw). Hiermee kan je zelf een selectie maken uit de huizen die het script gevonden heeft. Het veld 'Naam' is hier de naam van de opdracht (bv 'Mooie huizen', 'Klushuizen' of 'Afvallers') en de check-box 'Actief' of de lijst actief is. Ook hier kan je een lijst inactief zetten om te zorgen dat hij niet in het overzicht met lijsten verschijnt maar de data niet verwijderd wordt.
 * Het is ook mogelijk een lijst aan te maken van huizen rond een bepaald coordinaat. Dat kan met de optie 'Selecteer huizen obv coordinaten'. Door hier een punt op de kaart aan te klikken en bij 'Maximale afstand' een afstand in kilometers in te voeren maakt het script een lijst aan van alle huizen die in deze cirkel passen (bv 'alle huizen binnen een straal van 1 km rondom station' of 'alle huizen binnen een straal van 1 km rondom voetbalstadion').
 * Als je verschillende zoekopdrachten en lijsten hebt, kan je met behulp van de optie 'Maak combinaties van lijsten & opdrachten' combinatie maken (bv huizen die zowel op de lijst 'Mooie huizen' als op de lijst 'Afvallers' voorkomen of huizen die wel op de lijst 'Mooie huizen' staan, maar niet op 'alle huizen binnen een straal van 1 km rondom voetbalstadion'). Het script zal een lijst aanmaken met alle huizen die aan deze combinatie voldoen.
-* Data van van een specifiek huis (bv. dat ene huis aan de Prinsengracht) kan worden opgezocht met 'Bekijk details van een huis'. Als je daar begint met typen zal het script automatisch tonen welke huizen bekend zijn met deze tekst in adres, plaats of id.
+* Data van van een specifiek huis (bv. dat ene huis aan de Prinsengracht) kan worden opgezocht met 'Bekijk details van een huis'. Als je daar begint met typen zal het script automatisch tonen welke huizen bekend zijn met deze tekst in adres, plaats of id. Zodra het juiste huis gevonden is en je klikt op 'Huis bekijken' komen er verschillende opties om gegevens voor dat huis op te halen, te corrigeren of te presenteren.
 * De huizen van zoekpdrachten of lijsten kunnen op verschillende manier getoond worden
   * Tijdslijn : hier wordt van alle huizen met een balk getoond hoe lang deze huizen al te koop staan.
   * Prijs-afname : hier wordt van alle huizen met een balk getoond hoeveel zij al in prijs gedaald zijn.
@@ -52,3 +54,8 @@ Het script heeft verschillende mogelijkheden waarmee de database opgeschoond kan
 * Het kan zijn dat door bovenstaande opschoonacties doublures in de prijs-history of kenmerken zijn geïntroduceerd. Met "prijzen opschonen", "kenmerken opschonen" en "Check de verschillende databases" kunnen deze doublures verholpen worden.
 * De optie "verwijder oude log-items" spreekt voor zich : oude log-entries (debug, info, error) kunnen worden verwijderd.
 * Als je regelmatig de PBK (prijsindex bestaande koopwoningen) inleest (via cronjob of mbv "Lees de prijs-index van het Kadaster in") van het Kadaster, kan je met "Bepaal gecorrigeerde prijs op specifieke datum" de prijs van een huis corrigeren voor de datum : wat zou een bepaald huis wat een jaar geleden zoveel kostte, nu gekost hebben.
+
+## Data corrigeren (alleen beschikbaar voor Administrator)
+Soms komt het voor, meestal door een bugje/foutje van mijn kant/lay-out wijziging van funda, dat er data ontbreekt in de database die niet meer op te halen is van funda (vaak omdat pagina al offline zijn). Hiervoor zijn ook een aantal scripts geschreven, deze staan echter niet op de index-pagina.
+* addPostcode.php
+* addWijk.php

@@ -26,43 +26,45 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 	$sql .= "$HuizenOffline like '1'";
 	
 	$result	= mysqli_query($db, $sql);
-	$row = mysqli_fetch_array($result);
-
-	do {
-		$id_oud     = $row[$HuizenID];
-		$data       = getFundaData($id_oud);
-		$jaarLater  = $data['eind']+(175*24*60*60);
-		$jaarEerder = $data['start']-(175*24*60*60);
-		
-		$sql_2	 = "SELECT * FROM $TableHuizen WHERE ";
-		$sql_2  .= "$HuizenStraat like '". urlencode($data['straat']) ."' AND ";
-		$sql_2  .= "$HuizenNummer = ". $data['nummer'] ." AND ";
-		$sql_2  .= "$HuizenLetter like '". urlencode($data['letter']) ."' AND ";
-		$sql_2  .= "$HuizenToevoeging = '". $data['toevoeging'] ."' AND ";
-		$sql_2  .= "$HuizenPlaats like '". urlencode($data['plaats']) ."' AND ";
-		$sql_2  .= "(($HuizenStart BETWEEN ". $data['eind'] ." AND $jaarLater) OR ($HuizenEind BETWEEN $jaarEerder AND ". $data['start'] .")) AND ";
-		$sql_2  .= "$HuizenID NOT like '$id_oud'";
-		
-		$result_2	= mysqli_query($db, $sql_2);
-		
-		if(mysqli_num_rows($result_2) > 0 AND !in_array($id_oud, $KeyArray) AND !ignoreHouse4Combine($id_oud)) {
-			$row_2	= mysqli_fetch_array($result_2);
-			$id_new	= $row_2[$HuizenID];
-				
-			if(!in_array($id_new, $KeyArray)) {
-				$key_1[$i] = $id_oud;
-				$key_2[$i] = $id_new;
+	if($row = mysqli_fetch_array($result)) {
+		do {
+			$id_oud     = $row[$HuizenID];
+			$data       = getFundaData($id_oud);
+			$jaarLater  = $data['eind']+(175*24*60*60);
+			$jaarEerder = $data['start']-(175*24*60*60);
 			
-				$i++;
-				$KeyArray[] = $id_oud;
-				$KeyArray[] = $id_new;
+			$sql_2	 = "SELECT * FROM $TableHuizen WHERE ";
+			$sql_2  .= "$HuizenStraat like '". urlencode($data['straat']) ."' AND ";
+			$sql_2  .= "$HuizenNummer = ". $data['nummer'] ." AND ";
+			$sql_2  .= "$HuizenLetter like '". urlencode($data['letter']) ."' AND ";
+			$sql_2  .= "$HuizenToevoeging = '". $data['toevoeging'] ."' AND ";
+			$sql_2  .= "$HuizenPlaats like '". urlencode($data['plaats']) ."' AND ";
+			$sql_2  .= "(($HuizenStart BETWEEN ". $data['eind'] ." AND $jaarLater) OR ($HuizenEind BETWEEN $jaarEerder AND ". $data['start'] .")) AND ";
+			$sql_2  .= "$HuizenID NOT like '$id_oud'";
+			
+			$result_2	= mysqli_query($db, $sql_2);
+			
+			if(mysqli_num_rows($result_2) > 0 AND !in_array($id_oud, $KeyArray) AND !ignoreHouse4Combine($id_oud)) {
+				$row_2	= mysqli_fetch_array($result_2);
+				$id_new	= $row_2[$HuizenID];
+					
+				if(!in_array($id_new, $KeyArray)) {
+					$key_1[$i] = $id_oud;
+					$key_2[$i] = $id_new;
+				
+					$i++;
+					$KeyArray[] = $id_oud;
+					$KeyArray[] = $id_new;
+				}
 			}
-		}
-	} while($row = mysqli_fetch_array($result));
+		} while($row = mysqli_fetch_array($result));
+	} else {
+		echo "Geen offline huizen die niet verkocht zijn";
+	}
 }
 
 
-if(is_array($key_1)) {
+if(count($key_1) > 0) {
 	foreach($key_1 as $key => $value) {
 		$verwijderd = false;
 		$id_oud = $key_1[$key];
