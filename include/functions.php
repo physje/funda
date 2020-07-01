@@ -2142,9 +2142,8 @@ function addUpdateStreetDb($straat, $stad) {
 }
 
 
-function convert2FundaStyle($string) {
-	$string = str_replace ('.', '',$string);
-	$string = str_replace ('\'', '',$string);
+function convert2FundaStyle($string) {	
+	$string = str_replace ('.', '',$string);	
 	$string = str_replace ('(', '',$string);
 	$string = str_replace (')', '',$string);
 	$string = str_replace (' ', '-',$string);
@@ -2156,6 +2155,7 @@ function convert2FundaStyle($string) {
 	$string = str_replace ('&#232;', 'e',$string);
 	$string = str_replace ('&#233;', 'e',$string);
 	$string = str_replace ('&#235;', 'e',$string);	
+	$string = str_replace ('&#39;', '',$string);
 		
 	return strtolower($string);
 }
@@ -2307,21 +2307,29 @@ function getOpdrachtenByFundaID($fundaID) {
 }
 
 
-function sendPushoverNewHouse($fundaID, $OpdrachtID) {	
-	$data						= getFundaData($fundaID);
-	$data['prijs']	= getHuidigePrijs($fundaID);
-	$OpdrachtData		= getOpdrachtData($OpdrachtID);
+function sendPushoverNewHouse($fundaID, $OpdrachtID) {
 	$PushMembers		= getMembers4Opdracht($OpdrachtID, 'push');
-	
-	$soldBefore			= soldBefore($fundaID);
-	$alreadyOnline	= alreadyOnline($fundaID);
-	$onlineBefore		= onlineBefore($fundaID);
 		
 	# Pushover-bericht opstellen
 	if(count($PushMembers) > 0) {
+		$data						= getFundaData($fundaID);
+		$data['prijs']	= getHuidigePrijs($fundaID);
+		$OpdrachtData		= getOpdrachtData($OpdrachtID);
+	
+		$soldBefore			= soldBefore($fundaID);
+		$alreadyOnline	= alreadyOnline($fundaID);
+		$onlineBefore		= onlineBefore($fundaID);
+		
+		$WOZwaardes			= extractWOZwaarde($fundaID);		
+		$WOZwaarde			= current($WOZwaardes);
+				
 		$push = array();
 		$push['title']		= "Nieuw huis voor '". $OpdrachtData['naam'] ."'";
 		$push['message']	= $data['straat'] .' '. $data['nummer'] .' in '. $data['plaats'] .' is te koop voor '. formatPrice($data['prijs']);
+		
+		if(is_numeric($WOZwaarde)) {
+			$push['message'] .= "\nLaatst bekende WOZ-waarde is ".formatPrice($WOZwaarde);
+		}
 		
 		if(is_numeric($soldBefore)) {
 			$extraData = getFundaData($soldBefore);

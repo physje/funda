@@ -1,16 +1,20 @@
 <?php
+# Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
+# Iedereen kan deze pagina dus in principe openen.
+
+# Site (drimble.nl) laat 200 requests per dag toe
+# Als dit script dus elke uur, elke 13 minuten (*/13) draait, heb je in een dag 192 requests
+
 include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
 
-# Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
-# Iedereen kan deze pagina dus in principe openen.
 $db = connect_db();
 
 if(isset($_REQUEST['id'])) {
 	$sql = "SELECT $HuizenID FROM $TableHuizen WHERE $HuizenID like ". $_REQUEST['id'];
 	$opschonen = true;
 } else {
-	$sql = "SELECT $HuizenID FROM $TableHuizen h WHERE NOT EXISTS (SELECT $WOZFundaID FROM $TableWOZ w WHERE h.$HuizenID = w.$WOZFundaID) AND $HuizenDetails = '0' ORDER BY $HuizenEind DESC LIMIT 0,3";
+	$sql = "SELECT $HuizenID FROM $TableHuizen h WHERE NOT EXISTS (SELECT $WOZFundaID FROM $TableWOZ w WHERE h.$HuizenID = w.$WOZFundaID) AND $HuizenDetails = '0' ORDER BY $HuizenEind DESC LIMIT 0,2";
 	$opschonen = false;
 }
 $result = mysqli_query($db, $sql);
