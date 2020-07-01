@@ -2,26 +2,44 @@
 include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
 
-$minUserLevel = 1;
-$cfgProgDir = '../auth/';
-include($cfgProgDir. "secure.php");
+# Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
+# Iedereen kan deze pagina dus in principe openen.
 $db = connect_db();
 
-$sql = "SELECT $HuizenID FROM $TableHuizen h WHERE NOT EXISTS (SELECT $WOZFundaID FROM $TableWOZ w WHERE h.$HuizenID = w.$WOZFundaID) AND $HuizenDetails = '0' ORDER BY $HuizenEind DESC LIMIT 0,3";
+if(isset($_REQUEST['id'])) {
+	$sql = "SELECT $HuizenID FROM $TableHuizen WHERE $HuizenID like ". $_REQUEST['id'];
+	$opschonen = true;
+} else {
+	$sql = "SELECT $HuizenID FROM $TableHuizen h WHERE NOT EXISTS (SELECT $WOZFundaID FROM $TableWOZ w WHERE h.$HuizenID = w.$WOZFundaID) AND $HuizenDetails = '0' ORDER BY $HuizenEind DESC LIMIT 0,3";
+	$opschonen = false;
+}
 $result = mysqli_query($db, $sql);
 
 if($row = mysqli_fetch_array($result)) {
 	do {		
 		$fundaID = $row[$HuizenID];
-		echo $fundaID .'<br>';
+		$data = getFundaData($fundaID);		
 		$WOZwaardes = extractWOZwaarde($fundaID);
+		
+		$WOZ = current($WOZwaardes);
+		$vraagprijs = getHuidigePrijs($fundaID);
+		
+		$string = array();
+		$string[] = "<a href='http://www.funda.nl/$fundaID'>". $data['adres'] .'</a>';
+		$string[] = 'WOZ : '.formatPrice($WOZ);
+		$string[] = 'Vraagprijs :'. formatPrice($vraagprijs).' ('. round(100*$vraagprijs/$WOZ, 1).'%)';
+		$string[] = '';
 		
 		# Array met waardes teruggekregen
 		if(is_array($WOZwaardes)) {
 			foreach($WOZwaardes as $jaar => $waarde) {
+				if($opschonen) {
+					mysqli_query($db, "DELETE FROM $TableWOZ WHERE $WOZFundaID = $fundaID, $WOZJaar = $jaar, $WOZPrijs = $waarde");
+				}
+				
 				$sql_insert = "INSERT INTO $TableWOZ ($WOZFundaID, $WOZJaar, $WOZPrijs, $WOZLastCheck) VALUES ($fundaID, $jaar, $waarde, ". time() .")";
 				if(mysqli_query($db, $sql_insert)) {
-					echo $sql_insert .'<br>';
+					//echo $sql_insert .'<br>';
 					toLog('debug', '', $fundaID, 'WOZ-waarde toegevoegd; '. $jaar .':'.$waarde);
 				} else {
 					toLog('error', '', $fundaID, 'Kon WOZ-waarde niet wegschrijven; '. $jaar .':'.$waarde);
@@ -39,54 +57,24 @@ if($row = mysqli_fetch_array($result)) {
 			}			
 		}
 		sleep(3);
+		$block[] = implode('<br>', $string);
 		
 	} while($row = mysqli_fetch_array($result));
 }
 
-function extractWOZwaarde($fundaID) {
-	$data = getFundaData($fundaID);
-	
-	$adres = $data['straat'].' '.$data['nummer'].$data['letter'];
-		
-	if($data['toevoeging'] != '') {
-		$adres .= ' '.$data['toevoeging'];
-	}
-	
-	if($data['PC_c'] == '' OR $data['PC_l'] == '') {
-		$postcode = findPCbyAdress($data['straat'], $data['nummer'], $data['letter'], $data['toevoeging'], $data['plaats']);
-		toLog('debug', '', $fundaID, 'PC onbekend voor WOZ-waarde; '. $postcode);
-	} else {
-		$postcode = $data['PC_c'].$data['PC_l'];
-	}
-	
-	$url = "https://drimble.nl/adres/". strtolower($data['plaats']) ."/$postcode/". convert2FundaStyle($adres) .".html";	
-	$contents = file_get_contents_retry($url);
-	
-	if(strpos($contents, 'Page not found / Adres niet gevonden.')) {
-		toLog('debug', '', $fundaID, 'Adres bestaat niet voor WOZ; '. $adres);
-		return false;
-	} elseif(strpos($contents, '<title>404 Page not found</title>')) {
-		toLog('debug', '', $fundaID, 'URL voor WOZ niet goed opgebouwd; '. $url);
-		return false;
-	} else {			
-		$WOZ = getString('<td colspan="2" style="font-size:18px;padding-top:3px;padding-bottom:3px;">WOZ-waarde', '<td colspan="2" style="font-size:16px;padding-top:3px;padding-bottom:3px;background-color:#404040;color:#fff">', $contents, 0);
-		$aWOZ = explode('style="width:20%;">Peildatum ', $WOZ[0]);
-		
-		# Een array van 1 betekent dat er geen WOZ-waardes bekend zijn
-		if(count($aWOZ) < 2) {
-			toLog('debug', '', $fundaID, 'Geen WOZ-waardes bekend');
-			return false;
-		}
-		
-		array_shift($aWOZ);
-	
-		foreach($aWOZ as $key => $value) {
-			$jaar = getString('', ':', $value, 0);
-			$bedrag = getString('&euro; ', '</td>', $value, 0);
-			$export[trim($jaar[0])] = trim(str_replace('.', '', $bedrag[0]));		
-		}
-		return $export;
-	}	
+echo $HTMLHeader;
+echo "<tr>\n";
+echo "<td width='30%'>&nbsp;</td>";
+echo "<td width='40%' valign='top' align='center'>";
+
+foreach($block as $subBlock) {
+	echo showBlock($subBlock);
+	echo '<p>';
 }
+
+echo "</td>";
+echo "<td width='30%'>&nbsp;</td>";
+echo "</tr>\n";
+echo $HTMLFooter;
 
 ?>

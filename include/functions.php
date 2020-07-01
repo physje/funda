@@ -2144,6 +2144,7 @@ function addUpdateStreetDb($straat, $stad) {
 
 function convert2FundaStyle($string) {
 	$string = str_replace ('.', '',$string);
+	$string = str_replace ('\'', '',$string);
 	$string = str_replace ('(', '',$string);
 	$string = str_replace (')', '',$string);
 	$string = str_replace (' ', '-',$string);
@@ -2613,6 +2614,55 @@ function removeFilenameCharacters($string) {
 	$string = html_entity_decode($string);
 	
 	return $string;
+}
+
+function extractWOZwaarde($fundaID) {
+	$data = getFundaData($fundaID);
+	
+	$adres = $data['straat'].' '.$data['nummer'].$data['letter'];
+		
+	if($data['toevoeging'] != '') {
+		$adres .= ' '.$data['toevoeging'];
+	}
+	
+	if($data['PC_c'] == '' OR $data['PC_l'] == '') {
+		$postcode = findPCbyAdress($data['straat'], $data['nummer'], $data['letter'], $data['toevoeging'], $data['plaats']);
+		toLog('debug', '', $fundaID, 'PC onbekend voor WOZ-waarde; '. $postcode);
+	} else {
+		$postcode = $data['PC_c'].$data['PC_l'];
+	}
+	
+	$url = "https://drimble.nl/adres/". strtolower($data['plaats']) ."/$postcode/". convert2FundaStyle($adres) .".html";	
+	$contents = file_get_contents_retry($url);
+	
+	if(strpos($contents, 'Page not found / Adres niet gevonden.')) {
+		toLog('debug', '', $fundaID, 'Adres bestaat niet voor WOZ; '. $adres);
+		return false;
+	} elseif(strpos($contents, '<title>404 Page not found</title>')) {
+		toLog('debug', '', $fundaID, 'URL voor WOZ niet goed opgebouwd; '. $url);
+		return false;
+	} elseif(strpos($contents, 'Maximum aanvragen van dit soort ')) {
+		toLog('debug', '', $fundaID, 'Maximum aantal aanvragen bereikt');
+		return false;	
+	} else {			
+		$WOZ = getString('<td colspan="2" style="font-size:18px;padding-top:3px;padding-bottom:3px;">WOZ-waarde', '<td colspan="2" style="font-size:16px;padding-top:3px;padding-bottom:3px;background-color:#404040;color:#fff">', $contents, 0);
+		$aWOZ = explode('style="width:20%;">Peildatum ', $WOZ[0]);
+		
+		# Een array van 1 betekent dat er geen WOZ-waardes bekend zijn
+		if(count($aWOZ) < 2) {
+			toLog('debug', '', $fundaID, 'Geen WOZ-waardes bekend');
+			return false;
+		}
+		
+		array_shift($aWOZ);
+	
+		foreach($aWOZ as $key => $value) {
+			$jaar = getString('', ':', $value, 0);
+			$bedrag = getString('&euro; ', '</td>', $value, 0);
+			$export[trim($jaar[0])] = trim(str_replace('.', '', $bedrag[0]));		
+		}
+		return $export;
+	}	
 }
 
 /*
