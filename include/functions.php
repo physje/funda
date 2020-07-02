@@ -2673,6 +2673,22 @@ function extractWOZwaarde($fundaID) {
 	}	
 }
 
+function getWOZHistory($id) {
+	global $db, $TableWOZ, $WOZFundaID, $WOZJaar, $WOZPrijs;
+	
+	$sql = "SELECT * FROM $TableWOZ WHERE $WOZFundaID like $id";
+	$result = mysqli_query($db, $sql);
+	if($row = mysqli_fetch_array($result)) {
+		do {
+			$jaar		= $row[$WOZJaar];
+			$bedrag = $row[$WOZPrijs];
+			$data[$jaar] = $bedrag;
+		} while($row = mysqli_fetch_array($result));
+	}
+	
+	return $data;
+}
+
 /*
 function updateAvailable() {
 	global $ScriptURL;	

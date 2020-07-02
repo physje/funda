@@ -165,7 +165,7 @@ if(isset($_REQUEST['id'])) {
 	
 		$PrijsHistory[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 		$PrijsHistory[] = "<input type='hidden' name='id' value='$id'>";
-		$PrijsHistory[] = "<table>";
+		$PrijsHistory[] = "<table border=0>";
 		$PrijsHistory[] = "<tr>";
 		$PrijsHistory[] = "	<td>Datum</td>";
 		$PrijsHistory[] = "	<td>&nbsp;</td>";
@@ -214,15 +214,37 @@ if(isset($_REQUEST['id'])) {
 		}
 		
 		$PrijsHistory[] = "<tr>";
-		$PrijsHistory[] = "	<td colspan='2'>&nbsp;</td>";
+		$PrijsHistory[] = "	<td colspan='5'>&nbsp;</td>";
 		$PrijsHistory[] = "</tr>";	
 		$PrijsHistory[] = "<tr>";
-		$PrijsHistory[] = "	<td colspan='2'><input type='submit' value='Prijs Opslaan' name='save_prijs'></td>";
+		$PrijsHistory[] = "	<td colspan='5'><input type='submit' value='Prijs Opslaan' name='save_prijs'></td>";
 		$PrijsHistory[] = "</tr>";		
 		$PrijsHistory[] = "</table>";
 		$PrijsHistory[] = "</form>";
 	}
 	
+	# WOZ
+	$WOZ = getWOZHistory($id);
+	$WOZHistory = array();
+	
+	if(count($WOZ) > 0) {
+		$WOZHistory[] = "<table border=0>";
+		$WOZHistory[] = "<tr>";
+		$WOZHistory[] = "	<td>Jaar</td>";
+		$WOZHistory[] = "	<td>&nbsp;</td>";
+		$WOZHistory[] = "	<td>WOZ-waarde</td>";
+		$WOZHistory[] = "</tr>";
+		
+		foreach($WOZ as $jaar => $bedrag) {
+			$WOZHistory[] = "<tr>";
+			$WOZHistory[] = "	<td>$jaar</td>";
+			$WOZHistory[] = "	<td>&nbsp;</td>";
+			$WOZHistory[] = "	<td>". formatPrice($bedrag) ."</td>";
+			$WOZHistory[] = "</tr>";			
+		}
+		$WOZHistory[] = "</table>";				
+	}
+		
 	//$shortcut[] = "zet <a href='changeState.php?state=offline&id=$id'>offline</a>";
 	//$shortcut[] = "zet <a href='changeState.php?state=verkocht&id=$id'>verkocht</a>";
 	
@@ -336,6 +358,12 @@ if(isset($extraString) AND $extraString != '') {
 }
 
 echo showBlock(implode("\n", $PrijsHistory));
+
+if(count($WOZHistory) > 1) {
+	echo "<p>";
+	echo showBlock(implode("\n", $WOZHistory));
+}
+
 
 if(isset($KenmerkData['foto']) AND $KenmerkData['foto'] != '') {
 	echo "<p>";
