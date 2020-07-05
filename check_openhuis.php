@@ -36,7 +36,7 @@ foreach($Opdrachten as $OpdrachtID) {
 			toLog('info', $OpdrachtID, $fundaID, 'Open huis aangekondigd');
 			setOpenHuis($fundaID);
 			mark4Details($fundaID);			
-			sendPushoverOpenHuis($fundaID, $OpdrachtID)
+			sendPushoverOpenHuis($fundaID, $OpdrachtID);
 		}
 	}
 	

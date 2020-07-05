@@ -113,6 +113,15 @@ if(count($key_1) > 0) {
 			} else {
 				toLog('info', '', $id_oud, "Open huizen toewijzen aan $id_new");
 			}
+
+			# Tabel met WOZ-waardes updaten
+			$sql_update_5 = "UPDATE $TableWOZ SET $WOZFundaID = '$id_new' WHERE $WOZFundaID like '$id_oud'";
+			if(!mysqli_query($db, $sql_update_5)) {
+				echo "[$sql_update_5]<br>";
+				toLog('error', '', $id_oud, "Error toewijzen WOZ-waardes aan $id_new");
+			} else {
+				toLog('info', '', $id_oud, "WOZ-waardes toewijzen aan $id_new");
+			}
 					
 			# Het oude huis uit de tabel met huizen halen
 			$sql_delete_1	= "DELETE FROM $TableHuizen WHERE $HuizenID like '$id_oud'";
