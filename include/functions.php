@@ -2149,6 +2149,7 @@ function convert2FundaStyle($string) {
 	$string = str_replace (' ', '-',$string);
 	$string = str_replace ('é', 'e',$string);
 	$string = str_replace ('ë', 'e',$string);
+	$string = str_replace ('ä', 'a',$string);
 	$string = str_replace ('&#224;', 'a',$string);
 	$string = str_replace ('&#225;', 'a',$string);
 	$string = str_replace ('&#228;', 'a',$string);
@@ -2645,6 +2646,7 @@ function extractWOZwaarde($fundaID) {
 	
 	if(strpos($contents, 'Page not found / Adres niet gevonden.')) {
 		toLog('debug', '', $fundaID, 'Adres bestaat niet voor WOZ; '. $adres);
+		toLog('debug', '', $fundaID, $url);
 		return false;
 	} elseif(strpos($contents, '<title>404 Page not found</title>')) {
 		toLog('debug', '', $fundaID, 'URL voor WOZ niet goed opgebouwd; '. $url);
