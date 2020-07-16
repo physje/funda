@@ -6,7 +6,7 @@ $db = connect_db();
 
 $run = false;
 $rowWidth = 215;
-if(isset($_REQUEST['id']) {
+if(isset($_REQUEST['id'])) {
 	$vorigID = $_REQUEST['id'];
 }
 
@@ -40,13 +40,13 @@ if($row = mysqli_fetch_array($result)) {
   	  	
   	echo "	<td width='$rowWidth'>\n";
   	echo "	<h1>Vorige</h1><br>\n";
-  	echo formatStreetAndNumber($fundaID) ."<br>\n";
+  	echo formatStreetAndNumber($vorigID) ."<br>\n";
   	echo "	Laatst gezien :". date('d-m-Y', $data['eind']) ."<br>\n";
   	
   	if($data['offline'] == 1) {
-  		echo "<a href='?id=$fundaID&i=$i&online' class='$class'>Online</a>\n";
+  		echo "<a href='?id=$vorigID&i=$i&online' class='$class'>Online</a>\n";
   	} else {
-  		echo "<a href='?id=$fundaID&i=". ($i-1) ."&offline' class='$class'>Offline</a>\n";
+  		echo "<a href='?id=$vorigID&i=". ($i-1) ."&offline' class='$class'>Offline</a>\n";
   	}
   	
   	echo "	</td>\n";  	
