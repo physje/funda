@@ -2069,7 +2069,7 @@ function corrigeerPrice($t1, $p1, $t2 = '', $regio = 'Totaal') {
 	} else {
 		//$factor_1 = $factor_2;	
 		$sql_4 = "SELECT * FROM $TablePBK WHERE $PBKRegio like '$regio' ORDER BY $PBKStart DESC LIMIT 0,1";
-		$result_4 = mysqli_query($db, $sql_3);
+		$result_4 = mysqli_query($db, $sql_4);
 		$row = mysqli_fetch_array($result_4);
 		
 		if($t1 > $row[$PBKEind]) {
