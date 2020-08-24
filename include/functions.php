@@ -657,8 +657,9 @@ function extractFundaDataFromPage($offlineHTML) {
 	$content_fotos	= getString('<section class="object-media" data-object-media>', '</section>', $contents, 0);
 	
 	if($content_fotos[0] != "") {
-		$picture		= array();
-		$carousel		= explode('<div class="object-media-foto">', $content_fotos[0]);
+		$picture		= array();		
+		$cleanFotoContent 	= str_replace('<div class="object-media-foto ">', '<div class="object-media-foto">', $content_fotos[0]);		
+		$carousel		= explode('<div class="object-media-foto">', $cleanFotoContent);
 		array_shift($carousel);
 			
 		foreach($carousel as $key => $value) {
