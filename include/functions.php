@@ -580,7 +580,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	$navigatie	= getString('<ol class="container breadcrumb-list">', '</ol>', $contents, 0);
 	$stappen		= explode('<li class="breadcrumb-listitem">', $navigatie[0]);
 	$wijk				= getString('/">', '</a>', $stappen[(count($stappen)-2)], 0);
-	$id					= getString('tinyId="', '"', $contents, 0);
+	$id					= getString('tinyId=', '&amp;', $contents, 0);
 
 	$adres	= getString('<span aria-current="page">', '</span>', $contents, 0);
 	$adresClean = str_replace('<span class="item-sold-label-large" title="Verkocht">VERKOCHT</span>', '', $adres[0]);
