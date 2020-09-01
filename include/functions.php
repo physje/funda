@@ -582,7 +582,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	$wijk				= getString('/">', '</a>', $stappen[(count($stappen)-2)], 0);
 	$id					= getString('tinyId=', '&amp;', $contents, 0);
 
-	$adres	= getString('<span aria-current="page">', '</span>', $contents, 0);
+	$adres	= getString('<span class="fd-color-dark-3" aria-current="page">', '</span>', $contents, 0);
 	$adresClean = str_replace('<span class="item-sold-label-large" title="Verkocht">VERKOCHT</span>', '', $adres[0]);
 		
 	if($verkocht == 1) {
