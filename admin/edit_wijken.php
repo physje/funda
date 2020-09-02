@@ -84,9 +84,9 @@ if(isset($_POST['doorgaan'])) {
 	$HTML[] = "	</select><select name='jaar'>\n";
 	for($j=2018 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $wijkData['last']) ? ' selected' : '') .">$j</option>\n";	}
 	$HTML[] = "	</select> <select name='uur'>\n";
-	for($h=0 ; $h<=24 ; $h++)	{	$HTML[] = "<option value='$h'". ($h == date("H", $wijkData['last']) ? ' selected' : '') .">$h</option>\n";	}
+	for($h=0 ; $h<=24 ; $h++)	{	$HTML[] = "<option value='$h'". ($h == date("H", $wijkData['last']) ? ' selected' : '') .">". substr('0'.$h, -2) ."</option>\n";	}
 	$HTML[] = "	</select><select name='minuut'>\n";
-	for($m=0 ; $m<=59 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("i", $wijkData['last']) ? ' selected' : '') .">$m</option>\n";	}
+	for($m=0 ; $m<=59 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("i", $wijkData['last']) ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>\n";	}
 	$HTML[] = "	</select></td>\n";
 	$HTML[] = "</tr>\n";
 	$HTML[] = "<tr>\n";
