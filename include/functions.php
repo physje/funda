@@ -562,7 +562,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	# Als geen van beide het geval is, is hij nog beschikbaar => $verkocht = 0
 	if(strpos($contents, '<li class="label-transactie-voorbehoud">')) {
 		$verkocht		= 2;
-	}elseif(strpos($contents, '<li class="label-transactie-definitief">')) {
+	}elseif(strpos($contents, '<li class="label-transactie-definitief fd-p-horizontal-xs fd-border-radius fd-m-right-2xs">')) {
 		$verkocht		= 1;
 	} else {
 		$verkocht		= 0;
