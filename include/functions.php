@@ -592,7 +592,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	}
 	
 	$makelHTML	= getString('<h3 class="object-contact-aanbieder-name">', '</h3>', $contents, 0);
-	$PC					= getString('<span class="object-header__subtitle">', '</span>', $contents, 0);
+	$PC					= getString('<span class="object-header__subtitle fd-color-dark-3">', '</span>', $contents, 0);
 	$makelaar		= getString('">', '</a>', $makelHTML[0], 0);
 	$foto				=	getString('<meta itemprop="image" content="', '"', $offlineHTML, 0);
 	
@@ -647,7 +647,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	
 	foreach($kenmerken as $kenmerk) {
 		$Record = getString('', '</dt>', $kenmerk, 0);
-		$Waarde = getString('<dd>', '</dd>', $kenmerk, 0);
+		$Waarde = getString('<dd class="fd-flex--bp-m fd-align-items-center">', '</dd>', $kenmerk, 0);
 		
 		$key = trim($Record[0]);
 		$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
@@ -1504,7 +1504,7 @@ function saveUpdateMember($id, $name, $username, $wachtwoord, $mail, $po_key, $p
 	} else {
 		$sql = "UPDATE $TableUsers SET $UsersName = '$name', $UsersUsername = '$username', ". ($wachtwoord != '' ? "$UsersPassword = '". md5($wachtwoord) ."', " : '') ."$UsersLevel = $level, $UsersAdres = '$mail', $UsersPOKey = '$po_key', $UsersPOToken = '$po_token'". ($account != 0 ? ", $UsersAccount = '$account'" : '') ." WHERE $UsersID = ". $id;
 	}
-				
+			
 	$result = mysqli_query($db, $sql);
 	
 	if($id == '') {

@@ -19,8 +19,8 @@ if(isset($_POST['opvragen'])) {
 		$data	= getMemberDetails($id);
 		
 		$nieuwPassword = generatePassword(12);
-		
-		saveUpdateMember($id, $data['naam'], $data['username'], $nieuwPassword, $data['mail'], $data['level'], $data['account']);
+				
+		saveUpdateMember($id, $data['naam'], $data['username'], $nieuwPassword, $data['mail'], $data['userkey'], $data['token'], $data['level'], $data['account']);		
 		
 		$Mail[] = "Beste ". $data['naam'] .",<br>";
 		$Mail[] = "<br>";
@@ -32,11 +32,11 @@ if(isset($_POST['opvragen'])) {
 		$Mail[] = "<br>";
 		$Mail[] = "Met deze gegevens kan je via <a href='". $ScriptURL ."admin/edit_account.php'>". $ScriptURL ."admin/edit_account.php</a> je eigen wachtwoord instellen<br>";	
 		$HTMLMail = implode("\n", $Mail);
-		
-		$html =& new html2text($HTMLMail);
-		$html->set_base_url($ScriptURL);
-		$PlainText = $html->get_text();
-		
+						
+		//$html =& new html2text($HTMLMail);
+		//$html->set_base_url($ScriptURL);
+		//$PlainText = $html->get_text();
+				
 		$mail = new PHPMailer;
 		$mail->AddAddress($data['mail'], $data['naam']);
 		$mail->From     = $ScriptMailAdress;
@@ -44,7 +44,7 @@ if(isset($_POST['opvragen'])) {
 		$mail->Subject	= $SubjectPrefix ."Nieuw wachtwoord voor $ScriptTitle";
 		$mail->IsHTML(true);
 		$mail->Body			= $HTMLMail;
-		$mail->AltBody	= $PlainText;
+		//$mail->AltBody	= $PlainText;
 		
 		if(!$mail->Send()) {
 			toLog('error', '', '', "Kon geen inloggegevens versturen naar ". $data['naam']);
