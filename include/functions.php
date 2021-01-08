@@ -2147,6 +2147,7 @@ function convert2FundaStyle($string) {
 	$string = str_replace ('.', '',$string);	
 	$string = str_replace ('(', '',$string);
 	$string = str_replace (')', '',$string);
+	$string = str_replace ('/', '-',$string);
 	$string = str_replace (' ', '-',$string);
 	$string = str_replace ('é', 'e',$string);
 	$string = str_replace ('ë', 'e',$string);
