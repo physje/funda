@@ -18,6 +18,16 @@ if($type == 'regio') {
 	toLog('debug', '', '', 'PBK opgevraagd voor heel Nederland');
 }
 
+# URL is gewijzigd. Nieuwe formaat lijkt te zijn 
+# 	https://vastgoeddashboard.kadaster.nl/VastgoedProxy/api/v1/PBK/export?F-P=Y{jaar}&F-TG={periode}&C-C={categorie}&filename={bestandsnaam}.xlsx
+#
+# 	{jaar} = Y1,Y2,Y3,Y5,Y10,Y20
+# 	{periode} = M [maand], Q [kwartaal], Y [jaar], MOM [maand-op-maand], YOY [jaar-op-jaar]
+# 	{categorie} = T [Totaal], R [regio], P [provincie], WT [Woningtype]
+# 	{bestandsnaam} = vrij te kiezen
+#
+# Hier even neergezet zodat ik het niet kwijtraak
+
 $data = file_get_contents_retry($url);
 $rijen = explode("\n", $data);
 array_shift($rijen);
