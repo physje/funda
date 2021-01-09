@@ -1151,7 +1151,6 @@ function formatPrice($input, $euro = true) {
 	}
 }
 
-
 function formatPercentage($input) {
 	if(is_int($input)) {
 		$dec = 0;
@@ -2050,7 +2049,7 @@ function corrigeerPrice($t1, $p1, $t2 = '', $regio = 'Totaal') {
 	$result_2 = mysqli_query($db, $sql_2);
 	if(mysqli_num_rows($result_2) == 1) {
 		$row = mysqli_fetch_array($result_2);
-    		$factor_2 = $row[$PBKWaarde];
+		$factor_2 = $row[$PBKWaarde];
 	} else {
 		$sql_3 = "SELECT * FROM $TablePBK WHERE $PBKRegio like '$regio' ORDER BY $PBKStart DESC LIMIT 0,1";
 		$result_3 = mysqli_query($db, $sql_3);
@@ -2058,7 +2057,9 @@ function corrigeerPrice($t1, $p1, $t2 = '', $regio = 'Totaal') {
 		
 		if($t2 > $row[$PBKEind]) {
 			$factor_2 = $row[$PBKWaarde];
-		}		
+		} else {
+			$factor_2 = 100;
+		}
 	}
 	
 	
@@ -2066,7 +2067,7 @@ function corrigeerPrice($t1, $p1, $t2 = '', $regio = 'Totaal') {
 	$result_1 = mysqli_query($db, $sql_1);
 	if(mysqli_num_rows($result_1) == 1) {
 		$row = mysqli_fetch_array($result_1);
-    		$factor_1 = $row[$PBKWaarde];
+		$factor_1 = $row[$PBKWaarde];
 	} else {
 		//$factor_1 = $factor_2;	
 		$sql_4 = "SELECT * FROM $TablePBK WHERE $PBKRegio like '$regio' ORDER BY $PBKStart DESC LIMIT 0,1";
@@ -2075,6 +2076,8 @@ function corrigeerPrice($t1, $p1, $t2 = '', $regio = 'Totaal') {
 		
 		if($t1 > $row[$PBKEind]) {
 			$factor_1 = $row[$PBKWaarde];
+		} else {
+			$factor_1 = 100;
 		}
 	}
 	

@@ -136,42 +136,43 @@ $UsersPOToken		= "api_token";
 $UsersAccount		= "account";
 $UsersLastLogin		= "lastLogin";
 
-$TablePBK		= "funda_PBK";
-$PBKStart		= "start";
-$PBKEind		= "eind";
-$PBKRegio		= "regio";
-$PBKWaarde		= "waarde";
-$PBKComment		= "comment";
+$TablePBK						= "funda_PBK";
+$PBKStart						= "start";
+$PBKEind						= "eind";
+$PBKRegio						= "regio";
+$PBKCategorie				= "categorie";
+$PBKWaarde					= "waarde";
+$PBKComment					= "comment";
 
-$TablePrijzen 		= "funda_prijzen";
-$PrijzenKey		= "id";
-$PrijzenID		= "funda_id";
-$PrijzenPrijs		= "prijs";
-$PrijzenTijd		= "tijd";
+$TablePrijzen 			= "funda_prijzen";
+$PrijzenKey					= "id";
+$PrijzenID					= "funda_id";
+$PrijzenPrijs				= "prijs";
+$PrijzenTijd				= "tijd";
 
-$TableIgnore		= "funda_ignore";
-$IgnoreKey		= "id";
-$IgnoreID		= "funda_id";
+$TableIgnore				= "funda_ignore";
+$IgnoreKey					= "id";
+$IgnoreID						= "funda_id";
 
-$TableResultaat 	= "funda_resultaat";
-$ResultaatZoekID	= "zoek_id";
-$ResultaatID		= "funda_id";
-$ResultaatPrijs		= "prijs";
+$TableResultaat 		= "funda_resultaat";
+$ResultaatZoekID		= "zoek_id";
+$ResultaatID				= "funda_id";
+$ResultaatPrijs			= "prijs";
 $ResultaatVerkocht	= "verkocht";
 $ResultaatOpenHuis	= "open_huis";
 $ResultaatNew				= "nieuw";
 $ResultaatPrijsMail	= "mail_prijs";
 
 
-$TableVerdeling		= "funda_verdeling";
-$VerdelingUur		= "uur";
+$TableVerdeling			= "funda_verdeling";
+$VerdelingUur				= "uur";
 $VerdelingOpdracht	= "opdracht";
 
-$TableZoeken		= "funda_zoeken";
-$ZoekenKey		= "id";
-$ZoekenUser		= "user";
-$ZoekenNaam		= "naam";
-$ZoekenURL		= "url";
+$TableZoeken				= "funda_zoeken";
+$ZoekenKey					= "id";
+$ZoekenUser					= "user";
+$ZoekenNaam					= "naam";
+$ZoekenURL					= "url";
 
 $TableStraten				= "funda_straten";
 $StratenID					= "id";

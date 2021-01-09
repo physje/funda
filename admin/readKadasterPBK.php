@@ -12,31 +12,48 @@ $db = connect_db();
 
 if(isset($_REQUEST['type'])) { $type = $_REQUEST['type']; } else { $type = 'alles'; }
 
+$jaar       = 20;
+
 if($type == 'regio') {
-	$jaar       = 1;
 	$periode    = 'Q';
 	$categorie  = 'R';
 	$PBK        = 'PBK-PR';
+	$groep			= "regio";
 	toLog('debug', '', '', 'PBK opgevraagd voor alle regios');
 } elseif($type == 'prov') {
-	$jaar       = 1;
 	$periode    = 'Q';
 	$categorie  = 'P';
 	$PBK        = 'PBK-PR';	
+	$groep			= "provincie";
 	toLog('debug', '', '', 'PBK opgevraagd voor provincies');
-} elseif($type == 'woning') {
-	$jaar       = 1;
+} elseif($type == 'woning') {	
 	$periode    = 'Q';
 	$categorie  = 'WT';
 	$PBK        = 'PBK-PW';
+	$groep			= "woningtype";
 	toLog('debug', '', '', 'PBK opgevraagd voor woningtypes');
+} elseif($type == 'steden') {	
+	$periode    = 'Q';
+	$categorie  = 'GG';
+	$PBK        = 'PBK-PR';
+	$groep			= "steden";
+	toLog('debug', '', '', 'PBK opgevraagd voor steden');
 } else {
-	$jaar       = 1;
 	$periode    = 'M';
 	$categorie  = 'T';
 	$PBK        = 'PBK';
+	$groep			= "totaal";
 	toLog('debug', '', '', 'PBK opgevraagd voor heel Nederland');
 }
+
+# URL is gewijzigd. Nieuwe formaat lijkt te zijn 
+# 	https://vastgoeddashboard.kadaster.nl/VastgoedProxy/api/v1/{PBK}/export?F-P=Y{jaar}&F-TG={periode}&C-C={categorie}&filename={bestandsnaam}.xlsx
+#
+#		{PBK} = PBK-PW [woningtype], PBK-PR [regio / provincie], PBK [totaal]
+# 	{jaar} = 1,2,3,5,10,20
+# 	{periode} = M [maand], Q [kwartaal], Y [jaar], MOM [maand-op-maand], YOY [jaar-op-jaar]
+# 	{categorie} = T [Totaal], R [regio], P [provincie], WT [Woningtype]
+# 	{bestandsnaam} = vrij te kiezen
 
 $url = "https://vastgoeddashboard.kadaster.nl/VastgoedProxy/api/v1/$PBK/export?F-P=Y". $jaar ."&F-TG=". $periode ."&C-C=". $categorie ."&filename=". time() .".xlsx";
 $data = file_get_contents_retry($url);
@@ -45,16 +62,6 @@ file_put_contents('PBK.xlsx', $data);
 $newEntry = false;
 $PIArray = array();
 
-# URL is gewijzigd. Nieuwe formaat lijkt te zijn 
-# 	https://vastgoeddashboard.kadaster.nl/VastgoedProxy/api/v1/{PBK}/export?F-P=Y{jaar}&F-TG={periode}&C-C={categorie}&filename={bestandsnaam}.xlsx
-#
-#		{PBK} = PBK-PW, PBK-WT, PBK
-# 	{jaar} = Y1,Y2,Y3,Y5,Y10,Y20
-# 	{periode} = M [maand], Q [kwartaal], Y [jaar], MOM [maand-op-maand], YOY [jaar-op-jaar]
-# 	{categorie} = T [Totaal], R [regio], P [provincie], WT [Woningtype]
-# 	{bestandsnaam} = vrij te kiezen
-
-
 $Reader = new SpreadsheetReader('PBK.xlsx');
 $i = 0;
 
@@ -62,7 +69,7 @@ foreach ($Reader as $velden) {
 	# Even de lege regels overslaan
 	if($i > 3) {
 		# Voor later
-		$oud_prijsindex = current($PIArray);
+		$oud_prijsindex = number_format($PIArray[0], 1, '.', '');
 	
 		unset($PIArray);
 		unset($naam);
@@ -95,7 +102,7 @@ foreach ($Reader as $velden) {
     	
 			$naam[0] 		= 'Drenthe';
 			$naam[1] 		= 'Flevoland';
-			$naam[2] 		= utf8_encode('Fryslân');
+			$naam[2] 		= 'Friesland';
 			$naam[3] 		= 'Gelderland';
 			$naam[4] 		= 'Groningen';
 			$naam[5] 		= 'Limburg';
@@ -117,10 +124,20 @@ foreach ($Reader as $velden) {
     	$naam[2] 		= 'Hoekwoning';
     	$naam[3] 		= 'Tussenwoning';
     	$naam[4] 		= 'Vrijstaand';    
+    } elseif($type == 'steden') {
+    	$PIArray[0]	= $velden[2];
+    	$PIArray[1]	= $velden[3];
+    	$PIArray[2]	= $velden[4];
+    	$PIArray[3]	= $velden[5];    
+    
+    	$naam[0] 		= 'Amsterdam';
+    	$naam[1] 		= 'Gravenhage';
+    	$naam[2] 		= 'Rotterdam';
+    	$naam[3] 		= 'Utrecht (stad)';
     } else {
     	# Periode (omschrijving)|Periode (maand)|Prijsindex    	
-    	$PIArray[]	= $velden[2];    		
-    	$naam[]			= 'Totaal';    	
+    	$PIArray[0]	= $velden[2];    		
+    	$naam[0]			= 'Totaal';    	
     }
     
     $periode		= $velden[1];    
@@ -146,16 +163,17 @@ foreach ($Reader as $velden) {
 	
 	  //echo $jaar .';'. $kwartaal .' ('. date('d-m', $start).' tm '. date('d-m', $eind) .') -> '. $prijsindex.' -> '. $regio .'<br>';
 	    
-	  foreach($PIArray as $key => $prijsindex) {
+		foreach($PIArray as $key => $prijsindex_en) {
 	  	$regio = $naam[$key];
+	  	$prijsindex = number_format($prijsindex_en, 1, '.', '');
+	  	
 	  	$sql_check = "SELECT * FROM $TablePBK WHERE $PBKComment like '". $periode .', '. $regio ."'";
-	  		  	
 	  	$result = mysqli_query($db, $sql_check);
 			if(mysqli_num_rows($result) == 0) {
 				$sql = "DELETE FROM $TablePBK WHERE $PBKStart = $start AND $PBKRegio like '$regio'";	
 				mysqli_query($db, $sql);
 				
-				$sql = "INSERT INTO $TablePBK ($PBKStart, $PBKEind, $PBKRegio, $PBKWaarde, $PBKComment) VALUES ($start, $eind, '$regio', $prijsindex, '". $periode .', '. $regio ."')";				
+				$sql = "INSERT INTO $TablePBK ($PBKStart, $PBKEind, $PBKRegio, $PBKCategorie, $PBKWaarde, $PBKComment) VALUES ($start, $eind, '$regio', '$groep', $prijsindex, '". $periode .', '. $regio ."')";				
 				if(!mysqli_query($db, $sql)) {
 					echo $sql;
 				}				
@@ -166,11 +184,16 @@ foreach ($Reader as $velden) {
 					toLog('info', '', '', 'Nieuwe PBK voor de verschillende provincies');
 				} elseif($type == 'woning') {
 					toLog('info', '', '', 'Nieuwe PBK voor de verschillende woningtypes');
+				} elseif($type == 'steden') {	
+					toLog('info', '', '', 'Nieuwe PBK voor de verschillende steden');
 				} else {
 					$newEntry = true;
 					toLog('info', '', '', 'Nieuwe PBK voor heel Nederland');
 				}				
-			}
+			} else {
+				$sql_update = "UPDATE $TablePBK SET $PBKCategorie = '$groep' WHERE $PBKComment like '". $periode .', '. $regio ."'";
+				mysqli_query($db, $sql_update);
+			} 
 		}
   }
   $i++;
