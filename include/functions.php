@@ -2051,14 +2051,12 @@ function corrigeerPrice($t1, $p1, $t2 = '', $regio = 'Totaal') {
 		$row = mysqli_fetch_array($result_2);
 		$factor_2 = $row[$PBKWaarde];
 	} else {
-		$sql_3 = "SELECT * FROM $TablePBK WHERE $PBKRegio like '$regio' ORDER BY $PBKStart DESC LIMIT 0,1";
+		$sql_3 = "SELECT * FROM $TablePBK WHERE $PBKRegio like '$regio' ORDER BY $PBKStart DESC LIMIT 0,1";	
 		$result_3 = mysqli_query($db, $sql_3);
 		$row = mysqli_fetch_array($result_3);
 		
 		if($t2 > $row[$PBKEind]) {
 			$factor_2 = $row[$PBKWaarde];
-		} else {
-			$factor_2 = 100;
 		}
 	}
 	
@@ -2069,19 +2067,19 @@ function corrigeerPrice($t1, $p1, $t2 = '', $regio = 'Totaal') {
 		$row = mysqli_fetch_array($result_1);
 		$factor_1 = $row[$PBKWaarde];
 	} else {
-		//$factor_1 = $factor_2;	
-		$sql_4 = "SELECT * FROM $TablePBK WHERE $PBKRegio like '$regio' ORDER BY $PBKStart DESC LIMIT 0,1";
+		$sql_4 = "SELECT * FROM $TablePBK WHERE $PBKRegio like '$regio' ORDER BY $PBKStart ASC LIMIT 0,1";
 		$result_4 = mysqli_query($db, $sql_4);
 		$row = mysqli_fetch_array($result_4);
 		
-		if($t1 > $row[$PBKEind]) {
+		#echo 'Gevraagde tijd: '. date('d-m-Y', $t1) .'<br>';
+		#echo 'Gevonden tijd: '. date('d-m-Y', $row[$PBKStart]) .' tot '.date('d-m-Y', $row[$PBKEind]).'<br>';
+				
+		if($t1 < $row[$PBKStart]) {
 			$factor_1 = $row[$PBKWaarde];
-		} else {
-			$factor_1 = 100;
 		}
 	}
 	
-	//echo 'factor 1 : '. $factor_1 .' | factor 2 : '. $factor_2;
+	#echo 'factor 1 : '. $factor_1 .' | factor 2 : '. $factor_2;
 		
 	return (($factor_2/$factor_1)*$p1);
 }

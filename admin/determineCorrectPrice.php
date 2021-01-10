@@ -53,23 +53,34 @@ $zoekScherm[] = "<tr>";
 $zoekScherm[] = "	<td><input type='text' name='prijs' value='". (isset($_REQUEST['prijs']) ? $_REQUEST['prijs'] : '') ."'></td>";
 $zoekScherm[] = "	<td>";
 
-$sql_groepen	= "SELECT $PBKCategorie FROM $TablePBK WHERE $PBKCategorie NOT LIKE '' GROUP BY $PBKCategorie";
-$result_group	= mysqli_query($db, $sql_groepen);
-
-if($row_groep = mysqli_fetch_array($result_group)) {
+# Kijk of er PBK-data aanwezig is
+# Zo niet, geef dan link naar inladen PBK-data
+$sql_empty	= "SELECT * FROM $TablePBK WHERE $PBKCategorie LIKE 'Totaal'";
+$result_empty	= mysqli_query($db, $sql_empty);
+if(mysqli_num_rows($result_empty) > 0) {
 	$zoekScherm[] = "	<select name='regio'>";
-	do {		
-		$zoekScherm[] = "	<optgroup label='". ucfirst($row_groep[$PBKCategorie]) ."'>";
-				
-		$sql = "SELECT $PBKRegio FROM $TablePBK WHERE $PBKCategorie like '". $row_groep[$PBKCategorie] ."' AND $PBKRegio NOT LIKE '' GROUP BY $PBKRegio ORDER BY $PBKRegio";		
-		$result = mysqli_query($db, $sql);
-		$row = mysqli_fetch_array($result);
+	$zoekScherm[] = "		<option value='Totaal'". ((isset($_REQUEST['regio']) AND $_REQUEST['regio'] == 'Totaal') ? ' selected' : '') .">Heel Nederland</option>";
+	
+	# Vraag de verschillende groepen op
+	$sql_groepen	= "SELECT $PBKCategorie FROM $TablePBK WHERE $PBKCategorie NOT LIKE '' AND $PBKCategorie NOT LIKE 'Totaal' GROUP BY $PBKCategorie";
+	$result_group	= mysqli_query($db, $sql_groepen);
+	
+	if($row_groep = mysqli_fetch_array($result_group)) {
 		do {
-			$regio = $row[$PBKRegio];
-			$zoekScherm[] = "		<option value='$regio'". ((isset($_REQUEST['regio']) AND $regio == $_REQUEST['regio']) ? ' selected' : '') .">". ($regio == 'Totaal' ? 'Heel Nederland' : $regio) ."</option>";
-		} while($row = mysqli_fetch_array($result));		
-		$zoekScherm[] = "	</optgroup>";
-	} while($row_groep = mysqli_fetch_array($result_group));
+			$zoekScherm[] = "	<optgroup label='". ucfirst($row_groep[$PBKCategorie]) ."'>";
+			
+			# Zoek welke regio's er binnen deze groep bestaan
+			$sql = "SELECT $PBKRegio FROM $TablePBK WHERE $PBKCategorie like '". $row_groep[$PBKCategorie] ."' AND $PBKRegio NOT LIKE '' GROUP BY $PBKRegio ORDER BY $PBKRegio";		
+			$result = mysqli_query($db, $sql);
+			$row = mysqli_fetch_array($result);
+			do {
+				$regio = $row[$PBKRegio];
+				$zoekScherm[] = "		<option value='$regio'". ((isset($_REQUEST['regio']) AND $regio == $_REQUEST['regio']) ? ' selected' : '') .">$regio</option>";
+			} while($row = mysqli_fetch_array($result));
+			
+			$zoekScherm[] = "	</optgroup>";
+		} while($row_groep = mysqli_fetch_array($result_group));
+	}
 	$zoekScherm[] = "	</select>";
 } else {
 	$zoekScherm[] = "<a href='readKadasterePBK.php'>PBK-gegevens</a> ontbreken";
