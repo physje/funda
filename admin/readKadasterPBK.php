@@ -12,38 +12,38 @@ $db = connect_db();
 
 if(isset($_REQUEST['type'])) { $type = $_REQUEST['type']; } else { $type = 'alles'; }
 
-$jaar       = 20;
+$jaar       = 1;
 
 if($type == 'regio') {
 	$periode    = 'Q';
 	$categorie  = 'R';
 	$PBK        = 'PBK-PR';
 	$groep			= "regio";
-	toLog('debug', '', '', 'PBK opgevraagd voor alle regios');
+	toLog('debug', '', '', 'PBK opvragen voor alle regios');
 } elseif($type == 'prov') {
 	$periode    = 'Q';
 	$categorie  = 'P';
 	$PBK        = 'PBK-PR';	
 	$groep			= "provincie";
-	toLog('debug', '', '', 'PBK opgevraagd voor provincies');
+	toLog('debug', '', '', 'PBK opvragen voor provincies');
 } elseif($type == 'woning') {	
 	$periode    = 'Q';
 	$categorie  = 'WT';
 	$PBK        = 'PBK-PW';
 	$groep			= "woningtype";
-	toLog('debug', '', '', 'PBK opgevraagd voor woningtypes');
+	toLog('debug', '', '', 'PBK opvragen voor woningtypes');
 } elseif($type == 'steden') {	
 	$periode    = 'Q';
 	$categorie  = 'GG';
 	$PBK        = 'PBK-PR';
 	$groep			= "steden";
-	toLog('debug', '', '', 'PBK opgevraagd voor steden');
+	toLog('debug', '', '', 'PBK opvragen voor steden');
 } else {
 	$periode    = 'M';
 	$categorie  = 'T';
 	$PBK        = 'PBK';
 	$groep			= "totaal";
-	toLog('debug', '', '', 'PBK opgevraagd voor heel Nederland');
+	toLog('debug', '', '', 'PBK opvragen voor heel Nederland');
 }
 
 # URL is gewijzigd. Nieuwe formaat lijkt te zijn 
@@ -59,7 +59,7 @@ $url = "https://vastgoeddashboard.kadaster.nl/VastgoedProxy/api/v1/$PBK/export?F
 $data = file_get_contents_retry($url);
 file_put_contents('PBK.xlsx', $data);
 
-$newEntry = false;
+$newEntry = $sendPushover = false;
 $PIArray = array();
 
 $Reader = new SpreadsheetReader('PBK.xlsx');
@@ -176,20 +176,8 @@ foreach ($Reader as $velden) {
 				$sql = "INSERT INTO $TablePBK ($PBKStart, $PBKEind, $PBKRegio, $PBKCategorie, $PBKWaarde, $PBKComment) VALUES ($start, $eind, '$regio', '$groep', $prijsindex, '". $periode .', '. $regio ."')";				
 				if(!mysqli_query($db, $sql)) {
 					echo $sql;
-				}				
-				
-				if($type == 'regio') {					
-					toLog('info', '', '', 'Nieuwe PBK voor de verschillende regios');
-				} elseif($type == 'prov') {
-					toLog('info', '', '', 'Nieuwe PBK voor de verschillende provincies');
-				} elseif($type == 'woning') {
-					toLog('info', '', '', 'Nieuwe PBK voor de verschillende woningtypes');
-				} elseif($type == 'steden') {	
-					toLog('info', '', '', 'Nieuwe PBK voor de verschillende steden');
-				} else {
-					$newEntry = true;
-					toLog('info', '', '', 'Nieuwe PBK voor heel Nederland');
-				}				
+				}
+				$newEntry = true;
 			} else {
 				$sql_update = "UPDATE $TablePBK SET $PBKCategorie = '$groep' WHERE $PBKComment like '". $periode .', '. $regio ."'";
 				mysqli_query($db, $sql_update);
@@ -199,17 +187,30 @@ foreach ($Reader as $velden) {
   $i++;
 }
 
-toLog('info', '', '', 'Kadaster PBK-ingelezen');
-
 # Als de ingelezen data "nieuwer" is dan de data in de dB, is er nieuwe data en moet er een pushover-bericht worden gestuurd.
 if($newEntry) {
-	$percentage = (100*($prijsindex-$oud_prijsindex))/$prijsindex;
-	if($percentage > 0) {
-		$percentageString = '+'.number_format ($percentage,1);
+	if($type == 'regio') {
+		toLog('info', '', '', 'Nieuwe PBK voor de regios');
+	} elseif($type == 'prov') {
+		toLog('info', '', '', 'Nieuwe PBK voor de provincies');
+	} elseif($type == 'woning') {
+		toLog('info', '', '', 'Nieuwe PBK voor de woningtypes');
+	} elseif($type == 'steden') {	
+		toLog('info', '', '', 'Nieuwe PBK voor de grote steden');
 	} else {
-		$percentageString = number_format ($percentage,1);
+		toLog('info', '', '', 'Nieuwe PBK voor heel Nederland');
+		$sendPushover = true;
 	}
-	send2Pushover(array('title' => 'Prijsindex', 'message' => "In ". strtolower(strftime ('%B %Y', $start)) ." is de prijsindex van $oud_prijsindex naar $prijsindex gegaan (". $percentageString .'%)'), array(1));
+
+	if($sendPushover) {
+		$percentage = (100*($prijsindex-$oud_prijsindex))/$prijsindex;
+		if($percentage > 0) {
+			$percentageString = '+'.number_format ($percentage,1);
+		} else {
+			$percentageString = number_format ($percentage,1);
+		}
+		send2Pushover(array('title' => 'Prijsindex', 'message' => "In ". strtolower(strftime ('%B %Y', $start)) ." is de prijsindex van $oud_prijsindex naar $prijsindex gegaan (". $percentageString .'%)'), array(1));
+	}
 }
 
 # Tijdelijk bestand weer verwijderen
