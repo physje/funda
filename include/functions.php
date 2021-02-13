@@ -621,8 +621,7 @@ function extractFundaDataFromPage($offlineHTML) {
 		$Aangeboden			= getString('<span class="fd-m-right-xs">', '</span>', $AangebodenHTML[0], 0);
 		$KenmerkData['Aangeboden sinds'] = substr(trim($Aangeboden[0]), 4);
 				
-		$VerkoopdatumHTML	= getString('<dt>Verkoopdatum</dt>','</dd>', $contents, 0);		
-		$Verkoopdatum		= getString('<span class="fd-m-right-xs">', '</span>', $VerkoopdatumHTML[0], 0);
+		$Verkoopdatum	= getString('<dt>Verkoopdatum</dt>','</dd>', $contents, 0);		
 		$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
 		
 		if($oldData['afmeld'] == 0) {
