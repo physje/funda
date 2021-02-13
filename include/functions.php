@@ -617,10 +617,12 @@ function extractFundaDataFromPage($offlineHTML) {
 	
 	if($verkocht == 1) {
 		$oldData = getFundaData($data['id']);
-		$Aangeboden 	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
+		$AangebodenHTML	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
+		$Aangeboden			= getString('<span class="fd-m-right-xs">', '</span>', $AangebodenHTML[0], 0);
 		$KenmerkData['Aangeboden sinds'] = substr(trim($Aangeboden[0]), 4);
 				
-		$Verkoopdatum 	= getString('<dt>Verkoopdatum</dt>','</dd>', $contents, 0);
+		$VerkoopdatumHTML	= getString('<dt>Verkoopdatum</dt>','</dd>', $contents, 0);		
+		$Verkoopdatum		= getString('<span class="fd-m-right-xs">', '</span>', $VerkoopdatumHTML[0], 0);
 		$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
 		
 		if($oldData['afmeld'] == 0) {
@@ -647,8 +649,13 @@ function extractFundaDataFromPage($offlineHTML) {
 	
 	foreach($kenmerken as $kenmerk) {
 		$Record = getString('', '</dt>', $kenmerk, 0);
-		$Waarde = getString('<dd class="fd-flex--bp-m fd-align-items-center">', '</dd>', $kenmerk, 0);
+		//$Waarde = getString('<dd class="fd-flex--bp-m fd-flex-wrap fd-align-items-center">', '</dd>', $kenmerk, 0);
+		$Waarde = getString('<span class="fd-m-right-xs">', '</span>', $kenmerk, 0);
 		
+		if(strpos($Waarde[0], '<span class="">')) {
+			$Waarde = getString('<dd class="fd-flex--bp-m fd-flex-wrap fd-align-items-center">', '</dd>', $kenmerk, 0);
+		}
+				
 		$key = trim($Record[0]);
 		$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
 	}
