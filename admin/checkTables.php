@@ -18,8 +18,10 @@ $autoDelete['list'] = false;
 $check['kenmerk'] = true;
 $check['prijs'] = true;
 $check['result'] = true;
-$check['list'] = true
+$check['list'] = true;
 $check['open'] = true;
+$check['street'] = true;
+$check['wijk'] = true;
 
 $autoCollect = false;
 
@@ -81,7 +83,7 @@ if($check['result']) {
     	$huisID = $row[$ResultaatID];
     	$data = getFundaData($huisID);
 		
-    	if(count($data) == 0) {
+    	if(!is_array($data) OR count($data) == 0) {
     		$error[] = "In de resultaten-database staat <a href='HouseDetails.php?id=$huisID'>$huisID</a>; is niet bekend als huis<br>";
     		$delete_resultaten[] = $huisID;
     	} else {
@@ -158,6 +160,39 @@ if($check['open']) {
     
     $melding[] = "Alle open-huizen zijn gecontroleerd<br>";
 }
+
+
+
+if($check['street']) {
+	$sql		= "SELECT * FROM $TableHuizen WHERE $HuizenVerkocht like '0' AND $HuizenOffline like '0' AND $HuizenPlaats NOT LIKE '' GROUP BY $HuizenStraat, $HuizenPlaats";
+	$result	= mysqli_query($db, $sql);
+	$row = mysqli_fetch_array($result);
+	do {
+		$straat	= urldecode($row[$HuizenStraat]);
+		$stad	= urldecode($row[$HuizenPlaats]);
+		addUpdateStreetDb($straat, $stad);
+		//$melding[] = $straat .' -> '. $stad .' (opnieuw) op actief gezet<br>';		
+	} while($row = mysqli_fetch_array($result));
+	
+	$melding[] = "Alle straten zijn gecontroleerd<br>";
+}
+
+
+if($check['wijk']) {
+	$sql		= "SELECT * FROM $TableHuizen WHERE $HuizenVerkocht like '0' AND $HuizenOffline like '0' AND $HuizenWijk NOT LIKE '' AND $HuizenPlaats NOT LIKE '' GROUP BY $HuizenWijk, $HuizenPlaats";
+	$result	= mysqli_query($db, $sql);
+	$row = mysqli_fetch_array($result);
+	do {
+		$wijk	= urldecode($row[$HuizenWijk]);
+		$stad	= urldecode($row[$HuizenPlaats]);
+		addUpdateWijkDb($wijk, $stad);
+		//$melding[] = $wijk .' -> '. $stad .' (opnieuw) op actief gezet<br>';		
+	} while($row = mysqli_fetch_array($result));
+	
+	$melding[] = "Alle wijken zijn gecontroleerd<br>";
+}
+
+
 
 # Kijken of er geen dubbele huizen voorkomen in de resultaten database
 $sql = "SELECT COUNT(*) as aantal, $ResultaatZoekID, $ResultaatID FROM $TableResultaat GROUP BY $ResultaatZoekID, $ResultaatID HAVING aantal > 1";
