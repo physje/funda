@@ -577,9 +577,9 @@ function extractFundaDataFromPage($offlineHTML) {
 	}
 		
 	# Navigatie-gedeelte
-	$navigatie	= getString('<ol class="container breadcrumb-list">', '</ol>', $contents, 0);
-	//$stappen		= explode('<ol class="breadcrumb-list fd-m-none fd-flex fd-align-items-center fd-p-vertical-2xs">', $navigatie[0]);
-	$wijk				= getString('<p class="fd-m-none fd-m-bottom-2xs" data-neighbourhood>', '</p>', $contents, 0);
+	$navigatie	= getString('<ol class="breadcrumb-list fd-flex fd-align-items-center fd-p-vertical-2xs fd-container-full fd-container fd-m-auto">', '</ol>', $contents, 0);
+	$stappen		= explode('<span class="fd-text--ellipsis fd-text--nowrap fd-overflow-hidden">', $navigatie[0]);
+	$wijk				= getString('', '</span>', $stappen[3], 0);	
 	$id					= getString('tinyId=', '&amp;', $contents, 0);
 
 	$adres	= getString('<span class="fd-color-dark-3" aria-current="page">', '</span>', $contents, 0);
