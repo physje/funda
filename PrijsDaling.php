@@ -121,7 +121,7 @@ if(isset($_POST['add'])) {
 		echo "		<td width='". $restBreedte ."%'>&nbsp;</td>\n";
 		echo "	</tr></table>\n";
 		echo "	</td>\n";
-		echo "	<td width='7%'><a href='TimeLine.php?selectie=". $_REQUEST['selectie'] ."#$huisID' title='Bekijk het tijdsverloop van $adres'>". getDoorloptijd($huisID) ."</a></td>\n";		
+		echo "	<td width='7%'><a href='TimeLine.php?selectie=". $_REQUEST['selectie'] ."#$huisID' title='Bekijk het tijdsverloop van $adres'>". getDoorlooptijd($huisID) ."</a></td>\n";		
 		echo "</tr>\n";
 	}
 	

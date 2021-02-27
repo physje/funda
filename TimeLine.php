@@ -105,7 +105,7 @@ if(isset($_POST['add'])) {
 		if(isset($showListAdd) AND $showListAdd)	echo "	<input type='checkbox' name='huis[]' value='". $row[$HuizenID] ."'". (in_array($row[$HuizenID], $Huizen) ? ' checked' : '') .">";
 		echo "<a id='". $row[$HuizenID] ."'><a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=". $row[$HuizenID] ."'><img src='images/details.gif' title='Toon opties voor $adres'></a> <a href='http://funda.nl/". $row[$HuizenID] ."' target='_blank' class='$class' title='Bezoek $adres op funda.nl'>$adres</a></td>\n";
 		if($breedte_1 != 0) { echo "		<td width='". $breedte_1 ."%'>&nbsp;</td>\n"; }
-		echo "		<td width='". $breedte_2 ."%' bgcolor='#FF6D6D' title='". getDoorloptijd($row[$HuizenID]) ." in de verkoop. Van ". date("d-m-y", $row[$HuizenStart]) .' t/m '. date("d-m-y", $row[$HuizenEind]) ."'>&nbsp;</td>\n";
+		echo "		<td width='". $breedte_2 ."%' bgcolor='#FF6D6D' title='". getDoorlooptijd($row[$HuizenID]) ." in de verkoop. Van ". date("d-m-y", $row[$HuizenStart]) .' t/m '. date("d-m-y", $row[$HuizenEind]) ."'>&nbsp;</td>\n";
 		if($breedte_3 != 0) { echo "		<td width='". $breedte_3 ."%' bgcolor='#FFA0A0'>&nbsp;</td>\n"; }
 		if($breedte_4 != 0) { echo "		<td width='". $breedte_4 ."%'>&nbsp;</td>\n"; }
 		echo "		<td width='5%' align='right'><a href='PrijsDaling.php?selectie=". $_REQUEST['selectie'] ."#". $row[$HuizenID] ."' title='Bekijk de prijsdaling van $adres\nVraagprijs ". formatPrice(getOrginelePrijs($row[$HuizenID])) ." | Gecorrigeerde prijs ". formatPrice(corrigeerPrice($row[$HuizenStart], getOrginelePrijs($row[$HuizenID]))) ."'>". number_format($percentageAll, 0) ."%</a></td>\n";

@@ -64,7 +64,7 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Plaats</td>";
-		$HTML[] = "	<td><input type='text' name='plaats' value='". $data['plaats'] ."'></td>";
+		$HTML[] = "	<td><input type='text' name='plaats' value='". $data['plaats'] ."'><div class='float_rechts'><a href='https://drimble.nl/adres/". strtolower($data['plaats']) ."/".$data['PC_c'].$data['PC_l']."/". convert2FundaStyle($data['adres']) .".html' target='_blank'>drimble</a></div></td>";
 		$HTML[] = "</tr>";	
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Coordinaten</td>";

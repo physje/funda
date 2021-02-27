@@ -102,7 +102,7 @@ foreach($houses as $dataset) {
 		$Foto  = "	<a href='". $ScriptURL ."admin/HouseDetails.php?id=$huisID' target='_blank' title='$hoverText'><div class='wrapper'><img src='$image' width='242' class='$imageClass'></a>";
 		if($balk)	$Foto .= "<div class='description'><p class='description_content'>". strtoupper($description) ."</p></div>";
 		$Foto .= "</div><br>\n";
-		$Foto .= "	<div class='float_rechts'>". getDoorloptijd($huisID) ."</div><a href='http://funda.nl/$huisID' target='_blank' class='$TextClass' title='Ga naar $adres op funda.nl'>$adresShort</a><br>\n";
+		$Foto .= "	<div class='float_rechts'>". getDoorlooptijd($huisID) ."</div><a href='http://funda.nl/$huisID' target='_blank' class='$TextClass' title='Ga naar $adres op funda.nl'>$adresShort</a><br>\n";
 		$Foto .= "	<div class='float_rechts'><b>". strftime('%b %y', $data['start']) ."</b></div><b>". formatPrice(getHuidigePrijs($huisID)) ."</b>\n";
 		
 		echo "	<td align='center'>". showBlock($Foto) ."</td>\n";

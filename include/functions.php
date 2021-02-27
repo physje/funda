@@ -1274,7 +1274,7 @@ function getTimeBetween($start, $einde) {
 }
 
 
-function getDoorloptijd($id) {	
+function getDoorlooptijd($id) {	
 	$data = getFundaData($id);
 	
 	$output = getTimeBetween($data['start'], $data['eind']);
@@ -2664,7 +2664,7 @@ function extractWOZwaarde($fundaID) {
 		$postcode = $data['PC_c'].$data['PC_l'];
 	}
 	
-	$url = "https://drimble.nl/adres/". strtolower($data['plaats']) ."/$postcode/". convert2FundaStyle($adres) .".html";	
+	$url = "https://drimble.nl/adres/". strtolower($data['plaats']) ."/$postcode/". convert2FundaStyle($adres) .".html";
 	$contents = file_get_contents_retry($url);
 	
 	if(strpos($contents, 'Page not found / Adres niet gevonden.')) {
@@ -2690,7 +2690,13 @@ function extractWOZwaarde($fundaID) {
 		array_shift($aWOZ);
 	
 		foreach($aWOZ as $key => $value) {
-			$jaar = getString('', ':', $value, 0);
+			if(strpos($value, 'Belastingjaar')) {
+				$jaar = getString('Belastingjaar)', ':', $value, 0);
+				$jaar[0] = $jaar[0]-1;
+			} else {
+				$jaar = getString('', ':', $value, 0);
+			}
+						
 			$bedrag = getString('&euro; ', '</td>', $value, 0);
 			$export[trim($jaar[0])] = trim(str_replace('.', '', $bedrag[0]));		
 		}
@@ -2712,6 +2718,43 @@ function getWOZHistory($id) {
 	}
 	
 	return $data;
+}
+
+
+function getStats($ids) {
+	foreach($ids as $key => $id) {
+		$data				= getFundaData($id);
+		$kenmerken	= getFundaKenmerken($id);
+		$prijs			= getOrginelePrijs($id);
+		
+		if(isset($data['eind']) AND isset($data['start']))												$doorlooptijd[$key]	= ($data['eind']-$data['start']);
+		if(isset($kenmerken['Bouwjaar']) AND $kenmerken['Bouwjaar'] != '')				$bouwjaar[$key]			= $kenmerken['Bouwjaar'];
+		if(isset($kenmerken['Kamers']) AND $kenmerken['Kamers'] != '')						$kamers[$key]				= $kenmerken['Kamers'];
+		if(isset($kenmerken['Inhoud']) AND $kenmerken['Inhoud'] != '')						$inhoud[$key]				= substr($kenmerken['Inhoud'], 0, -3);
+		if(isset($kenmerken['Wonen']) AND $kenmerken['Wonen'] != '') {
+			$oppervlakte[$key]	= substr($kenmerken['Wonen'], 0, -3);
+			$prijs_m2[$key]			= $prijs/$oppervlakte[$key];
+		}
+		
+		if(isset($kenmerken['Perceel']) AND $kenmerken['Perceel'] != '')					$perceel[$key]			= substr($kenmerken['Perceel'], 0, -3);
+		$vraagprijs[]		= $prijs;		
+	}
+		
+	
+	$stats['doorlooptijd']			= $doorlooptijd;
+	$stats['bouwjaar']					= $bouwjaar;	
+	$stats['kamers']						= $kamers;	
+	$stats['inhoud']						= $inhoud;	
+	$stats['oppervlakte']				= $oppervlakte;	
+	$stats['perceel']						= $perceel;
+	$stats['vraagprijs']				= $vraagprijs;
+	$stats['prijs_m2']				= $prijs_m2;
+		
+	return $stats;
+}
+
+function array_mean($array) {
+	return array_sum($array)/count($array);
 }
 
 /*
