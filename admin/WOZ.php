@@ -38,7 +38,7 @@ if($row = mysqli_fetch_array($result)) {
 		if(is_array($WOZwaardes)) {
 			foreach($WOZwaardes as $jaar => $waarde) {
 				if($opschonen) {
-					mysqli_query($db, "DELETE FROM $TableWOZ WHERE $WOZFundaID = $fundaID, $WOZJaar = $jaar, $WOZPrijs = $waarde");
+					mysqli_query($db, "DELETE FROM $TableWOZ WHERE $WOZFundaID = $fundaID AND $WOZJaar = $jaar");
 				}
 				
 				$sql_insert = "INSERT INTO $TableWOZ ($WOZFundaID, $WOZJaar, $WOZPrijs, $WOZLastCheck) VALUES ($fundaID, $jaar, $waarde, ". time() .")";

@@ -618,14 +618,24 @@ function extractFundaDataFromPage($offlineHTML) {
 	if($verkocht == 1) {
 		$oldData = getFundaData($data['id']);
 		$AangebodenHTML	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
-		$Aangeboden			= getString('<span class="fd-m-right-xs">', '</span>', $AangebodenHTML[0], 0);
+		
+		if(strpos($AangebodenHTML[0], '<span class="fd-m-right-xs">')) {			
+			$Aangeboden			= getString('<span class="fd-m-right-xs">', '</span>', $AangebodenHTML[0], 0);
+		} else {
+			$Aangeboden	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
+		}				
+		
 		$KenmerkData['Aangeboden sinds'] = substr(trim($Aangeboden[0]), 4);
 				
 		$Verkoopdatum	= getString('<dt>Verkoopdatum</dt>','</dd>', $contents, 0);		
 		$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
 		
-		if($oldData['afmeld'] == 0) {
-			$data['afmeld'] = $oldData['eind'];
+		if(!isset($oldData['afmeld']) OR $oldData['afmeld'] == 0) {
+			if(isset($oldData['end'])) {
+				$data['afmeld'] = $oldData['eind'];
+			} else {
+				$data['afmeld'] = 0;
+			}
 		}
 	}
 	
