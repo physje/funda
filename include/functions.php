@@ -631,7 +631,7 @@ function extractFundaDataFromPage($offlineHTML) {
 		$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
 		
 		if(!isset($oldData['afmeld']) OR $oldData['afmeld'] == 0) {
-			if(isset($oldData['end'])) {
+			if(isset($oldData['eind'])) {
 				$data['afmeld'] = $oldData['eind'];
 			} else {
 				$data['afmeld'] = 0;
