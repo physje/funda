@@ -592,7 +592,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	}
 	
 	$makelHTML	= getString('<h3 class="object-contact-aanbieder-name">', '</h3>', $contents, 0);
-	$PC					= getString('<span class="object-header__subtitle fd-color-dark-3">', '</span>', $contents, 0);
+	$PC					= getString('<span class="object-header__subtitle fd-color-dark-3">', '<a class="', $contents, 0);
 	$makelaar		= getString('">', '</a>', $makelHTML[0], 0);
 	$foto				=	getString('<meta itemprop="image" content="', '"', $offlineHTML, 0);
 	
