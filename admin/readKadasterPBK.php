@@ -12,7 +12,7 @@ $db = connect_db();
 
 if(isset($_REQUEST['type'])) { $type = $_REQUEST['type']; } else { $type = 'alles'; }
 
-$jaar       = 1;
+$jaar       = 2;
 
 if($type == 'regio') {
 	$periode    = 'Q';
@@ -67,10 +67,7 @@ $i = 0;
 
 foreach ($Reader as $velden) {	
 	# Even de lege regels overslaan
-	if($i > 3) {
-		# Voor later
-		$oud_prijsindex = number_format($PIArray[0], 1, '.', '');
-	
+	if($i > 3) {		
 		unset($PIArray);
 		unset($naam);
 		
@@ -183,6 +180,9 @@ foreach ($Reader as $velden) {
 				mysqli_query($db, $sql_update);
 			} 
 		}
+		
+		# array met PBK aanleggen zodat later een jaar teruggekeken kan worden
+		$arrayPBK[] = number_format($PIArray[0], 1, '.', '');		
   }
   $i++;
 }
@@ -203,13 +203,27 @@ if($newEntry) {
 	}
 
 	if($sendPushover) {
-		$percentage = (100*($prijsindex-$oud_prijsindex))/$prijsindex;
-		if($percentage > 0) {
-			$percentageString = '+'.number_format ($percentage,1);
+		$index_maand = (count($arrayPBK)-2);
+		$index_jaar = (count($arrayPBK)-13);
+
+		$prijsindex_mnd = $arrayPBK[$index_maand];
+		$prijsindex_jaar = $arrayPBK[$index_jaar];
+		
+		$percentage_mnd = (100*($prijsindex-$prijsindex_mnd))/$prijsindex;		
+		if($percentage_mnd > 0) {
+			$percentageMndString = '+'.number_format ($percentage_mnd,1);
 		} else {
-			$percentageString = number_format ($percentage,1);
+			$percentageMndString = number_format ($percentage_mnd,1);
 		}
-		send2Pushover(array('title' => 'Prijsindex', 'message' => "In ". strtolower(strftime ('%B %Y', $start)) ." is de prijsindex van $oud_prijsindex naar $prijsindex gegaan (". $percentageString .'%)'), array(1));
+		
+		$percentage_jaar = (100*($prijsindex-$prijsindex_jaar))/$prijsindex;
+		if($percentage_jaar > 0) {
+			$percentageJrString = '+'.number_format ($percentage_jaar,1);
+		} else {
+			$percentageJrString = number_format ($percentage_jaar,1);
+		}
+		
+		send2Pushover(array('title' => 'Prijsindex', 'message' => "In ". strtolower(strftime ('%B %Y', $start)) ." is de prijsindex naar $prijsindex gegaan (". $percentageMndString .'% tov vorige maand / '. $percentageJrString .'% tov vorig jaar)'), array(1));
 	}
 }
 
