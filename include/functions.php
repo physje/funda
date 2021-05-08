@@ -580,7 +580,8 @@ function extractFundaDataFromPage($offlineHTML) {
 	$navigatie	= getString('<ol class="breadcrumb-list fd-flex fd-align-items-center fd-p-vertical-2xs fd-container-full fd-container fd-m-auto">', '</ol>', $contents, 0);
 	$stappen		= explode('<span class="fd-text--ellipsis fd-text--nowrap fd-overflow-hidden">', $navigatie[0]);
 	$wijk				= getString('', '</span>', $stappen[3], 0);	
-	$id					= getString('tinyId=', '&amp;', $contents, 0);
+	//$id					= getString('tinyId=', '&amp;', $contents, 0);
+	$id					= getString('"tinyid":"', '"', $offlineHTML, 0);
 
 	$adres	= getString('<span class="fd-color-dark-3" aria-current="page">', '</span>', $contents, 0);
 	$adresClean = str_replace('<span class="item-sold-label-large" title="Verkocht">VERKOCHT</span>', '', $adres[0]);
@@ -607,8 +608,8 @@ function extractFundaDataFromPage($offlineHTML) {
 	$data['letter']			= $onderdelen['letter'];
 	$data['toevoeging']	= $onderdelen['toevoeging'];
 	$data['PC_c']			= trim($postcode[0]);
-	$data['PC_l']			= trim($postcode[1]);
-	$data['plaats']		= end($postcode);
+	$data['PC_l']			= trim($postcode[1]);	
+	$data['plaats']		= implode(' ', array_slice($postcode, 2));	
 	$data['thumb'] = preg_replace ('/_(\d+).jpg/', '_360x240.jpg', $foto[0]);
 	$data['makelaar']	= trim($makelaar[0]);
 	$data['prijs']		= cleanPrice($prijs[0]);
