@@ -296,14 +296,14 @@ foreach($files as $file) {
 					if($bestaandeTijden[0] != '' AND ($tijden[0] != $bestaandeTijden[0] OR $tijden[1] != $bestaandeTijden[1])) {
 						deleteOpenhuis($fundaID, $bestaandeTijden[0]);
 						addOpenhuis($fundaID, $tijden);
-						toLog('info', $OpdrachtID, $data['id'], 'Open Huis gewijzigd');
+						toLog('info', $OpdrachtID, $data['id'], 'Open Huis gewijzigd voor '. formatStreetAndNumber($fundaID));
 					} elseif($bestaandeTijden[0] == '') {
 						addOpenhuis($fundaID, $tijden);
-						toLog('info', $OpdrachtID, $data['id'], 'Open Huis toegevoegd');
+						toLog('info', $OpdrachtID, $data['id'], 'Open Huis toegevoegd voor '. formatStreetAndNumber($fundaID));
 					}
 				}
 				
-				toLog('info', '', $fundaID, 'Offline pagina ingeladen');
+				toLog('info', '', $fundaID, 'Offline pagina van '. formatStreetAndNumber($fundaID) .' ingeladen');
 				remove4Details($fundaID);				
 				$success = true;
 			}
