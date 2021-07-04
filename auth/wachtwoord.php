@@ -47,10 +47,11 @@ if(isset($_POST['opvragen'])) {
 		//$mail->AltBody	= $PlainText;
 		
 		if(!$mail->Send()) {
-			toLog('error', '', '', "Kon geen inloggegevens versturen naar ". $data['naam']);
+			toLog('error', '0', '0', "Kon geen inloggegevens versturen naar ". $data['naam']);
 			$text[] = "Inloggegevens konden helaas niet verstuurd worden";
+			echo $HTMLMail;
 		} else {
-			toLog('info', '', '', "Inloggegevens verstuurd naar ". $data['naam']);
+			toLog('info', '0', '0', "Inloggegevens verstuurd naar ". $data['naam']);
 			$text[] = "Inloggegevens zijn verstuurd";
 		}		
 	}	

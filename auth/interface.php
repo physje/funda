@@ -45,4 +45,4 @@ echo "<td width='25%' valign='top' align='center'>&nbsp;</td>\n";
 echo "</tr>\n";
 echo $HTMLFooter;
 
-toLog('info', '', '', 'Inlogpoging vanaf '. $_SERVER['REMOTE_ADDR']);
+toLog('info', '0', '0', 'Inlogpoging vanaf '. $_SERVER['REMOTE_ADDR']);

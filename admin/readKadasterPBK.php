@@ -19,31 +19,31 @@ if($type == 'regio') {
 	$categorie  = 'R';
 	$PBK        = 'PBK-PR';
 	$groep			= "regio";
-	toLog('debug', '', '', 'PBK opvragen voor alle regios');
+	toLog('debug', '0', '0', 'PBK opvragen voor alle regios');
 } elseif($type == 'prov') {
 	$periode    = 'Q';
 	$categorie  = 'P';
 	$PBK        = 'PBK-PR';	
 	$groep			= "provincie";
-	toLog('debug', '', '', 'PBK opvragen voor provincies');
+	toLog('debug', '0', '0', 'PBK opvragen voor provincies');
 } elseif($type == 'woning') {	
 	$periode    = 'Q';
 	$categorie  = 'WT';
 	$PBK        = 'PBK-PW';
 	$groep			= "woningtype";
-	toLog('debug', '', '', 'PBK opvragen voor woningtypes');
+	toLog('debug', '0', '0', 'PBK opvragen voor woningtypes');
 } elseif($type == 'steden') {	
 	$periode    = 'Q';
 	$categorie  = 'GG';
 	$PBK        = 'PBK-PR';
 	$groep			= "steden";
-	toLog('debug', '', '', 'PBK opvragen voor steden');
+	toLog('debug', '0', '0', 'PBK opvragen voor steden');
 } else {
 	$periode    = 'M';
 	$categorie  = 'T';
 	$PBK        = 'PBK';
 	$groep			= "totaal";
-	toLog('debug', '', '', 'PBK opvragen voor heel Nederland');
+	toLog('debug', '0', '0', 'PBK opvragen voor heel Nederland');
 }
 
 # URL is gewijzigd. Nieuwe formaat lijkt te zijn 
@@ -190,15 +190,15 @@ foreach ($Reader as $velden) {
 # Als de ingelezen data "nieuwer" is dan de data in de dB, is er nieuwe data en moet er een pushover-bericht worden gestuurd.
 if($newEntry) {
 	if($type == 'regio') {
-		toLog('info', '', '', 'Nieuwe PBK voor de regios');
+		toLog('info', '0', '0', 'Nieuwe PBK voor de regios');
 	} elseif($type == 'prov') {
-		toLog('info', '', '', 'Nieuwe PBK voor de provincies');
+		toLog('info', '0', '0', 'Nieuwe PBK voor de provincies');
 	} elseif($type == 'woning') {
-		toLog('info', '', '', 'Nieuwe PBK voor de woningtypes');
+		toLog('info', '0', '0', 'Nieuwe PBK voor de woningtypes');
 	} elseif($type == 'steden') {	
-		toLog('info', '', '', 'Nieuwe PBK voor de grote steden');
+		toLog('info', '0', '', 'Nieuwe PBK voor de grote steden');
 	} else {
-		toLog('info', '', '', 'Nieuwe PBK voor heel Nederland');
+		toLog('info', '0', '0', 'Nieuwe PBK voor heel Nederland');
 		$sendPushover = true;
 	}
 

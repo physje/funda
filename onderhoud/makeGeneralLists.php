@@ -47,7 +47,7 @@ for($i = 0 ; $i < count($IDs) ; $i++) {
 	$Page_1 .= "<br>\n";
 }
 
-toLog('info', '', '', 'Standaard lijsten aangemaakt');
+toLog('info', '0', '0', 'Standaard lijsten aangemaakt');
 
 echo $HTMLHeader;
 echo "<tr>\n";

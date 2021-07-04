@@ -231,9 +231,9 @@ if(count($key_1) > 0) {
 		
 		if(!$mail->Send()) {
 			echo "Versturen van mail is mislukt<br>";
-			toLog('error', '', '', "Fout met mail nav opschoonwerkzaamheden");		
+			toLog('error', '0', '0', "Fout met mail nav opschoonwerkzaamheden");		
 		} else {
-			toLog('info', '', '', "Mail nav opschoonwerkzaamheden verstuurd");
+			toLog('info', '0', '0', "Mail nav opschoonwerkzaamheden verstuurd");
 		}
 		
 		send2Pushover(array('title' => 'Opschoonwerkzaamheden', 'message' => count($HTMLMessage) .' huizen opgeruimd'), array(1));

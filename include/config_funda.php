@@ -1,7 +1,7 @@
 <?php
 
 # Map waar het script staat, bv http://www.example.com/scripts/funda/
-$ScriptURL	= '';
+$ScriptURL	= '/';
 
 # Naam van het script (is naam van afzender in mails)
 $ScriptTitle	= 'Funda Alert';

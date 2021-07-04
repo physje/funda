@@ -44,13 +44,13 @@ if(isset($_POST['invite'])) {
 	$mail->AltBody	= $PlainText;
 		
 	if(!$mail->Send()) {
-		toLog('error', '', '', "Kon geen uitnodiging versturen naar ". $dataOntvanger['naam']);
+		toLog('error', '0', '0', "Kon geen uitnodiging versturen naar ". $dataOntvanger['naam']);
 		$text[] = "Uitnodiging kon helaas niet verstuurd worden";
 		
 		echo $HTMLMail;
 		
 	} else {
-		toLog('info', '', '', "Uitnodiging verstuurd naar ". $data['naam']);
+		toLog('info', '0', '0', "Uitnodiging verstuurd naar ". $data['naam']);
 		$text[] = "Uitnodiging is verstuurd";
 	}
 } else {

@@ -14,7 +14,7 @@ $sql_optimize = "OPTIMIZE TABLE $TableLog";
 mysqli_query($db, $sql_optimize);
 $pagina .= "Log-database geoptimaliseerd.<br>\n";
 
-toLog('info', '', '', "Logfiles opgeschoond");
+toLog('info', '0', '0', "Logfiles opgeschoond");
 
 echo $HTMLHeader;
 echo "<tr>\n";

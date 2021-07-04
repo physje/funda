@@ -57,7 +57,7 @@ if(isset($_REQUEST['OpdrachtID'])) {
 		
 		if(date('G') < 1 AND date('i') < 6) {
 			# Een keer per dag (eerste run na middernacht) even in logfiles wegschrijven hoeveel straten en wijken actief zijn
-			toLog('debug', '', '', "Actieve straten: $aantalStraten, Actieve wijken: $aantalWijken; Totaal: ". ($aantalStraten+$aantalWijken));
+			toLog('debug', '0', '0', "Actieve straten: $aantalStraten, Actieve wijken: $aantalWijken; Totaal: ". ($aantalStraten+$aantalWijken));
 		}
 	} else {		
 		$Opdrachten = getZoekOpdrachten('', date('G'));
@@ -96,10 +96,10 @@ for($i=0 ; $i < $iMax ; $i++) {
 		toLog('debug', $OpdrachtID, '', $OpdrachtURL);
 	} elseif($straatRun) {
 		$String[] = "<a href='$OpdrachtURL'>RSS</a> -> <a href='". $OpdrachtData['url'] ."'>". $straatData['leesbaar'] ."</a> (". $straatData['plaats'] .")";
-		toLog('debug', '', '', $OpdrachtURL);
+		toLog('debug', '0', '0', $OpdrachtURL);
 	} else {
 		$String[] = "<a href='$OpdrachtURL'>RSS</a> -> <a href='". $OpdrachtData['url'] ."'>". $wijkData['leesbaar'] ."</a> (". $wijkData['plaats'] .")";
-		toLog('debug', '', '', $OpdrachtURL);
+		toLog('debug', '0', '0', $OpdrachtURL);
 	}
 	
 	$String[] = '<ol>';
@@ -214,20 +214,20 @@ for($i=0 ; $i < $iMax ; $i++) {
 	if($straatRun) {
 		if($knownHouses > 0) {
 			setStreetSeen($straatID);
-			toLog('info', '', '', $straatData['leesbaar'].' in '.$straatData['plaats']." [$knownHouses/".count($Huizen).']');
+			toLog('info', '0', '0', $straatData['leesbaar'].' in '.$straatData['plaats']." [$knownHouses/".count($Huizen).']');
 		} else {
 			inactivateStreet($straatID); 
-			toLog('info', '', '', $straatData['leesbaar'].' in '.$straatData['plaats'].' niet meer actief');
+			toLog('info', '0', '0', $straatData['leesbaar'].' in '.$straatData['plaats'].' niet meer actief');
 		}
 	}
 		
 	if($wijkRun) {
 		if($knownHouses > 0) {
 			setWijkSeen($wijkID);
-			toLog('info', '', '', 'De wijk '. $wijkData['leesbaar'].' in '.$wijkData['plaats']." [$knownHouses/".count($Huizen).']');
+			toLog('info', '0', '0', 'De wijk '. $wijkData['leesbaar'].' in '.$wijkData['plaats']." [$knownHouses/".count($Huizen).']');
 		} else {
 			inactivateWijk($wijkID); 
-			toLog('info', '', '', 'De wijk '. $wijkData['leesbaar'].' in '.$wijkData['plaats'].' niet meer actief');
+			toLog('info', '0', '0', 'De wijk '. $wijkData['leesbaar'].' in '.$wijkData['plaats'].' niet meer actief');
 		}
 	}	
 }

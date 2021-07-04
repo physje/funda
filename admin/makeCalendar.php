@@ -158,5 +158,5 @@ for($i = 0 ; $i < $loop ; $i++) {
 }
 
 if(!isset($_REQUEST['id'])) {
-	toLog('info', '', '', "Kalender aangemaakt");
+	toLog('info', '0', '0', "Kalender aangemaakt");
 }
