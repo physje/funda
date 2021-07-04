@@ -87,6 +87,11 @@ if(isset($googleMaps)) {
 } else {
 	$HTMLHeader	.= "<body>\n";
 }
+
+if(isset($userInteraction) AND $userInteraction) {
+	$HTMLHeader	.= "Ga handmatig naar <a href='$forwardURL'>$forwardURL</a>\n";
+}
+
 $HTMLHeader	.= "<center>\n";
 $HTMLHeader	.= "<table width='100%' align='center' border=0>\n";
 
