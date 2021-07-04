@@ -77,7 +77,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 		$OpdrachtID			= $Opdrachten[$i];
 		$OpdrachtData		= getOpdrachtData($OpdrachtID);
 		
-		toLog('info', $OpdrachtID, '', 'Start controle '. $OpdrachtData['naam']);
+		toLog('info', $OpdrachtID, '0', 'Start controle '. $OpdrachtData['naam']);
 	} elseif($straatRun) {
 		$straatID = $Straten[$i];
 		$straatData = getStreetByID($straatID);
@@ -93,7 +93,7 @@ for($i=0 ; $i < $iMax ; $i++) {
 
 	if($opdrachtRun) {
 		$String[] = "<a href='$OpdrachtURL'>RSS</a> -> <a href='". $OpdrachtData['url'] ."'>". $OpdrachtData['naam'] ."</a>";
-		toLog('debug', $OpdrachtID, '', $OpdrachtURL);
+		toLog('debug', $OpdrachtID, '0', $OpdrachtURL);
 	} elseif($straatRun) {
 		$String[] = "<a href='$OpdrachtURL'>RSS</a> -> <a href='". $OpdrachtData['url'] ."'>". $straatData['leesbaar'] ."</a> (". $straatData['plaats'] .")";
 		toLog('debug', '0', '0', $OpdrachtURL);

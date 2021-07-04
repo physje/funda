@@ -38,7 +38,7 @@ if(!isset($_REQUEST['id'])) {
 	$row	= mysqli_fetch_array($result);
 	do {
 		removeOpenHuis($row[$CalendarHuis]);	
-		toLog('info', '', $row[$CalendarHuis], "Open Huis verwijderd");
+		toLog('info', '0', $row[$CalendarHuis], "Open Huis verwijderd");
 	} while($row = mysqli_fetch_array($result));
 }
 

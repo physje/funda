@@ -196,7 +196,7 @@ if($newEntry) {
 	} elseif($type == 'woning') {
 		toLog('info', '0', '0', 'Nieuwe PBK voor de woningtypes');
 	} elseif($type == 'steden') {	
-		toLog('info', '0', '', 'Nieuwe PBK voor de grote steden');
+		toLog('info', '0', '0', 'Nieuwe PBK voor de grote steden');
 	} else {
 		toLog('info', '0', '0', 'Nieuwe PBK voor heel Nederland');
 		$sendPushover = true;

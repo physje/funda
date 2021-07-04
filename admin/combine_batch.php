@@ -81,73 +81,73 @@ if(count($key_1) > 0) {
 			$sql_update_1 = "UPDATE $TableHuizen SET $HuizenStart = ". min($data_oud['start'], $data_new['start']) .", $HuizenEind = ". max($data_oud['eind'], $data_new['eind']) ." WHERE $HuizenID like '". $id_new ."'";
 			if(!mysqli_query($db, $sql_update_1)) {
 				echo "[$sql_update_1]<br>";		
-				toLog('error', '', $id_oud, "Error verplaatsen data van $id_oud naar $id_new");
+				toLog('error', '0', $id_oud, "Error verplaatsen data van $id_oud naar $id_new");
 			} else {
-				toLog('info', '', $id_oud, "Data van $id_oud verplaatst naar $id_new");
-				toLog('info', '', $id_new, "Data van $id_oud toegevoegd.");
+				toLog('info', '0', $id_oud, "Data van $id_oud verplaatst naar $id_new");
+				toLog('info', '0', $id_new, "Data van $id_oud toegevoegd.");
 			}
 			
 			# Tabel met prijzen updaten
 			$sql_update_2 = "UPDATE $TablePrijzen SET $PrijzenID = '$id_new' WHERE $PrijzenID like '$id_oud'";
 			if(!mysqli_query($db, $sql_update_2)) {
 				echo "[$sql_update_2]<br>";
-				toLog('error', '', $id_oud, "Error toewijzen prijzen aan $id_new");
+				toLog('error', '0', $id_oud, "Error toewijzen prijzen aan $id_new");
 			} else {
-				toLog('info', '', $id_oud, "Prijzen toewijzen aan $id_new");
+				toLog('info', '0', $id_oud, "Prijzen toewijzen aan $id_new");
 			}
 			
 			# Tabel met lijsten updaten
 			$sql_update_3 = "UPDATE $TableListResult SET $ListResultHuis = '$id_new' WHERE $ListResultHuis like '$id_oud'";
 			if(!mysqli_query($db, $sql_update_3)) {
 				echo "[$sql_update_3]<br>";
-				toLog('error', '', $id_oud, "Error toewijzen $id_new op lijst");
+				toLog('error', '0', $id_oud, "Error toewijzen $id_new op lijst");
 			} else {
-				toLog('info', '', $id_oud, "$id_new toegewezen op lijst");
+				toLog('info', '0', $id_oud, "$id_new toegewezen op lijst");
 			}
 			
 			# Tabel met open huizen updaten
 			$sql_update_4 = "UPDATE $TableCalendar SET $CalendarHuis = '$id_new' WHERE $CalendarHuis like '$id_oud'";
 			if(!mysqli_query($db, $sql_update_4)) {
 				echo "[$sql_update_4]<br>";
-				toLog('error', '', $id_oud, "Error toewijzen open huis aan $id_new");
+				toLog('error', '0', $id_oud, "Error toewijzen open huis aan $id_new");
 			} else {
-				toLog('info', '', $id_oud, "Open huizen toewijzen aan $id_new");
+				toLog('info', '0', $id_oud, "Open huizen toewijzen aan $id_new");
 			}
 
 			# Tabel met WOZ-waardes updaten
 			$sql_update_5 = "UPDATE $TableWOZ SET $WOZFundaID = '$id_new' WHERE $WOZFundaID like '$id_oud'";
 			if(!mysqli_query($db, $sql_update_5)) {
 				echo "[$sql_update_5]<br>";
-				toLog('error', '', $id_oud, "Error toewijzen WOZ-waardes aan $id_new");
+				toLog('error', '0', $id_oud, "Error toewijzen WOZ-waardes aan $id_new");
 			} else {
-				toLog('info', '', $id_oud, "WOZ-waardes toewijzen aan $id_new");
+				toLog('info', '0', $id_oud, "WOZ-waardes toewijzen aan $id_new");
 			}
 					
 			# Het oude huis uit de tabel met huizen halen
 			$sql_delete_1	= "DELETE FROM $TableHuizen WHERE $HuizenID like '$id_oud'";
 			if(!mysqli_query($db, $sql_delete_1)) {
 				echo "[$sql_delete_1]<br>";
-				toLog('error', '', $id_oud, "Error verwijderen huis (is identiek aan $id_new)");
+				toLog('error', '0', $id_oud, "Error verwijderen huis (is identiek aan $id_new)");
 			} else {
-				toLog('info', '', $id_oud, "Verwijderen huis (is identiek aan $id_new)");
+				toLog('info', '0', $id_oud, "Verwijderen huis (is identiek aan $id_new)");
 			}
 			
 			# Het oude huis uit de tabel met kenmerken halen (de nieuwe staan er al in)
 			$sql_delete_2	= "DELETE FROM $TableKenmerken WHERE $KenmerkenID like '$id_oud'";
 			if(!mysqli_query($db, $sql_delete_2)) {
 				echo "[$sql_delete_2]<br>";
-				toLog('error', '', $id_oud, "Error verwijderen kenmerken (zijn identiek aan $id_new)");
+				toLog('error', '0', $id_oud, "Error verwijderen kenmerken (zijn identiek aan $id_new)");
 			} else {
-				toLog('info', '', $id_oud, "Kenmerken verwijderd (zijn identiek aan $id_new)");
+				toLog('info', '0', $id_oud, "Kenmerken verwijderd (zijn identiek aan $id_new)");
 			}
 			
 			# Het oude huis uit de tabel met resultaten halen (de nieuwe staat er al in)
 			$sql_delete_3 = "DELETE FROM $TableResultaat WHERE $ResultaatID like '$id_oud'";
 			if(!mysqli_query($db, $sql_delete_3)) {
 				echo "[$sql_delete_3]<br>";
-				toLog('error', '', $id_oud, "Error verwijderen van $id_oud in opdracht");
+				toLog('error', '0', $id_oud, "Error verwijderen van $id_oud in opdracht");
 			} else {
-				toLog('info', '', $id_oud, "Verwijderd uit opdracht (is nu $id_new)");
+				toLog('info', '0', $id_oud, "Verwijderd uit opdracht (is nu $id_new)");
 			}
 			$verwijderd = true;
 		}

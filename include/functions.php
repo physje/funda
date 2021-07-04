@@ -1190,7 +1190,7 @@ function getFullPriceHistory($input) {
 	current($prijzenRev);
 	
 	if($vorige == 0) {
-		toLog('error', '', $input, 'Onjuiste prijs-historie');
+		toLog('error', '0', $input, 'Onjuiste prijs-historie');
 	}
 	
 	foreach($prijzenRev as $key => $prijs) {	
@@ -1691,9 +1691,9 @@ function updateVerkochtDataFromPage($generalData, $data) {
 	foreach($prijs as $key => $value) {				
 		if(updatePrice($fundaID, $value, $key)) {
 			$HTML[] = " -> ". $naam[$key] ." toegevoegd ($value / ". date("d-m-y", $key) .")";
-			toLog('debug', '', $fundaID, $naam[$key] ." toegevoegd");
+			toLog('debug', '0', $fundaID, $naam[$key] ." toegevoegd");
 		} else {
-			toLog('error', '', $fundaID, "Error met toevoegen $value als ". $naam[$key]);
+			toLog('error', '0', $fundaID, "Error met toevoegen $value als ". $naam[$key]);
 		}
 	}
 			
@@ -1703,10 +1703,10 @@ function updateVerkochtDataFromPage($generalData, $data) {
 		
 		if(mysqli_query($db, $sql_update)) {
 			$HTML[] = " -> begin- en eindtijd aangepast (verkocht)";
-			toLog('info', '', $fundaID, "Huis is verkocht");
+			toLog('info', '0', $fundaID, "Huis is verkocht");
 			$changed_end = $changed_start = true;
 		} else {
-			toLog('error', '', $fundaID, "Error met verwerken verkocht huis");
+			toLog('error', '0', $fundaID, "Error met verwerken verkocht huis");
 			$HTML[] = $sql_update;
 		}
 	}
@@ -1718,7 +1718,7 @@ function updateVerkochtDataFromPage($generalData, $data) {
 		if(mysqli_query($db, $sql_update)) {
 			$HTML[] = " -> begintijd aangepast";
 		} else {
-			toLog('error', '', $fundaID, "Error met verwerken begintijd");
+			toLog('error', '0', $fundaID, "Error met verwerken begintijd");
 			$HTML[] = $sql_update;
 		}					
 	}
@@ -1730,7 +1730,7 @@ function updateVerkochtDataFromPage($generalData, $data) {
 		if(mysqli_query($db, $sql_update)) {
 			$HTML[] = " -> eindtijd aangepast<br>";
 		} else {
-			toLog('error', '', $fundaID, "Error met verwerken begintijd");
+			toLog('error', '0', $fundaID, "Error met verwerken begintijd");
 			$HTML[] = $sql_update;
 		}
 	}
@@ -2670,7 +2670,7 @@ function extractWOZwaarde($fundaID) {
 	
 	if($data['PC_c'] == '' OR $data['PC_l'] == '') {
 		$postcode = findPCbyAdress($data['straat'], $data['nummer'], $data['letter'], $data['toevoeging'], $data['plaats']);
-		toLog('debug', '', $fundaID, 'PC onbekend voor WOZ-waarde; '. $postcode);
+		toLog('debug', '0', $fundaID, 'PC onbekend voor WOZ-waarde; '. $postcode);
 	} else {
 		$postcode = $data['PC_c'].$data['PC_l'];
 	}
@@ -2679,14 +2679,14 @@ function extractWOZwaarde($fundaID) {
 	$contents = file_get_contents_retry($url);
 	
 	if(strpos($contents, 'Page not found / Adres niet gevonden.')) {
-		toLog('debug', '', $fundaID, 'Adres bestaat niet voor WOZ; '. $adres);
-		toLog('debug', '', $fundaID, $url);
+		toLog('debug', '0', $fundaID, 'Adres bestaat niet voor WOZ; '. $adres);
+		toLog('debug', '0', $fundaID, $url);
 		return false;
 	} elseif(strpos($contents, '<title>404 Page not found</title>')) {
-		toLog('debug', '', $fundaID, 'URL voor WOZ niet goed opgebouwd; '. $url);
+		toLog('debug', '0', $fundaID, 'URL voor WOZ niet goed opgebouwd; '. $url);
 		return false;
 	} elseif(strpos($contents, 'Maximum aanvragen van dit soort ')) {
-		toLog('debug', '', $fundaID, 'Maximum aantal aanvragen bereikt');
+		toLog('debug', '0', $fundaID, 'Maximum aantal aanvragen bereikt');
 		return false;	
 	} else {			
 		$WOZ = getString('<td colspan="2" style="font-size:18px;padding-top:3px;padding-bottom:3px;">WOZ-waarde', '<td colspan="2" style="font-size:16px;padding-top:3px;padding-bottom:3px;background-color:#404040;color:#fff">', $contents, 0);
@@ -2694,7 +2694,7 @@ function extractWOZwaarde($fundaID) {
 		
 		# Een array van 1 betekent dat er geen WOZ-waardes bekend zijn
 		if(count($aWOZ) < 2) {
-			toLog('debug', '', $fundaID, 'Geen WOZ-waardes bekend');
+			toLog('debug', '0', $fundaID, 'Geen WOZ-waardes bekend');
 			return false;
 		}
 		
