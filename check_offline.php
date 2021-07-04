@@ -88,9 +88,9 @@ foreach($files as $file) {
 		$OpdrachtURL	= $OpdrachtData['url'];
 		
 		if($verkocht) {
-			toLog('info', $OpdrachtID, '', 'Inladen pagina verkochte huizen voor '. $OpdrachtData['naam']);
+			toLog('info', $OpdrachtID, '0', 'Inladen pagina verkochte huizen voor '. $OpdrachtData['naam']);
 		} else {
-			toLog('info', $OpdrachtID, '', 'Inladen pagina voor '. $OpdrachtData['naam']);
+			toLog('info', $OpdrachtID, '0', 'Inladen pagina voor '. $OpdrachtData['naam']);
 		}
 			
 		# Code opknippen zodat er een array met HTML-code voor een huis ontstaat		
@@ -246,7 +246,7 @@ foreach($files as $file) {
 		$String[] = "<a href='$bestand'>Overzicht</a>". ($verkocht ? ' met verkochte huizen ' : ' ')."van <a href='$OpdrachtURL'>". $OpdrachtData['naam'] ."</a>; ". count($AdressenArray)  ." huizen gevonden<br>";
 		$success = true;
 			
-		toLog('debug', $OpdrachtID, '', "Einde pagina (". count($AdressenArray) ." huizen)");		
+		toLog('debug', $OpdrachtID, '0', "Einde pagina (". count($AdressenArray) ." huizen)");		
 	
 	
 	
@@ -267,7 +267,7 @@ foreach($files as $file) {
 			
 			# Als wij een huis niet kennen klopt er iets niet
 			if(!knownHouse($fundaID)) {
-				toLog('error', '', $fundaID, 'Huis niet bekend');
+				toLog('error', '0', $fundaID, 'Huis niet bekend');
 				$success = false;
 					
 			# Meestal zal het huis wel bekend zijn
@@ -303,7 +303,7 @@ foreach($files as $file) {
 					}
 				}
 				
-				toLog('info', '', $fundaID, 'Offline pagina van '. formatStreetAndNumber($fundaID) .' ingeladen');
+				toLog('info', '0', $fundaID, 'Offline pagina van '. formatStreetAndNumber($fundaID) .' ingeladen');
 				remove4Details($fundaID);				
 				$success = true;
 			}
