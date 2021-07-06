@@ -1,5 +1,5 @@
 <?php
-include_once(__DIR__.'/../include/config.php');
+include_once(__DIR__.'/../../include/config.php');
 
 if(!isset($_SESSION)){
 	session_start();
