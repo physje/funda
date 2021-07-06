@@ -59,7 +59,7 @@ if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
 			}
 		} while($row = mysqli_fetch_array($result));
 	} else {
-		echo "Geen offline huizen die niet verkocht zijn";
+		echo "Geen offline huizen die niet verkocht zijn<br>";
 	}
 }
 
@@ -239,5 +239,5 @@ if(count($key_1) > 0) {
 		send2Pushover(array('title' => 'Opschoonwerkzaamheden', 'message' => count($HTMLMessage) .' huizen opgeruimd'), array(1));
 	}
 } else {
-	echo "Geen werk aan de winkel";
+	echo "Geen werk aan de winkel<br>";
 }
