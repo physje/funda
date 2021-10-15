@@ -51,8 +51,11 @@ if(isset($_REQUEST['selectie'])) {
 		$WOZ					= getWOZHistory($huisID);
 							
 		$vraagprijs		= end($prijzen);
-		$verkoopDatum	= key($prijzen);		
-		$verkoopJaar	= date('Y', $verkoopDatum);
+		if(date('Y', $data['eind']) < 7) {
+			$verkoopJaar	= date('Y', $data['eind']);
+		} else {
+			$verkoopJaar	= (date('Y', $data['eind'])+1);
+		}
 		
 		if(isset($WOZ[$verkoopJaar])) {
 			$verkoopprijs = $WOZ[$verkoopJaar];
