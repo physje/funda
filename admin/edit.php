@@ -242,6 +242,11 @@ if(isset($_REQUEST['id'])) {
 			$WOZHistory[] = "	<td>". formatPrice($bedrag) ."</td>";
 			$WOZHistory[] = "</tr>";			
 		}
+		
+		$WOZHistory[] = "<tr>";
+		$WOZHistory[] = "	<td colspan='2'>&nbsp;</td>";
+		$WOZHistory[] = "	<td><a href='WOZ.php?id=$id' target='WOZ'>ververs</a></td>";
+		$WOZHistory[] = "</tr>";
 		$WOZHistory[] = "</table>";				
 	}
 		

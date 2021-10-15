@@ -15,8 +15,6 @@ if ($detect->isMobile() ) {
 	$mobile = false;
 }
 
-$db = connect_db();
-
 echo $HTMLHeader;
 
 if(isset($_POST['add'])) {

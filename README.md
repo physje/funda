@@ -23,6 +23,7 @@ Er zijn daar 2 tokens die ingevuld kunnen/moeten worden.
 * De eerste is $OverheidAPI, deze wordt gebruikt in de functie 'findPCbyAdress' om op basis van openData van de overheid de postcode van een adres te vinden. Normaal haalt het script deze van de HTML-pagina van funda, maar moocht dat om een of andere reden niet lukken, dan kan je deze functie gebruiken (zie addPostcode.php helemaal onderaan deze pagina). Deze API-key is aan te maken via https://overheid.io (account aanmaken en dan API genereren).
 * De andere is $leafletAPI, deze wordt gebruikt om maps te tonen met funda data. Je kan er voor kiezen deze gelijk te trekken aan de $AccessToken uit de functie 'getCoordinates' maar je kan er ook voor kiezen hier 2 verschillende voor te gebruiken (ik heb deze uit elkaar getrokken).
 Via https://locationiq.com/ is/zijn deze key's aan te maken.
+
 Verder moeten de MySQL-tabellen worden aangemaakt (of bijgewerkt als je al een keer een fork gemaakt hebt), de SQL-queries hiervoor staan in /onderhoud/tabel_{datum}.sql en /onderhoud/onderhoud_{datum}.php. Afhankelijk van de huidige datum kan je op basis van de bestandsdatum bepalen welke queries voor jou van belang zijn.
 Vervolgens moeten een aantal cronjobs worden ingesteld zodat het geheel automatisch kan functioneren.
 De tijdstippen kan je zelf varieëren, maar ik heb de volgende jobs draaien :

@@ -22,12 +22,13 @@ $blockOnderhoud = $blockOpschonen = $blockLinks = $blockAdmin = $blockOpdrachten
 $UserData = getMemberDetails($_SESSION['UserID']);
 
 # LINKS
-$links['TimeLine.php']							= 'Tijdslijn';
-$links['PrijsDaling.php']						= 'Prijs-afname';
-$links['gallery.php']								= 'Fotoalbum';
-$links['dubbeleHuizen.php']					= 'Dubbele huizen';
-$links['admin/edit_lijsten.php']		= 'Lijsten';
-$links['admin/edit_opdrachten.php']	= 'Zoekopdrachten';	
+$links['TimeLine.php']								= 'Tijdslijn';
+$links['PrijsDaling.php']							= 'Prijs-afname';
+$links['gallery.php']									= 'Fotoalbum';
+$links['VraagprijsVerkoopprijs.php']	= 'Vraag- vs verkoopprijs';
+$links['dubbeleHuizen.php']						= 'Dubbele huizen';
+$links['admin/edit_lijsten.php']			= 'Lijsten';
+$links['admin/edit_opdrachten.php']		= 'Zoekopdrachten';	
 
 if($_SESSION['level'] > 2) {
 	$links['admin/log.php']						= 'Log-files';

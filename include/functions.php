@@ -2718,6 +2718,8 @@ function extractWOZwaarde($fundaID) {
 function getWOZHistory($id) {
 	global $db, $TableWOZ, $WOZFundaID, $WOZJaar, $WOZPrijs;
 	
+	$data = array();
+	
 	$sql = "SELECT * FROM $TableWOZ WHERE $WOZFundaID like $id";
 	$result = mysqli_query($db, $sql);
 	if($row = mysqli_fetch_array($result)) {
