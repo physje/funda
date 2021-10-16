@@ -105,7 +105,7 @@ if(isset($_POST['add'])) {
 		echo "<tr>\n";
 		echo "	<td width='25%'>";
 		if(isset($showListAdd) AND $showListAdd)	echo "	<input type='checkbox' name='huis[]' value='$huisID'". (in_array($huisID, $knownHuizen) ? ' checked' : '') .">";
-		echo "<a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=$huisID'><img src='images/details.gif' title='Toon opties voor $adres'></a>";
+		echo "<a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=$huisID' taregt='_blank'><img src='images/details.gif' title='Toon opties voor $adres'></a>";
 		echo "<a id='$huisID'> <a href='http://funda.nl/". $huisID ."' target='_blank' class='$TextClass' title='Bezoek $adres op funda.nl'>$adres</a></td>\n";
 		echo "	<td colspan=2>\n";
 		echo "	<table width='100%' border=0><tr>\n";

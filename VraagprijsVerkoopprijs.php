@@ -51,7 +51,7 @@ if(isset($_REQUEST['selectie'])) {
 		$WOZ					= getWOZHistory($huisID);
 							
 		$vraagprijs		= end($prijzen);
-		if(date('Y', $data['eind']) < 7) {
+		if(date('n', $data['eind']) < 7) {
 			$verkoopJaar	= date('Y', $data['eind']);
 		} else {
 			$verkoopJaar	= (date('Y', $data['eind'])+1);
@@ -79,7 +79,7 @@ if(isset($_REQUEST['selectie'])) {
 
 		echo "<tr>\n";
 		echo "	<td width='25%'>";		
-		echo "<a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=$huisID'><img src='images/details.gif' title='Toon opties voor $adres'></a>";
+		echo "<a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=$huisID' target='_blank'><img src='images/details.gif' title='Toon opties voor $adres'></a>";
 		echo "<a id='$huisID'> <a href='http://funda.nl/". $huisID ."' target='_blank' class='$TextClass' title='Bezoek $adres op funda.nl'>$adres</a></td>\n";
 				
 		if($breedte > 0) {			
