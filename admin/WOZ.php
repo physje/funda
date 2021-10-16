@@ -14,14 +14,29 @@ if(isset($_REQUEST['id'])) {
 	$sql = "SELECT $HuizenID FROM $TableHuizen WHERE $HuizenID like ". $_REQUEST['id'];
 	$opschonen = true;
 } else {
-	$sql = "SELECT $HuizenID FROM $TableHuizen h WHERE NOT EXISTS (SELECT $WOZFundaID FROM $TableWOZ w WHERE h.$HuizenID = w.$WOZFundaID) AND $HuizenDetails = '0' ORDER BY $HuizenEind DESC LIMIT 0,2";
-	$opschonen = false;
+	$sql = "SELECT $HuizenID FROM $TableHuizen h WHERE NOT EXISTS (SELECT $WOZFundaID FROM $TableWOZ w WHERE h.$HuizenID = w.$WOZFundaID) ORDER BY $HuizenEind DESC LIMIT 0,2";
+	$opschonen = false;		
 }
 $result = mysqli_query($db, $sql);
 
+# Als er om wat voor een reden dan ook geen resultaten zijn
+# Waarschijnlijk omdat er geen ontbrekende huizen zijn
+# Gaan wij gewoon de oude data verversen
+if(mysqli_num_rows($result) == 0) {
+	$sql = "SELECT $WOZFundaID FROM $TableWOZ ORDER BY $WOZLastCheck ASC LIMIT 0,2";	
+	$result = mysqli_query($db, $sql);
+	
+	$opschonen = true;
+	$refresh = true;
+}
+
 if($row = mysqli_fetch_array($result)) {
-	do {		
-		$fundaID = $row[$HuizenID];
+	do {
+		if(isset($refresh)) {
+			$fundaID = $row[$WOZFundaID];
+		} else {
+			$fundaID = $row[$HuizenID];
+		}
 		$data = getFundaData($fundaID);		
 		$WOZwaardes = extractWOZwaarde($fundaID);
 		
@@ -35,11 +50,14 @@ if($row = mysqli_fetch_array($result)) {
 		$string[] = '';
 		
 		# Array met waardes teruggekregen
-		if(is_array($WOZwaardes)) {
+		if(is_array($WOZwaardes)) {			
+			# Mocht er om wat voor een reden dan ook keer een 0 zijn weggeschreven
+			# Dan die nu verwijderen
+			if($opschonen)	mysqli_query($db, "DELETE FROM $TableWOZ WHERE $WOZFundaID = $fundaID AND $WOZJaar = 0");
+			
 			foreach($WOZwaardes as $jaar => $waarde) {
-				if($opschonen) {
-					mysqli_query($db, "DELETE FROM $TableWOZ WHERE $WOZFundaID = $fundaID AND $WOZJaar = $jaar");
-				}
+				# Oude data verwijderen
+				if($opschonen)	mysqli_query($db, "DELETE FROM $TableWOZ WHERE $WOZFundaID = $fundaID AND $WOZJaar = $jaar");
 				
 				$sql_insert = "INSERT INTO $TableWOZ ($WOZFundaID, $WOZJaar, $WOZPrijs, $WOZLastCheck) VALUES ($fundaID, $jaar, $waarde, ". time() .")";
 				if(mysqli_query($db, $sql_insert)) {
