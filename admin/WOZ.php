@@ -61,8 +61,7 @@ if($row = mysqli_fetch_array($result)) {
 				
 				$sql_insert = "INSERT INTO $TableWOZ ($WOZFundaID, $WOZJaar, $WOZPrijs, $WOZLastCheck) VALUES ($fundaID, $jaar, $waarde, ". time() .")";
 				if(mysqli_query($db, $sql_insert)) {
-					//echo $sql_insert .'<br>';
-					toLog('debug', '0', $fundaID, 'WOZ-waarde toegevoegd; '. $jaar .':'.$waarde);
+					toLog('debug', '0', $fundaID, 'WOZ-waarde '. (isset($refresh) ? 'ververst' : 'toegevoegd') .'; '. $jaar .':'.$waarde);
 				} else {
 					toLog('error', '0', $fundaID, 'Kon WOZ-waarde niet wegschrijven; '. $jaar .':'.$waarde);
 				}
@@ -73,7 +72,7 @@ if($row = mysqli_fetch_array($result)) {
 			$sql_onbekend = "INSERT INTO $TableWOZ ($WOZFundaID, $WOZLastCheck) VALUES ($fundaID, ". time() .")";
 					
 			if(mysqli_query($db, $sql_onbekend)) {
-				toLog('info', '0', $fundaID, 'WOZ-waarde kon niet opgevraagd worden');
+				toLog('info', '0', $fundaID, 'WOZ-waarde kon niet '. (isset($refresh) ? 'ververst' : 'opgevraagd') .' worden');
 			} else {
 				toLog('error', '0', $fundaID, 'Wegschrijven van fout bij WOZ-waarde ging zelf ook fout');
 			}			
