@@ -69,6 +69,9 @@ if($row = mysqli_fetch_array($result)) {
 			
 		# Geen array, maar boolean false teruggekregen
 		} elseif(!$WOZwaardes) {
+			# Oude data verwijderen
+			if($opschonen)	mysqli_query($db, "DELETE FROM $TableWOZ WHERE $WOZFundaID = $fundaID AND $WOZJaar = 0");
+			
 			$sql_onbekend = "INSERT INTO $TableWOZ ($WOZFundaID, $WOZLastCheck) VALUES ($fundaID, ". time() .")";
 					
 			if(mysqli_query($db, $sql_onbekend)) {
