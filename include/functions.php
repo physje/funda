@@ -2676,7 +2676,7 @@ function extractWOZwaarde($fundaID) {
 		$postcode = $data['PC_c'].$data['PC_l'];
 	}
 	
-	$url = "https://drimble.nl/adres/". strtolower($data['plaats']) ."/$postcode/". convert2FundaStyle($adres) .".html";
+	$url = "https://drimble.nl/adres/". strtolower($data['plaats']) ."/$postcode/". convert2FundaStyle(formatStreetAndNumber($fundaID)) .".html";
 	$contents = file_get_contents_retry($url);
 	
 	if(strpos($contents, 'Page not found / Adres niet gevonden.')) {
