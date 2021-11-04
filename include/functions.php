@@ -449,7 +449,7 @@ function formatStreetAndNumber($id) {
 	if($data['toevoeging'] == '') {
 		return $data['straat'].' '.$data['nummer'].strtoupper($data['letter']);
 	} else {
-		return $data['straat'].' '.$data['nummer'].' '.strtoupper($data['letter']).$data['toevoeging'];
+		return $data['straat'].' '.$data['nummer'].strtoupper($data['letter']).' '.$data['toevoeging'];
 	}
 }
 
