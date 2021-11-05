@@ -2185,6 +2185,7 @@ function convert2FundaStyle($string) {
 	$string = str_replace ('ë', 'e',$string);
 	$string = str_replace ('ä', 'a',$string);
 	$string = str_replace ('ü', 'u',$string);
+	$string = str_replace ('ö', 'o',$string);	
 	$string = str_replace ('&#224;', 'a',$string);
 	$string = str_replace ('&#225;', 'a',$string);
 	$string = str_replace ('&#228;', 'a',$string);
