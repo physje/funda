@@ -78,8 +78,13 @@ if($row = mysqli_fetch_array($result)) {
 				toLog('info', '0', $fundaID, 'WOZ-waarde kon niet '. (isset($refresh) ? 'ververst' : 'opgevraagd') .' worden');
 			} else {
 				toLog('error', '0', $fundaID, 'Wegschrijven van fout bij WOZ-waarde ging zelf ook fout');
-			}			
+			}
+			
+			# Stel, de WOZ-waarde is niet meer te vinden terwijl dat vorige keer nog wel zo was.
+			# Dan moet de tijd van die check aangepast worden, anders blijft hij daar op hangen
+			if($opschonen)	mysqli_query($db, "UPDATE $TableWOZ SET $WOZLastCheck = ". time() ." WHERE $WOZFundaID = $fundaID");
 		}
+				
 		sleep(3);
 		$block[] = implode('<br>', $string);
 		
