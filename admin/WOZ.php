@@ -14,7 +14,7 @@ if(isset($_REQUEST['id'])) {
 	$sql = "SELECT $HuizenID FROM $TableHuizen WHERE $HuizenID like ". $_REQUEST['id'];
 	$opschonen = true;
 } else {
-	$sql = "SELECT $HuizenID FROM $TableHuizen h WHERE NOT EXISTS (SELECT $WOZFundaID FROM $TableWOZ w WHERE h.$HuizenID = w.$WOZFundaID) ORDER BY $HuizenEind DESC LIMIT 0,2";
+	$sql = "SELECT $HuizenID FROM $TableHuizen h WHERE NOT EXISTS (SELECT $WOZFundaID FROM $TableWOZ w WHERE h.$HuizenID = w.$WOZFundaID) AND $HuizenDetails = '0' ORDER BY $HuizenEind DESC LIMIT 0,2";
 	$opschonen = false;		
 }
 $result = mysqli_query($db, $sql);
