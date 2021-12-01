@@ -87,7 +87,7 @@ function getOpdrachtData($id) {
 #
 # OUTPUT
 #		String met de inhoud van de pagina
-function file_get_contents_retry($url, $maxTry = 3) {
+function file_get_contents_retry($url, $maxTry = 3, $curl = false) {
 	$contents = false;
 	$counter = 0;
 	
@@ -95,20 +95,24 @@ function file_get_contents_retry($url, $maxTry = 3) {
 
 	while($contents === false AND $counter < $maxTry) {
 		if($counter > 0)	{	sleep(2);	}		
-				
-		$curl_handle=curl_init();
-		curl_setopt($curl_handle, CURLOPT_URL,$url);
-		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
-		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl_handle, CURLOPT_POST, false);
-		curl_setopt($curl_handle, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($curl_handle, CURLOPT_USERAGENT, $useragents[rand(0, (count($useragents))-1)]);
-		//curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.4 (like Gecko)');
-		$contents = curl_exec($curl_handle);
-		curl_close($curl_handle);
+		if($curl) {
+			$curl_handle=curl_init();
+			curl_setopt($curl_handle, CURLOPT_URL,$url);
+			curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
+			curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($curl_handle, CURLOPT_POST, false);
+			curl_setopt($curl_handle, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($curl_handle, CURLOPT_USERAGENT, $useragents[rand(0, (count($useragents))-1)]);
+			//curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.4 (like Gecko)');
+			$contents = curl_exec($curl_handle);
+			curl_close($curl_handle);
+		} else {
+			$contents = file_get_contents($url);
+		}
+		
 		$counter++;
 		
-		# echo '{'. $contents .'}';		
+		//echo '{'. $contents .'}';		
 	}
 	
 	return $contents;
@@ -2678,8 +2682,8 @@ function extractWOZwaarde($fundaID) {
 	}
 	
 	$url = "https://drimble.nl/adres/". strtolower($data['plaats']) ."/$postcode/". convert2FundaStyle(formatStreetAndNumber($fundaID)) .".html";
-	$contents = file_get_contents_retry($url);
-	
+	$contents = file_get_contents_retry($url, 3, true);
+		
 	if(strpos($contents, 'Page not found / Adres niet gevonden.')) {
 		toLog('debug', '0', $fundaID, 'Adres bestaat niet voor WOZ; '. $adres);
 		toLog('debug', '0', $fundaID, $url);
@@ -2693,7 +2697,7 @@ function extractWOZwaarde($fundaID) {
 	} else {			
 		$WOZ = getString('<td colspan="2" style="font-size:18px;padding-top:3px;padding-bottom:3px;">WOZ-waarde', '<td colspan="2" style="font-size:16px;padding-top:3px;padding-bottom:3px;background-color:#404040;color:#fff">', $contents, 0);
 		$aWOZ = explode('style="width:20%;">Peildatum ', $WOZ[0]);
-		
+				
 		# Een array van 1 betekent dat er geen WOZ-waardes bekend zijn
 		if(count($aWOZ) < 2) {
 			toLog('debug', '0', $fundaID, 'Geen WOZ-waardes bekend');
