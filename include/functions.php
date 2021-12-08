@@ -2190,14 +2190,37 @@ function convert2FundaStyle($string) {
 	$string = str_replace ('ä', 'a',$string);
 	$string = str_replace ('ü', 'u',$string);
 	$string = str_replace ('ö', 'o',$string);	
-	$string = str_replace ('&#224;', 'a',$string);
-	$string = str_replace ('&#225;', 'a',$string);
-	$string = str_replace ('&#228;', 'a',$string);
-	$string = str_replace ('&#232;', 'e',$string);
-	$string = str_replace ('&#233;', 'e',$string);
-	$string = str_replace ('&#235;', 'e',$string);	
+	$string = str_replace ('&#224;', 'a',$string);	# à
+	$string = str_replace ('&#225;', 'a',$string);	# á
+	$string = str_replace ('&#226;', 'a',$string);	# â
+	$string = str_replace ('&#227;', 'a',$string);	# ã
+	$string = str_replace ('&#228;', 'a',$string);	# ä
+	$string = str_replace ('&#229;', 'a',$string);	# å	
+	#$string = str_replace ('&#230;', '',$string);	# æ 
+	$string = str_replace ('&#231;', 'c',$string);	# ç
+	$string = str_replace ('&#232;', 'e',$string);	# è
+	$string = str_replace ('&#233;', 'e',$string);	# é
+	$string = str_replace ('&#234;', 'e',$string);	# ê
+	$string = str_replace ('&#235;', 'e',$string);	# ë
+	$string = str_replace ('&#236;', 'i',$string);	# ì
+	$string = str_replace ('&#237;', 'i',$string);	# í
+	$string = str_replace ('&#238;', 'i',$string);	# î
+	$string = str_replace ('&#239;', 'i',$string);	# ï
+	#$string = str_replace ('&#240;', '',$string);	# ð
+	#$string = str_replace ('&#241;', '',$string);	# ñ
+	$string = str_replace ('&#242;', 'o',$string);	# ò
+	$string = str_replace ('&#243;', 'o',$string);	# ó
+	$string = str_replace ('&#244;', 'o',$string);	# ô
+	$string = str_replace ('&#245;', 'o',$string);	# õ
+	$string = str_replace ('&#246;', 'o',$string);	# ö
+	#$string = str_replace ('&#247;', '',$string);	# ÷
+	$string = str_replace ('&#248;', 'o',$string);	# ø
+	$string = str_replace ('&#249;', 'u',$string);	# ù
+	$string = str_replace ('&#250;', 'u',$string);	# ú
+	$string = str_replace ('&#251;', 'u',$string);	# û	
+	$string = str_replace ('&#252;', 'u',$string);	# ü	
 	$string = str_replace ('&#39;', '',$string);
-		
+				
 	return strtolower($string);
 }
 
