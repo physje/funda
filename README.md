@@ -1,5 +1,9 @@
 # funda
 
+## Kapot
+Op dit moment lijkt de partner-api van funda niet (meer) te werken. Daarmee is dit script dus ook kapot.
+Heb nog geen manier gevonden om toch bij de data te kunnen. Mocht je die wel weten, laat het weten.
+
 ## Twee branches
 Funda vindt mij niet meer zo lief dus heeft de boel dichtgegooid.
 Heb de code tot dantoe in de branch 'scraper' ondergebracht voor wie geintereseerd is. Maar die branch werkt bij mij dus niet meer.... misschien bij jou nog wel, maar ik kan het dus niet meer testen en onderhoud die dus ook niet.
