@@ -600,7 +600,8 @@ function extractFundaDataFromPage($offlineHTML) {
 	$PC					= getString('<span class="object-header__subtitle fd-color-dark-3">', '<a class="', $contents, 0);
 	$makelaar		= getString('">', '</a>', $makelHTML[0], 0);
 	$foto				=	getString('<meta itemprop="image" content="', '"', $offlineHTML, 0);
-	
+	$start			= getString("'aangebodensinds' : '", "',", $offlineHTML, 0);
+		
 	$postcode		= explode(" ", trim($PC[0]));
 	$onderdelen		= splitStreetAndNumberFromAdress($adresClean);
 	
@@ -616,9 +617,11 @@ function extractFundaDataFromPage($offlineHTML) {
 	$data['plaats']		= implode(' ', array_slice($postcode, 2));	
 	$data['thumb'] = preg_replace ('/_(\d+).jpg/', '_360x240.jpg', $foto[0]);
 	$data['makelaar']	= trim($makelaar[0]);
+	$data['start']		= guessDate($start[0], true);
 	$data['prijs']		= cleanPrice($prijs[0]);
 	$data['verkocht']	= $verkocht;
 	$data['openhuis']	= $openhuis;
+	
 	
 	if($verkocht == 1) {
 		$oldData = getFundaData($data['id']);
@@ -1306,7 +1309,7 @@ function changeThumbLocation($string) {
 }
 
 
-function guessDate($string) {	
+function guessDate($string, $number = false) {	
 	$string = str_ireplace('zondag ', '', $string);
 	$string = str_ireplace('maandag ', '', $string);
 	$string = str_ireplace('dinsdag ', '', $string);
@@ -1353,10 +1356,16 @@ function guessDate($string) {
 				$delen[2] = date('Y');
 			}
 		}		
-		$string = implode('-', $delen);
+		$output = implode('-', $delen);
+	} else {
+		return false;
 	}
 	
-	return $string;
+	if($number) {
+		$output = mktime(0, 0, 1, $delen[1], $delen[0], $delen[2]);
+	}
+	
+	return $output;
 }
 
 

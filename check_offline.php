@@ -43,8 +43,8 @@ foreach($files as $file) {
 	# 	Detail pagina van een individueel huis	
 	
 	# in de HTML-code staat altijd de bezochte URL
-	# Die moeten wij zien te vinden
-	$appHeaderLink	= getString('appheader-English-link" class="app-header__link" href="', '" hreflang=', $contents, 0);
+	# Die moeten wij zien te vinden	
+	$appHeaderLink	= getString('href="/language/switch/?returnUrl=', '" hreflang=', $contents, 0);
 	$pageURL		= getString('/koop/', '', urldecode($appHeaderLink[0]), 0);	
 	$zoekURL		= '/koop/'.$pageURL[0];
 		
@@ -154,8 +154,7 @@ foreach($files as $file) {
 			
 			# Huis is al bekend bij het script
 			# We moeten dus aangeven dat hij nog steeds op de markt is
-			if(!$verkocht) {
-				
+			if(!$verkocht) {				
 				if(!updateAvailability($data['id'])) {
 					echo "<font color='red'>Updaten van <b>". formatStreetAndNumber($data['id']) ."</b> is mislukt</font> | $sql<br>\n";
 					$ErrorMessage[] = "Updaten van ". formatStreetAndNumber($data['id']) ." is mislukt";
@@ -201,7 +200,7 @@ foreach($files as $file) {
 					# Aanvinken om in een later stadium de details op te vragen
 					mark4Details($data['id']);
 				}
-			# Het geval dat verkocht wordt teruggedraaid (hypotetisch)
+			# Het geval dat verkocht wordt teruggedraaid (hypothetisch)
 			} elseif(soldHouse($data['id'])) {
 				$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."'";
 				mysqli_query($db, $sql);
@@ -272,13 +271,19 @@ foreach($files as $file) {
 					
 			# Meestal zal het huis wel bekend zijn
 			} else {
+				$oldData = getFundaData($fundaID);
+				
 				updateHouse($data, $extraData);
 				//addCoordinates($data['adres'], $data['PC_c'], $data['plaats'], $fundaID);
 				updatePrice($fundaID, $data['prijs'], time());
 				
 				# Als hij nog niet verkocht is moeten wij dat aangeven
 				if($data['verkocht'] != 1) {
-					updateAvailability($fundaID);
+					if($oldData['start'] > $data['start']) {
+						updateAvailability($fundaID, $data['start']);
+					} else {
+						updateAvailability($fundaID);
+					}
 					addUpdateStreetDb($data['straat'], $data['plaats']);
 					addUpdateWijkDb($data['wijk'], $data['plaats']);
 		
