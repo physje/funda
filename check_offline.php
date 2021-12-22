@@ -20,14 +20,13 @@ if ($handle = opendir($offlineDir)) {
 	closedir($handle);
 }
 
-
 $debug = 0;
 
 # Doorloop alle offline-bestanden
 foreach($files as $file) {
 	# Alles initialiseren
 	set_time_limit (30);	
-	$String = $AdressenArray = array();
+	$String = $Huizen = $AdressenArray = array();
 	$OpdrachtID = 0;
 	$succes = $detail = $verkocht = $overzicht = false;
 	
@@ -93,22 +92,33 @@ foreach($files as $file) {
 			toLog('info', $OpdrachtID, '0', 'Inladen pagina voor '. $OpdrachtData['naam']);
 		}
 			
-		# Code opknippen zodat er een array met HTML-code voor een huis ontstaat		
-		$Huizen			= explode('<div class="search-result-media">', $contents);
-		$Huizen			= array_slice($Huizen, 1);		
+		# Code opknippen zodat er een array met HTML-code voor een huis ontstaat
+		# De eerste keer voor "normale" huizen
+		$tempHuizen			= explode('<div class="search-result-media">', $contents);
+				
+		# De tweede keer voor "Blikvangers", dat zijn huizen die extra groot op funda staan
+		foreach($tempHuizen as $tempText) {
+			$nieuweHuizen			= explode('<div class="search-result-main-promo">', $tempText);			
+			$Huizen = array_merge($Huizen, $nieuweHuizen);
+		}
+		
+		# Eerste element is rubbish
+		$Huizen			= array_slice($Huizen, 1);
+		
+		# $Huizen is nu een array met per huis de HTML-code
 		$NrPageHuizen		= count($Huizen);
 		
-		if($debug == 1) {
+		if($debug > 0) {
 			$block[] = "Aantal huizen in <a href='$bestand'>$file</a> : ". $NrPageHuizen ."<br>\n";
 		}
 		
 		# Doorloop nu alle gevonden huizen op de overzichtspagina
-		foreach($Huizen as $HuisText) {			
+		foreach($Huizen as $HuisText) {
 			# Extraheer hier adres, plaats, prijs, id etc. uit
 			$data = extractFundaData($HuisText, $verkocht);
 			$AdressenArray[] = $data['adres'];
 							
-			if($debug == 1) {
+			if($debug == 2) {
 				$tempItems = array();
 				foreach($data as $key => $value) {
 					$tempItems[] = $key .' -> '. $value;
@@ -247,6 +257,9 @@ foreach($files as $file) {
 			
 		toLog('debug', $OpdrachtID, '0', "Einde pagina (". count($AdressenArray) ." huizen)");		
 	
+		if($debug == 1) {
+			$block[] = implode("<br>", $AdressenArray)."\n";
+		}
 	
 	
 	

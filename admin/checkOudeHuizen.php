@@ -8,20 +8,20 @@ $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 
 if(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'jaar') {
-	$startdag = mktime(0, 0, 0, date("n"), date("j")-1, date("Y")-1);
-	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));
+	$startdag = mktime(0, 0, 0, date("n"), date("j"), date("Y")-1);
+	$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));
 } elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'kwartaal') {
-	$startdag = mktime(0, 0, 0, date("n")-3, date("j")-1, date("Y"));
-	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));
+	$startdag = mktime(0, 0, 0, date("n")-3, date("j"), date("Y"));
+	$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));
 } elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'maand') {
-	$startdag = mktime(0, 0, 0, date("n")-1, date("j")-1, date("Y"));
-	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));	
+	$startdag = mktime(0, 0, 0, date("n")-1, date("j"), date("Y"));
+	$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));	
 } elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'week') {
-	$startdag = mktime(0, 0, 0, date("n"), date("j")-9, date("Y"));
-	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));
+	$startdag = mktime(0, 0, 0, date("n"), date("j")-7, date("Y"));
+	$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));
 } elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'dag') {
-	$startdag = mktime(0, 0, 0, date("n"), date("j")-3, date("Y"));
-	$einddag	= mktime(0, 0, 0, date("n"), date("j")-2, date("Y"));	
+	$startdag = mktime(0, 0, 0, date("n"), date("j")-1, date("Y"));
+	$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));	
 } else {
 	$sql_straat			= "SELECT min($StratenLastCheck) as min FROM $TableStraten WHERE $StratenActive like '1'";
 	$result_straat	= mysqli_query($db, $sql_straat);
