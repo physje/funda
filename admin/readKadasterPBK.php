@@ -56,7 +56,7 @@ if($type == 'regio') {
 # 	{bestandsnaam} = vrij te kiezen
 
 $url = "https://vastgoeddashboard.kadaster.nl/VastgoedProxy/api/v1/$PBK/export?F-P=Y". $jaar ."&F-TG=". $periode ."&C-C=". $categorie ."&filename=". time() .".xlsx";
-$data = file_get_contents_retry($url);
+$data = file_get_contents_retry($url, 3, true);
 file_put_contents('PBK.xlsx', $data);
 
 $newEntry = $sendPushover = false;
@@ -158,7 +158,7 @@ foreach ($Reader as $velden) {
     	$eind	=  mktime (0, 0, 0, ($kwartaal+1), 1, $jaar) - 1;
     }
 	
-	  //echo $jaar .';'. $kwartaal .' ('. date('d-m', $start).' tm '. date('d-m', $eind) .') -> '. $prijsindex.' -> '. $regio .'<br>';
+	  echo $jaar .';'. $kwartaal .' ('. date('d-m', $start).' tm '. date('d-m', $eind) .') -> '. $prijsindex.' -> '. $regio .'<br>';
 	    
 		foreach($PIArray as $key => $prijsindex_en) {
 	  	$regio = $naam[$key];

@@ -48,7 +48,7 @@ $admin['admin/downloadDailyExport.php']	= 'Download XLS-file';
 if($_SESSION['level'] > 1) {
 	$admin['admin/dailyExport.php']				= 'Genereer excel-bestand';	
 	$admin['teKoopVerkocht.php']				= 'Overzicht van nieuwe/verkochte huizen per periode';
-	$admin['admin/showVerdeling.php']			= 'Overzicht van welke opdracht wanneer wordt uitgevoerd';
+	$admin['admin/showVerdeling.php']			= 'Overzicht van welke opdracht wanneer wordt uitgevoerd';	
 }
 $admin['admin/HouseDetails.php']			= 'Bekijk details van een huis';
 $admin['admin/addUnknownHouse.php']		= 'Voeg (nog) onbekend huis toe';
@@ -61,7 +61,8 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['check.php']											= 'Check funda';
 	$onderhoud['admin/checkOudeHuizen.php']			= 'Zie welke huizen al even van de radar zijn';
 	$onderhoud['admin/details2Download.php']		= 'Overzicht van huizen waar de details van ontbreken';
-	$onderhoud['upload_offline.php']						= 'Upload files met funda-HTML';	
+	$onderhoud['upload_offline.php']						= 'Upload files met funda-HTML';
+	$onderhoud['onderhoud/openAllZoekopdrachten.php']			= 'Open alle paginas van alle zoekopdrachten op funda.nl';
 	$onderhoud['check_online.php']							= 'Controleer of huizen nog online zijn';	
 	$onderhoud['check_openhuis.php']							= 'Check welke huizen open huis hebben';	
 	$onderhoud['admin/edit_streets.php']				= 'Wijzig de straten';
