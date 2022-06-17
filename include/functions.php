@@ -678,21 +678,24 @@ function extractFundaDataFromPage($offlineHTML) {
 	}
 	
 	# Foto	
-	$content_fotos	= getString('<section class="object-media" data-object-media>', '</section>', $contents, 0);
+	$content_fotos	= getString('<section class="object-media', '</section>', $contents, 0);
 	
 	if($content_fotos[0] != "") {
 		$picture		= array();		
-		$cleanFotoContent 	= str_replace('<div class="object-media-foto ">', '<div class="object-media-foto">', $content_fotos[0]);		
-		$carousel		= explode('<div class="object-media-foto">', $cleanFotoContent);
+		#$cleanFotoContent 	= str_replace('<div class="object-media-foto ">', '<div class="object-media-foto">', $content_fotos[0]);
+		$cleanFotoContent 	= $content_fotos[0];
+		$carousel		= explode('<div class="object-media-foto ', $cleanFotoContent);
 		array_shift($carousel);
 			
 		foreach($carousel as $key => $value) {
 			if(strpos($value, 'data-lazy-srcset=')) {
-				$thumb = getString('data-lazy-srcset="', ' ', $value, 0);
-				$picture[] = preg_replace ('/_(\d+).jpg/', '_180x120.jpg', $thumb[0]);
+				$thumb = getString('data-lazy-srcset="', ', ', $value, 0);
+				#$picture[] = preg_replace ('/_(\d+).jpg/', '_180x120.jpg', $thumb[0]);
+				$picture[] = preg_replace ('/_(\d+).jpg/', '_360x240.jpg', $thumb[0]);
 			} else {
 				$thumb = getString('src="', '"', $value, 0);
-				$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_180x120.jpg', $thumb[0]);
+				#$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_180x120.jpg', $thumb[0]);
+				$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $thumb[0]);
 			}
 		}
 		
