@@ -42,8 +42,12 @@ foreach($files as $file) {
 	# 	Detail pagina van een individueel huis	
 	
 	# in de HTML-code staat altijd de bezochte URL
-	# Die moeten wij zien te vinden	
-	$appHeaderLink	= getString('href="/language/switch/?returnUrl=', '" hreflang=', $contents, 0);
+	# Die moeten wij zien te vinden
+	if(strpos($contents, 'https://www.funda.nl/mijn/login/?ReturnUrl=')) {    
+	    $appHeaderLink	= getString('https://www.funda.nl/mijn/login/?ReturnUrl=', '"', $contents, 0);
+	} else {
+	    $appHeaderLink	= getString('link rel="canonical" href="', '"', $contents, 0);
+	}
 	$pageURL		= getString('/koop/', '', urldecode($appHeaderLink[0]), 0);	
 	$zoekURL		= '/koop/'.$pageURL[0];
 		
