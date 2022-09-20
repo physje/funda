@@ -678,18 +678,18 @@ function extractFundaDataFromPage($offlineHTML) {
 	}
 	
 	# Foto	
-	$content_fotos	= getString('<section class="object-media', '</section>', $contents, 0);
+	$content_fotos	= getString('<ol class="grid list-none ', '</section>', $offlineHTML, 0);
 	
 	if($content_fotos[0] != "") {
 		$picture		= array();		
 		#$cleanFotoContent 	= str_replace('<div class="object-media-foto ">', '<div class="object-media-foto">', $content_fotos[0]);
 		$cleanFotoContent 	= $content_fotos[0];
-		$carousel		= explode('<div class="object-media-foto ', $cleanFotoContent);
+		$carousel		= explode('<li class=', $cleanFotoContent);
 		array_shift($carousel);
-			
+		
 		foreach($carousel as $key => $value) {
 			if(strpos($value, 'data-lazy-srcset=')) {
-				$thumb = getString('data-lazy-srcset="', ', ', $value, 0);
+				$thumb = getString('data-lazy-srcset="', ' ', $value, 0);
 				#$picture[] = preg_replace ('/_(\d+).jpg/', '_180x120.jpg', $thumb[0]);
 				$picture[] = preg_replace ('/_(\d+).jpg/', '_360x240.jpg', $thumb[0]);
 			} else {
@@ -2581,7 +2581,7 @@ function guessOpdrachtIDFromHTML($zoekURL) {
 	$cleanZoekString = str_replace('/sorteer-afmelddatum-af/', '/', $cleanZoekString);
 	$cleanZoekString = str_replace('/open-huis/', '/', $cleanZoekString);
 	
-	// echo "<b>$cleanZoekString</b><br>";
+	//echo "<b>$cleanZoekString</b><br>";
 	
 	# Door hem op te knippen zien wij welke filters er actief zijn
 	$filtersZoekenTemp = explode('/', $cleanZoekString);
