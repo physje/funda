@@ -8,6 +8,7 @@ $db = connect_db();
 # Iedereen kan deze pagina dus in principe openen.
 
 $manual = false;
+$counter = 0;
 $HTMLMessageNeg = $HTMLMessage = $key_1 = $key_2 = array();
 
 if(isset($_REQUEST['id_1']) AND isset($_REQUEST['id_2'])) {
@@ -150,6 +151,7 @@ if(count($key_1) > 0) {
 				toLog('info', '0', $id_oud, "Verwijderd uit opdracht (is nu $id_new)");
 			}
 			$verwijderd = true;
+			$counter++;
 		}
 		
 		$Item  = "<table width='100%'>\n";
@@ -236,7 +238,7 @@ if(count($key_1) > 0) {
 			toLog('info', '0', '0', "Mail nav opschoonwerkzaamheden verstuurd");
 		}
 		
-		send2Pushover(array('title' => 'Opschoonwerkzaamheden', 'message' => count($HTMLMessage) .' huizen opgeruimd'), array(1));
+		send2Pushover(array('title' => 'Opschoonwerkzaamheden', 'message' => $counter .' huizen opgeruimd'), array(1));
 	}
 } else {
 	echo "Geen werk aan de winkel<br>";

@@ -276,18 +276,18 @@ function extractFundaData($HuisText, $verkocht = false) {
 		$R_naam	= getString('<span class="search-result-makelaar-name">', '</span>', $PC[1], 0);
 	}
 			
-	$param		= getString('<ul class="labels">', '</ul>', $PC[1], 0);	
+	#$param		= getString('<ul class="labels">', '</ul>', $PC[1], 0);	
 	$fotoURL	= getString('calc(100vw - 2rem)', 'srcset="">', $HuisText, 0);
 	$foto			= getString('src="', '"', $fotoURL[0], 0);
 	
 	# Nu al het knippen geweest is kan de geknipte data "geprocesed" worden		
-	if(strpos($param[0], 'Verkocht onder voorbehoud')) {
+	if(strpos($HuisText, '<li class="label label-transactie-voorbehoud">')) {
 		$voorbehoud = 1;
 	} else {
 		$voorbehoud = 0;
 	}
 	
-	if(strpos($param[0], 'label-open-huis') OR strpos($param[0], 'label-nvm-open-huizen-dag"')) {
+	if(strpos($HuisText, '<li class="label label-nvm-open-huizen-dag">')) {
 		$openhuis = 1;
 	} else {
 		$openhuis = 0;
