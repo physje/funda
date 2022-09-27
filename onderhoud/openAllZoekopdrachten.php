@@ -35,7 +35,7 @@ if(!isset($_REQUEST['close'])) {
 		$p=1;
 	}
 
-	if(count($Opdrachten) > ($i+2)) {	
+	if(count($Opdrachten) > $i) {	
 		echo "<meta http-equiv=\"refresh\" content=\"0;URL=openAllZoekopdrachten.php?i=$i&p=$p\" />";
 	} else {
 		echo "<meta http-equiv=\"refresh\" content=\"0;URL=openAllZoekopdrachten.php?close\" />";
