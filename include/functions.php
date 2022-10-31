@@ -287,7 +287,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 		$voorbehoud = 0;
 	}
 	
-	if(strpos($HuisText, '<li class="label label-nvm-open-huizen-dag">')) {
+	if(strpos($HuisText, '<li class="label label-nvm-open-huizen-dag">') OR strpos($HuisText, '<li class="label label-open-huis">')) {
 		$openhuis = 1;
 	} else {
 		$openhuis = 0;
