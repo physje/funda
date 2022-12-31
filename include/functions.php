@@ -600,7 +600,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	$PC					= getString('<span class="object-header__subtitle fd-color-dark-3">', '<a class="', $contents, 0);
 	$makelaar		= getString('">', '</a>', $makelHTML[0], 0);
 	$foto				=	getString('<meta itemprop="image" content="', '"', $offlineHTML, 0);
-	$start			= getString("'aangebodensinds' : '", "',", $offlineHTML, 0);
+	$start			= getString("aangebodensinds=", "&", $offlineHTML, 0);
 		
 	$postcode		= explode(" ", trim($PC[0]));
 	$onderdelen		= splitStreetAndNumberFromAdress($adresClean);
@@ -669,7 +669,7 @@ function extractFundaDataFromPage($offlineHTML) {
 		//$Waarde = getString('<dd class="fd-flex--bp-m fd-flex-wrap fd-align-items-center">', '</dd>', $kenmerk, 0);
 		$Waarde = getString('<span class="fd-m-right-xs">', '</span>', $kenmerk, 0);
 		
-		if(strpos($Waarde[0], '<span class="">')) {
+		if(strpos($Waarde[0], '<span class="">') OR strpos($Waarde[0], '<span class>')) {
 			$Waarde = getString('<dd class="fd-flex--bp-m fd-flex-wrap fd-align-items-center">', '</dd>', $kenmerk, 0);
 		}
 				
@@ -679,7 +679,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	
 	# Foto	
 	$content_fotos	= getString('<ol class="grid list-none ', '</section>', $offlineHTML, 0);
-	
+		
 	if($content_fotos[0] != "") {
 		$picture		= array();		
 		#$cleanFotoContent 	= str_replace('<div class="object-media-foto ">', '<div class="object-media-foto">', $content_fotos[0]);
@@ -692,7 +692,7 @@ function extractFundaDataFromPage($offlineHTML) {
 				$thumb = getString('data-lazy-srcset="', ' ', $value, 0);
 				#$picture[] = preg_replace ('/_(\d+).jpg/', '_180x120.jpg', $thumb[0]);
 				$picture[] = preg_replace ('/_(\d+).jpg/', '_360x240.jpg', $thumb[0]);
-			} else {
+			} elseif(!strpos($value, 'data:')) {
 				$thumb = getString('src="', '"', $value, 0);
 				#$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_180x120.jpg', $thumb[0]);
 				$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $thumb[0]);
