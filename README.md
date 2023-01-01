@@ -1,10 +1,16 @@
 # funda
 
 ## Kapot
+
 Op dit moment lijkt de partner-api van funda niet (meer) te werken. Daarmee is dit script dus ook kapot.
-Heb nog geen manier gevonden om toch bij de data te kunnen. Mocht je die wel weten, laat het weten.
+Heb nog geen manier gevonden om toch geautomatiseerd bij de data te kunnen. Mocht je die wel weten, laat het weten.
+
+Op dit moment laad ik de data eens in de zoveel tijd handmatig in.
+Maak daarvoor gebruik van de optie 'Open alle paginas van alle zoekopdrachten op funda.nl' icm met de Chrome-extentie [https://chrome.google.com/webstore/detail/singlefile/mpiodijhokgodhhofbcjdecpffjipkle](SingleFile) die alle tabs 1-voor-1 als HTML opslaat.
+Mocht je die extentie ook willen gebruiken, een export van de SingeFile-instellingen die bij mij werken staat in de map 'Onderhoud' ([onderhoud/2022-12-31-singlefile-settings-FundaAlert.json](2022-12-31-singlefile-settings-FundaAlert.json))
 
 ## Twee branches
+
 Funda vindt mij niet meer zo lief dus heeft de boel dichtgegooid.
 Heb de code tot dantoe in de branch 'scraper' ondergebracht voor wie geintereseerd is. Maar die branch werkt bij mij dus niet meer.... misschien bij jou nog wel, maar ik kan het dus niet meer testen en onderhoud die dus ook niet.
 Dat Funda mij blokkeert heeft er volgens mij mee te maken dat het script geen JavaScript oid ondersteunt en zij daarom 'ontdekken' dat het een script is en geen echt persoon. Mocht jij een manier hebben om dat te omzeilen : hoor het graag :)
@@ -12,9 +18,11 @@ Dat Funda mij blokkeert heeft er volgens mij mee te maken dat het script geen Ja
 De 'master-branch' heb ik omgebouwd, die werkt nu op basis van de RSS-feeds van funda.nl. Die feeds zijn echter veel minder uitgebreid dus die branch heeft veel minder functionaliteiten.
 
 ## Introductie
+
 Funda Alert is een script om funda.nl in de gaten te houden en daar "statistiek" op te doen.
 
 ## Concept
+
 Zoals gezegd werkt de master-branch op basis van de RSS-feed. Dat maakt wel dat enige creatieviteit nodig is om aantal zaken op te lossen.
 Daarom eerst even het concept: De RSS-feed bevat maximaal 15 huizen, dat is bij de meeste zoekopdrachten veel te weinig om compleet te zijn. Daarom kan check.php op 2 of 3 verschillende manieren checken.
 De eerste manier is de reguliere zoekopdracht: als je deze met zo'n tijdsinterval runt dat er sinds de vorige keer niet meer dan 15 nieuwe huizen zijn bijgekomen, kan je alle nieuwe huizen opmerken.
@@ -22,6 +30,7 @@ De tweede en derde manier is door op straat- en wijkniveau funda te checken. Van
 Beide manieren van checken gebeuren in check.php. Afhankelijk van het aantal minuten na het hele uur wordt of de 1ste of de 2de/3de manier gekozen.
 
 ## Configureren
+
 Om te beginnen moeten alle bestanden op een server geplaatst worden die verbinding heeft met internet (duh). Vergeet niet de bestanden uit de map MOVE_THIS_FOLDER naar de juiste plek te verplaatsen op de server. Als alle bestanden op de juiste plek staan moeten de variabelen in /include/config.php en ../general_include/general_config.php worden aangepast naar de in jouw geval geldende waarden.
 Er zijn daar 2 tokens die ingevuld kunnen/moeten worden.
 * De eerste is $OverheidAPI, deze wordt gebruikt in de functie 'findPCbyAdress' om op basis van openData van de overheid de postcode van een adres te vinden. Normaal haalt het script deze van de HTML-pagina van funda, maar moocht dat om een of andere reden niet lukken, dan kan je deze functie gebruiken (zie addPostcode.php helemaal onderaan deze pagina). Deze API-key is aan te maken via https://overheid.io (account aanmaken en dan API genereren).
@@ -40,6 +49,7 @@ De tijdstippen kan je zelf varieëren, maar ik heb de volgende jobs draaien :
 Let op: zoals bij 'Concept' uitgelegd, bepaalt check.php op basis van het aantal minuten na het hele uur of een reguliere opdracht wordt uitgevoerd of dat er een check van straten of wijken gedaan moet worden (regel 25 ev). Als je deze cronjob dus niet of anders overneemt moet je even kijken of het script nog wel juist functioneert.
 
 ## Aan de slag
+
 Standaard bestaat er een admin-account ('Admin'/'admin') waarmee je als administrator kunt inloggen. Vervolgens kan je op de index-pagina inloggen en 'van alles' regelen. Afhankelijk van je rechten kan je verschillende zaken wijzigen op de site.
 * Om te beginnen kan je een of meer zoekopdrachten ingeven ("Zoekopdrachten" -> Nieuw). Het veld 'Naam' is hier de naam van de opdracht (bv 'Huizen in Amsterdam'), het veld 'URL' de url van de zoekopdracht (bv 'http://www.funda.nl/koop/amsterdam/') en de check-boxen onder 'Pagina controleren om :' op welke uren de opdracht wordt uitgevoerd. Als er geen checkboxen worden aangevinkt is de opdracht in feite inactieve. Door een opdracht inactief te zetten blijft de data wel bewaard maar wordt de opdracht niet uitgevoerd door het script.
 * Bij zoekopdrachten kan je aangeven of je bij een nieuw huis hier een pushover-bericht van wil krijgen. Dat kan je op de overzichtspagina voor elke opdracht aan- en uitvinken.
@@ -58,6 +68,7 @@ Standaard bestaat er een admin-account ('Admin'/'admin') waarmee je als administ
 Daarnaast kan je daar je mailadres, account-type en Pushover-gegegevens invoeren. Dat laatste is noodzakelijk om Pushover-meldingen te krijgen als er nieuwe huizen beschikbaar zijn gekomen.
 
 ## Onderhoud (alleen beschikbaar voor Administrator)
+
 Als het script enige tijd draait zal de database vervuild raken (dat ligt niet aan het script, dat ligt aan het feit dat makelaars huizen soms meerdere keren er opzetten of huizen er afhalen en dan na een paar dagen weer op zetten).
 Het script heeft verschillende mogelijkheden waarmee de database opgeschoond kan worden :
 * Dubbele huizen kunnen automatisch (via "voeg hits automatisch samen") of handmatig (via "voeg hits handmatig samen") worden samengevoegd. Op basis van straatnaam, huisnummer, woonplaats en tijd tussen off- en online komen van een huis zoekt het script huizen die waarschijnlijk hetzelfde zijn. Data van deze huizen wordt samengevoegd.
@@ -71,6 +82,7 @@ Ik werk hierbij vaak met de opstelling dat ik het tabblad waar bovenstaande link
 * Als je regelmatig de PBK (prijsindex bestaande koopwoningen) inleest (via cronjob of mbv "Lees de prijs-index van het Kadaster in") van het Kadaster, kan je met "Bepaal gecorrigeerde prijs op specifieke datum" de prijs van een huis corrigeren voor de datum: wat zou een bepaald huis wat een jaar geleden zoveel kostte, nu gekost hebben.
 
 ## Data corrigeren (alleen beschikbaar voor Administrator)
+
 Soms komt het voor, meestal door een bugje/foutje van mijn kant/lay-out wijziging van funda, dat er data ontbreekt in de database die niet meer op te halen is van funda (vaak omdat pagina al offline zijn). Hiervoor zijn ook een aantal scripts geschreven, deze staan echter niet op de index-pagina.
 * addPostcode.php
 * addWijk.php
