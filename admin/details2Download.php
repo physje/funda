@@ -28,7 +28,7 @@ if($row = mysqli_fetch_array($result)) {
 		# Om in een lange lijst toch nog een beetje overzicht te hebben voeg ik
 		# om de 20 huizen een balk toe
 		# Bij mij is 20 ook het maximaal aantal huizen wat ik in 1x kan uploaden
-		if($rij == 20) {
+		if($rij == 10) {
 			$HTML[] = "<tr>";
 		  $HTML[] = "	<td colspan='5'><a href='../onderhoud/openAll.php?ids=". implode('|', $ids) ."' target='_blank'>open al deze huizen</a></td>";
 		  $HTML[] = "</tr>";

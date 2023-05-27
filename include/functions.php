@@ -2442,7 +2442,7 @@ function sendPushoverChangedPrice($fundaID, $OpdrachtID) {
 	if(count($PushMembers) > 0) {
 		$push = array();
 		$push['title']		= formatStreetAndNumber($fundaID) ." is in prijs verlaagd voor '". $OpdrachtData['naam'] ."'";
-		$push['message']	= "Van ". formatPrice(prev($prijzen_array)) .' naar '. formatPrice(end($prijzen_array));
+		$push['message']	= formatStreetAndNumber($fundaID) ." is van ". formatPrice(prev($prijzen_array)) .' naar '. formatPrice(end($prijzen_array)) .' gegaan';
 		
 		if(prev($prijzen_array) != reset($prijzen_array)) {
 		    $push['message']	.= ", oorspronkelijke vraagprijs was ". formatPrice(reset($prijzen_array));
