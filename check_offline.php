@@ -1,6 +1,5 @@
 <?php
 include_once(__DIR__.'/include/config.php');
-include_once(__DIR__ .'/include/HTML_TopBottom.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
 $db = connect_db();
 
@@ -21,6 +20,13 @@ if ($handle = opendir($offlineDir)) {
 }
 
 $debug = 0;
+
+if(count($files) > 10) {
+	$files			= array_slice($files, 0, 10);
+	$userInteraction = false;
+}
+
+include_once(__DIR__ .'/include/HTML_TopBottom.php');
 
 # Doorloop alle offline-bestanden
 foreach($files as $file) {
@@ -43,16 +49,26 @@ foreach($files as $file) {
 	
 	# in de HTML-code staat altijd de bezochte URL
 	# Die moeten wij zien te vinden
-	if(strpos($contents, 'https://www.funda.nl/mijn/login/?ReturnUrl=')) {    
-	    $appHeaderLink	= getString('https://www.funda.nl/mijn/login/?ReturnUrl=', '"', $contents, 0);
-	} else {
-	    $appHeaderLink	= getString('link rel="canonical" href="', '"', $contents, 0);
+	if(strpos($contents, '"url":"')) {
+	    $appHeaderLink	= getString('"url":"', '",', $contents, 0);
+	} else {	    
+	    $appHeaderLink	= getString('<link rel="canonical" href="', '"', $contents, 0);	    
 	}
-	$pageURL		= getString('/koop/', '', urldecode($appHeaderLink[0]), 0);	
-	$zoekURL		= '/koop/'.$pageURL[0];
-		
+	$pageURL		= str_replace('/koop?', '/koop/?', $appHeaderLink[0]);
+	
+	if(strpos($contents, '/koop/?')) {
+		$pageURL		= getString('/koop/?', '', $pageURL, 0);	
+		$zoekURL		= 'https://www.funda.nl/zoeken/koop/?'.$pageURL[0];
+	} else {
+		$zoekURL		= $pageURL;
+	}
+			
 	$OpdrachtID	= guessOpdrachtIDFromHTML($zoekURL);
 	$fundaID		= guessFundaIDFromHTML($zoekURL);
+
+	#$OpdrachtID = 3;
+	#echo $file .' -> '. $zoekURL .' -> '. $OpdrachtID ."<br>\n";
+	#echo $file .' -> '. $zoekURL .' -> '. $fundaID ."<br>\n";
 
 	if($OpdrachtID > 0) {
 		$overzicht = true;
@@ -63,10 +79,10 @@ foreach($files as $file) {
 		$detail = true;
 		$overzicht = false;
 	}
-	
+		
 	# Als in de zoekURL de tekst /verkocht/ voorkomt gaat het over een huis wat verkocht is
 	# De variabele $verkocht is dan waar
-	if(strpos($zoekURL, '/verkocht/')) {
+	if(strpos($zoekURL, '&availability=%5B%22unavailable%22%5D')) {
 		$verkocht		= true;
 	} else {
 		$verkocht		= false;
@@ -98,16 +114,11 @@ foreach($files as $file) {
 			
 		# Code opknippen zodat er een array met HTML-code voor een huis ontstaat
 		# De eerste keer voor "normale" huizen
-		$tempHuizen			= explode('<div class="search-result-media">', $contents);
+		$tempHuizen			= explode('data-test-id="object-image-link"', $contents);
+								
 				
-		# De tweede keer voor "Blikvangers", dat zijn huizen die extra groot op funda staan
-		foreach($tempHuizen as $tempText) {
-			$nieuweHuizen			= explode('<div class="search-result-main-promo">', $tempText);			
-			$Huizen = array_merge($Huizen, $nieuweHuizen);
-		}
-		
 		# Eerste element is rubbish
-		$Huizen			= array_slice($Huizen, 1);
+		$Huizen			= array_slice($tempHuizen, 1);
 		
 		# $Huizen is nu een array met per huis de HTML-code
 		$NrPageHuizen		= count($Huizen);
@@ -120,6 +131,7 @@ foreach($files as $file) {
 		foreach($Huizen as $HuisText) {
 			# Extraheer hier adres, plaats, prijs, id etc. uit
 			$data = extractFundaData($HuisText, $verkocht);
+									
 			$AdressenArray[] = $data['adres'];
 							
 			if($debug == 2) {
@@ -192,13 +204,13 @@ foreach($files as $file) {
 				# Huis kan onder voorbehoud verkocht zijn
 				if($data['vov'] > 0) {
 					if(!soldHouseTentative($data['id'])) {
-						$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '2' WHERE $HuizenID like '". $data['id'] ."'";
+						$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '2' WHERE $HuizenID like '". $data['id'] ."' OR $HuizenID2 like '". $data['id'] ."'";
 						mysqli_query($db, $sql);
 						toLog('info', $OpdrachtID, $data['id'], 'Onder voorbehoud verkocht');
 					}
 				# Het geval dat onder voorbehoud wordt teruggedraaid
 				} elseif(soldHouseTentative($data['id']) AND $data['verkocht'] == 0) {
-					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."'";
+					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."' OR $HuizenID2 like '". $data['id'] ."'";
 					mysqli_query($db, $sql);
 					toLog('info', $OpdrachtID, $data['id'], 'Niet meer onder voorbehoud verkocht');
 				}
@@ -207,7 +219,7 @@ foreach($files as $file) {
 			# Huis kan ook echt verkocht zijn
 			if($data['verkocht'] == 1) {
 				if(!soldHouse($data['id'])) {
-					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '1' WHERE $HuizenID like '". $data['id'] ."'";
+					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '1' WHERE $HuizenID like '". $data['id'] ."' OR $HuizenID2 like '". $data['id'] ."'";
 					mysqli_query($db, $sql);
 					toLog('info', $OpdrachtID, $data['id'], 'Verkocht');
 					
@@ -216,22 +228,23 @@ foreach($files as $file) {
 				}
 			# Het geval dat verkocht wordt teruggedraaid (hypothetisch)
 			} elseif(soldHouse($data['id'])) {
-				$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."'";
+				$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."' OR $HuizenID2 like '". $data['id'] ."'";
 				mysqli_query($db, $sql);
 				toLog('info', $OpdrachtID, $data['id'], 'Toch niet meer verkocht');
 			}
 					
-			# Huis kan openhuis hebben
-			if($data['openhuis'] == 1) {
-				if(!hasOpenHuis($data['id'])) {
-					toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd');
-					
-					# Aanvinken om in een later stadium de details (met daarin de openhuis data) op te vragen
-					mark4Details($data['id']);										
-				}
-			} else {
-				removeOpenHuis($data['id']);
-			}				
+		#	# Huis kan openhuis hebben
+		#	if($data['openhuis'] == 1) {
+		#		if(!hasOpenHuis($data['id'])) {
+		#			toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd');
+		#			
+		#			# Aanvinken om in een later stadium de details (met daarin de openhuis data) op te vragen
+		#			mark4Details($data['id']);										
+		#		}
+		#	} else {
+		#		removeOpenHuis($data['id']);
+		#	}	
+				
 						
 			# Kijk of dit huis al vaker gevonden is voor deze opdracht
 			if(newHouse($data['id'], $OpdrachtID)) {				
@@ -241,7 +254,7 @@ foreach($files as $file) {
 				} else {
 					toLog('debug', $OpdrachtID, $data['id'], 'Huis toegekend aan opdracht');
 				}
-		
+		  
 				$NewAddress[] = $data['adres'];
 					
 				if($debug == 0 AND !$verkocht) {
@@ -251,19 +264,20 @@ foreach($files as $file) {
 				sendPushoverChangedPrice($data['id'], $OpdrachtID);
 			}
 			
-			if(!$verkocht) {
-				addUpdateStreetDb($data['straat'], $data['plaats']);
-			}
+		#	if(!$verkocht) {
+		#		addUpdateStreetDb($data['straat'], $data['plaats']);
+		#	}
 		}
-	
+	  
 		$String[] = "<a href='$bestand'>Overzicht</a>". ($verkocht ? ' met verkochte huizen ' : ' ')."van <a href='$OpdrachtURL'>". $OpdrachtData['naam'] ."</a>; ". count($AdressenArray)  ." huizen gevonden<br>";
-		$success = true;
-			
-		toLog('debug', $OpdrachtID, '0', "Einde pagina (". count($AdressenArray) ." huizen)");		
-	
+					
+		#toLog('debug', $OpdrachtID, '0', "Einde pagina (". count($AdressenArray) ." huizen)");		
+	  
 		if($debug == 1) {
 			$block[] = implode("<br>", $AdressenArray)."\n";
 		}
+		
+		$success = true;
 	
 	
 	
@@ -274,6 +288,8 @@ foreach($files as $file) {
 		$allData = extractFundaDataFromPage($contents);
 		$data = $allData[0];
 		$extraData = $allData[1];
+		
+		#var_dump($extraData);
 		
 		if($fundaID != $data['id']) {
 			$String[] = "Klopt dit wel ?";

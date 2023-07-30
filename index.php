@@ -68,7 +68,8 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['admin/edit_streets.php']				= 'Wijzig de straten';
 	$onderhoud['admin/edit_wijken.php']				= 'Wijzig de wijken';
 	$onderhoud['onderhoud/makeGeneralLists.php']	= 'Maak algemene lijsten aan';
-	$onderhoud['admin/readKadasterPBK.php']				= 'Lees de prijs-index van het Kadaster in';
+	//$onderhoud['admin/readKadasterPBK.php']				= 'Lees de prijs-index van het Kadaster in';
+	$onderhoud['admin/readCBSPBK.php']				= 'Lees de prijs-index van het CBS in';
 	$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met open huizen';
 	
 	$opschonen['admin/checkTables.php']					= 'Check de verschillende databases';
@@ -77,6 +78,7 @@ if($_SESSION['level'] > 2) {
 	$opschonen['admin/cleanOpenhuis.php']				= 'Open huizen opschonen';
 	$opschonen['admin/combine_batch.php']				= 'Voeg hits automatisch samen';
 	$opschonen['admin/combine_manual.php']			= 'Voeg hits handmatig samen';
+	$opschonen['admin/combineSlaveMaster.php']	= 'Voeg master & slave toe';
 	$opschonen['admin/cleanUp.php']							= 'Verwijder oude log-items';	
 	
 	foreach($onderhoud as $url => $titel) {

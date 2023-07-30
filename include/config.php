@@ -73,6 +73,7 @@ $AboType		= "soort";
 
 $TableHuizen		= "funda_huizen";
 $HuizenID 		= "funda_id";
+$HuizenID2		= "funda_id_tweede";
 $HuizenURL	 	= "url";
 $HuizenAdres 		= "adres";
 $HuizenStraat 		= "straat";
