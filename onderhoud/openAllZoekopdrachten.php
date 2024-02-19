@@ -53,14 +53,12 @@ if(!isset($_REQUEST['close'])) {
 		$p++;
 	} elseif($v == 0) {	
 		$URL = $OpdrachtData['url'].'&availability=%5B%22unavailable%22%5D';
-		$v=1;
-		$close = true;
-	#} elseif((isset($_REQUEST['opdracht']) AND $aantal/15) < $p) {
-	#	
+		$v=1;		
 	} else {
 		$i++;
 		$p=1;		
-		$v=0;		
+		$v=0;
+		$close = true;				
 	}
 		
 	$c++;
@@ -68,7 +66,7 @@ if(!isset($_REQUEST['close'])) {
 	if(count($Opdrachten) > $i OR (isset($_REQUEST['opdracht']) AND !$close)) {
 		if($c < 10) {
 			if(isset($_REQUEST['opdracht'])) {
-				echo "<meta http-equiv=\"refresh\" content=\"0;URL=openAllZoekopdrachten.php?opdracht=$opdracht&p=$p&c=$c\" />";				
+				echo "<meta http-equiv=\"refresh\" content=\"0;URL=openAllZoekopdrachten.php?opdracht=$opdracht&p=$p&c=$c\" />";
 			} else {
 				echo "<meta http-equiv=\"refresh\" content=\"0;URL=openAllZoekopdrachten.php?i=$i&p=$p&c=$c&v=$v\" />";
 			}

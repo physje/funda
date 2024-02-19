@@ -284,7 +284,7 @@ foreach($files as $file) {
 	# 
 	# De routine als het een detailspagina is
 	#
-	} elseif($detail) {
+		} elseif($detail) {
 		$allData = extractFundaDataFromPage($contents);
 		$data = $allData[0];
 		$extraData = $allData[1];
@@ -294,16 +294,43 @@ foreach($files as $file) {
 		if($fundaID != $data['id']) {
 			$String[] = "Klopt dit wel ?";
 			$success = false;
-		} else {
-			$String[] = "Details van <a href='". $ScriptURL ."admin/edit.php?id=$fundaID'>". formatStreetAndNumber($data['id']) ."</a> ingelezen<br>\n";
-			
+		} else {						
 			# Als wij een huis niet kennen klopt er iets niet
 			if(!knownHouse($fundaID)) {
-				toLog('error', '0', $fundaID, 'Huis niet bekend');
-				$success = false;
+				toLog('error', '0', $fundaID, 'Huis niet bekend');				
+											
+				#addHouse($data, $id)
+				if(saveHouse($data, $extraData)) {
+					$String[] = "<a href='". $ScriptURL ."admin/edit.php?id=$fundaID'>". formatStreetAndNumber($data['id']) ."</a> blijkt nog niet te bestaan, daarom toegevoegd<br>\n";
+															
+					if($fundaID[0] == '8') {
+						$sql_slave	= "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '". urlencode($data['adres']) ."' AND  $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenDetails like '1' AND $HuizenID NOT LIKE ". $fundaID;
+						$result_slave	= mysqli_query($db, $sql_slave);										
+						
+						if(mysqli_num_rows($result_slave) == 1) {
+							$row_slave = mysqli_fetch_array($result_slave);
+							
+							if(combineMasterSlave($fundaID, $row_slave[$HuizenID])) {
+								#$String[] = "-> ". $sql_huis;
+								$String[] = "-> lijkt master te zijn van <a href='http://www.funda.nl/".$row_slave[$HuizenID] ."'>". $row_slave[$HuizenID] ."</a>";
+							}
+						}
+					}
+				} else {
+					$String[] = "<a href='". $ScriptURL ."admin/edit.php?id=$fundaID'>". formatStreetAndNumber($data['id']) ."</a> bleek nog niet te bestaan, maar kon niet toegevoegd worden<br>\n";					
+				}
+				$success = false;		
 					
 			# Meestal zal het huis wel bekend zijn
 			} else {
+					$String[] = "<a href='". $ScriptURL ."admin/edit.php?id=$fundaID'>". formatStreetAndNumber($data['id']) ."</a> bleek nog niet te bestaan, maar kon niet toegevoegd worden<br>\n";
+					$success = false;
+				}				
+					
+			# Meestal zal het huis wel bekend zijn
+			} else {
+				$String[] = "Details van <a href='". $ScriptURL ."admin/edit.php?id=$fundaID'>". formatStreetAndNumber($data['id']) ."</a> ingelezen<br>\n";
+				
 				$oldData = getFundaData($fundaID);
 				
 				updateHouse($data, $extraData);
@@ -340,7 +367,7 @@ foreach($files as $file) {
 						toLog('info', $OpdrachtID, $data['id'], 'Open Huis toegevoegd voor '. formatStreetAndNumber($fundaID));
 					}
 				}
-				
+								
 				toLog('info', '0', $fundaID, 'Offline pagina van '. formatStreetAndNumber($fundaID) .' ingeladen');
 				remove4Details($fundaID);				
 				$success = true;
@@ -366,11 +393,10 @@ echo "<td width='50%' valign='top' align='center'>\n";
 foreach($block as $key => $value) {
 	echo showBlock($value);
 	echo '<p>';	
-	if($key > (count($block)/2 - 1) AND !$tweeKolom) {
+	if($key >= (count($block)/2 - 1) AND !$tweeKolom) {
 		echo "</td><td width='50%' valign='top' align='center'>\n";
 		$tweeKolom = true;
 	}
 }
 echo "</td>\n";
 echo "</tr>\n";
-echo $HTMLFooter;
