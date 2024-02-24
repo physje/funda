@@ -601,7 +601,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	//$id					= getString('tinyId=', '&amp;', $contents, 0);
 	$id					= getString('"tinyid":"', '"', $offlineHTML, 0);
 
-	$adres	= getString('<span class="fd-color-dark-3" aria-current="page">', '</span>', $contents, 0);
+	$adres	= getString('aria-current="page">', '</span>', $contents, 0);
 	$adresClean = str_replace('<span class="item-sold-label-large" title="Verkocht">VERKOCHT</span>', '', $adres[0]);
 		
 	if($verkocht == 1) {
@@ -611,7 +611,7 @@ function extractFundaDataFromPage($offlineHTML) {
 	}
 	
 	$makelHTML	= getString('<h3 class="object-contact-aanbieder-name">', '</h3>', $contents, 0);
-	$PC					= getString('<span class="object-header__subtitle fd-color-dark-3">', '<a class="', $contents, 0);
+	$PC					= getString('<span class="object-header__subtitle fd-color-neutral-40">', '<a class="', $contents, 0);
 	$makelaar		= getString('">', '</a>', $makelHTML[0], 0);
 	$foto				=	getString('<meta itemprop="image" content="', '"', $offlineHTML, 0);
 	$start			= getString("aangebodensinds=", "&", $offlineHTML, 0);

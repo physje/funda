@@ -319,13 +319,7 @@ foreach($files as $file) {
 				} else {
 					$String[] = "<a href='". $ScriptURL ."admin/edit.php?id=$fundaID'>". formatStreetAndNumber($data['id']) ."</a> bleek nog niet te bestaan, maar kon niet toegevoegd worden<br>\n";					
 				}
-				$success = false;		
-					
-			# Meestal zal het huis wel bekend zijn
-			} else {
-					$String[] = "<a href='". $ScriptURL ."admin/edit.php?id=$fundaID'>". formatStreetAndNumber($data['id']) ."</a> bleek nog niet te bestaan, maar kon niet toegevoegd worden<br>\n";
-					$success = false;
-				}				
+				$success = false;
 					
 			# Meestal zal het huis wel bekend zijn
 			} else {
@@ -400,3 +394,5 @@ foreach($block as $key => $value) {
 }
 echo "</td>\n";
 echo "</tr>\n";
+
+?>
