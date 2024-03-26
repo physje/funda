@@ -17,6 +17,8 @@ if(!isset($_REQUEST['state']) OR !isset($_REQUEST['id'])) {
 		$deel_1 = "<i>". $details['adres'] ."</i> is in de wachtrij gezet voor vernieuwen van de details";
 	} else {	
 		if($_REQUEST['state'] == 'verkocht')	$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '1' WHERE $HuizenID = ".$_REQUEST['id'];
+		if($_REQUEST['state'] == 'voorbehoud')	$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '2' WHERE $HuizenID = ".$_REQUEST['id'];
+		if($_REQUEST['state'] == 'optie')			$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '3' WHERE $HuizenID = ".$_REQUEST['id'];
 		if($_REQUEST['state'] == 'offline')		$sql = "UPDATE $TableHuizen SET $HuizenOffline = '1' WHERE $HuizenID = ".$_REQUEST['id'];
 		if($_REQUEST['state'] == 'ignore')		$sql = "INSERT INTO $TableIgnore ($IgnoreID) VALUES (". $_REQUEST['id'] .")";
 		if($_REQUEST['state'] == 'available')		$sql = "UPDATE $TableHuizen SET $HuizenEind = '". time() ."' WHERE $HuizenID = ".$_REQUEST['id'];
