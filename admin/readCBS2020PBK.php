@@ -1,7 +1,7 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
 include_once($cfgGeneralIncludeDirectory.'/class.phpPushover.php');
-//$db = connect_db();
+$db = connect_db();
 
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
 # Iedereen kan deze pagina dus in principe openen.
