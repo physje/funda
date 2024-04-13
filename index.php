@@ -69,7 +69,7 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['admin/edit_wijken.php']				= 'Wijzig de wijken';
 	$onderhoud['onderhoud/makeGeneralLists.php']	= 'Maak algemene lijsten aan';
 	//$onderhoud['admin/readKadasterPBK.php']				= 'Lees de prijs-index van het Kadaster in';
-	$onderhoud['admin/readCBSPBK.php']				= 'Lees de prijs-index van het CBS in';
+	$onderhoud['admin/readCBS2020PBK.php']				= 'Lees de prijs-index van het CBS in';
 	$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met open huizen';
 	
 	$opschonen['admin/checkTables.php']					= 'Check de verschillende databases';
