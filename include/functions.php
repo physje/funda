@@ -244,9 +244,13 @@ function makeTextBlock($string, $length, $reverse = false) {
 #
 # OUTPUT
 #		array met de gegevens van het huis
-function extractFundaData($HuisText, $verkocht = false) {	
+function extractFundaData($HuisText, $verkocht = false) {		
 	
-	#echo $HuisText;
+	if($verkocht) {		
+		$data['verkocht']			= 1;
+	} else {
+		$data['verkocht']			= 0;
+	}
 	
 	# Overzichtspagina
 	$HuisURL= getString('href="', '"', $HuisText, 0);
@@ -255,16 +259,15 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$cleanURL	= str_replace('?navigateSource=resultlist', '', $cleanURL);
 	$cleanURL	= str_replace('https://www.funda.nl', '', $cleanURL);
 	
-	$mappen = explode("/", $cleanURL);
-	$key		= $mappen[3];
+	$mappen			= explode("/", $cleanURL);
 	
-	if($verkocht) {		
-		$data['verkocht']			= 1;
-	} else {
-		$data['verkocht']			= 0;
+	if(count($mappen) < 7) {
+		$key				= $mappen[3];
+		$key_parts	= explode("-", $key);	
+		$id					= $key_parts[1];
+	} else {		
+		$id			= $mappen[5];
 	}
-	$key_parts = explode("-", $key);
-	$id			= $key_parts[1];
 		
 	$adres	= getString('sm:mt-0">', '</h', $HuisURL[1], 0);
 	$PC			= getString('mb-2">', '</div', $adres[1], 0);
@@ -2708,15 +2711,13 @@ function guessFundaIDFromHTML($zoekURL) {
 	
 	$mappen = explode("/", $zoekURL);
 					 
-	if($verkocht) {
-		$delen 		= explode("-", $mappen[6]);
+	if($verkocht) {		
+		$fundaID	= $mappen[8];
 	} else {
-		$delen 		= explode("-", $mappen[5]);
+		$fundaID	= $mappen[7];
 	}
-		
-	$fundaID	= $delen[1];
-			
-	if(is_numeric($fundaID) AND count($mappen) > 4 AND count($delen) > 2) {
+					
+	if(is_numeric($fundaID) AND count($mappen) > 4) {
 		return $fundaID;
 	}	else {
 		return 0;
