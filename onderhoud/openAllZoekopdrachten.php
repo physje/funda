@@ -32,6 +32,7 @@ if(!isset($_REQUEST['close'])) {
 		
 	$Opdrachten = getZoekOpdrachten($_SESSION['account'], '', true);
 	$OpdrachtID = $Opdrachten[$opdracht];	
+	$OpdrachtData = getOpdrachtData($OpdrachtID);
 	$Huizen = getHuizen($OpdrachtID, true, true);	
 	# Om beetje speling te houden tel ik 10% op bij het aantal huizen in de dB
 	# Mochten er bv 45 huizen zijn (wat net 3 pagina's past) dan is er een kans dat er
@@ -39,7 +40,8 @@ if(!isset($_REQUEST['close'])) {
 	# Daarom paar huizen meer om niet te weinig pagina's te openen.
 	$nrHuizen = count($Huizen);
 	$nrPaginas = ceil(1.1*$nrHuizen/15);	
-	fwrite($debug, $opdracht.'|'.$nrHuizen.' huizen|'.$nrPaginas ."paginas \n");
+	fwrite($debug, "\n".$OpdrachtData['naam'] ".\n");
+	fwrite($debug, $nrHuizen.' huizen|'.$nrPaginas ." paginas\n");
 
 	//if($opdracht >= count($Opdrachten)) {
 	//	$close = true;
@@ -83,9 +85,13 @@ if(!isset($_REQUEST['close'])) {
 			
 	$meta_URL = $_SERVER['PHP_SELF'] ."?". http_build_query($data);
 			
-	fwrite($debug, 'p:'.$pagina.'|c:'.$counter.'|v:'.$verkocht.'|o:'.$opdracht.'|c:'.$close.'|url:'.$open_URL ."\n");
-	#fwrite($debug, 'Open : '. $open_URL ."\n");
-	fwrite($debug, 'Meta: '. $meta_URL ."\n");
+	fwrite($debug, "pagina $pagina \n";
+	fwrite($debug, "counter $counter \n";
+	fwrite($debug, "verkocht $verkocht \n";
+	fwrite($debug, "Opdracht $opdracht \n";
+	fwrite($debug, "Close $close \n";
+	fwrite($debug, "URL $open_URL \n");
+	fwrite($debug, 'Meta-URL '. $meta_URL ."\n");
 	#fwrite($debug, "---\n");
 	fclose($debug);	
 } else {
