@@ -166,6 +166,9 @@ foreach ($aPBK["value"] as $rij) {
 	}
 		
 	if($meenemen) {
+	    $PBKdata[] = $prijsindex;
+	    $moment = $start;
+	    
 		$sql_check = "SELECT * FROM $TablePBK WHERE $PBKComment like '". $comment ."'";
 		if($debug) { echo $sql_check .'<br>'; } else { $result = mysqli_query($db, $sql_check); }
 		
@@ -201,19 +204,24 @@ if($newEntry) {
 	}
 
 	if($sendPushover) {
-		$index_maand = (count($arrayPBK)-2);
-		$index_jaar = (count($arrayPBK)-13);
-
-		$prijsindex_mnd = $arrayPBK[$index_maand];
-		$prijsindex_jaar = $arrayPBK[$index_jaar];
+		#$index_maand = (count($arrayPBK)-2);
+		#$index_jaar = (count($arrayPBK)-13);
 		
-		$percentage_mnd = 100*(($prijsindex-$prijsindex_mnd)/$prijsindex);				
-		$percentage_jaar = 100*(($prijsindex-$prijsindex_jaar)/$prijsindex);
+		$index_nu = (count($PBKdata)-1);
+		$index_maand = (count($PBKdata)-2);
+		$index_jaar = (count($PBKdata)-13);
+
+        $prijsindex_nu = $PBKdata[$index_nu];
+		$prijsindex_mnd = $PBKdata[$index_maand];
+		$prijsindex_jaar = $PBKdata[$index_jaar];
+		
+		$percentage_mnd = 100*(($prijsindex_nu-$prijsindex_mnd)/$prijsindex_nu);				
+		$percentage_jaar = 100*(($prijsindex_nu-$prijsindex_jaar)/$prijsindex_nu);
 		
 		if($debug) {
-			echo "In ". strtolower(strftime ('%B %Y', $start)) ." is de prijsindex naar $prijsindex gegaan. Dat is een ". ($percentage_mnd > 0 ? 'stijging' : 'daling' )." van ". number_format(abs($percentage_mnd),1) .'% tov vorige maand (toen was de index '. $prijsindex_mnd ."). Ten opzichte van een jaar geleden is het een ". ($percentage_jaar > 0 ? 'stijging' : 'daling' )." van ". number_format(abs($percentage_jaar),1) .'% (toen was de index '. $prijsindex_jaar. ').';
+			echo "In ". strtolower(strftime ('%B %Y', $moment)) ." is de prijsindex naar $prijsindex_nu gegaan. Dat is een ". ($percentage_mnd > 0 ? 'stijging' : 'daling' )." van ". number_format(abs($percentage_mnd),1) .'% tov vorige maand (toen was de index '. $prijsindex_mnd ."). Ten opzichte van een jaar geleden is het een ". ($percentage_jaar > 0 ? 'stijging' : 'daling' )." van ". number_format(abs($percentage_jaar),1) .'% (toen was de index '. $prijsindex_jaar. ').';
 		} else {
-			send2Pushover(array('title' => 'Prijsindex', 'message' => "In ". strtolower(strftime ('%B %Y', $start)) ." is de prijsindex naar $prijsindex gegaan. Dat is een ". ($percentage_mnd > 0 ? 'stijging' : 'daling' )." van ". number_format(abs($percentage_mnd),1) .'% tov vorige maand (toen was de index '. $prijsindex_mnd ."). Ten opzichte van een jaar geleden is het een ". ($percentage_jaar > 0 ? 'stijging' : 'daling' )." van ". number_format(abs($percentage_jaar),1) .'% (toen was de index '. $prijsindex_jaar .').'), array(1));
+			send2Pushover(array('title' => 'Prijsindex', 'message' => "In ". strtolower(strftime ('%B %Y', $moment)) ." is de prijsindex naar $prijsindex_nu gegaan. Dat is een ". ($percentage_mnd > 0 ? 'stijging' : 'daling' )." van ". number_format(abs($percentage_mnd),1) .'% tov vorige maand (toen was de index '. $prijsindex_mnd ."). Ten opzichte van een jaar geleden is het een ". ($percentage_jaar > 0 ? 'stijging' : 'daling' )." van ". number_format(abs($percentage_jaar),1) .'% (toen was de index '. $prijsindex_jaar .').'), array(1));
 		}
 	}
 }
