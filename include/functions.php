@@ -261,12 +261,18 @@ function extractFundaData($HuisText, $verkocht = false) {
 	
 	$mappen			= explode("/", $cleanURL);
 	
-	if(count($mappen) < 7) {
+	# Funda zit volgens mij in een overgangsfase ofzo van URL's
+	# Er komen namelijk verschillende types voor
+	# Op basis van deze if-else-statements lijkt het mogelijk deze te onderscheiden
+	# Hopelijk kan op termijn dit weer gewoon 1 expressie worden
+	if(strpos($cleanURL, 'detail')) {		
+		$id			= $mappen[5];
+	} elseif(count($mappen) < 6) {		
 		$key				= $mappen[3];
 		$key_parts	= explode("-", $key);	
 		$id					= $key_parts[1];
 	} else {		
-		$id			= $mappen[5];
+		$id			= $mappen[4];
 	}
 		
 	$adres	= getString('sm:mt-0">', '</h', $HuisURL[1], 0);

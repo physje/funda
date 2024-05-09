@@ -50,9 +50,6 @@ function getCoordinates($straat, $postcode, $plaats, $land = 'Nederland') {
 	$latitude		= explode('.', $lat);
 	$longitude	= explode('.', $lon);
 	
-	//echo $json .'<br>';
-	//var_dump($contents); 
-	
 	return array($latitude[0], substr($latitude[1], 0, 5), $longitude[0], substr($longitude[1], 0, 5), $json[0]['importance']);	
 }
 
