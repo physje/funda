@@ -8,8 +8,8 @@ $deel_2 = $id = null;
 
 if(isset($_REQUEST['id'])) {
 	$id = $_REQUEST['id'];
-} elseif(isset($_POST['extra_huis'])) {
-	$elementen = getString('[', ']', $_POST['extra_huis'], 0);
+} elseif(isset($_POST['search_house'])) {
+	$elementen = getString('[', ']', $_POST['adres_input'], 0);
 	$id = $elementen[0];
 }
 
@@ -41,10 +41,12 @@ if($id != '') {
 		$deel_1 .= "<a href='$url'>$titel</a><br>\n";
 	}
 } else {
-	$autocomplete = true; 
+	#$autocomplete = true;
+	$autoCompleteNew = true;
+	
 	$deel_1 = "<form method='post' action='$_SERVER[PHP_SELF]'>\n";
-	$deel_1 .= "Voer adres of funda_id in om te zoeken.<br>\n";
-	$deel_1 .= "<input type='text' name='extra_huis' id=\"huizen\" size='50'><br>";
+	$deel_1 .= "Voer adres of funda_id in om te zoeken.<br>\n";	
+	$deel_1 .= "<input type='text' id='adres_input' name='adres_input' placeholder='Zoek huis...'>";	
 	$deel_1 .= "<br>\n";
 	$deel_1 .= "<input type='submit' name='search_house' value='Huis bekijken'>\n";
 	$deel_1 .= "</form>\n";

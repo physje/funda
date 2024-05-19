@@ -31,6 +31,23 @@ if(isset($autocomplete)) {
 	$HTMLHeader .= "</script>\n";
 }
 
+if(isset($autoCompleteNew)) {
+	$HTMLHeader .= "	<!-- jQuery library -->\n";
+	$HTMLHeader .= "	<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js'></script>\n";
+	$HTMLHeader .= "	<!-- jQuery UI library -->\n";
+	$HTMLHeader .= "	<link rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/themes/smoothness/jquery-ui.css'>\n";
+	$HTMLHeader .= "	<script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js'></script>\n";
+	$HTMLHeader .= "	<script>\n";
+	$HTMLHeader .= "		$(function() {\n";
+	$HTMLHeader .= "		    $(\"#adres_input\").autocomplete({\n";
+	$HTMLHeader .= "		    	minLength: 3,\n";
+	$HTMLHeader .= "		    	source: \"autocomple_adressen.php\",\n";
+	$HTMLHeader .= "		    });\n";
+	$HTMLHeader .= "		});\n";
+	$HTMLHeader .= "		</script>\n";
+}
+
+
 if(isset($googleMaps)) {
 	$HTMLHeader .= "	<script src='../include/if_gmap.js'></script>\n";
 	$HTMLHeader .= "	<script type='text/javascript' src='http://maps.google.com/maps/api/js?sensor=false'></script>\n";

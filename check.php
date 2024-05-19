@@ -4,7 +4,7 @@ include_once('include/HTML_TopBottom.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpmailer.php');
 include_once($cfgGeneralIncludeDirectory.'class.html2text.php');
 include_once($cfgGeneralIncludeDirectory.'class.phpPushover.php');
-connect_db();
+$db = connect_db();
 
 # Omdat deze via een cronjob door de server wordt gedraaid is deze niet beveiligd
 # Iedereen kan deze pagina dus in principe openen.
@@ -13,489 +13,275 @@ connect_db();
 # Om te zorgen dat de pagina op wisselende tijden wordt geopend heb ik de volgende cronjob opgenomen :
 #		sleep $[RANDOM\%3660] ; wget -q -O /dev/null http://example.com/funda/check.php
 
-# Als er een OpdrachtID is meegegeven hoeft alleen die uitgevoerd te worden.
-# In alle andere gevallen gewoon alle actieve zoekopdrachten
-if(isset($_REQUEST[OpdrachtID])) {
-	$OpdrachtID = $_REQUEST[OpdrachtID];	
-	$enkeleOpdracht = true;
-} else {
-	$Opdrachten = getRandomOpdracht();
-	$OpdrachtID = $Opdrachten[0];
-	$enkeleOpdracht = false;
-}
+# Om bij te houden welke pagina van welke opdracht geopend moet worden, kijk ik in de database
+# Aan het eind van dit script, schijf ik namelijk weg welke pagina volgende keer geopend moet worden.
 
 # Alles initialiseren
-$NewHouses = $NewAddress = $UpdatedPrice = $UpdatedAddress = $VerkochtHuis = $VerkochtAddress = $OnderVoorbehoud = $BijnaVerkochtAddress = $OpenHuis = $OpenAddress = $Beschikbaar = $beschikbaarAddress = $Subject = $sommatie = array();
-$String = $block = array();
-$HTMLMail = "";
-$nextPage = true;
-$p = 0;
+set_time_limit (90);
+$NewHouses = $NewAddress = array();
+$String = $block = $AdressenArray = array();
+
+# 0 = geen debug
+# 1 = korte debug (alleen adressen)
+# 2 = uitgebreidere debug (items)
+# 3 = uitgebreidste debug (ruwe tekst)
+$debug = 0;
+
+$storeFile = false;
+
+$nextData = getPageToLoadNext();
+$OpdrachtID		= $nextData['opdracht'];
+$page					= $nextData['page'];
+$OpdrachtURL	= $nextData['url_opdracht'];
+$PageURL			= $nextData['url_open'];
+$verkocht			= $nextData['verkocht'];
 
 $OpdrachtData			= getOpdrachtData($OpdrachtID);
-$OpdrachtMembers	= getMembers4Opdracht($OpdrachtID, 'mail');	
+#$OpdrachtMembers	= getMembers4Opdracht($OpdrachtID, 'mail');	
 $PushMembers			= getMembers4Opdracht($OpdrachtID, 'push');
 
-$OpdrachtURL	= $OpdrachtData['url'];
-toLog('info', $OpdrachtID, '', 'Start controle '. $OpdrachtData['naam']);
-		
-$String[] = "<a href='$OpdrachtURL'>". $OpdrachtData['naam'] ."</a><br>\n";
+if($verkocht) {
+	toLog('info', $OpdrachtID, '', 'Start controle verkochte huizen van '. $OpdrachtData['naam']);
+} else {
+	toLog('info', $OpdrachtID, '', 'Start controle pagina '. $page .' van '. $OpdrachtData['naam']);
+}	
 
-if($enkeleOpdracht) {
-	$block[] = implode("\n", $String);		
-}
+$debug_filename = 'funda_'. $OpdrachtID .'_'. $page .($verkocht ? '_sold' : '') .'.htm';
 
-# Omdat funda.nl niet standaard 15 'echte' huizen op een pagina zet, is het aantal pagina's niet te bepalen
-# op basis van het aantal gevonden huizen ($NrHuizen).
-# Door te kijken of 'next page' op een pagina voorkomt weet ik dat ik nog een pagina verder moet
-while($nextPage) {
-	set_time_limit (60);
-	$AdressenArray = $VerlopenArray = array();
-	$p++;
+# In debug-modus, sla pagina voor later op
+if($debug == 0 OR (!file_exists($debug_filename) AND $debug > 0) OR $storeFile) {
+	# Vraag de pagina op en herhaal dit het standaard aantal keer mocht het niet lukken
+	$contents	= file_get_contents_retry($PageURL);
 	
-	$PageURL	= $OpdrachtURL.'p'.$p.'/';
-	$debug_filename = 'funda_'. $OpdrachtID .'_'. $p .'.htm';
-	
-	# In debug-modus, sla pagina voor later op
-	if($debug == 0 OR (!file_exists($debug_filename) AND $debug == 1)) {
-		# Vraag de pagina op en herhaal dit het standaard aantal keer mocht het niet lukken
-		$contents	= file_get_contents_retry($PageURL, 5);
-		
-		if($debug == 1) {
-			$fp = fopen($debug_filename, 'w');
-			fwrite($fp, $contents);
-			fclose($fp);
-		}			
-	} else {			
-		$fp = fopen($debug_filename, 'r+');
-		$contents = fread($fp, filesize($debug_filename));
+	if($debug > 0 OR $storeFile) {
+		$fp = fopen($debug_filename, 'w');
+		fwrite($fp, $contents);
 		fclose($fp);
-	}
+	}			
+} elseif($debug > 0) {			
+	$fp = fopen($debug_filename, 'r+');
+	$contents = fread($fp, filesize($debug_filename));
+	fclose($fp);
+}
 	
-	if(is_numeric(strpos($contents, '<span class="icon-arrow-right-blue" data-grunticon-embed>')) AND $debug == 0) {		
-		$nextPage = true;
-	} else {
-		$nextPage = false;
-	}
-
-	# Code opknippen zodat er een array met HTML-code voor een huis ontstaat		
-	$Huizen			= explode('<div class="search-result-media">', $contents);
-	$Huizen			= array_slice($Huizen, 1);		
-	$NrPageHuizen		= count($Huizen);
-				
-	if($debug == 1) {
-		$block[] = "Aantal huizen op <a href='$PageURL'>pagina $p</a> : ". $NrPageHuizen ."<br>\n";
-	}
-	
-	# Doorloop nu alle gevonden huizen op de overzichtspagina
-	foreach($Huizen as $HuisText) {			
-		# Extraheer hier adres, plaats, prijs, id etc. uit
-		$data = extractFundaData($HuisText);
-		$AdressenArray[] = $data['adres'];
-		
-		if($debug == 1) {
-			$tempItems = array();
-			foreach($data as $key => $value) {
-				$tempItems[] = $key .' -> '. $value;
-			}
-			$block[] = implode('<br>', $tempItems);
-		}
-						
-		# Huis is nog niet bekend bij het script, dus moet worden toegevoegd
-		if(!knownHouse($data['id'])) {				
-			# Gegevens over het huis opslaan
-			if(!saveHouse2dB($data)) {
-				$ErrorMessage[] = "Toevoegen van ". $data['adres'] ." aan het script ging niet goed";
-				toLog('error', $OpdrachtID, $data['id'], 'Huis toevoegen aan script mislukt');
-			} else {					
-				toLog('info', $OpdrachtID, $data['id'], 'Huis toevoegen aan script');
-			}
-			
-			# Coordinaten van het huis toevoegen
-			if(!addCoordinates($data['adres'], $data['PC_c'], $data['plaats'], $data['id'])) {					
-				$ErrorMessage[] = "Toevoegen van coordinaten aan ". $data['adres'] ." ging niet goed";	
-				toLog('error', $OpdrachtID, $data['id'], 'Coordinaten toevoegen mislukt');
-			} else {
-				toLog('debug', $OpdrachtID, $data['id'], "Coordinaten toegevoegd");
-			}
-			
-			# Prijs van het huis opslaan
-			if(!updatePrice($data['id'], $data['prijs'])) {
-				$ErrorMessage[] = "Toevoegen van prijs (". $data['prijs'] .") aan ". $data['adres'] ." ging niet goed";
-				toLog('error', $OpdrachtID, $data['id'], 'Prijs toevoegen mislukt');
-			} else {
-				toLog('debug', $OpdrachtID, $data['id'], "Prijs toegevoegd");
-			}	
-		} else {				
-			# Huis is al bekend bij het script
-			# We moeten dus aangeven dat hij nog steeds op de markt is
-			if(!updateAvailability($data['id'])) {
-				echo "<font color='red'>Updaten van <b>". $data['adres'] ."</b> is mislukt</font> | $sql<br>\n";
-				$ErrorMessage[] = "Updaten van ". $data['adres'] ." is mislukt";
-				toLog('error', $OpdrachtID, $data['id'], "Update van huis kon niet worden gedaan");
-			} else {
-				toLog('debug', $OpdrachtID, $data['id'], 'Huis geupdate');
-			}
-
-			# Huis kan gedaald zijn in prijs
-			# Dat moeten we dus controleren en indien nodig opslaan en melding van maken
-			if(newPrice($data['id'], $data['prijs'])) {							
-				if(!updatePrice($data['id'], $data['prijs'])) {
-					echo "Toevoegen van de prijs van <b>". $data['adres'] ."</b> is mislukt | $sql<br>\n";
-					$ErrorMessage[] = "Updaten van prijs (". $data['prijs'] .") aan ". $data['adres'] ." ging niet goed";
-					toLog('error', $OpdrachtID, $data['id'], "Nieuwe prijs van ". $data['prijs'] ." kon niet worden toegevoegd");
-				} else {
-					toLog('debug', $OpdrachtID, $data['id'], "Nieuwe vraagprijs");
-				}
-			}
-			
-			# Huis kan onder voorbehoud verkocht zijn
-			if($data['vov'] > 0) {
-				if(!soldHouseTentative($data['id'])) {
-					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '2' WHERE $HuizenID like '". $data['id'] ."'";
-					mysql_query($sql);
-					toLog('info', $OpdrachtID, $data['id'], 'Onder voorbehoud verkocht');
-				}
-			# Het geval dat onder voorbehoud wordt teruggedraaid
-			} elseif(soldHouseTentative($data['id'])) {
-				$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."'";
-				mysql_query($sql);
-				toLog('info', $OpdrachtID, $data['id'], 'Niet meer onder voorbehoud verkocht');
-			}
-			
-			# Huis kan openhuis hebben
-			if($data['openhuis'] == 1) {
-				# data online vergelijken met data in de database
-				$changedOpenHuis	= false;
-				$tijden			= extractOpenHuisData($data['id']);
-				$bestaandeTijden	= getNextOpenhuis($data['id']);
-
-				if($tijden[0] != $bestaandeTijden[0] OR $tijden[1] != $bestaandeTijden[1]) {
-					$sql = "DELETE FROM $TableCalendar WHERE $CalendarHuis like ". $data['id'] ." AND $CalendarStart like ". $bestaandeTijden[0] ." AND $CalendarEnd like ". $bestaandeTijden[1];
-					mysql_query($sql);
-					$changedOpenHuis = true;
-					toLog('info', $OpdrachtID, $data['id'], 'Open Huis gewijzigd');
-				}
-
-				if(!hasOpenHuis($data['id']) OR $changedOpenHuis) {
-					toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd');
-					
-					#	toevoegen aan de Google Calendar						
-					$sql = "INSERT INTO $TableCalendar ($CalendarHuis, $CalendarStart, $CalendarEnd) VALUES (". $data['id'] .", ". $tijden[0] .", ". $tijden[1] .")";
-					mysql_query($sql);
-											
-					#	opnemen in de eerst volgende mail						
-					$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '1' WHERE $HuizenID like '". $data['id'] ."'";
-					mysql_query($sql);
-				}
-			} else {
-				removeOpenHuis($data['id']);
-			}				
-		}
-		
-		# Kijk of dit huis al vaker gevonden is voor deze opdracht
-		if(newHouse($data['id'], $OpdrachtID)) {				
-			if(!addHouse($data, $OpdrachtID)) {
-				$ErrorMessage[] = "Toevoegen van ". $data['adres'] ." aan opdracht $OpdrachtID ging niet goed";
-				toLog('error', $OpdrachtID, $data['id'], 'Huis toekennen aan opdracht mislukt');
-			} else {
-				toLog('debug', $OpdrachtID, $data['id'], 'Huis toegekend aan opdracht');
-			}
-							
-			$fundaData	= getFundaData($data['id']);
-			$kenmerken	= getFundaKenmerken($data['id']);
-			$fotos			= explode('|', $kenmerken['foto']);
-			
-			$soldBefore			= soldBefore($data['id']);
-			$alreadyOnline	= alreadyOnline($data['id']);
-			$onlineBefore		= onlineBefore($data['id']);
-			
-			if(is_numeric($soldBefore)) {
-				$extraData = getFundaData($soldBefore);
-				$extraString = "<a href='http://funda.nl/$soldBefore'>Verkocht op ". date("d-m-Y", $extraData['eind']) ."</a>";
-			} elseif(is_numeric($alreadyOnline)) {
-				$extraData = getFundaData($alreadyOnline);
-				$extraString = "<a href='http://funda.nl/$alreadyOnline'>Al online bij ". $extraData['makelaar'] ."</a>";
-			} elseif(is_numeric($onlineBefore)) {
-				$extraData = getFundaData($onlineBefore);
-				$extraString = implode(" & ", getTimeBetween($extraData['eind'], time())) ." geleden offline gegaan";
-			} else {
-				$extraString = '&nbsp;';
-			}
-			
-			# Mail opstellen
-			$Item = array();				
-			$Item[] = "<table width='100%'>";
-			$Item[] = "<tr>";
-			$Item[] = "	<td colspan='2' align='center'><h1><a href='". $ScriptURL ."extern/redirect.php?id=". $data['id'] ."'>". $data['adres'] ."</a></h1><br>". $fundaData['wijk'] ."<br>\n<br></td>";
-			$Item[] = "</tr>";
-			$Item[] = "<tr>";
-			$Item[] = "	<td align='center' width='55%' rowspan='2'><a href='http://funda.nl/". $data['id'] ."'><img src='". str_replace ('_klein.jpg', '_middel.jpg',  $fundaData['thumb']) ."' alt='klik hier om naar funda.nl te gaan' border='0'></a></td>";
-			$Item[] = "	<td align='left' width='45%'>";
-			$Item[] = "  ". $fundaData['PC_c'] ." ". $fundaData['PC_l'] ." ". $fundaData['plaats'] ."<br>";			
-			$Item[] = "  ". $kenmerken['Aantal kamers'] ."<br>";
-			$Item[] = "  ". $kenmerken['Wonen (= woonoppervlakte)'] ." (". $kenmerken['Perceeloppervlakte'] .'/'. $kenmerken['Inhoud'] .")<br>";
-			$Item[] = "  <b>". formatPrice($data['prijs']) ."</b></td>";
-			$Item[] = "</tr>";
-			$Item[] = "<tr>";
-			$Item[] = "	<td align='left'><i>$extraString</i></td>";
-			$Item[] = "</tr>";
-			$Item[] = "<tr>";
-			$Item[] = "	<td colspan='2'>&nbsp;</td>";
-			$Item[] = "</tr>";
-			$Item[] = "<tr>";
-			$Item[] = "	<td colspan='2'>". makeTextBlock($kenmerken['descr'], 750) ."</td>";
-			$Item[] = "</tr>";
-			$Item[] = "<tr>";
-			$Item[] = "	<td colspan='2'>&nbsp;</td>";
-			$Item[] = "</tr>";
-			$Item[] = "<tr>";
-			$Item[] = "	<td colspan='2' align='center'>";
-				
-			if(is_array($fotos)) { $selectie = array_slice ($fotos, 0, (($colPhoto * $rowPhoto)-1)); } else { $selectie = array(); }
-				
-			$Item[] = "	<table>";
-			$Item[] = "	<tr>";
-				
-			foreach($selectie as $key => $foto) {
-				$foto_resize = str_replace ('_1440x960.jpg', '_180x120.jpg', $foto);
-				$Item[] = "		<td><a href='http://www.funda.nl". $data['url'] ."fotos/#groot&foto-". ($key + 1) ."'><img src='$foto_resize' border='0'></a></td>";
-				if(fmod($key, $colPhoto) == ($colPhoto - 1)) {
-					$Item[] = "	</tr>";
-					$Item[] = "	<tr>";
-				}
-			}
-				
-			if (count($fotos) > (($colPhoto * $rowPhoto)-1)) {
-				$Item[] = "		<td align='center'><a href='http://www.funda.nl". $data['url'] ."fotos/#groot&foto-$key'>bekijk<br>meer<br>foto's</a></td>";
-			}				
-			$Item[] = "	</tr>";
-			$Item[] = "	</table>";				
-			$Item[] = "	</td>";
-			$Item[] = "</tr>";
-			$Item[] = "</table>";
-				
-			$NewHouses[] = showBlock(implode("\n", $Item));				
-			$NewAddress[] = $data['adres'];
-			
-			if($debug == 0) {
-				# Pushover-bericht opstellen
-				$push = array();
-				$push['title']		= "Nieuw huis voor '". $OpdrachtData['naam'] ."'";
-				$push['message']	= $data['adres'] .' is te koop voor '. formatPrice($data['prijs']);
-				$push['url']			= 'http://funda.nl/'. $data['id'];
-				$push['urlTitle']	= $data['adres'];				
-				send2Pushover($push, $PushMembers);
-			}
-		} elseif(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {
-			$fundaData			= getFundaData($data['id']);
-			$PriceHistory		= getFullPriceHistory($data['id']);
-			$prijzen_array	= $PriceHistory[0];
-			$prijzen_perc 	= $PriceHistory[3];
-			end($prijzen_array);	# De pointer op de laatste waarde (=laatste prijs) zetten
-			
-			$Item  = "<table width='100%'>\n";
-			$Item .= "<tr>\n";
-			$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
-			$Item .= "	<td align='center'><a href='http://funda.nl/". $data['id'] ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
-			$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $fundaData['wijk'] .")<br>\n";
-			$Item .= "<b>". formatPrice(prev($prijzen_array)) ."</b> -> <b>". formatPrice(end($prijzen_array)) ."</b> (". formatPercentage(end($prijzen_perc)) .")\n";
-			$Item .= "</tr>\n";
-			$Item .= "</table>\n";
-			
-			$UpdatedPrice[] = showBlock($Item);
-			$UpdatedAddress[] = $data['adres'];
-			
-			# Pushover-bericht opstellen
-			$push = array();
-			$push['title']		= $data['adres'] ." is in prijs verlaagd voor '". $OpdrachtData['naam'] ."'";
-			$push['message']	= "Van ". formatPrice(prev($prijzen_array)) .' voor '. formatPrice(end($prijzen_array));
-			$push['url']			= 'http://funda.nl/'. $data['id'];
-			$push['urlTitle']	= $data['adres'];				
-			send2Pushover($push, $PushMembers);
-		}			
-	}
-	if($enkeleOpdracht) {
-		$String = array('');
-	}
-	$String[] = "<a href='$PageURL'>Pagina $p</a> verwerkt en ". (count($AdressenArray) + count($VerlopenArray))  ." huizen gevonden". ($enkeleOpdracht ? ' :' : '') ."<br>";
-	
-	if($enkeleOpdracht) {
-		$String[] = '<ol>';
-		
-		foreach($AdressenArray as $key => $value) {
-			$String[] = "<li>$value</li>";
-		}
-		
-		$String[] = '</ol>';
-		$String[] = '<ul>';
-					
-		foreach($VerlopenArray as $key => $value) {
-			$String[] = "<li>$value</li>";
-		}
-		
-		$String[] = '</ul>';
-	}
-	
-	if($enkeleOpdracht) {
-		$block[] = implode("\n", $String);
-	}		
-	toLog('debug', $OpdrachtID, '', "Einde pagina $p (". count($AdressenArray) ." huizen)");
-	
-	# Niet de laatste pagina en minder dan 15 huizen => niet goed
-	if((count($AdressenArray) + count($AdressenArray)) < 15 AND $nextPage) {			
-		# funda.nl laat soms wel de optie zien om naar de volgende pagina te gaan tewijl die er eigenlijk niet is
-		# de volgende pagina is namelijk leeg. Mochten er dus te weinig huizen op een pagina staan,
-		# dan check ik eerst even of er op de volgende pagina wel huizen staan.
-		$PageURL = $OpdrachtURL.'p'.($p+1).'/';
-		$contents	= file_get_contents_retry($PageURL, 5);
-		
-		if(!is_numeric(strpos($contents, "<h3>Geen koopwoningen gevonden die voldoen aan uw zoekopdracht</h3>"))) {
-			$ErrorMessage[] = $OpdrachtData['naam'] ."; Script vond maar ". (count($AdressenArray) + count($VerlopenArray)) .' huizen op pagina '. $p;
-			toLog('error', $OpdrachtID, '', "script vond maar ". (count($AdressenArray) + count($VerlopenArray)) ." huizen; pag. $p");
-			$push = array(); $push['title'] = "Te weinig huizen gevonden voor '". $OpdrachtData['naam'] ."'"; $push['message'] = "Het aantal gevonden huizen op pagina $p klopt niet : ". $NrHuizen[0]; $push['url'] = $OpdrachtURL; $push['urlTitle'] = $OpdrachtData['naam']; $push['priority']	= $cfgPushErrorPriority;
-			send2Pushover($push, array(1));
-		}
-	}
-	
-	# Om funda.nl niet helemaal murw te beuken wachten we even 3 seconden voordat we de volgende pagina opvragen
-	sleep(rand(3,7));	
+if(is_numeric(strpos($contents, '<button tabIndex="0" class="css-9pm8wv">Next</button>'))) {		
+	$nextPage = true;
+} else {
+	$nextPage = false;
 }
 
-if(!$enkeleOpdracht) {
-	$block[] = implode("\n", $String);
+# Code opknippen zodat er een array met HTML-code voor een huis ontstaat
+$tempHuizen			= explode('data-test-id="object-image-link"', $contents);
+#$tempHuizen			= explode('<div class="ml-auto" data-v-058abe0b>', $contents);
+
+# Eerste element is rubbish
+$Huizen			= array_slice($tempHuizen, 1);
+
+# $Huizen is nu een array met per huis de HTML-code
+$NrPageHuizen		= count($Huizen);
+
+if($debug > 0) {
+	$block[] = "Aantal ". ($verkocht ? 'verkochte ' : '') ."huizen in <a href='$debug_filename'>pagina $page</a> van <a href='$PageURL'>". $OpdrachtData['naam'] ."</a> : ". $NrPageHuizen ."<br>\n";
 }
 
-
-
-# Verkochte ($data['verkocht'] = 1) en onder voorbehoud ($data['verkocht'] = 2) verkochte huizen
-$sql_verkocht = "SELECT $TableHuizen.$HuizenID FROM $TableResultaat, $TableHuizen WHERE $TableHuizen.$HuizenVerkocht NOT LIKE $TableResultaat.$ResultaatVerkocht AND $TableResultaat.$ResultaatZoekID like '$OpdrachtID' AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID";
-$result = mysql_query($sql_verkocht);
-
-if($row = mysql_fetch_array($result)) {
-	do {
-		$fundaID	= $row[$HuizenID];
-		$data			= getFundaData($fundaID);
-		
-		$OorspronkelijkeVraagprijs	= getOrginelePrijs($fundaID);
-		$LaatsteVraagprijs					= getHuidigePrijs($fundaID);
-		
-		if($data['verkocht'] == '1') {							
-			$Item  = "<table width='100%'>\n";
-			$Item .= "<tr>\n";
-			$Item .= "	<td align='center'><img src='". changeThumbLocation($data['thumb']) ."'></td>\n";
-			$Item .= "	<td align='center'><a href='http://funda.nl/". $fundaID ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
-			$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $data['wijk'] .")<br>\n";
-			$Item .= "	". date("d-m-y", $data['start']) .' t/m '. date("d-m-y", $data['eind']) ." (". getDoorloptijd($fundaID) .")<br>\n";
-			if($LaatsteVraagprijs != $OorspronkelijkeVraagprijs) { $Item .= '<b>'. formatPrice($OorspronkelijkeVraagprijs) .'</b> -> '; }
-			$Item .= '	<b>'. formatPrice($LaatsteVraagprijs) ."</b></td>\n";
-			$Item .= "</tr>\n";
-			$Item .= "</table>\n";
+# Doorloop nu alle gevonden huizen op de overzichtspagina
+foreach($Huizen as $HuisText) {	
+	# Extraheer hier adres, plaats, prijs, id etc. uit
+	$data = extractFundaData($HuisText, $verkocht);
+									
+	$AdressenArray[] = $data['adres'];
 							
-			$VerkochtHuis[] = showBlock($Item);
-			$VerkochtAddress[] = $data['adres'];
+	if($debug > 1) {
+		if($debug > 2) {
+			$block[] = $HuisText;
+		}
+		
+		$tempItems = array();
+		foreach($data as $key => $value) {
+			$tempItems[] = $key .' -> '. $value;
+		}
+		$block[] = implode('<br>', $tempItems);		
+	}
+	
+	# Huis is nog niet bekend bij het script, dus moet worden toegevoegd
+	if(!knownHouse($data['id'])) {
+		if($debug > 1)	$block[] = $data['id']." onbekend -> toegevoegd";
+		
+		$extraData = array();
+		
+		# Gegevens over het huis opslaan
+		if(!saveHouse($data, $extraData)) {
+			$ErrorMessage[] = "Toevoegen van ". formatStreetAndNumber($data['id']) ." aan het script ging niet goed";
+			toLog('error', $OpdrachtID, $data['id'], 'Huis toevoegen aan script mislukt');
+			$success = false;
+		} else {					
+			toLog('info', $OpdrachtID, $data['id'], 'Huis toevoegen aan script');
+		}
 			
-			# Pushover-bericht opstellen
-			$push = array();
-			$push['title']		= $data['adres'] ." is verkocht voor '". $OpdrachtData['naam'] ."'";
-			$push['message']	= 'Na '. getDoorloptijd($fundaID) .' verkocht voor '. formatPrice($LaatsteVraagprijs);
-			if($LaatsteVraagprijs != $OorspronkelijkeVraagprijs) {
-				$push['message']	.= '<br>Oorspronkelijke vraagprijs was '. formatPrice($OorspronkelijkeVraagprijs);
-			}
-			$push['url']			= 'http://funda.nl/'. $data['id'];
-			$push['urlTitle']	= $data['adres'];				
-			send2Pushover($push, $PushMembers);			
-		} elseif($data['verkocht'] == '2') {
-			$Item  = "<table width='100%'>\n";
-			$Item .= "<tr>\n";
-			$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
-			$Item .= "	<td align='center'><a href='http://funda.nl/". $fundaID ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
-			$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $data['wijk'] .")<br>\n";
-			$Item .= '	<b>'. formatPrice($LaatsteVraagprijs) ."</b></td>\n";
-			$Item .= "</tr>\n";
-			$Item .= "</table>\n";
-			
-			$OnderVoorbehoud[] = showBlock($Item);
-			$BijnaVerkochtAddress[] = $data['adres'];
-			
-			# Pushover-bericht opstellen
-			$push = array();
-			$push['title']		= $data['adres'] ." is onder voorbehoud verkocht voor '". $OpdrachtData['naam'] ."'";
-			$push['message']	= 'Na '. getDoorloptijd($fundaID) .' met een prijs van '. formatPrice($LaatsteVraagprijs);
-			if($LaatsteVraagprijs != $OorspronkelijkeVraagprijs) {
-				$push['message']	.= '<br>Oorspronkelijke vraagprijs was '. formatPrice($OorspronkelijkeVraagprijs);
-			}
-			$push['url']			= 'http://funda.nl/'. $data['id'];
-			$push['urlTitle']	= $data['adres'];				
-			send2Pushover($push, $PushMembers);
-		} elseif($data['verkocht'] == '0') {
-			$Item  = "<table width='100%'>\n";
-			$Item .= "<tr>\n";
-			$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
-			$Item .= "	<td align='center'><a href='http://funda.nl/". $fundaID ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
-			$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $data['wijk'] .")<br>\n";
-			$Item .= '	<b>'. formatPrice($LaatsteVraagprijs) ."</b></td>\n";
-			$Item .= "</tr>\n";
-			$Item .= "</table>\n";
-			$Beschikbaar[] = showBlock($Item);
-			$beschikbaarAddress[] = $data['adres'];
-			
-			# Pushover-bericht opstellen
-			$push = array();
-			$push['title']		= $data['adres'] ." is weer beschikbaar voor '". $OpdrachtData['naam'] ."'";
-			$push['message']	= 'Weer op de markt voor '. formatPrice($LaatsteVraagprijs);
-			$push['url']			= 'http://funda.nl/'. $data['id'];
-			$push['urlTitle']	= $data['adres'];				
-			send2Pushover($push, $PushMembers);
+		# Coordinaten van het huis toevoegen
+		if(!addCoordinates($data['adres'], $data['PC_c'], $data['plaats'], $data['id'])) {					
+			$ErrorMessage[] = "Toevoegen van coordinaten aan ". formatStreetAndNumber($data['id']) ." ging niet goed";	
+			toLog('error', $OpdrachtID, $data['id'], 'Coordinaten toevoegen mislukt');
 		} else {
-			$ErrorMessage[] = $OpdrachtData['naam'] ."; Zoeken van verkochte huizen geeft ongeldig resultaat";
+			toLog('debug', $OpdrachtID, $data['id'], "Coordinaten toegevoegd");
+		}
+			
+		# Prijs van het huis opslaan
+		if(!updatePrice($data['id'], $data['prijs'])) {
+			$ErrorMessage[] = "Toevoegen van prijs (". $data['prijs'] .") aan ". formatStreetAndNumber($data['id']) ." ging niet goed";
+			toLog('error', $OpdrachtID, $data['id'], 'Prijs toevoegen mislukt');
+		} else {
+			toLog('debug', $OpdrachtID, $data['id'], "Prijs toegevoegd");
 		}
 		
-		# Bijhouden dat mail verstuurd is met verkochte huis
-		$sql_update_verkocht = "UPDATE $TableResultaat SET $ResultaatVerkocht = '". $data['verkocht'] ."' WHERE $ResultaatZoekID like '$OpdrachtID' AND $ResultaatID like '$fundaID'";
-		mysql_query($sql_update_verkocht);
-	} while($row = mysql_fetch_array($result));
+		# Aanvinken om in een later stadium de details op te vragen
+		mark4Details($data['id']);
+	} else {
+		# Mocht hij wel bekend zijn, dan zetten wij hem op online
+		# Dit voor het geval die om wat voor een reden dan ook een keer op offline is gezet
+		setOnline($data['id']);
+	}
+
+	# Huis is niet verkocht	
+	if(!$verkocht) {				
+		# We moeten dus aangeven dat hij nog steeds op de markt is
+		if(!updateAvailability($data['id'])) {
+			echo "<font color='red'>Updaten van <b>". formatStreetAndNumber($data['id']) ."</b> is mislukt</font> | $sql<br>\n";
+			$ErrorMessage[] = "Updaten van ". formatStreetAndNumber($data['id']) ." is mislukt";
+			toLog('error', $OpdrachtID, $data['id'], "Update van huis kon niet worden gedaan");
+		} else {
+			toLog('debug', $OpdrachtID, $data['id'], 'Huis geupdate');
+		}
+				
+		# Huis kan gedaald zijn in prijs
+		# Dat moeten we dus controleren en indien nodig opslaan en melding van maken
+		if(newPrice($data['id'], $data['prijs']) AND !$verkocht) {							
+			if(!updatePrice($data['id'], $data['prijs'])) {
+				echo "Toevoegen van de prijs van <b>". formatStreetAndNumber($data['id']) ."</b> is mislukt | $sql<br>\n";
+				$ErrorMessage[] = "Updaten van prijs (". $data['prijs'] .") aan ". formatStreetAndNumber($data['id']) ." ging niet goed";
+				toLog('error', $OpdrachtID, $data['id'], "Nieuwe prijs van ". $data['prijs'] ." kon niet worden toegevoegd");
+			} else {
+				toLog('debug', $OpdrachtID, $data['id'], "Nieuwe vraagprijs");
+			}
+			if($debug > 1)	$block[] = "Nieuwe vraagprijs";
+		}
+			
+		# Huis kan onder voorbehoud verkocht zijn
+		if($data['vov'] > 0) {
+			if(!soldHouseTentative($data['id'])) {
+				$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '2' WHERE $HuizenID like '". $data['id'] ."' OR $HuizenID2 like '". $data['id'] ."'";
+				mysqli_query($db, $sql);
+				toLog('info', $OpdrachtID, $data['id'], 'Onder voorbehoud verkocht');
+			}			
+		# Het geval dat onder voorbehoud wordt teruggedraaid
+		} elseif(soldHouseTentative($data['id']) AND $data['verkocht'] == 0) {
+			$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."' OR $HuizenID2 like '". $data['id'] ."'";
+			mysqli_query($db, $sql);
+			toLog('info', $OpdrachtID, $data['id'], 'Niet meer onder voorbehoud verkocht');
+		}
+	}
+	
+	# Huis kan ook echt verkocht zijn
+	if($data['verkocht'] == 1) {
+		if(!soldHouse($data['id'])) {
+			$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '1' WHERE $HuizenID like '". $data['id'] ."' OR $HuizenID2 like '". $data['id'] ."'";
+			mysqli_query($db, $sql);
+			toLog('info', $OpdrachtID, $data['id'], 'Verkocht');
+			
+			# Aanvinken om in een later stadium de details op te vragen
+			mark4Details($data['id']);
+		}
+	# Het geval dat verkocht wordt teruggedraaid (hypothetisch)
+	} elseif(soldHouse($data['id'])) {
+		$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."' OR $HuizenID2 like '". $data['id'] ."'";
+		mysqli_query($db, $sql);
+		toLog('info', $OpdrachtID, $data['id'], 'Toch niet meer verkocht');
+	}
+	
+		
+	# Huis kan openhuis hebben
+	if($data['openhuis'] == 1) {
+		if(!hasOpenHuis($data['id'])) {
+			setOpenHuis($data['id']);
+			toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd');
+			
+			# Aanvinken om in een later stadium de details (met daarin de openhuis data) op te vragen
+			mark4Details($data['id']);
+			
+			# Een open huis kan alleen als het nog niet verkocht is -> pushover-bericht versturen			
+			if($debug == 0 AND !$verkocht) {
+				sendPushoverOpenHuis($data['id'], $OpdrachtID);
+				if($debug > 1)	$block[] = 'Pushover-bericht open huis';
+			}
+		}
+	} else {
+		removeOpenHuis($data['id']);
+	}	
+		
+				
+	# Kijk of dit huis al vaker gevonden is voor deze opdracht
+	if(newHouse($data['id'], $OpdrachtID)) {				
+		if(!addHouse($data, $OpdrachtID)) {
+			$ErrorMessage[] = "Toevoegen van ". formatStreetAndNumber($data['id']) ." aan opdracht $OpdrachtID ging niet goed";
+			toLog('error', $OpdrachtID, $data['id'], 'Huis toekennen aan opdracht mislukt');
+		} else {
+			toLog('debug', $OpdrachtID, $data['id'], 'Huis toegekend aan opdracht');
+		}
+  
+		$NewAddress[] = $data['adres'];
+		
+		# Nieuw huis, niet verkocht + niet aan het testen -> pushover-bericht versturen
+		if($debug == 0 AND !$verkocht) {
+			sendPushoverNewHouse($data['id'], $OpdrachtID);
+			if($debug > 1)	$block[] = 'Pushover-bericht nieuw huis voor opdracht';
+		}
+	} elseif(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {
+		# Prijsverlaging + niet aan het testen -> pushover-bericht versturen
+		if($debug == 0 AND !$verkocht) {
+			sendPushoverChangedPrice($data['id'], $OpdrachtID);
+			if($debug > 1)	$block[] = 'Pushover-bericht prijsverlaging';
+		}
+	}
 }
 
+$String = array('');
+$String[] = "<a href='$PageURL'>Pagina $page</a> verwerkt en ". count($AdressenArray) ." huizen gevonden :<br>";
+$String[] = '<ol>';
+foreach($AdressenArray as $key => $value) {
+	$String[] = "<li>$value</li>";
+}
+$String[] = '</ol>';
 
+$block[] = implode("\n", $String);
 
-# Open huizen ($data['openhuis'] = 1)
-$sql_open = "SELECT $TableHuizen.$HuizenID FROM $TableResultaat, $TableHuizen WHERE $TableHuizen.$HuizenOpenHuis = '1' AND $TableResultaat.$ResultaatOpenHuis = '0' AND $TableResultaat.$ResultaatZoekID like '$OpdrachtID' AND $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID";
-$result = mysql_query($sql_open);
-
-if($row = mysql_fetch_array($result)) {
-	do {
-		$fundaID	= $row[$HuizenID];
-		$data			= getFundaData($fundaID);
-		$open			= getNextOpenhuis($fundaID);
-		
-		$Item  = "<table width='100%'>\n";
-		$Item .= "<tr>\n";
-		$Item .= "	<td align='center'><img src='". $data['thumb'] ."'></td>\n";
-		$Item .= "	<td align='center'><a href='http://funda.nl/". $fundaID ."'>". $data['adres'] ."</a>, ". $data['plaats'] ."<br>\n";
-		$Item .= 		$data['PC_c'].$data['PC_l'] ." (". $data['wijk'] .")<br>\n";
-		$Item .= '	<b>'. strftime("%a %e %b %k:%M", $open[0]) ." - ". strftime("%k:%M", $open[1]) ."</b> (<a href='". $ScriptURL ."admin/makeCalendar.php?id=". $fundaID ."'>iCal</a>)</td>\n";
-		$Item .= "</tr>\n";
-		$Item .= "</table>\n";
-		
-		$OpenHuis[] = showBlock($Item);
-		$OpenAddress[] = $data['adres'];
-		
-		# Pushover-bericht opstellen
-		$push = array();
-		$push['title']		= $data['adres'] ." heeft open huis voor '". $OpdrachtData['naam'] ."'";
-		$push['message']	= $data['adres'] ." heeft open huis op ". strftime("%a %e %b", $open[0]) ." van ". strftime("%k:%M", $open[0]) ." tot ". strftime("%k:%M", $open[1]);
-		$push['url']			= 'http://funda.nl/'. $data['id'];
-		$push['urlTitle']	= $data['adres'];				
-		send2Pushover($push, $PushMembers);
-		
-		# Bijhouden dat mail verstuurd is met open huis
-		$sql_update_open = "UPDATE $TableResultaat SET $ResultaatOpenHuis = '1' WHERE $ResultaatZoekID like '$OpdrachtID' AND $ResultaatID like '$fundaID'";
-		mysql_query($sql_update_open);				
-	} while($row = mysql_fetch_array($result));
+if($verkocht) {
+	toLog('debug', $OpdrachtID, '', "Einde verkochte pagina (". count($AdressenArray) ." huizen)");
+} else {
+	toLog('debug', $OpdrachtID, '', "Einde pagina $page (". count($AdressenArray) ." huizen)");
 }
 
+setPageToLoadNext($OpdrachtID, $page, $verkocht, $nextPage);
+
+/*
+# Niet de laatste pagina en minder dan 15 huizen => niet goed
+if(count($AdressenArray) < 15 AND $nextPage) {			
+	# funda.nl laat soms wel de optie zien om naar de volgende pagina te gaan tewijl die er eigenlijk niet is
+	# de volgende pagina is namelijk leeg. Mochten er dus te weinig huizen op een pagina staan,
+	# dan check ik eerst even of er op de volgende pagina wel huizen staan.
+	$PageURL = $OpdrachtURL.'p'.($p+1).'/';
+	$contents	= file_get_contents_retry($PageURL, 5);
+	
+	if(!is_numeric(strpos($contents, "<h3>Geen koopwoningen gevonden die voldoen aan uw zoekopdracht</h3>"))) {
+		$ErrorMessage[] = $OpdrachtData['naam'] ."; Script vond maar ". count($AdressenArray) .' huizen op pagina '. $p;
+		toLog('error', $OpdrachtID, '', "script vond maar ". count($AdressenArray) ." huizen; pag. $p");
+		$push = array(); $push['title'] = "Te weinig huizen gevonden voor '". $OpdrachtData['naam'] ."'"; $push['message'] = "Het aantal gevonden huizen op pagina $p klopt niet : ". $NrHuizen[0]; $push['url'] = $OpdrachtURL; $push['urlTitle'] = $OpdrachtData['naam']; $push['priority']	= $cfgPushErrorPriority;
+		send2Pushover($push, array(1));
+	}
+}
+*/
 
 
+/*
 # Als er een nieuw huis, een huis in prijs gedaald, open huis of een huis verkocht is moet er een mail verstuurd worden.
 if((count($NewHouses) > 0 OR count($UpdatedPrice) > 0 OR count($OnderVoorbehoud) > 0 OR count($VerkochtHuis) > 0 OR count($OpenHuis) > 0 OR count($Beschikbaar) > 0) AND (count($OpdrachtMembers) > 0)) {
 	$FooterText  = "Google Maps (";
@@ -719,7 +505,7 @@ if((count($NewHouses) > 0 OR count($UpdatedPrice) > 0 OR count($OnderVoorbehoud)
 		}
 	}		
 }
-
+*/
 
 # Laat de resultaten vam de check netjes op het scherm zien.
 $tweeKolom = false;
@@ -756,3 +542,5 @@ if(count($ErrorMessage) > 0 AND $debug == 0) {
 	$mail->Body			= $HTMLMail;
 	$mail->Send();	
 }
+
+?>

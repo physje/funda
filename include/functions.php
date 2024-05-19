@@ -1,242 +1,6 @@
 <?php
 
-# Geef de id's van zoekopdrachten
-#
-#	INPUT
-#		$active : 0 = niet actief, 1 = actief, '' = alle
-#
-# OUTPUT
-#		array met ids van zoekopdracht
-function getZoekOpdrachten($user, $uur, $active = true) {
-	global $TableZoeken, $TableVerdeling, $VerdelingOpdracht, $VerdelingUur, $ZoekenKey, $ZoekenUser;
-	$where = $Opdrachten = array();
-					
-	if($user != '') {
-		$from = $TableZoeken;
-		$where[] = "$TableZoeken.$ZoekenUser = '$user'";
-	}
-	
-	if($uur != '' OR $uur == '0') {
-		$from = "$TableVerdeling, $TableZoeken";
-		$where[] = "$TableVerdeling.$VerdelingOpdracht = $TableZoeken.$ZoekenKey";
-		$where[] = "$TableVerdeling.$VerdelingUur = '$uur'";
-	}
-	
-	$sql = "SELECT $TableZoeken.$ZoekenKey FROM ". $from .' WHERE '. implode(" AND ", $where);
-		
-	$result = mysql_query($sql);	
-	if($row = mysql_fetch_array($result)) {
-		do {
-			if(($active AND count(getOpdrachtUren($row[$ZoekenKey])) > 0) OR !$active) {
-				$Opdrachten[] = $row[$ZoekenKey];
-			}
-		} while($row = mysql_fetch_array($result));
-	}
-	
-	return $Opdrachten;
-}
-
-function getActiveOpdrachten() {
-	global $TableVerdeling, $VerdelingOpdracht;
-	
-	$sql = "SELECT $VerdelingOpdracht FROM $TableVerdeling GROUP BY $VerdelingOpdracht";
-	
-	$result = mysql_query($sql);	
-	if($row = mysql_fetch_array($result)) {
-		do {
-			$Opdrachten[] = $row[$VerdelingOpdracht];
-		} while($row = mysql_fetch_array($result));
-	}
-	
-	return $Opdrachten;
-}
-
-
-function getRandomOpdracht() {
-	global $randomCheck, $randomFactor;
-	
-	# Wel of niet random checken
-	# Funda blockt robots, random helpt hopelijk om opsporen iets lastiger te maken.
-	# Eerst wordt er dus random bepaalt of er wel of niet gecheckt moet worden.
-	# Dan wordt er random bepaalt welke opdracht indien er besloten is wel te checken.
-	if($randomCheck) {
-		$dobbelsteen = (rand(0, 100))/100;
-		toLog('debug', '', '', "Waarde dobbelsteen $dobbelsteen ($randomFactor)");
-		
-		if($dobbelsteen < $randomFactor) {
-			$alleOpdrachten = getActiveOpdrachten();
-			$key = rand(0, (count($alleOpdrachten)-1));
-			$Opdrachten[] = $alleOpdrachten[$key];
-			toLog('debug', $alleOpdrachten[$key], '', 'Van  '. count($alleOpdrachten) ." opdrachten, opdracht $key gekozen : ". $alleOpdrachten[$key]);
-		} else {
-			$Opdrachten = array();
-		}
-	} else {
-		$Opdrachten = getZoekOpdrachten('', date('H'));
-	}
-		
-	return $Opdrachten;	
-}
-
-
-function getOpdrachtUren($opdracht) {
-	global $TableVerdeling, $VerdelingUur, $VerdelingOpdracht;
-	
-	$Uren = array();
-	
-	$sql = "SELECT * FROM $TableVerdeling WHERE $VerdelingOpdracht = $opdracht";
-	$result = mysql_query($sql);	
-	if($row = mysql_fetch_array($result)) {
-		do {
-			$Uren[] = $row[$VerdelingUur];
-		} while($row = mysql_fetch_array($result));
-	}
-	
-	return $Uren;
-}
-
-# Zoek de gegevens van een zoekopdracht op basis van id
-#
-#	INPUT
-#		$id	id van de zoekopdracht
-#
-# OUTPUT
-#		array met gegevens
-function getOpdrachtData($id) {
-	global $TableZoeken, $ZoekenKey, $ZoekenActive, $ZoekenUser, $ZoekenNaam, $ZoekenURL;
-	
-	$data = array();
-	
-	if($id != '') {
-		$sql		= "SELECT * FROM $TableZoeken WHERE $ZoekenKey = $id";
-		$result	= mysql_query($sql);
-		$row		= mysql_fetch_array($result);
-			
-		$data['active']	= $row[$ZoekenActive];
-		$data['user']		= $row[$ZoekenUser];
-		$data['naam']		= urldecode($row[$ZoekenNaam]);
-		$data['url']		= urldecode($row[$ZoekenURL]);
-	}
-	
-	return $data;
-}
-
-
-# Probeer de inhoud van een pagina in te lezen in in een string
-# Mocht dit niet lukken probeer dan nogmaals
-#
-#	INPUT
-#		$url		String met de url van de in te lezen pagina
-#		$maxTry	Maximaal aantal pogingen (default = 3)
-#
-# OUTPUT
-#		String met de inhoud van de pagina
-function file_get_contents_retry($url, $maxTry = 3) {
-	$contents = false;
-	$counter = 0;
-	
-	$useragents = array('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; SLCC1; .NET CLR 2.0.50727)','Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)','Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en) AppleWebKit/124 (KHTML, like Gecko) Safari/125','Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.30 Safari/525.13','Opera/7.23 (Windows 98; U) [en]','Mozilla/5.0 (Windows; U; Windows NT 5.1; nl; rv:1.9) Gecko/2008052906 Firefox/3.0','Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.4 (like Gecko)');
-
-	while($contents === false AND $counter < $maxTry) {
-		if($counter > 0)	{	sleep(2);	}		
-		
-		/*		
-		$curl_handle=curl_init();
-		curl_setopt($curl_handle, CURLOPT_URL,$url);
-		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
-		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-		//curl_setopt($curl_handle, CURLOPT_USERAGENT, $useragents[rand(0, count($useragents))]);
-		curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.4 (like Gecko)');
-		$contents = curl_exec($curl_handle);
-		curl_close($curl_handle);
-		*/
-		
-		$opts = array('http'=>array('method'=>"GET",'header'=>"User-Agent: ". $useragents[rand(0, count($useragents))] ."\r\n"));
-		$context = stream_context_create($opts);
-		$contents = file_get_contents($url, false, $context);		
-		$counter++;
-	}
-	
-	return $contents;
-}
-
-
-
-function implode2($first, $last, $array) {
-	if(count($array) > 2) {
-		$element = array_pop ($array);
-		return implode($first, $array).$last.$element;
-	} elseif(count($array) == 2) {
-		return implode($last, $array);
-	} else {
-		return current($array);
-	}
-}
-
-
-# Zoek de coordinaten bij een gegeven straat, postcode en plaats en voeg deze toe
-#
-#	INPUT
-#		$straat		String met straatnaam
-#		$postcode	Volledige postcode
-#		$plaats		String met plaatsnaam
-#		$huisID		ID van huis op funda
-#
-# OUTPUT
-#		boolean of het wel of niet gelukt is
-function addCoordinates($straat, $postcode, $plaats, $huisID) {
-	$elementen		= explode(' ', urldecode($straat));
-	
-	if(count($elementen) > 1) {
-		$toevoeging		= $elementen[count($elementen) - 1];
-	
-		$toevoeging = str_ireplace('zwart', '' , $toevoeging);
-		$toevoeging = str_ireplace('zw', '' , $toevoeging);
-		$toevoeging = str_ireplace('rd', '' , $toevoeging);
-		$toevoeging = str_ireplace('rood', '' , $toevoeging);
-		$toevoeging = trim($toevoeging, 'A..Za..z-*.');
-		$toevoeging = trim($toevoeging);
-		
-		$elementen[count($elementen) - 1] = $toevoeging;
-	}
-		
-	$GoogleStraat = trim(implode(' ', $elementen));
-	
-	$coord				= getCoordinates($GoogleStraat, $postcode, $plaats);
-	
-	if(!addKnowCoordinates($coord, $huisID)) {
-		return false;
-	} else {
-		return true;
-	}	
-}
-
-
-# Voeg coordinaten toe aan huis
-#
-#	INPUT
-#		$coord		array met coordinaten [Ndeg,Ndec,Odeg,Odec]
-#		$huisID		ID van huis op funda
-#
-# OUTPUT
-#		boolean of het wel of niet gelukt is
-function addKnowCoordinates($coord, $huisID) {
-	global $TableHuizen, $HuizenLat, $HuizenLon, $HuizenID;
-			
-	if(is_numeric($coord[1])) {
-		$lat = $coord[0].'.'.$coord[1];
-		$lng = $coord[2].'.'.$coord[3]; 
-		$sql = "UPDATE $TableHuizen SET $HuizenLat = '$lat', $HuizenLon = '$lng' WHERE $HuizenID = '$huisID'";
-		if(!mysql_query($sql)) {
-			return false;
-		} else {
-			return true;
-		}
-	} else {
-		return false;
-	}
-}
-
+# Helper-functies
 
 # Toon een string in een gekleurd kader
 #
@@ -264,843 +28,183 @@ function showBlock($String, $mobile = false) {
 }
 
 
-# Toon een string en kort hem indien nodig in
-#
-#	INPUT
-#		$string		De te tonen string
-#		$length		De maximale lengte van de uiteindelijke string
-#
-# OUTPUT
-#		De al dan niet ingekorte string
-function makeTextBlock($string, $length, $reverse = false) {
-	if(strlen($string) > $length) {
-		if($reverse) {
-			$titel = "...".substr($string, -$length+3);
-		} else {
-			$titel = substr($string, 0, $length-5) . ".....";
-		}
-	} else {
-		$titel = $string;
-	}
-	
-	return $titel;
-}
-
-# Extraheer gegevens van een huis uit de ruwe HTML-code van de overzichtspagina van funda.nl
-#
-#	INPUT
-#		$string		De ruwe HTML-code
-#
-# OUTPUT
-#		array met de gegevens van het huis
-function extractFundaData($HuisText, $verkocht = false) {	
-	# Overzichtspagina
-	$HuisURL= getString('<a data-object-url-tracking="resultlist" href="', '"', $HuisText, 0);
-	$mappen = explode("/", $HuisURL[0]);
-	if($verkocht) {
-		$key		= $mappen[4];
-	} else {
-		$key		= $mappen[3];
-	}
-	$key_parts = explode("-", $key);
-	$id			= $key_parts[1];
-	$adres	= getString('<h3 class="search-result-title">', '<small class="search-result-subtitle">', $HuisURL[1], 0);
-	$PC			= getString('<small class="search-result-subtitle">', '</small>', $adres[1], 0);
-	$prijs	= getString('<span class="search-result-price">', '</span>', $PC[1], 0);
-	
-	if(strpos($HuisText, 'search-result-makelaar"')) {
-		$R_url	= getString('<a class="search-result-makelaar" href="', '">', $PC[1], 0);
-		$R_naam	= getString('<span class="search-result-makelaar-name">', '</span>', $PC[1], 0);
-	} else {
-		$R_url	= array('', '');
-		$R_naam	= getString('<span class="search-result-makelaar-name">', '</span>', $PC[1], 0);
-	}
-			
-	$param	= getString('<ul class="labels">', '</ul>', $PC[1], 0);	
-	$foto		= getString('calc(100vw - 2rem)" src="', '" srcset="', $HuisText, 0);
-	
-	# Nu al het knippen geweest is kan de geknipte data "geprocesed" worden		
-	if(strpos($param[0], 'Verkocht onder voorbehoud')) {
-		$voorbehoud = 1;
-	} else {
-		$voorbehoud = 0;
-	}
-	
-	if(strpos($param[0], 'label-open-huis') OR strpos($param[0], '<span class="item-open nvm-open-huizen-dag" title="')) {
-		$openhuis = 1;
-	} else {
-		$openhuis = 0;
-	}
-	
-	$postcode = explode(' ', trim($PC[0]));
-		
-	$data['id']				= $id;
-	$data['url']			= trim($HuisURL[0]);
-	$data['adres']		= trim($adres[0]);
-	$data['PC_c']			= trim($postcode[0]);
-	$data['PC_l']			= trim($postcode[1]);
-	$data['plaats']		= end($postcode);
-	$data['thumb']		= trim($foto[0]);
-	$data['makelaar']	= trim($R_naam[0]);
-	$data['prijs']		= cleanPrice($prijs[0]);
-	$data['vov']			= $voorbehoud;
-	$data['openhuis']	= $openhuis;
-	
-	/*
-	foreach($data as $key => $value) {
-		echo $key .'|'.makeTextBlock($value, 100) .'<br>';
-	}
-	echo '------------------------------';
-	*/	
-	return $data;
-}
-
-function cleanPrice($HuisPrijs) {
-	$cleanPrice = '';
-	for($i=0 ; $i < strlen($HuisPrijs) ; $i++) {
-		$waarde = $HuisPrijs[$i];
-		if(is_numeric($waarde)) {
-			$cleanPrice .= $waarde;
-		}
-	}
-	
-	if(!is_numeric($cleanPrice)) {
-		$cleanPrice		= '0';
-	}	
-		
-	return $cleanPrice;
-}
-
-function extractFundaData_old($HuisText, $verkocht = false) {	
-	# Overzichtspagina
-	$HuisURL= getString('<a href="', '"', $HuisText, 0);
-	$mappen = explode("/", $HuisURL[0]);
-	if($verkocht) {
-		$key		= $mappen[4];
-	} else {
-		$key		= $mappen[3];
-	}
-	$key_parts = explode("-", $key);
-	$id			= $key_parts[1];
-	$foto		= getString('<img src="', '" alt="" title="" class="', $HuisURL[1], 0);
-	$adres	= getString('<a href="'. $HuisURL[0] .'"class="object-street " >', '</a>', $foto[1], 0);
-	$PC			= getString('<li>', '<', $adres[1], 0);
-	$param	= getString('<li>', '</li>', $adres[1], 0);
-		
-	if(strpos($HuisText, '<a class="realtor" href="')) {
-		$R_url	= getString('<a class="realtor" href="', '">', $PC[1], 0);
-		$R_naam	= getString('">', '</a>', $R_url[1], 0);
-	} else {
-		$R_naam	= getString('<span class="realtor">', '</span>', $PC[1], 0);
-	}
-	$prijs	= getString('<span class="price">', '</span>', $R_naam[1], 0);
-		
-	if(strpos($param[0], 'Verkocht onder voorbehoud')) {
-		$voorbehoud = 1;
-	} else {
-		$voorbehoud = 0;
-	}
-	
-	if(strpos($param[0], '<span class="item-open"') OR strpos($param[0], '<span class="item-open nvm-open-huizen-dag" title="')) {
-		$openhuis = 1;
-	} else {
-		$openhuis = 0;
-	}
-	
-	$postcode = explode(' ', trim($PC[0]));
-		
-	$HuisPrijs		= $prijs[0];			
-	$HuisPrijs		= str_ireplace('&euro;&nbsp;', '' , $HuisPrijs);
-	$HuisPrijs		= str_ireplace('.', '' , $HuisPrijs);
-		
-	if(!is_numeric($HuisPrijs)) {
-		$HuisPrijs		= '0';
-	}
-	
-	$data['id']				= $id;
-	$data['url']			= trim($HuisURL[0]);
-	$data['adres']		= trim($adres[0]);
-	$data['PC_c']			= trim($postcode[0]);
-	$data['PC_l']			= trim($postcode[1]);
-	$data['plaats']		= end($postcode);
-	$data['thumb']		= trim($foto[0]);
-	$data['makelaar']	= trim($R_naam[0]);
-	$data['prijs']		= $HuisPrijs;
-	$data['vov']			= $voorbehoud;
-	$data['openhuis']	= $openhuis;
-
-	return $data;
-}
-
-
-
-function convertToReadable($string) {
-	$string = str_replace('&nbsp;m&sup2;', '', $string);
-	$string = str_replace('&nbsp;m&sup3;', '', $string);
-	$string = html_entity_decode($string);
-	
-	return $string;
-}
-
-
-function removeFilenameCharacters($string) {
-	$string = str_replace('Ã‚Â²', '', $string);
-	$string = str_replace(',', '', $string);
-	$string = str_replace('!', '', $string);
-	$string = str_replace('[', '', $string);
-	$string = str_replace(']', '', $string);
-	$string = str_replace(' ', '-', $string);
-	$string = html_entity_decode($string);
-	
-	return $string;
-}
-
-
-function makeKMLEntry($id) {
-	global $ScriptURL;
-	$data			= getFundaData($id);	
-	$Prijzen	= getPriceHistory($id);
-	
-	$temp			= each($Prijzen);
-	$label		= $temp[0];
-	
-	$KML_file[] = '	<Placemark>';
-	$KML_file[] = '		<name><![CDATA['. convertToReadable($data['adres']) .' voor '. number_format($Prijzen[$label],0,',','.') .']]></name>';
-	$KML_file[] = '		<visibility>0</visibility>';
-	$KML_file[] = '		<description><![CDATA[';
-	$KML_file[] = '		<table>';
-	$KML_file[] = '		<tr>';
-	$KML_file[] = '			<td valign="top"><img src="'. $data['thumb'] .'"><br><a href="http://www.funda.nl'. $data['url'] .'">funda.nl</a> | <a href="'. $ScriptURL .'admin/edit.php?id='. $id .'">edit</a></td>';
-	$KML_file[] = '			<td valign="top">&nbsp;</td>';
-	$KML_file[] = '			<td valign="top"><b>'. $data['PC_c'] .' '. $data['PC_l'] .' '. $data['plaats'] .'</b><p>';
-	
-	foreach($Prijzen as $key => $value)	{
-		if($key != 0) {
-			$KML_file[] = '		'. date('d M y', $key) .' : &euro;&nbsp;'. number_format($value,0,',','.').'<br>';
-		}
-	}
-	
-	$KML_file[] = '		</td>';
-	$KML_file[] = '		</tr>';
-	$KML_file[] = '		</table>';
-	$KML_file[] = '		]]></description>';		
-	$KML_file[] = '		<styleUrl>#style1</styleUrl>';
-	$KML_file[] = '		<Point>';
-	$KML_file[] = '			<coordinates>'. $data['long'] .','. $data['lat'] .',0</coordinates>';
-	$KML_file[] = '		</Point>';
-	$KML_file[] = '	</Placemark>';
-	
-	return implode("\n", $KML_file);
-}
-
-
-function extractDetailedFundaData($URL, $alreadyKnown=false) {
-	$contents		= file_get_contents_retry($URL);
-				
-	# Als het geen string is, is de pagina offline
-	# Dan kan gelijk een twee-tal lege arrays teruggegeven worden
-	if(!is_string($contents)) {
-		return array(array(), array());
-	}
-
-	# Als er een class item-sold is, is hij onder voorbehoud verkocht => $verkocht = 2
-	# Als er een class item-sold-label-large is, is hij verkocht => $verkocht = 1
-	# Als geen van beide het geval is, is hij nog beschikbaar => $verkocht = 0
-	if(strpos($contents, '<li class="label-transactie-voorbehoud">')) {
-		$verkocht		= 2;
-	}elseif(strpos($contents, '<li class="label-transactie-definitief">')) {
-		$verkocht		= 1;
-	} else {
-		$verkocht		= 0;
-	}
-	
-	if($verkocht == 1) {
-		$Aangeboden 	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
-		$KenmerkData['Aangeboden sinds'] = substr(trim($Aangeboden[0]), 4);
-				
-		$Verkoopdatum 	= getString('<dt>Verkoopdatum</dt>','</dd>', $contents, 0);
-		$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
-	}
-			
-	# Navigatie-gedeelte
-	$navigatie	= getString('<ol class="container breadcrumb-list">', '</ol>', $contents, 0);		
-	$stappen		= explode('<li class="breadcrumb-listitem">', $navigatie[0]);
-	$wijk				= getString('title="', '">', $stappen[(count($stappen)-2)], 0);
-	$data['wijk']			= trim($wijk[0]);
-		
-	# Moeten gegevens die al bekend zijn opnieuw opgevraagd worden
-	# Meestal niet, maar soms is dat nodig
-	if($alreadyKnown) {
-		$adresHTML	= getString('<div class="object-header-info">', '</div>', $contents, 0);
-		
-		if($verkocht == 1) {
-			$prijs			= getString('<strong class="object-header-price sold">', '</strong>', $contents, 0);
-		} else {
-			$prijs			= getString('<strong class="object-header-price">', '</strong>', $contents, 0);
-		}	
-		
-		$makelHTML	= getString('<h3 class="object-contact-aanbieder-name">', '</h3>', $contents, 0);
-		$fotoHTML		=  getString('<div class="object-media-foto">', '</div>', $contents, 0);
-		$adres			= getString('">', '<span class="object-header-subtitle">', $adresHTML[0], 0);
-		$PC					= getString('<span class="object-header-subtitle">', '</span>', $adresHTML[0], 0);
-		$makelaar		= getString('">', '</a>', $makelHTML[0], 0);
-		$foto				=	getString('<a href="', '"', $fotoHTML[0], 0);
-		
-		$postcode		= explode(" ", trim($PC[0]));		
-		
-		$data['adres']		= trim(str_replace('<span class="item-sold-label-large" title="Verkocht">VERKOCHT</span>', '', $adres[0]));
-		$data['PC_c']			= trim($postcode[0]);
-		$data['PC_l']			= trim($postcode[1]);
-		$data['plaats']		= end($postcode);		
-		$data['thumb'] = preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $foto[0]);
-		$data['makelaar']	= trim($makelaar[0]);
-		$data['prijs']		= cleanPrice($prijs[0]);
-		$data['verkocht']	= $verkocht;
-	}
-	
-	if($contents != "") {		
-		# Omschrijving		
-		$omschrijving = getString('<div class="object-description-body" data-object-description-strip-markup data-object-description-body>', '</div>', $contents, 0);
-		
-		$KenmerkData['descr']	= trim($omschrijving[0]);
-	} else {
-		$KenmerkData['descr']	= '';
-	}
-
-	# Kenmerken
-	$content_kenmerk	= getString('<section class="object-kenmerken is-expanded" aria-expanded="true" data-object-kenmerken>', '</section>', $contents, 0);
-	$kenmerken				= explode('<dt>', $content_kenmerk[0]);
-	array_shift($kenmerken);
-	
-	foreach($kenmerken as $kenmerk) {
-		$Record = getString('', '</dt>', $kenmerk, 0);
-		$Waarde = getString('<dd>', '</dd>', $kenmerk, 0);
-		
-		$key = trim($Record[0]);
-		$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
-	}
-	
-	# Foto	
-	$content_fotos	= getString('<section class="object-media" data-object-media>', '</section>', $contents, 0);
-	
-	if($content_fotos[0] != "") {
-		$picture		= array();
-		$carousel		= explode('<div class="object-media-foto">', $content_fotos[0]);
-		array_shift($carousel);
-			
-		foreach($carousel as $key => $value) {
-			if(strpos($value, 'data-lazy-srcset=')) {
-				$thumb = getString('data-lazy-srcset="', ' ', $value, 0);
-				$picture[] = preg_replace ('/_(\d+).jpg/', '_180x120.jpg', $thumb[0]);
-			} else {
-				$thumb = getString('src="', '"', $value, 0);
-				$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_180x120.jpg', $thumb[0]);
-			}
-		}
-		
-		$KenmerkData['foto']		= implode('|', $picture);
-	}	else {
-		$KenmerkData['foto']		= '';
-	}
-	
-	return array($data, $KenmerkData);
-}
-
-function knownHouse($key) {
-	global $TableHuizen, $HuizenID;	
-	connect_db();
-	
-	$sql		= "SELECT * FROM $TableHuizen WHERE $HuizenID like '$key'";
-			
-	$result	= mysql_query($sql);
-	if(mysql_num_rows($result) == 1) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-
-function soldHouse($key) {
-	global $TableHuizen, $HuizenID, $HuizenVerkocht;	
-	connect_db();
-	
-	$sql		= "SELECT * FROM $TableHuizen WHERE $HuizenID like '$key' AND $HuizenVerkocht like '1'";
-			
-	$result	= mysql_query($sql);
-	if(mysql_num_rows($result) == 1) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-
-function soldHouseTentative($key) {
-	global $TableHuizen, $HuizenID, $HuizenVerkocht;	
-	connect_db();
-	
-	$sql		= "SELECT * FROM $TableHuizen WHERE $HuizenID like '$key' AND $HuizenVerkocht like '2'";
-			
-	$result	= mysql_query($sql);
-	if(mysql_num_rows($result) == 1) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-
-function newHouse($key, $opdracht) {
-	global $TableResultaat, $ResultaatID, $ResultaatZoekID;	
-	connect_db();
-	
-	$sql		= "SELECT * FROM $TableResultaat WHERE $ResultaatID like '$key' AND $ResultaatZoekID like '$opdracht'";
-			
-	$result	= mysql_query($sql);
-	if(mysql_num_rows($result) == 1) {
-		return false;
-	} else {
-		return true;
-	}
-}
-
-
-//function saveHouse($data, $moreData) {	
-//	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
-//	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
-//	
-//	connect_db();
-//	
-//	if(!isset($data['begin'])) {
-//		$begin_tijd = mktime(0, 0, 1);
-//	} else {
-//		$begin_tijd = $data['begin'];
-//	}
-//	
-//	if(!isset($data['eind'])) {
-//		$eind_tijd = mktime(23, 59, 59);
-//	} else {
-//		$eind_tijd = $data['eind'];
-//	}	
-//	
-//	$sql  = "INSERT INTO $TableHuizen ";
-//	$sql .= "($HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind) ";
-//	$sql .= "VALUES ";
-//	$sql .= "('". $data['id'] ."', '". urlencode($data['url']) ."', '". urlencode($data['adres']) ."', '". urlencode($data['PC_c']) ."', '". urlencode($data['PC_l']) ."', '". urlencode($data['plaats']) ."', '". urlencode($data['wijk']) ."', '". urlencode($data['thumb']) ."', '". urlencode($data['makelaar']) ."', '$begin_tijd', '$eind_tijd')";
-//			
-//	if(!mysql_query($sql)) {		
-//		return false;
-//	}
-//	
-//	foreach($moreData as $key => $value) {
-//		$sql = "INSERT INTO $TableKenmerken ($KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue) VALUES ('". $data['id'] ."', '". urlencode($key) ."', '". urlencode($value) ."')";
-//						
-//		if(!mysql_query($sql)) {
-//			return false;			
-//		}
-//	}
-//	
-//	return true;
-//}
-
-
-function saveHouse2dB($data) {	
-	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
-	
-	connect_db();
-	
-	if(!isset($data['begin'])) {
-		$begin_tijd = mktime(0, 0, 1);
-	} else {
-		$begin_tijd = $data['begin'];
-	}
-	
-	if(!isset($data['eind'])) {
-		$eind_tijd = mktime(23, 59, 59);
-	} else {
-		$eind_tijd = $data['eind'];
-	}	
-	
-	$sql  = "INSERT INTO $TableHuizen ";
-	$sql .= "($HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind) ";
-	$sql .= "VALUES ";
-	$sql .= "('". $data['id'] ."', '". urlencode($data['url']) ."', '". urlencode($data['adres']) ."', '". urlencode($data['PC_c']) ."', '". urlencode($data['PC_l']) ."', '". urlencode($data['plaats']) ."', '". urlencode($data['wijk']) ."', '". urlencode($data['thumb']) ."', '". urlencode($data['makelaar']) ."', '$begin_tijd', '$eind_tijd')";
-			
-	if(!mysql_query($sql)) {		
-		return false;
-	}
-	
-	return true;
-}
-
-function updateHouse($data, $kenmerken, $erase = false) {
-	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenAfmeld, $HuizenVerkocht;
-	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
-	
-	connect_db();
-	
-	$velden = array(
-		'id'				=> $HuizenID,       
-		'url'				=> $HuizenURL,    
-		'adres'			=> $HuizenAdres,  
-		'PC_c'			=> $HuizenPC_c,   
-		'PC_l'			=> $HuizenPC_l,   
-		'plaats'		=> $HuizenPlaats, 
-		'wijk'			=> $HuizenWijk,  
-		'thumb'			=> $HuizenThumb,  
-		'makelaar'	=> $HuizenMakelaar,
-		'verkocht'	=> $HuizenVerkocht,
-		'afmeld'		=> $HuizenAfmeld
-	);
-		
-	foreach($data as $key => $value) {
-		if(array_key_exists($key, $velden)) {
-			$sql[] = $velden[$key] ." = '". urlencode($value) ."'";
-		}
-	}
-	$query = "UPDATE $TableHuizen SET ". implode(', ', $sql) ." WHERE $HuizenID like '". $data['id'] ."'";
-	
-	if(!mysql_query($query)) {
-		echo $query ."<br>\n";
-	}	
-	
-	if($erase) {
-		$query = "DELETE FROM $TableKenmerken WHERE $KenmerkenID like '". $data['id'] ."'";
-		
-		if(!mysql_query($query)) {
-			echo $query ."<br>\n";
-		}	
-	}
-	
-	foreach($kenmerken as $key => $value) {
-		mysql_query("DELETE FROM $TableKenmerken WHERE $KenmerkenID like '". $data['id'] ."' AND $KenmerkenKenmerk like '". urlencode($key) ."'");
-		$query = "INSERT INTO $TableKenmerken ($KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue) VALUES ('". $data['id'] ."', '". urlencode($key) ."', '". urlencode($value) ."')";
-		
-		if(!mysql_query($query)) {
-			echo $query ."<br>\n";
-		}
-	}
-}
-
-
-function soldBefore($id) {
-	global $TableHuizen, $HuizenAdres, $HuizenPC_c, $HuizenID, $HuizenVerkocht;
-	connect_db();
-	
-	$data = getFundaData($id);
-	
-	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '". urlencode($data['adres']) ."' AND $HuizenPC_c like '". $data['PC_c'] ."' AND $HuizenVerkocht like '1' AND $HuizenID not like '$id'";
-		
-	$result	= mysql_query($sql);
-	if(mysql_num_rows($result) == 0) {
-		return false;
-	} else {
-		$row = mysql_fetch_array($result);
-		return $row[$HuizenID];
-	}	
-}
-
-
-function onlineBefore($id) {
-	global $TableHuizen, $HuizenAdres, $HuizenPC_c, $HuizenID, $HuizenOffline, $HuizenVerkocht;
-	connect_db();
-	
-	$data = getFundaData($id);
-	
-	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '". urlencode($data['adres']) ."' AND $HuizenPC_c like '". $data['PC_c'] ."' AND $HuizenOffline like '1' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";
-		
-	$result	= mysql_query($sql);
-	if(mysql_num_rows($result) == 0) {
-		return false;
-	} else {
-		$row = mysql_fetch_array($result);
-		return $row[$HuizenID];
-	}	
-}
-
-
-function alreadyOnline($id) {
-	global $TableHuizen, $HuizenAdres, $HuizenPC_c, $HuizenID, $HuizenOffline, $HuizenVerkocht;
-	connect_db();
-	
-	$data = getFundaData($id);
-	
-	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '". urlencode($data['adres']) ."' AND $HuizenPC_c like '". $data['PC_c'] ."' AND $HuizenOffline like '0' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";
-		
-	$result	= mysql_query($sql);
-	if(mysql_num_rows($result) == 0) {
-		return false;
-	} else {
-		$row = mysql_fetch_array($result);
-		return $row[$HuizenID];
-	}	
-}
-
-
-function addHouse($data, $id) {
-	global $TableResultaat, $ResultaatZoekID, $ResultaatID, $ResultaatPrijs;
-
-	connect_db();
-	$sql = "INSERT INTO $TableResultaat ($ResultaatZoekID, $ResultaatID, $ResultaatPrijs) VALUES ($id, '". $data['id'] ."', '". $data['prijs'] ."')";
-
-	if(!mysql_query($sql)) {
-		return false;
-	} else {
-		return true;
-	}
-}
-
-
-function updateAvailability($id) {
-	global $TableHuizen, $HuizenEind, $HuizenOffline, $HuizenID;
-	connect_db();
-	
-	$eind_tijd = mktime(23, 59, 59);
-	
-	$sql = "UPDATE $TableHuizen SET $HuizenEind = $eind_tijd, $HuizenOffline = '0' WHERE $HuizenID like '$id'";
-	
-	if(!mysql_query($sql)) {
-		return false;
-	} else {
-		return true;
-	}
-}
-
-
-function newPrice($key, $price) {
-	$history = getPriceHistory($key);
-		
-	if($price != current($history)) {
-		return true;
-	} else {
-		return false;
-	}		
-}
-
-
-function updatePrice($id, $price, $tijd = 0) {
-	global $TablePrijzen, $PrijzenID, $PrijzenPrijs, $PrijzenTijd;	
-	connect_db();
-	
-	if($tijd == 0) {
-		$tijd = time();
-	}
-		
-	$sql = "INSERT INTO $TablePrijzen ($PrijzenID, $PrijzenPrijs, $PrijzenTijd) VALUES ('$id', $price, ". $tijd .")";
-		
-	if(!mysql_query($sql)) {
-		echo $sql;
-		return false;
-	} else {
-		return true;
-	}
-}
-
-
-function changedPrice($id, $price, $opdracht) {
-	global $TableResultaat, $ResultaatZoekID, $ResultaatID, $ResultaatPrijs;
-	connect_db();
-	
-	$sql = "SELECT * FROM $TableResultaat WHERE $ResultaatZoekID like '$opdracht' AND $ResultaatID like '$id'";
-	$result = mysql_query($sql);
-	$row = mysql_fetch_array($result);
-	
-	if($price == $row[$ResultaatPrijs]) {
-		return false;
-	} else {
-		$sql = "UPDATE $TableResultaat SET $ResultaatPrijs = '$price' WHERE $ResultaatZoekID like '$opdracht' AND $ResultaatID like '$id'";
-		mysql_query($sql);
-		return true;
-	}
-}
-
-
-function getFundaData($id) {
-	global $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenVerkocht, $HuizenOpenHuis;
-	connect_db();
-  
-  if($id != 0) {
-  	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenID = $id";
-		$result = mysql_query($sql);
-	
-		if(mysql_num_rows($result) > 0) {
-			$row = mysql_fetch_array($result);
-			
-			$data['id']			= urldecode($row[$HuizenID]);
-			$data['url']			= urldecode($row[$HuizenURL]);
-			$data['adres']		= urldecode($row[$HuizenAdres]);
-			$data['PC_c']			= $row[$HuizenPC_c];	
-			$data['PC_l']			= $row[$HuizenPC_l];		
-			$data['plaats']		= urldecode($row[$HuizenPlaats]);
-			$data['wijk']			= urldecode($row[$HuizenWijk]);
-			$data['thumb']		= urldecode($row[$HuizenThumb]);
-			$data['makelaar']	= urldecode($row[$HuizenMakelaar]);
-			$data['lat']			= $row[$HuizenLat];
-			$data['long']			= $row[$HuizenLon];
-			$data['start']		= $row[$HuizenStart];
-			$data['eind']			= $row[$HuizenEind];
-			$data['verkocht']	= $row[$HuizenVerkocht];
-			$data['offline']	= $row[$HuizenOffline];
-			$data['openhuis']	= $row[$HuizenOpenHuis];
-			
-			return $data;
-		} else {
-			return false;
-		}
-	} else {
-		return false;
-	}
-}
-
-
-function getFundaKenmerken($id) {
-	global $TableKenmerken, $KenmerkenID, $KenmerkenValue, $KenmerkenKenmerk;
-	connect_db();
-  
-  if($id != 0) {
-  	$sql = "SELECT * FROM $TableKenmerken WHERE $KenmerkenID = $id";
-		$result = mysql_query($sql);
-	
-		if($row = mysql_fetch_array($result)) {
-			do {
-				$key = urldecode($row[$KenmerkenKenmerk]);
-				$data[$key] = urldecode($row[$KenmerkenValue]);
-			} while($row = mysql_fetch_array($result));			
-		}
-		
-		ksort($data);
-		
-		return $data;
-	} else {
-		return false;
-	}
-}
-
-
-function getHuizen($opdracht, $excludeVerkocht = false, $excludeOffline = false) {
-	global $TableHuizen, $HuizenID, $HuizenAdres, $HuizenVerkocht, $HuizenOffline;
-	global $TableResultaat, $ResultaatID, $ResultaatZoekID;
-	connect_db();
-	
-	$sql = "SELECT * FROM $TableHuizen, $TableResultaat WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID like '$opdracht' ";
-	if($excludeVerkocht) {
-		$sql .= "AND $TableHuizen.$HuizenVerkocht NOT like '1' ";
-	}
-	if($excludeOffline) {
-		$sql .= "AND $TableHuizen.$HuizenOffline NOT like '1' ";
-	}
-	$sql .= "ORDER BY $TableHuizen.$HuizenAdres";
-	
-	$setupMySql = mysql_query("SET SQL_BIG_SELECTS=1") or die('Cannot complete SETUP BIG SELECTS because: ' . mysql_error());
-	$result	= mysql_query($sql);
-	$row		= mysql_fetch_array($result);
-		
-	do {
-		$output[] = $row[$HuizenID];
-	} while($row = mysql_fetch_array($result));
-	
-	return $output;
-}
-
-
-function getPriceHistory($input) {
-	global $TablePrijzen, $PrijzenTijd, $PrijzenID, $PrijzenPrijs;	
-	connect_db();
-	
-	$sql		= "SELECT $PrijzenTijd, $PrijzenPrijs FROM $TablePrijzen WHERE $PrijzenID like '$input' ORDER BY $PrijzenTijd DESC";
-	$result	= mysql_query($sql);
-	$row		= mysql_fetch_array($result);
-	
-	do {
-		$index						= $row[$PrijzenTijd];
-		$PriceTable[$index] = $row[$PrijzenPrijs];		
-	} while($row = mysql_fetch_array($result));
-	
-	return $PriceTable;
-}
-
-
-function getHuidigePrijs($input) {
-	$prijzen			= getPriceHistory($input);
-	$HuidigePrijs	= array_slice ($prijzen, 0, 1);
-	
-	return $HuidigePrijs[0];
-}
-
-
-function getOrginelePrijs($input) {
-	$prijzen			= getPriceHistory($input);
-	$OriginelePrijs	= array_slice ($prijzen, (count($prijzen)-1), 1);
-	
-	return $OriginelePrijs[0];
-}
-
-
-function formatPrice($input, $euro = true) {
-	if($euro) {
-		return "&euro;&nbsp;". number_format($input, 0,'','.');
-	} else {
-		return number_format($input, 0,'','.');
-	}
-}
-
-
-function formatPercentage($input) {
-	if(is_int($input)) {
-		$dec = 0;
-	} else {
-		$dec = 1;
-	}
-	return number_format($input, $dec, ',','') .'%';
-}
-
-
-function getFullPriceHistory($input) {
-	$afname = $percentage = $overall_afname = $overall_percentage = array();
-	$prizeArray = getPriceHistory($input);
-		
-	$HuidigePrijs		= array_slice ($prizeArray, 0, 1);
-	$OriginelePrijs	= array_slice ($prizeArray, (count($prizeArray)-1), 1);
-	
-	$prijzenRev	= array_reverse($prizeArray, true);
-	$vorige			= $OriginelePrijs[0];
-	current($prijzenRev);
-	
-	if($vorige == 0) {
-		toLog('error', '', $input, 'Onjuiste prijs-historie');
-	}
-	
-	foreach($prijzenRev as $key => $prijs) {	
-		$afname[$key]			= 100*($vorige - $prijs)/$vorige;
-		$percentage[$key]	= 100*$prijs/$vorige;
-		$vorige				= $prijs;
-		
-		$overall_afname[$key]			= 100*($OriginelePrijs[0] - $prijs)/$OriginelePrijs[0];
-		$overall_percentage[$key]	= 100*$prijs/$OriginelePrijs[0];
-	}
-	
-	$output[0] = $prijzenRev;
-	$output[1] = $percentage;
-	$output[2] = $afname;
-	$output[3] = $overall_percentage;
-	$output[4] = $overall_afname;
-	$output[5] = 100*$HuidigePrijs[0]/$OriginelePrijs[0];
-		
-	return $output;
-}
-
-
 function toLog($type, $opdracht, $huis, $message) {
-	global $TableLog, $LogTime, $LogType, $LogOpdracht, $LogHuis, $LogMessage;
-
-	connect_db();
- 	
+	global $db, $TableLog, $LogTime, $LogType, $LogOpdracht, $LogHuis, $LogMessage;
+	 	
 	$tijd = time();	
 	$sql = "INSERT INTO $TableLog ($LogTime, $LogType, $LogOpdracht, $LogHuis, $LogMessage) VALUES ($tijd, '$type', '$opdracht', '$huis', '". addslashes($message) ."')";
-	if(!mysql_query($sql)) {
+	if(!mysqli_query($db, $sql)) {
 		echo "log-error : ". $sql;
 	}
+}
+
+
+# Probeer de inhoud van een pagina in te lezen in in een string
+# Mocht dit niet lukken probeer dan nogmaals
+#
+#	INPUT
+#		$url		String met de url van de in te lezen pagina
+#		$maxTry	Maximaal aantal pogingen (default = 3)
+#
+# OUTPUT
+#		String met de inhoud van de pagina
+function file_get_contents_retry($url, $maxTry = 3) {
+	$contents = false;
+	$counter = 0;
+	
+	while($contents === false AND $counter < $maxTry) {
+		# Als dit niet de 1ste keer is, even 3 seconden wachten
+		if($counter > 0)	sleep(3);
+		
+		$curl = curl_init();
+		curl_setopt($curl, CURLOPT_URL, $url);
+		curl_setopt($curl, CURLOPT_HEADER, 0);
+		curl_setopt($curl, CURLOPT_COOKIESESSION, 0);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($curl, CURLOPT_FORBID_REUSE, true);
+		$contents = curl_exec($curl);
+		curl_close($curl);
+		
+		$counter++;
+	}
+
+	return $contents;
+}
+/*
+function file_get_contents_retry($url, $maxTry = 3, $curl = false) {
+	$contents = false;
+	$counter = 0;
+	
+	$useragents = array('Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; SLCC1; .NET CLR 2.0.50727)','Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)','Mozilla/5.0 (Macintosh; U; PPC Mac OS X; en) AppleWebKit/124 (KHTML, like Gecko) Safari/125','Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.30 Safari/525.13','Opera/7.23 (Windows 98; U) [en]','Mozilla/5.0 (Windows; U; Windows NT 5.1; nl; rv:1.9) Gecko/2008052906 Firefox/3.0','Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.4 (like Gecko)');
+
+	while($contents === false AND $counter < $maxTry) {
+		if($counter > 0)	{	sleep(2);	}		
+		if($curl) {
+			$curl_handle=curl_init();
+			curl_setopt($curl_handle, CURLOPT_URL,$url);
+			curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
+			curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($curl_handle, CURLOPT_POST, false);
+			curl_setopt($curl_handle, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($curl_handle, CURLOPT_USERAGENT, $useragents[rand(0, (count($useragents))-1)]);
+			//curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.4 (like Gecko)');
+			$contents = curl_exec($curl_handle);
+			curl_close($curl_handle);
+		} else {
+			$contents = file_get_contents($url);
+		}
+		
+		$counter++;
+		
+		//echo '{'. $contents .'}';		
+	}
+	
+	return $contents;
+}
+*/
+
+function guessDate($string, $number = false) {	
+	$string = str_ireplace('zondag ', '', $string);
+	$string = str_ireplace('maandag ', '', $string);
+	$string = str_ireplace('dinsdag ', '', $string);
+	$string = str_ireplace('woensdag ', '', $string);
+	$string = str_ireplace('donderdag ', '', $string);
+	$string = str_ireplace('vrijdag ', '', $string);
+	$string = str_ireplace('zaterdag ', '', $string);
+		
+	$string = str_ireplace('januari', '-01-', $string);
+	$string = str_ireplace('februari', '-02-', $string);
+	$string = str_ireplace('maart', '-03-', $string);
+	$string = str_ireplace('april', '-04-', $string);
+	$string = str_ireplace('mei', '-05-', $string);
+	$string = str_ireplace('juni', '-06-', $string);
+	$string = str_ireplace('juli', '-07-', $string);
+	$string = str_ireplace('augustus', '-08-', $string);
+	$string = str_ireplace('september', '-09-', $string);
+	$string = str_ireplace('oktober', '-10-', $string);
+	$string = str_ireplace('november', '-11-', $string);
+	$string = str_ireplace('december', '-12-', $string);
+	$string = str_ireplace('sept', '-09-', $string);
+	$string = str_ireplace('jan', '-01-', $string);
+	$string = str_ireplace('feb', '-02-', $string);
+	$string = str_ireplace('mrt', '-03-', $string);
+	$string = str_ireplace('apr', '-04-', $string);
+	$string = str_ireplace('mei', '-05-', $string);
+	$string = str_ireplace('jun', '-06-', $string);
+	$string = str_ireplace('jul', '-07-', $string);
+	$string = str_ireplace('aug', '-08-', $string);
+	$string = str_ireplace('sep', '-09-', $string);
+	$string = str_ireplace('okt', '-10-', $string);
+	$string = str_ireplace('nov', '-11-', $string);
+	$string = str_ireplace('dec', '-12-', $string);
+	
+	$string = str_replace(' -', '-', $string);
+	$string = str_replace('- ', '-', $string);
+	
+	$delen = explode('-', $string);
+	if(count($delen) == 3) {
+		if($delen[2] == '') {
+			if(mktime(0,0,0,$delen[1],$delen[0],date('Y')) < time()){
+				$delen[2] = date('Y')+1;
+			} else {
+				$delen[2] = date('Y');
+			}
+		}		
+		$output = implode('-', $delen);
+	} else {
+		return false;
+	}
+	
+	if($number) {
+		$output = mktime(0, 0, 1, $delen[1], $delen[0], $delen[2]);
+	}
+	
+	return $output;
+}
+
+function convert2FundaStyle($string) {	
+	$string = str_replace ('.', '',$string);	
+	$string = str_replace ('(', '',$string);
+	$string = str_replace (')', '',$string);
+	$string = str_replace ('/', '-',$string);
+	$string = str_replace (' ', '-',$string);
+	$string = str_replace ('é', 'e',$string);
+	$string = str_replace ('ë', 'e',$string);
+	$string = str_replace ('ä', 'a',$string);
+	$string = str_replace ('ü', 'u',$string);
+	$string = str_replace ('ö', 'o',$string);	
+	$string = str_replace ('&#224;', 'a',$string);	# à
+	$string = str_replace ('&#225;', 'a',$string);	# á
+	$string = str_replace ('&#226;', 'a',$string);	# â
+	$string = str_replace ('&#227;', 'a',$string);	# ã
+	$string = str_replace ('&#228;', 'a',$string);	# ä
+	$string = str_replace ('&#229;', 'a',$string);	# å	
+	#$string = str_replace ('&#230;', '',$string);	# æ 
+	$string = str_replace ('&#231;', 'c',$string);	# ç
+	$string = str_replace ('&#232;', 'e',$string);	# è
+	$string = str_replace ('&#233;', 'e',$string);	# é
+	$string = str_replace ('&#234;', 'e',$string);	# ê
+	$string = str_replace ('&#235;', 'e',$string);	# ë
+	$string = str_replace ('&#236;', 'i',$string);	# ì
+	$string = str_replace ('&#237;', 'i',$string);	# í
+	$string = str_replace ('&#238;', 'i',$string);	# î
+	$string = str_replace ('&#239;', 'i',$string);	# ï
+	#$string = str_replace ('&#240;', '',$string);	# ð
+	#$string = str_replace ('&#241;', '',$string);	# ñ
+	$string = str_replace ('&#242;', 'o',$string);	# ò
+	$string = str_replace ('&#243;', 'o',$string);	# ó
+	$string = str_replace ('&#244;', 'o',$string);	# ô
+	$string = str_replace ('&#245;', 'o',$string);	# õ
+	$string = str_replace ('&#246;', 'o',$string);	# ö
+	#$string = str_replace ('&#247;', '',$string);	# ÷
+	$string = str_replace ('&#248;', 'o',$string);	# ø
+	$string = str_replace ('&#249;', 'u',$string);	# ù
+	$string = str_replace ('&#250;', 'u',$string);	# ú
+	$string = str_replace ('&#251;', 'u',$string);	# û	
+	$string = str_replace ('&#252;', 'u',$string);	# ü	
+	$string = str_replace ('&#39;', '',$string);
+				
+	return strtolower($string);
 }
 
 
@@ -1113,6 +217,7 @@ function getTimeBetween($start, $einde) {
 	$maandB	= date("m", $start);
 	$jaarB	= date("Y", $start);
 	
+	$week		= 0;
 	$dag		= $dagE - $dagB;
 	$maand	= $maandE - $maandB;
 	$jaar		= $jaarE - $jaarB;
@@ -1163,347 +268,378 @@ function getTimeBetween($start, $einde) {
 	return $output;
 }
 
-
-function getDoorloptijd($id) {	
-	$data = getFundaData($id);
+# Geef de id's van zoekopdrachten
+#
+#	INPUT
+#		$user
+#		$active : 0 = niet actief, 1 = actief, '' = alle
+#
+# OUTPUT
+#		array met ids van zoekopdracht
+function getZoekOpdrachten($user, $active = '') {
+	global $db, $TableZoeken, $ZoekenKey, $ZoekenActive, $ZoekenUser;
+	$where = $Opdrachten = array();
+					
+	if($user != '') {		
+		$where[] = "$ZoekenUser = '$user'";
+	}
 	
-	$output = getTimeBetween($data['start'], $data['eind']);
+	if($active != '') {		
+		$where[] = "$ZoekenActive = '$active'";
+	}
+	
+	$sql = "SELECT $ZoekenKey FROM $TableZoeken WHERE ". implode(" AND ", $where);
 			
-	return implode(" & ", $output);
-}
-
-
-function changeThumbLocation($string) {
-	$string = str_replace('valentinamedia', 'valentina_media', $string);
-	$string = str_replace('images.funda.nl/valentina', 'cloud.funda.nl/valentina', $string);
-	return $string;
-}
-
-
-function changeURLLocation($string) {
-	if(substr($string, 0, 6) == '/koop/' AND substr($string, 0, 15) != '/koop/verkocht/') {
-		return '/koop/verkocht/'. substr($string, 6);
-	} else {
-		return $string;
-	}
-}
-
-
-function guessDate($string) {	
-	$string = str_ireplace('zondag ', '', $string);
-	$string = str_ireplace('maandag ', '', $string);
-	$string = str_ireplace('dinsdag ', '', $string);
-	$string = str_ireplace('woensdag ', '', $string);
-	$string = str_ireplace('donderdag ', '', $string);
-	$string = str_ireplace('vrijdag ', '', $string);
-	$string = str_ireplace('zaterdag ', '', $string);
-		
-	$string = str_ireplace('januari', '-01-', $string);
-	$string = str_ireplace('februari', '-02-', $string);
-	$string = str_ireplace('maart', '-03-', $string);
-	$string = str_ireplace('april', '-04-', $string);
-	$string = str_ireplace('mei', '-05-', $string);
-	$string = str_ireplace('juni', '-06-', $string);
-	$string = str_ireplace('juli', '-07-', $string);
-	$string = str_ireplace('augustus', '-08-', $string);
-	$string = str_ireplace('september', '-09-', $string);
-	$string = str_ireplace('oktober', '-10-', $string);
-	$string = str_ireplace('november', '-11-', $string);
-	$string = str_ireplace('december', '-12-', $string);
-	$string = str_ireplace('sept', '-09-', $string);
-	$string = str_ireplace('jan', '-01-', $string);
-	$string = str_ireplace('feb', '-02-', $string);
-	$string = str_ireplace('mrt', '-03-', $string);
-	$string = str_ireplace('apr', '-04-', $string);
-	$string = str_ireplace('mei', '-05-', $string);
-	$string = str_ireplace('jun', '-06-', $string);
-	$string = str_ireplace('jul', '-07-', $string);
-	$string = str_ireplace('aug', '-08-', $string);
-	$string = str_ireplace('sep', '-09-', $string);
-	$string = str_ireplace('okt', '-10-', $string);
-	$string = str_ireplace('nov', '-11-', $string);
-	$string = str_ireplace('dec', '-12-', $string);
-	
-	$string = str_replace(' -', '-', $string);
-	$string = str_replace('- ', '-', $string);
-	
-	$delen = explode('-', $string);
-	if(count($delen) == 3) {
-		if($delen[2] == '') {
-			if(mktime(0,0,0,$delen[1],$delen[0],date('Y')) < time()){
-				$delen[2] = date('Y')+1;
-			} else {
-				$delen[2] = date('Y');
-			}
-		}		
-		$string = implode('-', $delen);
+	$result = mysqli_query($db, $sql);	
+	if($row = mysqli_fetch_array($result)) {
+		do {
+			$Opdrachten[] = $row[$ZoekenKey];
+		} while($row = mysqli_fetch_array($result));
 	}
 	
-	return $string;
+	return $Opdrachten;
 }
 
-
-function getLijsten($id, $active) {
-	global $TableList, $ListID, $ListUser, $ListActive, $ListNaam;
-	$Lijsten = array();
-	connect_db();
-			
-	if($active != '') {
-		$where[] = "$ListActive = '$active'";
-	}
+# Zoek de gegevens van een zoekopdracht op basis van id
+#
+#	INPUT
+#		$id	id van de zoekopdracht
+#
+# OUTPUT
+#		array met gegevens
+function getOpdrachtData($id) {
+	global $db, $TableZoeken, $ZoekenKey, $ZoekenUser, $ZoekenNaam, $ZoekenURL;
+	$data = array();
 	
 	if($id != '') {
-		$where[] = "$ListUser = '$id'";
-	}
-	
-	$sql = "SELECT $ListID FROM $TableList WHERE ". implode(" AND ", $where) ." ORDER BY $ListNaam";
+		$sql		= "SELECT * FROM $TableZoeken WHERE $ZoekenKey = $id";
+		$result	= mysqli_query($db, $sql);
+		$row		= mysqli_fetch_array($result);
 			
-	$result = mysql_query($sql);
-	
-	if($row = mysql_fetch_array($result)) {
-		do {
-			$Lijsten[] = $row[$ListID];
-		} while($row = mysql_fetch_array($result));
+#		$data['active']	= $row[$ZoekenActive];
+		$data['user']		= $row[$ZoekenUser];
+		$data['naam']		= urldecode($row[$ZoekenNaam]);
+		$data['url']		= urldecode($row[$ZoekenURL]);
 	}
-	
-	return $Lijsten;
-}
-
-
-function getLijstData($id) {
-	global $TableList, $ListID, $ListActive, $ListNaam;
-		
-	$sql = "SELECT * FROM $TableList WHERE $ListID = '$id'";
-	$result = mysql_query($sql);
-	$row = mysql_fetch_array($result);
-	
-	$data['id']			= $row[$ListID];
-	$data['active'] = $row[$ListActive];
-	$data['naam']		= urldecode($row[$ListNaam]);
 	
 	return $data;	
 }
 
-
-function getLijstHuizen($list, $excludeVerkocht = false, $excludeOffline = false) {
-	global $TableListResult, $TableHuizen, $ListResultHuis, $ListResultList, $HuizenID, $HuizenAdres, $HuizenVerkocht, $HuizenOffline;
-	
-	$from		= "$TableListResult, $TableHuizen";
-	$where	= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $list";
-	if($excludeVerkocht) {
-		$where .= " AND $TableHuizen.$HuizenVerkocht NOT like '1'";
-	}	
-	if($excludeOffline ) {
-		$where .= " AND $HuizenOffline NOT like '1'";
-	}	
-	$sql		= "SELECT $TableHuizen.$HuizenID FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
-	$setupMySql = mysql_query("SET SQL_BIG_SELECTS=1") or die('Cannot complete SETUP BIG SELECTS because: ' . mysql_error());
-	$result = mysql_query($sql);
-	
-	$Huizen = array();
-
-	if($row = mysql_fetch_array($result)) {
-		do {
-			$Huizen[] = $row[$HuizenID];
-		} while($row = mysql_fetch_array($result));
-	}
-	
-	return $Huizen;		
-}
-
-
-function addHouse2List($huis, $list) {
-	global $TableListResult, $ListResultList, $ListResultHuis;
-	
-	$sql_check = "SELECT * FROM $TableListResult WHERE $ListResultList like $list AND $ListResultHuis like '$huis'";
-	$result	= mysql_query($sql_check);
-			
-	if(mysql_num_rows($result) == 0) {
-		$data = getFundaData($huis);
+function getHuizen($opdracht, $excludeVerkocht = false, $excludeOffline = false) {
+	global $db, $TableHuizen, $HuizenID, $HuizenAdres, $HuizenVerkocht, $HuizenOffline;
+	global $TableResultaat, $ResultaatID, $ResultaatZoekID;
+	$output = array();
 		
-		$sql_insert = "INSERT INTO $TableListResult ($ListResultList, $ListResultHuis) VALUES ($list, $huis)";
-		if(!mysql_query($sql_insert)) {
-			# huis niet toegevoegd
-			$output = "<b>". $data['adres'] ." niet toegevoegd</b><br>";
-		} else {
-			# huis toegevoegd
-			$output = $data['adres'] ." toegevoegd<br>";
-		}
-	} else {
-		# huis bestaat al
-		$output = "";
+	$sql = "SELECT * FROM $TableHuizen, $TableResultaat WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID like '$opdracht' ";
+	if($excludeVerkocht) {
+		$sql .= "AND $TableHuizen.$HuizenVerkocht NOT like '1' ";
 	}
+	if($excludeOffline) {
+		$sql .= "AND $TableHuizen.$HuizenOffline NOT like '1' ";
+	}
+	$sql .= "AND $TableHuizen.$HuizenID > 0 ORDER BY $TableHuizen.$HuizenAdres";
+	
+	#echo $sql;
+	
+	$result	= mysqli_query($db, $sql);
+	$row		= mysqli_fetch_array($result);
+	
+	do {
+		$output[] = $row[$HuizenID];
+	} while($row = mysqli_fetch_array($result));
 	
 	return $output;
 }
 
 
-function saveUpdateList($id, $user, $actief, $naam) {
-	global $TableList, $ListUser, $ListActive, $ListNaam, $ListID;
+
+
+
+
+
+# Extraheer gegevens van een huis uit de ruwe HTML-code van de overzichtspagina van funda.nl
+#
+#	INPUT
+#		$string		De ruwe HTML-code
+#
+# OUTPUT
+#		array met de gegevens van het huis
+function extractFundaData($HuisText, $verkocht = false) {		
 	
-	if($id == '') {
-		$sql = "INSERT INTO $TableList ($ListUser, $ListActive, $ListNaam) VALUES ('$user', '". ($actief == '1' ? '1' : '0') ."', '". urlencode($naam) ."')";
+	if($verkocht) {		
+		$data['verkocht']			= 1;
 	} else {
-		$sql = "UPDATE $TableList SET $ListActive = '". ($actief == '1' ? '1' : '0') ."', $ListUser = '$user', $ListNaam = '". urlencode($naam) ."' WHERE $ListID = ". $id;
+		$data['verkocht']			= 0;
 	}
 	
-	$result = mysql_query($sql);
+	# Overzichtspagina
+	$HuisURL	= getString('href="', '"', $HuisText, 0);
 	
-	if($id == '') {
-		return mysql_insert_id();
-	} else {
-		return $result;
-	}		
-}
-
-
-function getUsers() {
-	global $TableUsers, $UsersID;
+	$cleanURL	= $HuisURL[0];
+	$cleanURL	= str_replace('?navigateSource=resultlist', '', $cleanURL);
+	$cleanURL	= str_replace('https://www.funda.nl', '', $cleanURL);
 	
-	$Users = array();
+	$mappen			= explode("/", $cleanURL);
 	
-	$sql = "SELECT * FROM $TableUsers";
-	$result = mysql_query($sql);
-	
-	if($row = mysql_fetch_array($result)) {
-		do {
-			$Users[] = $row[$UsersID];
-		} while($row = mysql_fetch_array($result));
+	# Funda zit volgens mij in een overgangsfase ofzo van URL's
+	# Er komen namelijk verschillende types voor
+	# Op basis van deze if-else-statements lijkt het mogelijk deze te onderscheiden
+	# Hopelijk kan op termijn dit weer gewoon 1 expressie worden
+	if(strpos($cleanURL, 'detail')) {		
+		$id			= $mappen[5];
+	} elseif(count($mappen) < 6) {		
+		$key				= $mappen[3];
+		$key_parts	= explode("-", $key);	
+		$id					= $key_parts[1];
+	} else {		
+		$id			= $mappen[4];
 	}
-	
-	return $Users;	
-}
-
-
-function getMemberDetails($id) {
-	global $TableUsers, $UsersID, $UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres, $UsersAccount, $UsersLastLogin, $UsersPOKey, $UsersPOToken;
-	
-	$sql		= "SELECT * FROM $TableUsers WHERE $UsersID like '$id'";
-	$result	= mysql_query($sql);
-	$row		= mysql_fetch_array($result);
 		
-	$data['id']				= $row[$UsersID];
-	$data['naam']			= $row[$UsersName];
-	$data['username']	= $row[$UsersUsername];
-	$data['password']	= $row[$UsersPassword];
-	$data['level']		= $row[$UsersLevel];
-	$data['mail']			= $row[$UsersAdres];	
-	$data['userkey']	= $row[$UsersPOKey];
-	$data['token']		= $row[$UsersPOToken];	
-	$data['account']	= $row[$UsersAccount];
-	$data['login']		= $row[$UsersLastLogin];
+	$foto		= getString('calc(100vw - 2rem)" srcset="', ' ', $HuisText, 0);
+	$adres	= getString('sm:mt-0">', '</h', $HuisURL[1], 0);
+	$PC			= getString('mb-2">', '</div', $adres[1], 0);
+	$prijs	= getString('class="font-semibold">', '</p>', $PC[1], 0);
+		
+	if(strpos($HuisText, '<div class="my-2 ml-auto">')) {
+		$R_naam	= getString('<button class="flex">', '<div class="my-2 ml-auto">', $HuisText, 0);
+	} else {
+		$R_naam	= getString('<button class="flex">', '<div class="ml-auto"', $HuisText, 0);
+	}
+		
+	# Nu al het knippen geweest is kan de geknipte data "geprocesed" worden		
+	if(strpos($HuisText, 'Verkocht onder voorbehoud')) {
+		$voorbehoud = 1;
+	} else {
+		$voorbehoud = 0;
+	}
 	
+	if(strpos($HuisText, '<li class="label label-nvm-open-huizen-dag">') OR strpos($HuisText, '<li class="label label-open-huis">') OR strpos($HuisText, '<li class="mb-1 mr-1 rounded-sm px-1 py-0.5 text-xs font-semibold bg-[#ACC700] text-white">')) {
+		$openhuis = 1;
+	} else {
+		$openhuis = 0;
+	}
+	
+	$postcode = explode(' ', trim($PC[0]));
+	$onderdelen		= splitStreetAndNumberFromAdress($adres[0]);
+		
+	$data['id']				= $id;
+	$data['url']			= trim($cleanURL);
+	$data['adres']		= trim($adres[0]);
+	$data['straat']			= $onderdelen['straat'];
+	$data['nummer']			= $onderdelen['nummer'];
+	$data['letter']			= $onderdelen['letter'];
+	$data['toevoeging']	= $onderdelen['toevoeging'];	
+	$data['PC_c']			= trim($postcode[0]);
+	$data['PC_l']			= trim($postcode[1]);
+	$data['wijk']			= '';
+	$data['plaats']		= end($postcode);
+	$data['thumb']		= trim($foto[0]);
+	$data['makelaar']	= trim(strip_tags($R_naam[0]));
+	$data['prijs']		= cleanPrice($prijs[0]);
+	$data['vov']			= $voorbehoud;
+	$data['openhuis']	= $openhuis;
+	
+	/*
+	foreach($data as $key => $value) {
+		echo $key .'|'.makeTextBlock($value, 100) .'<br>';
+	}
+	echo '------------------------------';
+	*/	
 	return $data;
 }
 
+function extractFundaDataFromPage($offlineHTML) {	
+	$HTML = getString('<body>', '<h2 class="related-objects__title">', $offlineHTML, 0);
+	$contents = $HTML[0];
+	
+	# Als er een class item-sold is, is hij onder voorbehoud verkocht => $verkocht = 2
+	# Als er een class item-sold-label-large is, is hij verkocht => $verkocht = 1
+	# Als geen van beide het geval is, is hij nog beschikbaar => $verkocht = 0
+	if(strpos($contents, '<li class="label-transactie-voorbehoud">')) {
+		$verkocht		= 2;
+	}elseif(strpos($contents, '<li class="label-transactie-definitief fd-p-horizontal-xs fd-border-radius fd-m-right-2xs">')) {
+		$verkocht		= 1;
+	} else {
+		$verkocht		= 0;
+	}
+	
+	# Als er een class object-promolabel__open-huis-dates is heeft openhuis => $openhuis = 1
+	# Als geen van beide het geval is, is hij nog beschikbaar => $openhuis = 0
+	if(strpos($contents, 'class="object-promolabel__open-huis')) {
+		$openhuis		= 1;
+	} else {
+		$openhuis		= 0;
+	}
+		
+	# Navigatie-gedeelte
+	$navigatie	= getString('<ol class="breadcrumb-list fd-flex fd-align-items-center fd-p-vertical-2xs fd-container-full fd-container fd-m-auto">', '</ol>', $contents, 0);
+	$stappen		= explode('<span class="fd-text--ellipsis fd-text--nowrap fd-overflow-hidden">', $navigatie[0]);
+	$wijk				= getString('', '</span>', $stappen[3], 0);	
+	//$id					= getString('tinyId=', '&amp;', $contents, 0);
+	$id					= getString('"tinyid":"', '"', $offlineHTML, 0);
 
-function saveUpdateMember($id, $name, $username, $wachtwoord, $mail, $po_key, $po_token, $level, $gebruiker) {
-	global $TableUsers, $UsersID, $UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres, $UsersPOKey, $UsersPOToken, $UsersAccount;
-	
-	if($level == 1) {
-		$account = $gebruiker;
+	$adres	= getString('aria-current="page">', '</span>', $contents, 0);
+	$adresClean = str_replace('<span class="item-sold-label-large" title="Verkocht">VERKOCHT</span>', '', $adres[0]);
+		
+	if($verkocht == 1) {
+		$prijs			= getString('<strong class="object-header__price--historic">', '</strong>', $contents, 0);
 	} else {
-		$account = 0;
+		$prijs			= getString('<strong class="object-header__price">', '</strong>', $contents, 0);
 	}
 	
-	if($id == 0) {
-		$sql = "INSERT INTO $TableUsers ($UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres, $UsersPOKey, $UsersPOToken". ($account != 0 ? ", $UsersAccount" : '') .") VALUES ('$name', '$username', '". md5($wachtwoord) ."', $level, '$mail', '$po_key', '$po_token'". ($account != 0 ? ", '$account'" : '') .")";
-	} else {
-		$sql = "UPDATE $TableUsers SET $UsersName = '$name', $UsersUsername = '$username', ". ($wachtwoord != '' ? "$UsersPassword = '". md5($wachtwoord) ."', " : '') ."$UsersLevel = $level, $UsersAdres = '$mail', $UsersPOKey = '$po_key', $UsersPOToken = '$po_token'". ($account != 0 ? ", $UsersAccount = '$account'" : '') ." WHERE $UsersID = ". $id;
-	}
+	$makelHTML	= getString('<h3 class="object-contact-aanbieder-name">', '</h3>', $contents, 0);
+	$PC					= getString('<span class="object-header__subtitle fd-color-neutral-40">', '<a class="', $contents, 0);
+	$makelaar		= getString('">', '</a>', $makelHTML[0], 0);
+	$foto				=	getString('<meta itemprop="image" content="', '"', $offlineHTML, 0);
+	$start			= getString("aangebodensinds=", "&", $offlineHTML, 0);
+		
+	$postcode		= explode(" ", trim($PC[0]));
+	$onderdelen		= splitStreetAndNumberFromAdress($adresClean);
+	
+	$data['id']				= trim($id[0]);
+	$data['wijk']			= trim($wijk[0]);	
+	$data['adres']		= trim($adresClean);
+	$data['straat']			= $onderdelen['straat'];
+	$data['nummer']			= $onderdelen['nummer'];
+	$data['letter']			= $onderdelen['letter'];
+	$data['toevoeging']	= $onderdelen['toevoeging'];
+	$data['PC_c']			= trim($postcode[0]);
+	$data['PC_l']			= trim($postcode[1]);	
+	$data['plaats']		= implode(' ', array_slice($postcode, 2));	
+	$data['thumb'] = preg_replace ('/_(\d+).jpg/', '_360x240.jpg', $foto[0]);
+	$data['makelaar']	= trim($makelaar[0]);
+	$data['start']		= guessDate($start[0], true);
+	$data['prijs']		= cleanPrice($prijs[0]);
+	$data['verkocht']	= $verkocht;
+	$data['openhuis']	= $openhuis;
+	
+	
+	if($verkocht == 1) {
+		$oldData = getFundaData($data['id']);
+		$AangebodenHTML	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
+		
+		if(strpos($AangebodenHTML[0], '<span class="fd-m-right-xs">')) {			
+			$Aangeboden			= getString('<span class="fd-m-right-xs">', '</span>', $AangebodenHTML[0], 0);
+		} else {
+			$Aangeboden	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
+		}				
+		
+		$KenmerkData['Aangeboden sinds'] = substr(trim($Aangeboden[0]), 4);
 				
-	$result = mysql_query($sql);
-	
-	if($id == '') {
-		return mysql_insert_id();
-	} else {
-		return $result;
-	}		
-}
-
-
-function getMembers4Opdracht($OpdrachtID, $type) {
-	global $TableAbo, $AboZoekID, $AboUserID, $AboType;
-	
-	$sql = "SELECT * FROM $TableAbo WHERE $AboZoekID like '$OpdrachtID' AND $AboType like '$type'";
-	$result = mysql_query($sql);
-	
-	$Members = array();
-
-	if($row = mysql_fetch_array($result)) {
-		do {
-			$Members[] = $row[$AboUserID];
-		} while($row = mysql_fetch_array($result));
+		$Verkoopdatum	= getString('<dt>Verkoopdatum</dt>','</dd>', $contents, 0);		
+		$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
+		
+		if(!isset($oldData['afmeld']) OR $oldData['afmeld'] == 0) {
+			if(isset($oldData['eind'])) {
+				$data['afmeld'] = $oldData['eind'];
+			} else {
+				$data['afmeld'] = 0;
+			}
+		}
 	}
 	
-	return $Members;
-}
-
-
-function addMember2Opdracht($opdracht, $user, $type) {
-	global $TableAbo, $AboZoekID, $AboUserID, $AboType;
+	if($openhuis == 1) {
+		$data['oh-tijden'] = extractOpenHuisData($contents);
+	}	else {
+		$data['oh-tijden'] = 0;
+	}
 	
-	$sql = "INSERT INTO $TableAbo ($AboZoekID, $AboUserID, $AboType) VALUES ($opdracht, $user, '$type')";
-	return mysql_query($sql);
-}
-
-
-function removeMember4Opdracht($opdracht, $user, $type) {
-	global $TableAbo, $AboZoekID, $AboUserID, $AboType;
+	# Omschrijving		
+	$descrHTML		= getString('<div class="object-description-body"', '</div>', $contents, 0);
+	$omschrijving = getString('>', '</div>', $descrHTML[0], 0);
 	
-	$sql = "DELETE FROM $TableAbo WHERE $AboZoekID = $opdracht AND $AboUserID = $user AND $AboType like '$type'";
-	return mysql_query($sql);
+	$KenmerkData['descr']	= trim($omschrijving[0]);
+	
+	# Kenmerken
+	$content_kenmerk	= getString('<h2 class="object-kenmerken-title">Kenmerken</h2>', '</section>', $contents, 0);
+	$kenmerken				= explode('<dt>', $content_kenmerk[0]);
+	array_shift($kenmerken);
+	
+	foreach($kenmerken as $kenmerk) {
+		$Record = getString('', '</dt>', $kenmerk, 0);
+		//$Waarde = getString('<dd class="fd-flex--bp-m fd-flex-wrap fd-align-items-center">', '</dd>', $kenmerk, 0);
+		$Waarde = getString('<span class="fd-m-right-xs">', '</span>', $kenmerk, 0);
+		
+		if(strpos($Waarde[0], '<span class="">') OR strpos($Waarde[0], '<span class>')) {
+			$Waarde = getString('<dd class="fd-flex--bp-m fd-flex-wrap fd-align-items-center">', '</dd>', $kenmerk, 0);
+		}
+				
+		$key = trim($Record[0]);
+		$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
+	}
+	
+	# Foto	
+	$content_fotos	= getString('<ol class="grid list-none ', '</section>', $offlineHTML, 0);
+		
+	if($content_fotos[0] != "") {
+		$picture		= array();		
+		#$cleanFotoContent 	= str_replace('<div class="object-media-foto ">', '<div class="object-media-foto">', $content_fotos[0]);
+		$cleanFotoContent 	= $content_fotos[0];
+		$carousel		= explode('<li class=', $cleanFotoContent);
+		array_shift($carousel);
+		
+		foreach($carousel as $key => $value) {
+			if(strpos($value, 'data-lazy-srcset=')) {
+				$thumb = getString('data-lazy-srcset="', ' ', $value, 0);
+				#$picture[] = preg_replace ('/_(\d+).jpg/', '_180x120.jpg', $thumb[0]);
+				$picture[] = preg_replace ('/_(\d+).jpg/', '_360x240.jpg', $thumb[0]);
+			} elseif(!strpos($value, 'data:')) {
+				$thumb = getString('src="', '"', $value, 0);
+				#$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_180x120.jpg', $thumb[0]);
+				$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $thumb[0]);
+			}
+		}
+		
+		$KenmerkData['foto']		= implode('|', $picture);
+	}	else {
+		$KenmerkData['foto']		= '';
+	}
+	
+	return array($data, $KenmerkData);
 }
 
-
-function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
-	global $TableHuizen, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenVerkocht, $HuizenOffline, $HuizenID;
+function updateVerkochtDataFromPage($generalData, $data) {
+	global $db, $TableHuizen, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenVerkocht, $HuizenOffline, $HuizenID;
 	
 	# Alles weer opnieuw initialiseren.
-	unset($prijs, $naam);
-	unset($Aanmelddatum, $Verkoopdatum, $AangebodenSinds, $startdata);
-	unset($OorspronkelijkeVraagprijs, $LaatsteVraagprijs, $Vraagprijs);
-	$offline = false;
+	$Aanmelddatum = $Verkoopdatum = $LaatsteVraagprijs = $AangebodenSinds = $OorspronkelijkeVraagprijs = $Vraagprijs = 0;
+	$naam = '';
+	$offline = $changed_end = $changed_start = false;	
+	$prijs = $startdata = array();
 	
+	$fundaID = $generalData['id'];
 	$FundaData = getFundaData($fundaID);
-	$url			= "http://www.funda.nl". changeURLLocation($FundaData['url']);
-		
-	# Via de kenmerkenpagina
-	$allData	= extractDetailedFundaData($url);
-	$generalData = $allData[0];
-	$data			= $allData[1];
-	
-	if($generalData['afmeld'] != "") {
+			
+	if(isset($generalData['afmeld']) AND $generalData['afmeld'] != "") {
 		$sql_update = "UPDATE $TableHuizen SET $HuizenAfmeld = ". $generalData['afmeld'] ." WHERE $HuizenID like $fundaID";
-		if(mysql_query($sql_update)) {
-			$HTML[] = " -> afgemeld<br>";
+		//echo $sql_update ."<br>\n";
+		if(mysqli_query($db, $sql_update)) {
+			$HTML[] = " -> afgemeld";
 		}			
 	}
 			
 	# Als de array 'data' groter is dan 3 is er data gevonden in de kenmerken-pagina
 	if(count($data) > 3) {
 		# Reeds verkochte huizen
-		if($data['Aanmelddatum'] != '') {
-			echo '['. $data['Aanmelddatum'] .']';
+		if(isset($data['Aanmelddatum']) AND $data['Aanmelddatum'] != '') {
 			$guessStartDatum	= guessDate($data['Aanmelddatum']);
 			$startDatum	= explode("-", $guessStartDatum);
 			$Aanmelddatum = mktime(0, 0, 1, $startDatum[1], $startDatum[0], $startDatum[2]);
 		}
-							
-		if($data['Verkoopdatum'] != '') {
-			echo '['. $data['Verkoopdatum'] .']';
+									
+		if(isset($data['Verkoopdatum']) AND $data['Verkoopdatum'] != '') {
 			$guessVerkoopDatum = guessDate($data['Verkoopdatum']);
 			$verkoopDatum	= explode("-", $guessVerkoopDatum);
-			$Verkoopdatum = mktime(23, 59, 59, $verkoopDatum[1], $verkoopDatum[0], $verkoopDatum[2]);			
+			$Verkoopdatum = mktime(23, 59, 59, $verkoopDatum[1], $verkoopDatum[0], $verkoopDatum[2]);
 		}			
 
-		if($data['Laatste vraagprijs'] != '') {
+		if(isset($data['Laatste vraagprijs']) AND $data['Laatste vraagprijs'] != '') {
 			$prijzen		= explode(" ", $data['Laatste vraagprijs']);				
 			$LaatsteVraagprijs	= str_ireplace('.', '' , substr($prijzen[0], 5));
 		}
 									
 		# Huizen die nog niet verkocht zijn
-		if($data['Aangeboden sinds'] != '') {
+		if(isset($data['Aangeboden sinds']) AND $data['Aangeboden sinds'] != '') {
 			if($data['Aangeboden sinds'] == '5 maanden') {
 				$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m')-5, date('d'), date('Y'));
 			} elseif($data['Aangeboden sinds'] == '4 maanden') {
@@ -1535,54 +671,16 @@ function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 			}
 		}
 					
-		if($data['Oorspronkelijke vraagprijs'] != '') {
+		if(isset($data['Oorspronkelijke vraagprijs']) AND $data['Oorspronkelijke vraagprijs'] != '') {
 			$prijzen		= explode(" ", $data['Oorspronkelijke vraagprijs']);
 			$OorspronkelijkeVraagprijs = str_ireplace('.', '' , substr($prijzen[0], 5));
 		}
 					
-		if($data['Vraagprijs'] != '') {
+		if(isset($data['Vraagprijs']) AND $data['Vraagprijs'] != '') {
 			$prijzen						= explode(" ", $data['Vraagprijs']);				
 			$Vraagprijs	= str_ireplace('.', '' , substr($prijzen[0], 5));
 		}
-		
-		if($data['Status'] == 'Verkocht onder voorbehoud') {
-			$sql_update = "UPDATE $TableHuizen SET $HuizenVerkocht = '2' WHERE $HuizenID like $fundaID";
-			if(mysql_query($sql_update)) {
-				$HTML[] = " -> onder voorbehoud verkocht<br>";
-			}			
-		}		
-	} else {		
-		# De "standaard"-pagina... maar daar staat niet alles op.
-		# Aan de andere kant, de kenmerken-pagina werkt niet overal
-		$contents = file_get_contents_retry($url);
-		
-		if(strpos($contents, 'item-sold')) {
-			$prop_transaction = getString('<div class="prop-transaction">', '</div>', $contents, 0);
 			
-			$transaction_date = getString('<span class="transaction-date">', '</span>', $prop_transaction[0], 0);
-			$tempAanmelddatum			= getString('<strong>', '</strong>', $transaction_date[0], 0);
-												
-			$transaction_date_lst = getString('transaction-date lst', '</span>', $contents, 0);
-			$tempVerkoopdatum			= getString('<strong>', '</strong>', $transaction_date_lst[0], 0);
-								
-			$tempLaatstevraagprijs			= getString('<span class="price-wrapper">', '</span>', $contents, 0);
-	  	
-			$sDatum				= explode("-", $tempAanmelddatum[0]);
-			$Aanmelddatum = mktime(0, 0, 1, $sDatum[1], $sDatum[0], $sDatum[2]);
-	  	
-			$eDatum				= explode("-", $tempVerkoopdatum[0]);
-			$Verkoopdatum = mktime(23, 59, 59, $eDatum[1], $eDatum[0], $eDatum[2]);
-	  	
-			$prijzen						= explode(" ", strip_tags($tempLaatstevraagprijs[0]));
-			$LaatsteVraagprijs	= str_ireplace('.', '' , substr($prijzen[0], 12));
-		} elseif(!is_string($contents)) {			
-			$sql_update = "UPDATE $TableHuizen SET $HuizenOffline = '1' WHERE $HuizenID like $fundaID";
-		
-			if(mysql_query($sql_update)) {
-				$HTML[] = " -> is offline<br>";
-			}
-			$offline = true;			
-		}
 	}
 	
 	# Van de 3 bekende data de laagste opzoeken
@@ -1626,51 +724,866 @@ function extractAndUpdateVerkochtData($fundaID, $opdrachtID = '') {
 	# Alle gevonden prijzen incl. tijdstippen invoeren			
 	foreach($prijs as $key => $value) {				
 		if(updatePrice($fundaID, $value, $key)) {
-			$HTML[] = " -> ". $naam[$key] ." toegevoegd ($value / ". date("d-m-y", $key) .")<br>";
-			toLog('debug', $opdrachtID, $fundaID, $naam[$key] ." toegevoegd");
+			$HTML[] = " -> ". $naam[$key] ." toegevoegd ($value / ". date("d-m-y", $key) .")";
+			toLog('debug', '0', $fundaID, $naam[$key] ." toegevoegd");
 		} else {
-			toLog('error', $opdrachtID, $fundaID, "Error met toevoegen $value als ". $naam[$key]);
+			toLog('error', '0', $fundaID, "Error met toevoegen $value als ". $naam[$key]);
+		}
+	}
+			
+	# Als er een verkoopdatum bekend is => die datum als eindtijd invoeren
+	if($Verkoopdatum > 10) {
+		$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $startDatum, $HuizenEind = $Verkoopdatum, $HuizenVerkocht = '1' WHERE $HuizenID like $fundaID";
+		
+		if(mysqli_query($db, $sql_update)) {
+			$HTML[] = " -> begin- en eindtijd aangepast (verkocht)";
+			toLog('info', '0', $fundaID, "Huis is verkocht");
+			$changed_end = $changed_start = true;
+		} else {
+			toLog('error', '0', $fundaID, "Error met verwerken verkocht huis");
+			$HTML[] = $sql_update;
 		}
 	}
 	
 	# Als er een startdatum gevonden is die verder terugligt dan die bekend was => invoegen
-	if($startDatum != $FundaData['start'] AND !$offline) {
+	if($startDatum != $FundaData['start'] AND !$offline AND !$changed_start) {
 		$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $startDatum WHERE $HuizenID like $fundaID";
-		
-		if(mysql_query($sql_update)) {
-			$HTML[] = " -> begintijd aangepast<br>";
+				
+		if(mysqli_query($db, $sql_update)) {
+			$HTML[] = " -> begintijd aangepast";
 		} else {
-			toLog('error', $opdrachtID, $fundaID, "Error met verwerken begintijd");
-		}				
+			toLog('error', '0', $fundaID, "Error met verwerken begintijd");
+			$HTML[] = $sql_update;
+		}					
 	}
 
 	# Als er geen verkoopdatum bekend is, is hij niet verkocht en dus nog online
-	if($Verkoopdatum == '' AND !$offline) {
+	if($Verkoopdatum == '' AND !$offline AND !$changed_end) {
 		$sql_update = "UPDATE $TableHuizen SET $HuizenEind = ". time() ." WHERE $HuizenID like $fundaID";
 		
-		if(mysql_query($sql_update)) {
+		if(mysqli_query($db, $sql_update)) {
 			$HTML[] = " -> eindtijd aangepast<br>";
 		} else {
-			toLog('error', $opdrachtID, $fundaID, "Error met verwerken begintijd");
-		}				
-	}
-		
-	# Als er een verkoopdatum bekend is => die datum als eindtijd invoeren
-	if($Verkoopdatum > 10) {
-		$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $startDatum, $HuizenEind = $Verkoopdatum, $HuizenVerkocht = '1' WHERE $HuizenID like $fundaID";
-				
-		if(mysql_query($sql_update)) {
-			$HTML[] = " -> begin- en eindtijd aangepast (verkocht)<br>";
-			toLog('info', $opdrachtID, $fundaID, "Huis is verkocht");
-		} else {
-			toLog('error', $opdrachtID, $fundaID, "Error met verwerken verkocht huis");
-		}			
+			toLog('error', '0', $fundaID, "Error met verwerken begintijd");
+			$HTML[] = $sql_update;
+		}
 	}
 	
 	return $HTML;
 }
 
+function splitStreetAndNumberFromAdress($adres) {
+	$straat = $nummer = $letter = $toevoeging = '';
+	$nogStraat = true;
+	$i = 0;
+	
+	# Het adres 'Laan van Borgele 40 F206' moet worden opgesplitst in
+	# Straat : Laan van Borgele
+	# Nummer : 40
+	# Letter : F
+	# Toevoeging : 206
+	
+	$delen = explode(' ', trim($adres));
+	$i_max = count($delen);
+	
+	while($nogStraat) {
+		if(is_numeric($delen[$i])) {
+			$nogStraat = false;
+		} else {
+			$i++;
+		}
+		
+		if($i > $i_max) {
+			$nogStraat = false;
+		}
+	}
+	
+	$straat = implode(' ', array_slice($delen, 0, $i));
+	$nummer = $delen[$i];
+	
+	if($i < ($i_max-1)) {
+	   if(($i_max-$i) == 2) {
+	       $temp = $delen[($i+1)];
+	       
+	       if(is_numeric($temp[0])) {
+	           $toevoeging = $temp;
+	           $letter = '';
+	       } else {
+	           $letter = $temp[0];
+	           $toevoeging = substr($temp, 1);
+	       }
+	   } elseif(($i_max-$i) == 3) {
+	       $letter = $delen[($i+1)];
+	       $toevoeging = $delen[($i+2)];
+	   }
+	} else {
+	   $letter = $toevoeging = '';
+	}
+	
+	$output['straat'] = $straat;
+	$output['nummer'] = $nummer;
+	$output['letter'] = $letter;
+	$output['toevoeging'] = $toevoeging;
+	
+	return $output;
+}
 
+function formatStreetAndNumber($id) {
+	$data = getFundaData($id);
+	
+	if($data['toevoeging'] == '') {
+		return $data['straat'].' '.$data['nummer'].strtoupper($data['letter']);
+	} else {
+		return $data['straat'].' '.$data['nummer'].strtoupper($data['letter']).' '.$data['toevoeging'];
+	}
+}
+
+
+
+# Zoek de coordinaten bij een gegeven straat, postcode en plaats en voeg deze toe
+#
+#	INPUT
+#		$straat		String met straatnaam
+#		$postcode	Volledige postcode
+#		$plaats		String met plaatsnaam
+#		$huisID		ID van huis op funda
+#
+# OUTPUT
+#		boolean of het wel of niet gelukt is
+function addCoordinates($straat, $postcode, $plaats, $huisID) {
+	$elementen		= explode(' ', urldecode($straat));
+	
+	if(count($elementen) > 1) {
+		$toevoeging		= $elementen[count($elementen) - 1];
+	
+		$toevoeging = str_ireplace('zwart', '' , $toevoeging);
+		$toevoeging = str_ireplace('zw', '' , $toevoeging);
+		$toevoeging = str_ireplace('rd', '' , $toevoeging);
+		$toevoeging = str_ireplace('rood', '' , $toevoeging);
+		$toevoeging = trim($toevoeging, 'A..Za..z-*.');
+		$toevoeging = trim($toevoeging);
+		
+		$elementen[count($elementen) - 1] = $toevoeging;
+	}
+		
+	$GoogleStraat = trim(implode(' ', $elementen));
+	
+	$coord				= getCoordinates($GoogleStraat, $postcode, $plaats);
+	
+	if(!addKnowCoordinates($coord, $huisID)) {
+		return false;
+	} else {
+		return true;
+	}	
+}
+
+
+# Voeg coordinaten toe aan huis
+#
+#	INPUT
+#		$coord		array met coordinaten [Ndeg,Ndec,Odeg,Odec]
+#		$huisID		ID van huis op funda
+#
+# OUTPUT
+#		boolean of het wel of niet gelukt is
+function addKnowCoordinates($coord, $huisID) {
+	global $db, $TableHuizen, $HuizenLat, $HuizenLon, $HuizenID;
+			
+	if(is_numeric($coord[1]) AND $coord[0] != 0) {
+		if(count($coord) > 3) {
+			$lat = $coord[0].'.'.$coord[1];
+			$lng = $coord[2].'.'.$coord[3]; 
+		} else {
+			$lat = str_ireplace(',', '.', $coord[0]);
+			$lng = str_ireplace(',', '.', $coord[1]);
+		}
+		$sql = "UPDATE $TableHuizen SET $HuizenLat = '$lat', $HuizenLon = '$lng' WHERE $HuizenID = '$huisID'";
+				
+		if(!mysqli_query($db, $sql)) {
+			return false;
+		} else {
+			return true;
+		}
+	} else {
+		return false;
+	}
+}
+
+
+
+# Functies met betrekking tot het online/offline/beschikbaar zijn van huizen
+function updateAvailability($id, $begin = '') {
+	global $db, $TableHuizen, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenID, $HuizenID2;
+	
+	$sql = "UPDATE $TableHuizen SET $HuizenEind = ". mktime(23, 59, 59) .", ";
+	if($begin != '')	$sql .= "$HuizenStart = $begin, ";
+	$sql .= "$HuizenOffline = '0' WHERE $HuizenID like '$id' OR $HuizenID2 like '$id'";
+		
+	if(!mysqli_query($db, $sql)) {
+		return false;
+	} else {
+		return true;
+	}
+	
+}
+
+function setOnline($id) {
+	global $db, $TableHuizen, $HuizenOffline, $HuizenID, $HuizenID2;
+				
+	$sql = "UPDATE $TableHuizen SET $HuizenOffline = '0' WHERE $HuizenID like '$id' OR $HuizenID2 like '$id'";
+	
+	if(!mysqli_query($db, $sql)) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+function alreadyOnline($id) {
+	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPlaats, $HuizenID, $HuizenOffline, $HuizenVerkocht;
+		
+	$data = getFundaData($id);
+	
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer = ". $data['nummer'] ." AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging = '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenOffline like '0' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";		
+	$result	= mysqli_query($db, $sql);
+	if(mysqli_num_rows($result) == 0) {
+		return false;
+	} else {
+		$row = mysqli_fetch_array($result);
+		return $row[$HuizenID];
+	}	
+}
+
+function onlineBefore($id) {
+	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPlaats, $HuizenID, $HuizenOffline, $HuizenVerkocht;
+	
+	$data = getFundaData($id);
+	
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer = ". $data['nummer'] ." AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging = '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenOffline like '1' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";
+
+	$result	= mysqli_query($db, $sql);
+	if(mysqli_num_rows($result) == 0) {
+		return false;
+	} else {
+		$row = mysqli_fetch_array($result);
+		return $row[$HuizenID];
+	}	
+}
+
+
+
+# Functies met betrekking tot het verkopen van huizen
+function soldHouse($key) {
+	global $db, $TableHuizen, $HuizenID, $HuizenID2, $HuizenVerkocht;	
+		
+	$sql		= "SELECT * FROM $TableHuizen WHERE ($HuizenID like '$key' OR $HuizenID2 like '$key') AND $HuizenVerkocht like '1'";		
+	$result	= mysqli_query($db, $sql);
+	if(mysqli_num_rows($result) == 1) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function soldHouseTentative($key) {
+	global $db, $TableHuizen, $HuizenID, $HuizenID2, $HuizenVerkocht;	
+		
+	$sql		= "SELECT * FROM $TableHuizen WHERE ($HuizenID like '$key' OR $HuizenID2 like '$key') AND $HuizenVerkocht like '2'";			
+	$result	= mysqli_query($db, $sql);
+	if(mysqli_num_rows($result) == 1) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function soldBefore($id) {
+	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPlaats, $HuizenID, $HuizenVerkocht;
+	
+	$data = getFundaData($id);
+	
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer = ". $data['nummer'] ." AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging = '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenVerkocht like '1' AND $HuizenID not like '$id'";
+		
+	$result	= mysqli_query($db, $sql);
+	if(mysqli_num_rows($result) == 0) {
+		return false;
+	} else {
+		$row = mysqli_fetch_array($result);
+		return $row[$HuizenID];
+	}	
+}
+
+
+
+# Functies met betrekking tot huizen-prijzen
+function changedPrice($id, $price, $opdracht) {
+	global $db, $TableResultaat, $ResultaatZoekID, $ResultaatID, $ResultaatPrijs;
+		
+	$sql = "SELECT * FROM $TableResultaat WHERE $ResultaatZoekID like '$opdracht' AND $ResultaatID like '$id'";
+	$result = mysqli_query($db, $sql);
+	$row = mysqli_fetch_array($result);
+	
+	if($price == $row[$ResultaatPrijs]) {
+		return false;
+	} else {
+		$sql = "UPDATE $TableResultaat SET $ResultaatPrijs = '$price' WHERE $ResultaatZoekID like '$opdracht' AND $ResultaatID like '$id'";
+		mysqli_query($db, $sql);
+		return true;
+	}
+}
+
+function cleanPrice($HuisPrijs) {
+	$cleanPrice = '';
+	for($i=0 ; $i < strlen($HuisPrijs) ; $i++) {
+		$waarde = $HuisPrijs[$i];
+		if(is_numeric($waarde)) {
+			$cleanPrice .= $waarde;
+		}
+	}
+	
+	if(!is_numeric($cleanPrice)) {
+		$cleanPrice		= '0';
+	}	
+		
+	return $cleanPrice;
+}
+
+function newPrice($key, $price) {
+	$history = getPriceHistory($key);
+		
+	if($price != current($history)) {
+		return true;
+	} else {
+		return false;
+	}		
+}
+
+function updatePrice($id, $price, $tijd = 0) {
+	global $db, $TablePrijzen, $PrijzenID, $PrijzenPrijs, $PrijzenTijd;	
+		
+	if($tijd == 0) {
+		$tijd = time();
+	}
+		
+	$sql = "INSERT INTO $TablePrijzen ($PrijzenID, $PrijzenPrijs, $PrijzenTijd) VALUES ('$id', $price, ". $tijd .")";
+		
+	if(!mysqli_query($db, $sql)) {
+		echo $sql;
+		return false;
+	} else {
+		return true;
+	}
+}
+
+function getPriceHistory($input) {
+	global $db, $TablePrijzen, $PrijzenTijd, $PrijzenID, $PrijzenPrijs;	
+	$PriceTable = array();
+		
+	$sql		= "SELECT $PrijzenTijd, $PrijzenPrijs FROM $TablePrijzen WHERE $PrijzenID like '$input' ORDER BY $PrijzenTijd DESC";
+	$result	= mysqli_query($db, $sql);
+	if($row	= mysqli_fetch_array($result)) {
+		do {
+			$index						= $row[$PrijzenTijd];
+			$PriceTable[$index] = $row[$PrijzenPrijs];		
+		} while($row = mysqli_fetch_array($result));
+	}
+	
+	return $PriceTable;
+}
+
+function getHuidigePrijs($input) {
+	$prijzen			= getPriceHistory($input);
+	$HuidigePrijs	= array_slice ($prijzen, 0, 1);
+	
+	return $HuidigePrijs[0];
+}
+
+function getOrginelePrijs($input) {
+	$prijzen			= getPriceHistory($input);
+	$OriginelePrijs	= array_slice ($prijzen, (count($prijzen)-1), 1);
+	
+	return $OriginelePrijs[0];
+}
+
+function formatPrice($input, $euro = true) {
+	if($euro) {
+		return "&euro;&nbsp;". number_format($input, 0,'','.');
+	} else {
+		return number_format($input, 0,'','.');
+	}
+}
+
+function getFullPriceHistory($input) {
+	$afname = $percentage = $overall_afname = $overall_percentage = array();
+	$prizeArray = getPriceHistory($input);
+		
+	$HuidigePrijs		= array_slice ($prizeArray, 0, 1);
+	$OriginelePrijs	= array_slice ($prizeArray, (count($prizeArray)-1), 1);
+	
+	$prijzenRev	= array_reverse($prizeArray, true);
+	$vorige			= $OriginelePrijs[0];
+	current($prijzenRev);
+	
+	if($vorige == 0) {
+		toLog('error', '0', $input, 'Onjuiste prijs-historie');
+	}
+	
+	foreach($prijzenRev as $key => $prijs) {	
+		$afname[$key]			= 100*($vorige - $prijs)/$vorige;
+		$percentage[$key]	= 100*$prijs/$vorige;
+		$vorige				= $prijs;
+		
+		$overall_afname[$key]			= 100*($OriginelePrijs[0] - $prijs)/$OriginelePrijs[0];
+		$overall_percentage[$key]	= 100*$prijs/$OriginelePrijs[0];
+	}
+	
+	$output[0] = $prijzenRev;
+	$output[1] = $percentage;
+	$output[2] = $afname;
+	$output[3] = $overall_percentage;
+	$output[4] = $overall_afname;
+	$output[5] = 100*$HuidigePrijs[0]/$OriginelePrijs[0];
+		
+	return $output;
+}
+
+
+
+# Functies WOZ-waarde
+function extractWOZwaarde($fundaID) {
+	$data = getFundaData($fundaID);
+	
+	$adres = $data['straat'].' '.$data['nummer'].$data['letter'];
+		
+	if($data['toevoeging'] != '') {
+		$adres .= ' '.$data['toevoeging'];
+	}
+	
+	if($data['PC_c'] == '' OR $data['PC_l'] == '') {
+		$postcode = findPCbyAdress($data['straat'], $data['nummer'], $data['letter'], $data['toevoeging'], $data['plaats']);
+		toLog('debug', '0', $fundaID, 'PC onbekend voor WOZ-waarde; '. $postcode);
+	} else {
+		$postcode = $data['PC_c'].$data['PC_l'];
+	}
+	
+	$url = "https://drimble.nl/adres/". strtolower($data['plaats']) ."/$postcode/". convert2FundaStyle(formatStreetAndNumber($fundaID)) .".html";
+	$contents = file_get_contents_retry($url, 3, true);
+		
+	if(strpos($contents, 'Page not found / Adres niet gevonden.')) {
+		toLog('debug', '0', $fundaID, 'Adres bestaat niet voor WOZ; '. $adres);
+		toLog('debug', '0', $fundaID, $url);
+		return false;
+	} elseif(strpos($contents, '<title>404 Page not found</title>')) {
+		toLog('debug', '0', $fundaID, 'URL voor WOZ niet goed opgebouwd; '. $url);
+		return false;
+	} elseif(strpos($contents, 'Maximum aanvragen van dit soort ')) {
+		toLog('debug', '0', $fundaID, 'Maximum aantal aanvragen bereikt');
+		return false;	
+	} else {			
+		$WOZ = getString('<td colspan="2" style="font-size:18px;padding-top:3px;padding-bottom:3px;">WOZ-waarde', '<td colspan="2" style="font-size:16px;padding-top:3px;padding-bottom:3px;background-color:#404040;color:#fff">', $contents, 0);
+		$aWOZ = explode('style="width:20%;">Peildatum ', $WOZ[0]);
+				
+		# Een array van 1 betekent dat er geen WOZ-waardes bekend zijn
+		if(count($aWOZ) < 2) {
+			toLog('debug', '0', $fundaID, 'Geen WOZ-waardes bekend');
+			return false;
+		}
+		
+		array_shift($aWOZ);
+	
+		foreach($aWOZ as $key => $value) {
+			if(strpos($value, 'Belastingjaar')) {
+				$jaar = getString('Belastingjaar)', ':', $value, 0);
+				$jaar[0] = $jaar[0]-1;
+			} else {
+				$jaar = getString('', ':', $value, 0);
+			}
+						
+			$bedrag = getString('&euro; ', '</td>', $value, 0);
+			$export[trim($jaar[0])] = trim(str_replace('.', '', $bedrag[0]));		
+		}
+		return $export;
+	}	
+}
+
+function getWOZHistory($id) {
+	global $db, $TableWOZ, $WOZFundaID, $WOZJaar, $WOZPrijs;
+	
+	$data = array();
+	
+	$sql = "SELECT * FROM $TableWOZ WHERE $WOZFundaID like $id";
+	$result = mysqli_query($db, $sql);
+	if($row = mysqli_fetch_array($result)) {
+		do {
+			$jaar		= $row[$WOZJaar];
+			$bedrag = $row[$WOZPrijs];
+			$data[$jaar] = $bedrag;
+		} while($row = mysqli_fetch_array($result));
+	}
+	
+	return $data;
+}
+
+
+
+
+
+# Functies met betrekking tot open huis
+function hasOpenHuis($id) {
+	global $db, $TableHuizen, $HuizenOpenHuis, $HuizenID;
+	
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenOpenHuis = '1' AND $HuizenID = '$id'";
+	$result	= mysqli_query($db, $sql);
+	
+	if(mysqli_num_rows($result) == 1) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function setOpenHuis($id) {
+	global $db, $TableHuizen, $HuizenOpenHuis, $HuizenID;
+	
+	$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '1' WHERE $HuizenID = '$id'";
+		
+	return mysqli_query($db, $sql);	
+}
+
+function removeOpenHuis($id) {
+	global $db, $TableHuizen, $HuizenOpenHuis, $HuizenID, $TableResultaat, $ResultaatOpenHuis, $ResultaatID;
+	
+	$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '0' WHERE $HuizenID = '$id'";
+	mysqli_query($db, $sql);
+	
+	$sql = "UPDATE $TableResultaat SET $ResultaatOpenHuis = '0' WHERE $ResultaatID = '$id'";
+	mysqli_query($db, $sql);
+}
+
+function getNextOpenhuis($id) {
+	global $db, $TableCalendar, $CalendarHuis, $CalendarStart, $CalendarEnd;
+	
+	$nu			= mktime(0,0,0);	
+	$sql		= "SELECT * FROM $TableCalendar WHERE $CalendarStart > $nu AND $CalendarHuis = '$id'";
+
+	$result = mysqli_query($db, $sql);
+	$row		= mysqli_fetch_array($result);
+	
+	return array($row[$CalendarStart], $row[$CalendarEnd]);
+}
+
+function deleteOpenhuis($fundaID, $begin) {
+	global $db, $TableCalendar, $CalendarHuis, $CalendarStart;
+	
+	$sql = "DELETE FROM $TableCalendar WHERE $CalendarHuis like $fundaID AND $CalendarStart like $begin";
+	return mysqli_query($db, $sql);
+}
+
+function addOpenhuis($fundaID, $tijden) {
+	global $db, $TableCalendar, $CalendarHuis, $CalendarStart, $CalendarEnd;
+	
+	$begin = $tijden[0];
+	$eind = $tijden[1];
+	
+	$sql = "INSERT INTO $TableCalendar ($CalendarHuis, $CalendarStart, $CalendarEnd) VALUES ($fundaID, $begin, $eind)";
+	return mysqli_query($db, $sql);
+}
+
+
+
+# Functies met betrekking tot het opslaan en opvragen van huizen in de database
+function knownHouse($key) {
+	global $db, $TableHuizen, $HuizenID, $HuizenID2;	
+		
+	$sql		= "SELECT * FROM $TableHuizen WHERE $HuizenID like '$key' OR $HuizenID2 like '$key'";
+	$result	= mysqli_query($db, $sql);
+	if(mysqli_num_rows($result) == 1) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function saveHouse($data, $moreData) {	
+	global $db, $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
+	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
+			
+	if(!isset($data['begin'])) {
+		$begin_tijd = mktime(0, 0, 1);
+	} else {
+		$begin_tijd = $data['begin'];
+	}
+	
+	if(!isset($data['eind'])) {
+		$eind_tijd = mktime(23, 59, 59);
+	} else {
+		$eind_tijd = $data['eind'];
+	}	
+	
+	$sql  = "INSERT INTO $TableHuizen ";
+	$sql .= "($HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind) ";
+	$sql .= "VALUES ";
+	$sql .= "('". $data['id'] ."', '". urlencode($data['url']) ."', '". urlencode($data['adres']) ."', '". urlencode($data['straat']) ."', '". $data['nummer'] ."', '". urlencode($data['letter']) ."', '". $data['toevoeging'] ."', '". $data['PC_c'] ."', '". $data['PC_l'] ."', '". urlencode($data['plaats']) ."', '". urlencode($data['wijk']) ."', '". urlencode($data['thumb']) ."', '". urlencode($data['makelaar']) ."', '$begin_tijd', '$eind_tijd')";
+				
+	if(!mysqli_query($db, $sql)) {		
+		return false;
+	}
+		
+	return true;
+}
+
+function newHouse($key, $opdracht) {
+	global $db, $TableResultaat, $ResultaatID, $ResultaatZoekID;	
+		
+	$sql		= "SELECT * FROM $TableResultaat WHERE $ResultaatID like '$key' AND $ResultaatZoekID like '$opdracht'";			
+	$result	= mysqli_query($db, $sql);
+	if(mysqli_num_rows($result) == 0) {
+		return true;
+	} elseif(mysqli_num_rows($result) > 1) {
+		toLog('error', $opdacht, $key, 'Huis-opdracht-combinatie komt vaker voor');
+		if(mysqli_query($db, "DELETE FROM $TableResultaat WHERE $ResultaatID like '$key' AND $ResultaatZoekID like '$opdracht' LIMIT 1")){
+			toLog('error', $opdacht, $key, 'Huis-opdracht-combinatie opgeschoond');
+		}
+		return false;
+	} else {
+		return false;
+	}
+}
+
+function addHouse($data, $id) {
+	global $db, $TableResultaat, $ResultaatZoekID, $ResultaatID, $ResultaatPrijs, $ResultaatPrijsMail;
+
+	$sql = "INSERT INTO $TableResultaat ($ResultaatZoekID, $ResultaatID, $ResultaatPrijs, $ResultaatPrijsMail) VALUES ($id, '". $data['id'] ."', '". $data['prijs'] ."', '". $data['prijs'] ."')";
+	
+	if(!mysqli_query($db, $sql)) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+function updateHouse($data, $kenmerken, $erase = false) {
+	global $db, $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenVerkocht, $HuizenOpenHuis;
+	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
+			
+	$onderdelen = splitStreetAndNumberFromAdress($data['adres']);
+	
+	$data['straat']			= $onderdelen['straat'];
+	$data['nummer']			= $onderdelen['nummer'];
+	$data['letter']			= $onderdelen['letter'];
+	$data['toevoeging']	= $onderdelen['toevoeging'];
+			
+	$velden = array(
+		'url'				=> $HuizenURL,    
+		'adres'			=> $HuizenAdres,		
+		'straat'		=> $HuizenStraat,
+		'nummer'		=> $HuizenNummer,
+		'letter'		=> $HuizenLetter,
+		'toevoeging'=> $HuizenToevoeging,		 
+		'PC_c'			=> $HuizenPC_c,   
+		'PC_l'			=> $HuizenPC_l,   
+		'plaats'		=> $HuizenPlaats, 
+		'wijk'			=> $HuizenWijk,  
+		'thumb'			=> $HuizenThumb,  
+		'makelaar'	=> $HuizenMakelaar,		
+		'verkocht'	=> $HuizenVerkocht,
+		'openhuis'	=> $HuizenOpenHuis
+	);
+		
+	foreach($data as $key => $value) {
+		if(array_key_exists($key, $velden)) {
+			$sql[] = $velden[$key] ." = '". urlencode($value) ."'";
+		}
+	}
+	$query = "UPDATE $TableHuizen SET ". implode(', ', $sql) ." WHERE $HuizenID like '". $data['id'] ."'";
+	
+	if(!mysqli_query($db, $query)) {
+		echo $query ."<br>\n";
+	}	
+	
+	if($erase) {
+		$query = "DELETE FROM $TableKenmerken WHERE $KenmerkenID like '". $data['id'] ."'";
+		
+		if(!mysqli_query($db, $query)) {
+			echo $query ."<br>\n";
+		}	
+	}
+	
+	foreach($kenmerken as $key => $value) {
+		mysqli_query($db, "DELETE FROM $TableKenmerken WHERE $KenmerkenID like '". $data['id'] ."' AND $KenmerkenKenmerk like '". urlencode($key) ."'");
+		$query = "INSERT INTO $TableKenmerken ($KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue) VALUES ('". $data['id'] ."', '". urlencode($key) ."', '". urlencode($value) ."')";
+		
+		if(!mysqli_query($db, $query)) {
+			echo $query ."<br>\n";
+		}
+	}
+}
+
+function getFundaData($id) {
+	global $db, $TableHuizen, $HuizenID, $HuizenID2, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenOffline, $HuizenVerkocht, $HuizenOpenHuis, $HuizenDetails;
+	$data = array();
+	 
+  if($id != 0) {
+  	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenID = $id OR $HuizenID2 = $id";
+		$result = mysqli_query($db, $sql);
+	
+		if(mysqli_num_rows($result) > 0) {
+			$row = mysqli_fetch_array($result);
+			
+			$data['id']			= urldecode($row[$HuizenID]);
+			$data['id_2']			= urldecode($row[$HuizenID2]);
+			$data['url']			= urldecode($row[$HuizenURL]);
+			$data['adres']		= urldecode($row[$HuizenAdres]);			
+			$data['straat']		= urldecode($row[$HuizenStraat]);
+			$data['letter']		= urldecode($row[$HuizenLetter]);
+			if($row[$HuizenNummer] != 0)			{ $data['nummer']		= $row[$HuizenNummer]; } else { $data['nummer'] = ''; }
+			if($row[$HuizenToevoeging] != 0)	{ $data['toevoeging']	= $row[$HuizenToevoeging]; } else { $data['toevoeging'] = ''; }
+			$data['PC_c']			= $row[$HuizenPC_c];	
+			$data['PC_l']			= $row[$HuizenPC_l];		
+			$data['plaats']		= urldecode($row[$HuizenPlaats]);
+			$data['wijk']			= urldecode($row[$HuizenWijk]);
+			$data['thumb']		= urldecode($row[$HuizenThumb]);
+			$data['makelaar']	= urldecode($row[$HuizenMakelaar]);
+			$data['lat']			= $row[$HuizenLat];
+			$data['long']			= $row[$HuizenLon];
+			$data['start']		= $row[$HuizenStart];
+			$data['eind']			= $row[$HuizenEind];
+			$data['afmeld']		= $row[$HuizenAfmeld];
+			$data['verkocht']	= $row[$HuizenVerkocht];
+			$data['offline']	= $row[$HuizenOffline];
+			$data['openhuis']	= $row[$HuizenOpenHuis];
+			$data['details']	= $row[$HuizenDetails];
+			
+			return $data;
+		} else {
+			return false;
+		}
+	} else {
+		return false;
+	}
+}
+
+function getFundaKenmerken($id) {
+	global $db, $TableKenmerken, $KenmerkenID, $KenmerkenValue, $KenmerkenKenmerk;
+	$data = array();
+	  
+  if($id != 0) {
+  	$sql = "SELECT * FROM $TableKenmerken WHERE $KenmerkenID = $id";
+		$result = mysqli_query($db, $sql);
+	
+		if($row = mysqli_fetch_array($result)) {
+			do {
+				$key = urldecode($row[$KenmerkenKenmerk]);
+				$data[$key] = urldecode($row[$KenmerkenValue]);
+			} while($row = mysqli_fetch_array($result));			
+		}
+		
+		ksort($data);
+		
+		return $data;
+	} else {
+		return false;
+	}
+}
+
+
+
+# Functies met betrekking tot het in- en uitschrijven van members
+function getMembers4Opdracht($OpdrachtID, $type) {
+	global $db, $TableAbo, $AboZoekID, $AboUserID, $AboType;
+	$Members = array();
+	
+	$sql = "SELECT * FROM $TableAbo WHERE $AboZoekID like '$OpdrachtID' AND $AboType like '$type'";
+	$result = mysqli_query($db, $sql);
+		
+	if($row = mysqli_fetch_array($result)) {
+		do {
+			$Members[] = $row[$AboUserID];
+		} while($row = mysqli_fetch_array($result));
+	}
+	
+	return $Members;
+}
+
+function addMember2Opdracht($opdracht, $user, $type) {
+	global $db, $TableAbo, $AboZoekID, $AboUserID, $AboType;
+	
+	$sql = "INSERT INTO $TableAbo ($AboZoekID, $AboUserID, $AboType) VALUES ($opdracht, $user, '$type')";
+	return mysqli_query($db, $sql);
+}
+
+function removeMember4Opdracht($opdracht, $user, $type) {
+	global $db, $TableAbo, $AboZoekID, $AboUserID, $AboType;
+	
+	$sql = "DELETE FROM $TableAbo WHERE $AboZoekID = $opdracht AND $AboUserID = $user AND $AboType like '$type'";
+	return mysqli_query($db, $sql);
+}
+
+function getMemberDetails($id) {
+	global $db, $TableUsers, $UsersID, $UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres, $UsersAccount, $UsersLastLogin, $UsersPOKey, $UsersPOToken;
+	
+	$sql		= "SELECT * FROM $TableUsers WHERE $UsersID like '$id'";
+	$result	= mysqli_query($db, $sql);
+	$row		= mysqli_fetch_array($result);
+		
+	$data['id']				= $row[$UsersID];
+	$data['naam']			= $row[$UsersName];
+	$data['username']	= $row[$UsersUsername];
+	$data['password']	= $row[$UsersPassword];
+	$data['level']		= $row[$UsersLevel];
+	$data['mail']			= $row[$UsersAdres];	
+	$data['userkey']	= $row[$UsersPOKey];
+	$data['token']		= $row[$UsersPOToken];	
+	$data['account']	= $row[$UsersAccount];
+	$data['login']		= $row[$UsersLastLogin];
+	
+	return $data;
+}
+
+function saveUpdateMember($id, $name, $username, $wachtwoord, $mail, $po_key, $po_token, $level, $gebruiker) {
+	global $db, $TableUsers, $UsersID, $UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres, $UsersPOKey, $UsersPOToken, $UsersAccount;
+	
+	if($level == 1) {
+		$account = $gebruiker;
+	} else {
+		$account = 0;
+	}
+	
+	if($id == 0) {
+		$sql = "INSERT INTO $TableUsers ($UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres, $UsersPOKey, $UsersPOToken". ($account != 0 ? ", $UsersAccount" : '') .") VALUES ('$name', '$username', '". md5($wachtwoord) ."', $level, '$mail', '$po_key', '$po_token'". ($account != 0 ? ", '$account'" : '') .")";
+	} else {
+		$sql = "UPDATE $TableUsers SET $UsersName = '$name', $UsersUsername = '$username', ". ($wachtwoord != '' ? "$UsersPassword = '". md5($wachtwoord) ."', " : '') ."$UsersLevel = $level, $UsersAdres = '$mail', $UsersPOKey = '$po_key', $UsersPOToken = '$po_token'". ($account != 0 ? ", $UsersAccount = '$account'" : '') ." WHERE $UsersID = ". $id;
+	}
+			
+	$result = mysqli_query($db, $sql);
+	
+	if($id == '') {
+		return mysqli_insert_id($db);
+	} else {
+		return $result;
+	}		
+}
+
+
+
+# Functies met betrekking tot het wel of niet inladen van details
+function mark4Details($fundaID) {
+	global $db, $TableHuizen, $HuizenDetails, $HuizenID, $HuizenID2;
+	
+	$sql 		= "UPDATE $TableHuizen SET $HuizenDetails = '1' WHERE $HuizenID = $fundaID OR $HuizenID2 = $fundaID";
+	return mysqli_query($db, $sql);	
+}
+
+function remove4Details($fundaID) {
+	global $db, $TableHuizen, $HuizenDetails, $HuizenID;
+	
+	$sql 		= "UPDATE $TableHuizen SET $HuizenDetails = '0' WHERE $HuizenID = $fundaID";	
+	return mysqli_query($db, $sql);
+}
+
+
+
+# Functies voor data-selectie
 function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $eDag, $eMaand, $eJaar) {
 	$maandNamen = array(1 => 'Jan', 2 => 'Feb', 3 => 'Mrt', 4 => 'Apr', 5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Dec');
 		
@@ -1689,7 +1602,10 @@ function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $
 		for($u=0 ; $u<=23 ; $u++)	$begin[] = "	<option value='$u'". ($u == $bUur ? ' selected' : '') .">". substr('0'.$u, -2) ."</option>";
 		$begin[] = "	</select>:";
 		$begin[] = "	<select name='bMin'>";
-		for($m=0 ; $m<=59 ; $m++)	$begin[] = "	<option value='$m'". ($m == $bMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
+		
+		# Omdat we in stappen van 5 minuten lopen, even afronden om 5 minuten.
+		$selectMin = (floor($bMin/5)*5);
+		for($m=0 ; $m<=59 ; $m=$m+5)	$begin[] = "	<option value='$m'". ($m == $selectMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
 		$begin[] = "	</select>";
 	}
 	
@@ -1708,13 +1624,15 @@ function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $
 		for($u=0 ; $u<=23 ; $u++)	$eind[] = "	<option value='$u'". ($u == $eUur ? ' selected' : '') .">". substr('0'.$u, -2) ."</option>";
 		$eind[] = "	</select>:";
 		$eind[] = "	<select name='eMin'>";
-		for($m=0 ; $m<=59 ; $m++)	$eind[] = "	<option value='$m'". ($m == $eMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
+		
+		# Omdat we in stappen van 5 minuten lopen, even afronden om 5 minuten.
+		$selectMin = (floor($eMin/5)*5);
+		for($m=0 ; $m<=59 ; $m=$m+5)	$eind[] = "	<option value='$m'". ($m == $selectMin ? ' selected' : '') .">". substr('0'.$m, -2) ."</option>";
 		$eind[] = "	</select>";
 	}
 	
 	return array(implode("\n", $begin), implode("\n", $eind));
 }
-
 
 function makeSelectionSelection($disableList, $blankOption, $preSelect = 0) {
 	# Vraag alle actieve opdrachten en lijsten op en zet die in een pull-down menu
@@ -1769,324 +1687,117 @@ function makeSelectionSelection($disableList, $blankOption, $preSelect = 0) {
 }
 
 
-function updateMakelaar($data) {
-	global $TableHuizen, $HuizenMakelaar, $HuizenID;
+
+# Lijsten
+function getLijsten($id, $active) {
+	global $db, $TableList, $ListID, $ListUser, $ListActive, $ListNaam;
+	$Lijsten = $where = array();
+				
+	if($active != '')	$where[] = "$ListActive = '$active'";	
+	if($id != '')			$where[] = "$ListUser = '$id'";
 	
-	$sql = "UPDATE $TableHuizen SET $HuizenMakelaar = '". urlencode($data['makelaar']) ."' WHERE $HuizenID = '". $data['id'] ."'";
-	mysql_query($sql);
+	$sql = "SELECT $ListID FROM $TableList WHERE ". implode(" AND ", $where) ." ORDER BY $ListNaam";
+	$result = mysqli_query($db, $sql);
+		
+	if($row = mysqli_fetch_array($result)) {
+		do {
+			$Lijsten[] = $row[$ListID];
+		} while($row = mysqli_fetch_array($result));
+	}
+	
+	return $Lijsten;
 }
 
 
-function createXLS($kolomen, $prefixen, $huizen, $scheiding = ';') {
-	# Maak de de eerste regel aan
-	if(count($kolomen) > 0 || count($prefixen) > 0) {
-		$CSV_kop = array('Adres');
-	
-		foreach($prefixen as $dummy => $prefix) {
-			$CSV_kop[] = $prefix;
-		}
+function getLijstData($id) {
+	global $db, $TableList, $ListID, $ListActive, $ListNaam;
 		
-		foreach($kolomen as $dummy => $kenmerk) {
-			if($kenmerk == 'Achtertuin' || $kenmerk == 'Voortuin' || $kenmerk == 'Plaats') {
-				$CSV_kop[] = $kenmerk;
-				$CSV_kop[] = $kenmerk .' (diep)';
-				$CSV_kop[] = $kenmerk .' (breed)';
-			} elseif($kenmerk == 'Wonen (= woonoppervlakte)') {
-				$CSV_kop[] = 'Woonoppervlakte';
-			} else {
-				$CSV_kop[] = $kenmerk;
-			}
-		}
-		$CSV[] = implode($scheiding, $CSV_kop);
+	$sql = "SELECT * FROM $TableList WHERE $ListID = '$id'";
+	$result = mysqli_query($db, $sql);
+	$row = mysqli_fetch_array($result);
+	
+	$data['id']			= $row[$ListID];
+	$data['active'] = $row[$ListActive];
+	$data['naam']		= urldecode($row[$ListNaam]);
+	
+	return $data;	
+}
+
+
+function getLijstHuizen($list, $excludeVerkocht = false, $excludeOffline = false) {
+	global $db, $TableListResult, $TableHuizen, $ListResultHuis, $ListResultList, $HuizenID, $HuizenAdres, $HuizenVerkocht, $HuizenOffline;
+	$Huizen = array();
+	
+	$from		= "$TableListResult, $TableHuizen";
+	$where	= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $list";
+	if($excludeVerkocht) {
+		$where .= " AND $TableHuizen.$HuizenVerkocht NOT like '1'";
+	}	
+	if($excludeOffline ) {
+		$where .= " AND $HuizenOffline NOT like '1'";
+	}	
+	$sql		= "SELECT $TableHuizen.$HuizenID FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
+	$result = mysqli_query($db, $sql);
+	
+	if($row = mysqli_fetch_array($result)) {
+		do {
+			$Huizen[] = $row[$HuizenID];
+		} while($row = mysqli_fetch_array($result));
 	}
 	
-	# Doorloop alle huizen en geef de waarde van het kenmerk weer
-	foreach($huizen as $huisID) {
-		$data				= getFundaData($huisID);
-		$kenmerken	= getFundaKenmerken($huisID);
-		
-		if($data['offline'] == 1 AND $data['verkocht'] == 1) {
-			$status = 'verkocht, offline';
-		} elseif($data['offline'] == 1) {
-			$status = 'offline';
-		} elseif($data['verkocht'] == 1) {
-			$status = 'verkocht';
-		} elseif($data['verkocht'] == 2) {
-			$status = 'onder voorbehoud';
-		} else {
-			$status = 'beschikbaar';
-		}
-		
-		$CSV_regel = array();												$CSV_regel[] = convertToReadable($data['adres']);				
-		if(in_array('ID', $prefixen))								$CSV_regel[] = $huisID;
-		if(in_array('url', $prefixen))							$CSV_regel[] = 'http://funda.nl/'.$huisID;
-		if(in_array('Kadaster', $prefixen))					$CSV_regel[] = 'http://funda.nl/kadaster/?ref='.$huisID;
-		if(in_array('Huidige Prijs', $prefixen))		$CSV_regel[] = getHuidigePrijs($huisID);
-		if(in_array('Orginele Prijs', $prefixen))		$CSV_regel[] = getOrginelePrijs($huisID);
-		if(in_array('Status', $prefixen))						$CSV_regel[] = $status;
-		if(in_array('Open Huis', $prefixen))				$CSV_regel[] = $data['openhuis'];
-		if(in_array('Makelaar', $prefixen))					$CSV_regel[] = $data['makelaar'];
-		if(in_array('Wijk', $prefixen))							$CSV_regel[] = $data['wijk'];
-		if(in_array('Latitude', $prefixen))					$CSV_regel[] = str_replace('.', ',', $data['lat']);
-		if(in_array('Longitude', $prefixen))				$CSV_regel[] = str_replace('.', ',', $data['long']);
-		if(in_array('Energielabel (D)', $prefixen))	$CSV_regel[] = $data['Energielabel'];
-		if(in_array('Energielabel (V)', $prefixen))	$CSV_regel[] = $data['Voorlopig energielabel'];
-		if(in_array('Energielabel', $prefixen))			if($data['Energielabel'] != '') { $CSV_regel[] = $data['Energielabel']; } else {	$CSV_regel[] = $data['Voorlopig energielabel'];	}
-		
-		foreach($kolomen as $dummy => $kenmerk) {				
-			$string = convertToReadable($kenmerken[$kenmerk]);
-						
-			if($kenmerk == 'Achtertuin' || $kenmerk == 'Voortuin' || $kenmerk == 'Plaats') {
-				if(strlen($string) > 10) {
-					$string = str_replace(' mÃ‚Â²', '', $string);
-					$temp = getString('', '(', $string, 0);						$CSV_regel[] = trim($temp[0]);
-					$temp = getString('(', 'm diep', $string, 0);			$CSV_regel[] = trim($temp[0]);
-					$temp = getString('en ', 'm breed', $string, 0);	$CSV_regel[] = trim($temp[0]);
-				} else {
-					$CSV_regel[] = '';
-					$CSV_regel[] = '';
-					$CSV_regel[] = '';
-				}
-			} else {					
-				$string = str_replace('mÃ¯Â¿Â½', '', $string);
-				$string = str_replace('mÃ¯Â¿Â½', '', $string);
-				$CSV_regel[] = trim($string);
-			}
+	return $Huizen;		
+}
+
+
+function addHouse2List($huis, $list) {
+	global $db, $TableListResult, $ListResultList, $ListResultHuis;
+	
+	$sql_check = "SELECT * FROM $TableListResult WHERE $ListResultList like $list AND $ListResultHuis like '$huis'";
+	$result	= mysqli_query($db, $sql_check);
 			
+	if(mysqli_num_rows($result) == 0) {
+		$data = getFundaData($huis);
+		
+		$sql_insert = "INSERT INTO $TableListResult ($ListResultList, $ListResultHuis) VALUES ($list, $huis)";
+		if(!mysqli_query($db, $sql_insert)) {
+			# huis niet toegevoegd
+			$output = "<b>". $data['adres'] ." niet toegevoegd</b><br>";
+		} else {
+			# huis toegevoegd
+			$output = $data['adres'] ." toegevoegd<br>";
 		}
-		$CSV[] = implode($scheiding, $CSV_regel);
-	}
-	
-	return implode("\n", $CSV);	
-}
-
-
-function hasOpenHuis($id) {
-	global $TableHuizen, $HuizenOpenHuis, $HuizenID;
-	
-	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenOpenHuis = '1' AND $HuizenID = '$id'";
-	$result	= mysql_query($sql);
-	
-	if(mysql_num_rows($result) == 1) {
-		return true;
 	} else {
-		return false;
-	}
-}
-
-
-function extractOpenHuisData($id) {
-	$data			= getFundaData($id);
-	$contents	= file_get_contents_retry('http://www.funda.nl'.$data['url']);
-	
-	$propertie	= getString('<ol class="object-promolabel__open-huis-dates">', '</ol>', $contents, 0);
-	$datum			= getString('open-huis-date">', ' van ', $propertie[0], 0);
-	$tijden			= getString(' van ', ' uur.</li>', $datum[1], 0);
-		
-	$temp				= explode('-', guessDate($datum[0]));
-		
-	$dag			= $temp[0];
-	$maand		= $temp[1];
-	$jaar			= $temp[2];	
-	$beginUur	= substr($tijden[0], 0, 2);
-	$beginMin	= substr($tijden[0], 3, 2);
-	$eindUur	= substr($tijden[0], 10, 2);
-	$eindMin	= substr($tijden[0], 13, 2);
-		
-	$start = mktime($beginUur, $beginMin, 0, $maand, $dag, $jaar);
-	$eind = mktime($eindUur, $eindMin, 0, $maand, $dag, $jaar);
-	
-	return array($start, $eind);
-}
-
-
-function removeOpenHuis($id) {
-	global $TableHuizen, $HuizenOpenHuis, $HuizenID, $TableResultaat, $ResultaatOpenHuis, $ResultaatID;
-	
-	$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '0' WHERE $HuizenID = '$id'";
-	mysql_query($sql);
-	
-	$sql = "UPDATE $TableResultaat SET $ResultaatOpenHuis = '0' WHERE $ResultaatID = '$id'";
-	mysql_query($sql);
-}
-
-
-function getNextOpenhuis($id) {
-	global $TableCalendar, $CalendarHuis, $CalendarStart, $CalendarEnd;
-	
-	$nu			= mktime(0,0,0);	
-	$sql		= "SELECT * FROM $TableCalendar WHERE $CalendarStart > $nu AND $CalendarHuis = '$id'";
-
-	$result = mysql_query($sql);
-	$row		= mysql_fetch_array($result);
-	
-	return array($row[$CalendarStart], $row[$CalendarEnd]);
-}
-
-
-function makeHuizenZoekerURL($data) {	
-	$string	= findProv($data['PC_c']) ."###". $data['plaats'] ."###". $data['adres'];
-	$string = strtolower($string);
-	$string = str_replace(".", "", $string);
-	$string = str_replace(",", "", $string);
-	$string = str_replace("/", "", $string);
-	$string = str_replace(" -", "-", $string);
-	$string = str_replace("- ", "-", $string);
-	$string = str_replace(" ", "-", $string);
-	
-	$string = str_replace("###", "/", $string);
-	
-	return 'http://www.huizenzoeker.nl/koop/'. $string ."/details.html";
-}
-
-
-function findProv($postcode) {	
-	$maxPostcode[1299] = 'Noord-Holland';
-	$maxPostcode[1379] = 'Flevoland';
-	$maxPostcode[1383] = 'Noord-Holland';
-	$maxPostcode[1393] = 'Utrecht';
-	$maxPostcode[1394] = 'Noord-Holland';
-	$maxPostcode[1396] = 'Utrecht';
-	$maxPostcode[1425] = 'Noord-Holland';
-	$maxPostcode[1427] = 'Utrecht';
-	$maxPostcode[1429] = 'Zuid-Holland';
-	$maxPostcode[2158] = 'Noord-Holland';
-	$maxPostcode[2164] = 'Zuid-Holland';
-	$maxPostcode[2165] = 'Noord-Holland';
-	$maxPostcode[3381] = 'Zuid-Holland';
-	$maxPostcode[3464] = 'Utrecht';
-	$maxPostcode[3466] = 'Zuid-Holland';
-	$maxPostcode[3769] = 'Utrecht';
-	$maxPostcode[3794] = 'Gelderland';
-	$maxPostcode[3836] = 'Utrecht';
-	$maxPostcode[3888] = 'Gelderland';
-	$maxPostcode[3899] = 'Flevoland';
-	$maxPostcode[3999] = 'Utrecht';
-	$maxPostcode[4119] = 'Gelderland';
-	$maxPostcode[4125] = 'Utrecht';
-	$maxPostcode[4129] = 'Zuid-Holland';
-	$maxPostcode[4139] = 'Utrecht';
-	$maxPostcode[4146] = 'Zuid-Holland';
-	$maxPostcode[4162] = 'Gelderland';
-	$maxPostcode[4169] = 'Zuid-Holland';
-	$maxPostcode[4199] = 'Gelderland';
-	$maxPostcode[4209] = 'Zuid-Holland';
-	$maxPostcode[4212] = 'Gelderland';
-	$maxPostcode[4213] = 'Zuid-Holland';
-	$maxPostcode[4219] = 'Gelderland';
-	$maxPostcode[4249] = 'Zuid-Holland';
-	$maxPostcode[4299] = 'Noord-Brabant';
-	$maxPostcode[4599] = 'Zeeland';
-	$maxPostcode[4671] = 'Noord-Brabant';
-	$maxPostcode[4679] = 'Zeeland';
-	$maxPostcode[4681] = 'Noord-Brabant';
-	$maxPostcode[4699] = 'Zeeland';
-	$maxPostcode[5299] = 'Noord-Brabant';
-	$maxPostcode[5335] = 'Gelderland';
-	$maxPostcode[5765] = 'Noord-Brabant';
-	$maxPostcode[5817] = 'Limburg';
-	$maxPostcode[5846] = 'Noord-Brabant';
-	$maxPostcode[6019] = 'Limburg';
-	$maxPostcode[6029] = 'Noord-Brabant';
-	$maxPostcode[6499] = 'Limburg';
-	$maxPostcode[6584] = 'Gelderland';
-	$maxPostcode[6599] = 'Limburg';
-	$maxPostcode[7399] = 'Gelderland';
-	$maxPostcode[7438] = 'Overijssel';
-	$maxPostcode[7439] = 'Gelderland';
-	$maxPostcode[7739] = 'Overijssel';
-	$maxPostcode[7766] = 'Drenthe';
-	$maxPostcode[7799] = 'Overijssel';
-	$maxPostcode[7949] = 'Drenthe';
-	$maxPostcode[7955] = 'Overijssel';
-	$maxPostcode[7999] = 'Drenthe';
-	$maxPostcode[8049] = 'Overijssel';
-	$maxPostcode[8054] = 'Gelderland';
-	$maxPostcode[8069] = 'Overijssel';
-	$maxPostcode[8099] = 'Gelderland';
-	$maxPostcode[8159] = 'Overijssel';
-	$maxPostcode[8195] = 'Gelderland';
-	$maxPostcode[8199] = 'Overijssel';
-	$maxPostcode[8259] = 'Flevoland';
-	$maxPostcode[8299] = 'Overijssel';
-	$maxPostcode[8322] = 'Flevoland';
-	$maxPostcode[8349] = 'Overijssel';
-	$maxPostcode[8354] = 'Drenthe';
-	$maxPostcode[8379] = 'Overijssel';
-	$maxPostcode[8387] = 'Drenthe';
-	$maxPostcode[9299] = 'Friesland';
-	$maxPostcode[9349] = 'Drenthe';
-	$maxPostcode[9399] = 'Groningen';
-	$maxPostcode[9499] = 'Drenthe';
-	$maxPostcode[9999] = 'Groningen';
-	
-	$pc = key($maxPostcode);
-	
-	while($pc <= $postcode) {
-		next($maxPostcode);
-		$pc = key($maxPostcode);
+		# huis bestaat al
+		$output = "";
 	}
 	
-	return strtolower($maxPostcode[$pc]);
+	return $output;
 }
 
 
-function corrigeerPrice($t1, $p1, $t2 = '') {
-	global $TablePBK, $PBKStart, $PBKEind, $PBKWaarde;
+function saveUpdateList($id, $user, $actief, $naam) {
+	global $db, $TableList, $ListUser, $ListActive, $ListNaam, $ListID;
 	
-	if($t2 == '') {
-		$t2 = time();
-	}
-	
-	$sql_2 = "SELECT * FROM $TablePBK WHERE $t2 BETWEEN $PBKStart AND $PBKEind";
-	$result_2 = mysql_query($sql_2);
-	if(mysql_num_rows($result_2) == 1) {
-		$row = mysql_fetch_array($result_2);
-    		$factor_2 = $row[$PBKWaarde];
+	if($id == '') {
+		$sql = "INSERT INTO $TableList ($ListUser, $ListActive, $ListNaam) VALUES ('$user', '". ($actief == '1' ? '1' : '0') ."', '". urlencode($naam) ."')";
 	} else {
-		$sql_3 = "SELECT * FROM $TablePBK ORDER BY $PBKStart DESC LIMIT 0,1";
-		$result_3 = mysql_query($sql_3);
-		$row = mysql_fetch_array($result_3);
-		
-		if($t2 > $row[$PBKEind]) {
-			$factor_2 = $row[$PBKWaarde];
-		}		
+		$sql = "UPDATE $TableList SET $ListActive = '". ($actief == '1' ? '1' : '0') ."', $ListUser = '$user', $ListNaam = '". urlencode($naam) ."' WHERE $ListID = ". $id;
 	}
 	
+	$result = mysqli_query($db, $sql);
 	
-	$sql_1 = "SELECT * FROM $TablePBK WHERE $t1 BETWEEN $PBKStart AND $PBKEind";
-	$result_1 = mysql_query($sql_1);
-	if(mysql_num_rows($result_1) == 1) {
-		$row = mysql_fetch_array($result_1);
-    		$factor_1 = $row[$PBKWaarde];
+	if($id == '') {
+		return mysqli_insert_id($db);
 	} else {
-		//$factor_1 = $factor_2;	
-		$sql_4 = "SELECT * FROM $TablePBK ORDER BY $PBKStart DESC LIMIT 0,1";
-		$result_4 = mysql_query($sql_3);
-		$row = mysql_fetch_array($result_4);
-		
-		if($t1 > $row[$PBKEind]) {
-			$factor_1 = $row[$PBKWaarde];
-		}
-	}
-		
-	return (($factor_2/$factor_1)*$p1);
+		return $result;
+	}		
 }
 
-function ignoreHouse4Combine($id) {
-	global $TableIgnore, $IgnoreID;
-	
-	$sql = "SELECT * FROM $TableIgnore WHERE $IgnoreID like '$id'";
-	
-	$result = mysql_query($sql);
-	if(mysql_num_rows($result) > 0) {
-		return true;
-	} else {
-		return false;
-	}
-}
 
-function send2Pushover($dataArray, $recipients) {	
+
+
+# Functies met betrekking tot het versturen van Pushover-berichten
+function send2Pushover($dataArray, $recipients) {		
 	foreach($recipients as $memberID) {
 		$MemberData = getMemberDetails($memberID);
 		
@@ -2102,9 +1813,188 @@ function send2Pushover($dataArray, $recipients) {
 			$push->setHtml(1);
 			$push->setDebug(true);
 			$push->setTimestamp(time());
-			$push->send();		
+			$push->send();
 		}
 	}
+}
+
+function sendPushoverNewHouse($fundaID, $OpdrachtID) {
+	$PushMembers		= getMembers4Opdracht($OpdrachtID, 'push');
+				
+	# Pushover-bericht opstellen
+	if(count($PushMembers) > 0) {
+		$data						= getFundaData($fundaID);
+		$data['prijs']	= getHuidigePrijs($fundaID);
+		$OpdrachtData		= getOpdrachtData($OpdrachtID);
+	
+		$soldBefore			= soldBefore($fundaID);
+		$alreadyOnline	= alreadyOnline($fundaID);
+		$onlineBefore		= onlineBefore($fundaID);
+		
+		$WOZwaardes			= extractWOZwaarde($fundaID);		
+		$WOZwaarde			= current($WOZwaardes);
+				
+		$push = array();
+		$push['title']		= "Nieuw huis voor '". $OpdrachtData['naam'] ."'";
+		$push['message']	= $data['straat'] .' '. $data['nummer'] .' in '. $data['plaats'] .' is te koop voor '. formatPrice($data['prijs']);
+		
+		if(is_numeric($WOZwaarde)) {
+			$push['message'] .= "\nLaatst bekende WOZ-waarde is ".formatPrice($WOZwaarde);
+		}
+		
+		if(is_numeric($soldBefore)) {
+			$extraData = getFundaData($soldBefore);
+			$push['message'] .= "\n\nAl eerder verkocht op ". date("d-m-Y", $extraData['eind'])." voor ". formatPrice(getHuidigePrijs($soldBefore));
+		} elseif(is_numeric($alreadyOnline)) {
+			$extraData = getFundaData($alreadyOnline);
+			$push['message'] .= "\n\nOok online bij ". $extraData['makelaar']." ($alreadyOnline)";
+		} elseif(is_numeric($onlineBefore)) {
+			$extraData = getFundaData($onlineBefore);
+			$push['message'] .= "\n\n".implode(" & ", getTimeBetween($extraData['eind'], $data['start'])) ." offline geweest ($onlineBefore)";
+		}
+				
+		$push['url']			= 'http://funda.nl/'. $fundaID;
+		$push['urlTitle']	= $data['adres'];
+		$push['priority']	= 0;
+		
+		send2Pushover($push, $PushMembers);
+		toLog('debug', $OpdrachtID, $fundaID, 'Pushover-bericht nieuw huis verstuurd');
+	}
+}
+
+function sendPushoverChangedPrice($fundaID, $OpdrachtID) {
+	$fundaData			= getFundaData($fundaID);
+	$OpdrachtData		= getOpdrachtData($OpdrachtID);
+	$PriceHistory		= getFullPriceHistory($fundaID);
+	$prijzen_array	= $PriceHistory[0];
+	$prijzen_perc 	= $PriceHistory[3];
+	end($prijzen_array);	# De pointer op de laatste waarde (=laatste prijs) zetten
+			
+	$PushMembers		= getMembers4Opdracht($OpdrachtID, 'push');
+			
+	# Pushover-bericht opstellen
+	if(count($PushMembers) > 0) {
+		$push = array();
+		$push['title']		= formatStreetAndNumber($fundaID) ." is in prijs verlaagd voor '". $OpdrachtData['naam'] ."'";
+		$push['message']	= formatStreetAndNumber($fundaID) ." is van ". formatPrice(prev($prijzen_array)) .' naar '. formatPrice(end($prijzen_array)) .' gegaan';
+		
+		if(prev($prijzen_array) != reset($prijzen_array)) {
+		    $push['message']	.= ", oorspronkelijke vraagprijs was ". formatPrice(reset($prijzen_array));
+		}
+		
+		$push['url']			= 'http://funda.nl/'. $fundaID;
+		$push['urlTitle']	= $fundaData['adres'];
+		$push['priority']	= 0;
+		
+		send2Pushover($push, $PushMembers);
+		toLog('debug', $OpdrachtID, $fundaID, 'Pushover-bericht prijsdaling verstuurd');
+	}
+}
+
+function sendPushoverOpenHuis($fundaID, $OpdrachtID) {
+	$fundaData			= getFundaData($fundaID);
+	$OpdrachtData		= getOpdrachtData($OpdrachtID);
+	$OpenHuisData		= getNextOpenhuis($fundaID);
+				
+	$PushMembers		= getMembers4Opdracht($OpdrachtID, 'push');
+			
+	# Pushover-bericht opstellen
+	if(count($PushMembers) > 0) {
+		$push = array();
+		$push['title']		= formatStreetAndNumber($fundaID) ." heeft open huis voor '". $OpdrachtData['naam'] ."'";
+		$push['message']	= "Open huis op ". strftime('%a %e %b', $OpenHuisData[0]) .' van '. strftime('%H:%M', $OpenHuisData[0]) .' tot '. strftime('%H:%M', $OpenHuisData[1]);
+				
+		$push['url']			= 'http://funda.nl/'. $fundaID;
+		$push['urlTitle']	= $fundaData['adres'];
+		$push['priority']	= 0;
+		
+		send2Pushover($push, $PushMembers);
+		toLog('debug', $OpdrachtID, $fundaID, 'Pushover-bericht open huis verstuurd');
+	}
+}
+
+
+
+# Functies met betrekking tot de administratie van welke overzichts-pagina geladen moet worden
+function setPageToLoadNext($opdracht, $page, $verkocht, $nextPage) {
+	global $db, $TablePage, $PageOpdracht, $PagePage, $PageSold, $PageTime;	
+	
+	#echo "INPUT<br>";
+	#echo "opdracht : $opdracht<br>";
+	#echo "page : $page<br>";
+	#echo "verkocht : $verkocht<br>";
+	#echo "nextPage : $nextPage<br>";
+	
+	# Er is geen nieuwe pagina -> pagina met verkochte woningen openen
+	if(!$nextPage AND !$verkocht) {
+		$newOpdracht = $opdracht;
+		$newPage = 1;
+		$verkocht = true;
+	} else {
+		# Er is een volgende pagina -> die pagina openen
+		if(!$verkocht) {
+			$newOpdracht = $opdracht;
+			$newPage = $page+1;
+			$verkocht = false;
+		# De pagina met verkochte woningen is net gecheckt -> pagina 1 van volgende opdracht openen
+		} else {
+			$allOpdrachten = getZoekOpdrachten('', '1');
+			$key = array_search($opdracht, $allOpdrachten);
+			
+			# Als $key al de laatste index van de array is
+			# moet weer van voorafaan begonnen worden
+			if(($key+1) < count($allOpdrachten)) {
+				$newOpdracht = $allOpdrachten[($key+1)];
+			} else {
+				$newOpdracht = $allOpdrachten[0];
+			}
+			$newPage = 1;
+			$verkocht = false;
+		}
+	}
+	
+	toLog('debug', $opdracht, '', 'Volgende ronde: opdracht '. $newOpdracht .', pagina '. $newPage .', verkocht '. ($verkocht ? 1 : 0));
+	
+	#echo "OUTPUT<br>";
+	#echo "key : $key<br>";
+	#echo "newOpdracht : $newOpdracht<br>";
+	#echo "newPage : $newPage<br>";        	
+	#echo "verkocht : $verkocht<br>";
+	
+	$sql = "UPDATE $TablePage SET $PageOpdracht = $newOpdracht, $PagePage = $newPage, $PageSold = ". ($verkocht ? 1 : 0) .", $PageTime = ". time();
+		
+	if(!mysqli_query($db, $sql)) {
+		return false;
+	} else {
+		return true;
+	}	
+}
+
+function getPageToLoadNext() {
+	global $db, $TablePage, $PageOpdracht, $PagePage, $PageSold, $PageTime;	
+	
+	$sql		= "SELECT * FROM $TablePage";
+	$result	= mysqli_query($db, $sql);
+	$row		= mysqli_fetch_array($result);
+	
+	$OpdrachtID = $row[$PageOpdracht];
+	$page				= $row[$PagePage];
+	$sold				= $row[$PageSold];
+		
+	$OpdrachtData	= getOpdrachtData($OpdrachtID);
+		
+	$data['opdracht'] 		= $OpdrachtID;
+	$data['page'] 				= $page;
+	$data['verkocht'] 		= $sold;
+	$data['url_opdracht']	= $OpdrachtData['url'];
+		
+	if($sold) {
+		$data['url_open'] 		= $OpdrachtData['url'].'&availability=%5B%22unavailable%22%5D';
+	} else {
+		$data['url_open'] 		= $OpdrachtData['url']."&search_result=$page";
+	}
+	
+	return $data;
 }
 
 ?>

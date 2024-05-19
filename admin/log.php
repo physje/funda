@@ -6,7 +6,7 @@ $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 
-connect_db();
+$db = connect_db();
 
 if(!isset($_REQUEST['bDag']) OR !isset($_REQUEST['bMaand']) OR !isset($_REQUEST['bJaar']) OR !isset($_REQUEST['bUur']) OR !isset($_REQUEST['bMin'])) {
 	$bMin = 0;
@@ -39,6 +39,8 @@ if(!isset($_REQUEST['eDag']) OR !isset($_REQUEST['eMaand']) OR !isset($_REQUEST[
 if(isset($_REQUEST['selectie']) AND $_REQUEST['selectie'] != '') {
 	$selectie	= $_REQUEST['selectie'];
 	$opdracht = substr($selectie, 1);
+} else {
+	$selectie	= '';
 }
 
 if(isset($_REQUEST['huis']) AND $_REQUEST['huis'] != '') {
@@ -70,29 +72,49 @@ if(isset($_REQUEST['error']) AND $_REQUEST['error'] != '') {
 $begin	= mktime($bUur, $bMin, 0, $bMaand, $bDag, $bJaar);
 $eind		= mktime($eUur, $eMin, 59, $eMaand, $eDag, $eJaar);
 $huis = null;
+$sql_OR = array();
 
 $sql		= "SELECT * FROM $TableLog WHERE $LogTime BETWEEN $begin AND $eind";
-if($debug == 'ja')		$sql_OR[] = "$LogType = 'debug'";
-if($info == 'ja')			$sql_OR[] = "$LogType = 'info'";
-if($error == 'ja')		$sql_OR[] = "$LogType = 'error'";
-if(is_array($sql_OR))	$sql .= " AND (". implode(" OR ", $sql_OR) .")";
-if(isset($opdracht))	$sql .= " AND $LogOpdracht = '$opdracht'";
-if(isset($huis))			$sql .= " AND $LogHuis = '$huis'";
+if($debug == 'ja')			$sql_OR[] = "$LogType = 'debug'";
+if($info == 'ja')				$sql_OR[] = "$LogType = 'info'";
+if($error == 'ja')			$sql_OR[] = "$LogType = 'error'";
+if(count($sql_OR) > 0)	$sql .= " AND (". implode(" OR ", $sql_OR) .")";
+if(isset($opdracht))		$sql .= " AND $LogOpdracht = '$opdracht'";
+if(isset($huis))				$sql .= " AND $LogHuis = '$huis'";
 
-$result	= mysql_query($sql);
-$aantal	= mysql_num_rows($result);
-$row		= mysql_fetch_array($result);
+$result	= mysqli_query($db, $sql);
+$aantal	= mysqli_num_rows($result);
+$row		= mysqli_fetch_array($result);
 $i = 0;
+$deel_1 = $deel_2 = '';
 
 do {
-	$fundaData = getFundaData($row[$LogHuis]);
-	$opdrachtData = getOpdrachtData($row[$LogOpdracht]);	
 	$i++;
+	$queryData = $title = array();
+		
+	if($row[$LogOpdracht] > 0) {
+		$opdrachtData = getOpdrachtData($row[$LogOpdracht]);
+		$queryData['selectie'] = 'Z'. $row[$LogOpdracht];
+		$title[] = $opdrachtData['naam'];
+	}
+	
+	if($row[$LogHuis] > 0) {
+		$fundaData = getFundaData($row[$LogHuis]);
+		$queryData['huis'] = $row[$LogHuis];
+		$title[] = $fundaData['adres'];
+	}
+		
+	$queryData['bDag'] = $bDag;
+	$queryData['bMaand'] = $bMaand;
+	$queryData['bJaar'] = $bJaar;
+	$queryData['eDag'] = $eDag;
+	$queryData['eMaand'] = $eMaand;
+	$queryData['eJaar'] = $eJaar;
 	
 	$rij = "<tr>";
 	$rij .= "	<td>". date("d-m H:i:s", $row[$LogTime]) ."</td>";
-	$rij .= "	<td>&nbsp;</td>\n";
-	$rij .= "	<td><a href='?selectie=Z". $row[$LogOpdracht] ."&huis=". $row[$LogHuis] ."&bDag=$bDag&bMaand$bMaand&bJaar=$bJaar&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar' title='". $opdrachtData['naam'] .'; '. $fundaData['adres'] ."'>". $row[$LogHuis] ."</a></td>";
+	$rij .= "	<td>&nbsp;</td>\n";	
+	$rij .= "	<td><a href='log.php?". http_build_query($queryData) ."' title='". implode('; ', $title) ."'>". $row[$LogHuis] ."</a></td>";
 	$rij .= "	<td>&nbsp;</td>\n";
 	$rij .= "	<td>". $row[$LogMessage] ."</td>";
 	$rij .= "</tr>";
@@ -101,7 +123,7 @@ do {
 	} else {
 		$deel_1 .= $rij;
 	}
-} while($row = mysql_fetch_array($result));
+} while($row = mysqli_fetch_array($result));
 
 $dateSelection = makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $eDag, $eMaand, $eJaar);
 

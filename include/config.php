@@ -69,8 +69,13 @@ $AboType		= "soort";
 
 $TableHuizen		= "funda_huizen";
 $HuizenID 		= "funda_id";
+$HuizenID2		= "funda_id_tweede";
 $HuizenURL	 	= "url";
 $HuizenAdres 		= "adres";
+$HuizenStraat 		= "straat";
+$HuizenNummer 		= "nummer";
+$HuizenLetter 		= "letter";
+$HuizenToevoeging	= "toevoeg";
 $HuizenPC_c 		= "PC_cijfers";
 $HuizenPC_l		= "PC_letters";
 $HuizenPlaats		= "plaats";
@@ -85,6 +90,7 @@ $HuizenAfmeld		= "afgemeld";
 $HuizenVerkocht		= "verkocht";
 $HuizenOffline		= "offline";
 $HuizenOpenHuis		= "open_huis";
+$HuizenDetails		= "details";
 
 $TableCalendar		= "funda_kalender";
 $CalendarHuis		= "huis";
@@ -127,40 +133,66 @@ $UsersPOToken		= "api_token";
 $UsersAccount		= "account";
 $UsersLastLogin		= "lastLogin";
 
-$TablePBK		= "funda_PBK";
-$PBKStart		= "start";
-$PBKEind		= "eind";
-$PBKWaarde		= "waarde";
-$PBKComment		= "comment";
+$TablePBK						= "funda_PBK";
+$PBKStart						= "start";
+$PBKEind						= "eind";
+$PBKRegio						= "regio";
+$PBKCategorie				= "categorie";
+$PBKWaarde					= "waarde";
+$PBKComment					= "comment";
 
-$TablePrijzen 		= "funda_prijzen";
-$PrijzenKey		= "id";
-$PrijzenID		= "funda_id";
-$PrijzenPrijs		= "prijs";
-$PrijzenTijd		= "tijd";
+$TablePrijzen 			= "funda_prijzen";
+$PrijzenKey					= "id";
+$PrijzenID					= "funda_id";
+$PrijzenPrijs				= "prijs";
+$PrijzenTijd				= "tijd";
 
-$TableIgnore		= "funda_ignore";
-$IgnoreKey		= "id";
-$IgnoreID		= "funda_id";
+$TableIgnore				= "funda_ignore";
+$IgnoreKey					= "id";
+$IgnoreID						= "funda_id";
 
-$TableResultaat 	= "funda_resultaat";
-$ResultaatZoekID	= "zoek_id";
-$ResultaatID		= "funda_id";
-$ResultaatPrijs		= "prijs";
+$TableResultaat 		= "funda_resultaat";
+$ResultaatZoekID		= "zoek_id";
+$ResultaatID				= "funda_id";
+$ResultaatPrijs			= "prijs";
 $ResultaatVerkocht	= "verkocht";
 $ResultaatOpenHuis	= "open_huis";
+$ResultaatNew				= "nieuw";
+$ResultaatPrijsMail	= "mail_prijs";
 
-$TableVerdeling		= "funda_verdeling";
-$VerdelingUur		= "uur";
+$TableVerdeling			= "funda_verdeling";
+$VerdelingUur				= "uur";
 $VerdelingOpdracht	= "opdracht";
 
-$TableZoeken		= "funda_zoeken";
-$ZoekenKey		= "id";
-$ZoekenUser		= "user";
-$ZoekenNaam		= "naam";
-$ZoekenURL		= "url";
+$TableZoeken				= "funda_zoeken";
+$ZoekenKey					= "id";
+$ZoekenActive				= "active";
+$ZoekenUser					= "user";
+$ZoekenNaam					= "naam";
+$ZoekenURL					= "url";
 
-include_once($cfgGeneralIncludeDirectory . 'general_functions.php');
+$TableGemeentes			= "funda_gemeentes";
+$GemeentesPC				= "PC";
+$GemeentesPlaats		= "plaats";
+$GemeentesGemeente	= "gemeente";
+$GemeentesProvincie	= "provincie";
+
+$TableWOZ						= "funda_woz";
+$WOZID							= "id";
+$WOZFundaID					= "fundaID";
+$WOZJaar						= "jaar";
+$WOZPrijs						= "price";
+$WOZLastCheck				= "last_check";
+
+
+$TablePage					= "funda_page";
+$PageOpdracht				= "opdracht";
+$PagePage						= "pagina";
+$PageSold						= "verkocht";
+$PageTime						= "last_check";
+
+
+include_once($cfgGeneralIncludeDirectory . 'shared_functions.php');
 include_once($cfgGeneralIncludeDirectory . 'general_config.php');
 include_once( __DIR__ .'/functions.php');
 include_once( __DIR__ .'/config_url.php');
