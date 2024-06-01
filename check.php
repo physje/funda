@@ -41,9 +41,9 @@ $OpdrachtData			= getOpdrachtData($OpdrachtID);
 $PushMembers			= getMembers4Opdracht($OpdrachtID, 'push');
 
 if($verkocht) {
-	toLog('info', $OpdrachtID, '', 'Start controle verkochte huizen van '. $OpdrachtData['naam']);
+	toLog('info', $OpdrachtID, '', 'Start controle pagina '. $page .' van verkochte huizen voor '. $OpdrachtData['naam']);
 } else {
-	toLog('info', $OpdrachtID, '', 'Start controle pagina '. $page .' van '. $OpdrachtData['naam']);
+	toLog('info', $OpdrachtID, '', 'Start controle pagina '. $page .' voor '. $OpdrachtData['naam']);
 }	
 
 $debug_filename = 'funda_'. $OpdrachtID .'_'. $page .($verkocht ? '_sold' : '') .'.htm';
@@ -183,6 +183,8 @@ foreach($Huizen as $HuisText) {
 	
 	# Huis kan ook echt verkocht zijn
 	if($data['verkocht'] == 1) {
+		toLog('debug', $OpdrachtID, $data['id'], 'Verkocht huis geupdate');
+		
 		if(!soldHouse($data['id'])) {
 			$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '1' WHERE $HuizenID like '". $data['id'] ."' OR $HuizenID2 like '". $data['id'] ."'";
 			mysqli_query($db, $sql);
@@ -255,7 +257,7 @@ $String[] = '</ol>';
 $block[] = implode("\n", $String);
 
 if($verkocht) {
-	toLog('debug', $OpdrachtID, '', "Einde verkochte pagina (". count($AdressenArray) ." huizen)");
+	toLog('debug', $OpdrachtID, '', "Einde verkochte pagina $page (". count($AdressenArray) ." huizen)");
 } else {
 	toLog('debug', $OpdrachtID, '', "Einde pagina $page (". count($AdressenArray) ." huizen)");
 }

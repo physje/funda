@@ -1924,42 +1924,55 @@ function setPageToLoadNext($opdracht, $page, $verkocht, $nextPage) {
 	#echo "page : $page<br>";
 	#echo "verkocht : $verkocht<br>";
 	#echo "nextPage : $nextPage<br>";
-	
-	# Er is geen nieuwe pagina -> pagina met verkochte woningen openen
+
+	# Er is geen nieuwe pagina op de lijst met te koop staande huizen
+	#	-> pagina 1 met verkochte woningen openen
 	if(!$nextPage AND !$verkocht) {
 		$newOpdracht = $opdracht;
 		$newPage = 1;
 		$verkocht = true;
-	} else {
-		# Er is een volgende pagina -> die pagina openen
-		if(!$verkocht) {
-			$newOpdracht = $opdracht;
-			$newPage = $page+1;
-			$verkocht = false;
-		# De pagina met verkochte woningen is net gecheckt -> pagina 1 van volgende opdracht openen
-		} else {
-			$allOpdrachten = getZoekOpdrachten('', '1');
-			$key = array_search($opdracht, $allOpdrachten);
-			
-			# Als $key al de laatste index van de array is
-			# moet weer van voorafaan begonnen worden
-			if(($key+1) < count($allOpdrachten)) {
-				$newOpdracht = $allOpdrachten[($key+1)];
-			} else {
-				$newOpdracht = $allOpdrachten[0];
-			}
-			$newPage = 1;
-			$verkocht = false;
-		}
-	}
 	
-	toLog('debug', $opdracht, '', 'Volgende ronde: opdracht '. $newOpdracht .', pagina '. $newPage .', verkocht '. ($verkocht ? 1 : 0));
+	# Er is wel een nieuwe pagina op de lijst met te koop staande huizen
+	#	-> volgende pagina van te koop staande woningen openen
+	} elseif($nextPage AND !$verkocht) {
+		$newOpdracht = $opdracht;
+		$newPage = $page+1;
+		$verkocht = false;
+	
+	# Er is wel een nieuwe pagina op de lijst met verkochte huizen
+	#	-> volgende pagina van verkochte woningen openen
+	# Om niet elke keer alle pagina's in te laden
+	# doen we alleen de eerste 4 pagina's van verkochten 
+	} elseif($nextPage AND $verkocht AND $page < 4) {
+		
+		$newOpdracht = $opdracht;
+		$newPage = $page+1;
+		$verkocht = true;				
+	
+	# Niks van dat alles
+	#	-> pagina 1 van de volgende opdracht openen
+	} else {
+		$allOpdrachten = getZoekOpdrachten('', '1');
+		$key = array_search($opdracht, $allOpdrachten);
+		
+		# Als $key al de laatste index van de array is
+		# moet weer van voorafaan begonnen worden
+		if(($key+1) < count($allOpdrachten)) {
+			$newOpdracht = $allOpdrachten[($key+1)];
+		} else {
+			$newOpdracht = $allOpdrachten[0];
+		}
+		$newPage = 1;
+		$verkocht = false;
+	}
 	
 	#echo "OUTPUT<br>";
 	#echo "key : $key<br>";
 	#echo "newOpdracht : $newOpdracht<br>";
 	#echo "newPage : $newPage<br>";        	
 	#echo "verkocht : $verkocht<br>";
+	
+	toLog('debug', $opdracht, '', 'Volgende ronde: opdracht '. $newOpdracht .', pagina '. $newPage .', verkocht '. ($verkocht ? 1 : 0));
 	
 	$sql = "UPDATE $TablePage SET $PageOpdracht = $newOpdracht, $PagePage = $newPage, $PageSold = ". ($verkocht ? 1 : 0) .", $PageTime = ". time();
 		
@@ -1987,12 +2000,15 @@ function getPageToLoadNext() {
 	$data['page'] 				= $page;
 	$data['verkocht'] 		= $sold;
 	$data['url_opdracht']	= $OpdrachtData['url'];
+	$url_open							= $OpdrachtData['url'];
 		
 	if($sold) {
-		$data['url_open'] 		= $OpdrachtData['url'].'&availability=%5B%22unavailable%22%5D';
-	} else {
-		$data['url_open'] 		= $OpdrachtData['url']."&search_result=$page";
+		$url_open .= '&availability=%5B%22unavailable%22%5D';
 	}
+	
+	$url_open .= "&search_result=$page";
+	
+	$data['url_open'] 		= $url_open;
 	
 	return $data;
 }
