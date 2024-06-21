@@ -492,7 +492,11 @@ function extractFundaDataFromPage($offlineHTML) {
 	$makelaar		= getString('">', '</a>', $makelHTML[0], 0);
 	$foto				=	getString('<meta itemprop="image" content="', '"', $offlineHTML, 0);
 	$start			= getString("aangebodensinds=", "&", $offlineHTML, 0);
-		
+	
+	if(strpos($PC[0], '</span')) {
+		$PC					= getString('<span class="object-header__subtitle fd-color-neutral-40">', '</span', $contents, 0);
+	}
+	
 	$postcode		= explode(" ", trim($PC[0]));
 	$onderdelen		= splitStreetAndNumberFromAdress($adresClean);
 	
@@ -518,17 +522,25 @@ function extractFundaDataFromPage($offlineHTML) {
 		$oldData = getFundaData($data['id']);
 		$AangebodenHTML	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
 		
-		if(strpos($AangebodenHTML[0], '<span class="fd-m-right-xs">')) {			
+		if(strpos($AangebodenHTML[0], '<span class="fd-m-right-xs">')) {
 			$Aangeboden			= getString('<span class="fd-m-right-xs">', '</span>', $AangebodenHTML[0], 0);
 		} else {
 			$Aangeboden	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
 		}				
 		
 		$KenmerkData['Aangeboden sinds'] = substr(trim($Aangeboden[0]), 4);
-				
-		$Verkoopdatum	= getString('<dt>Verkoopdatum</dt>','</dd>', $contents, 0);		
-		$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
 		
+		# Verkocht
+		if(strpos($contents, '<dt>Verkoopdatum</dt>')) {
+			$Verkoopdatum	= getString('<dt>Verkoopdatum</dt>','</dd>', $contents, 0);		
+			$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
+		}
+		
+		if(strpos($contents, '<dt>Verhuurdatum</dt>')) {
+			$Verkoopdatum	= getString('<dt>Verhuurdatum</dt>','</dd>', $contents, 0);		
+			$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
+		}
+				
 		if(!isset($oldData['afmeld']) OR $oldData['afmeld'] == 0) {
 			if(isset($oldData['eind'])) {
 				$data['afmeld'] = $oldData['eind'];
@@ -2012,5 +2024,134 @@ function getPageToLoadNext() {
 	
 	return $data;
 }
+
+function guessOpdrachtIDFromHTML($zoekURL) {
+	$opdrachten = getZoekOpdrachten($_SESSION['account'], '', false);
+		
+	# Als in de zoekURL de tekst /verkocht/ voorkomt gaat het over een huis wat verkocht is
+	# De variabele $verkocht is dan waar
+	if(strpos($zoekURL, 'availability=%5B"unavailable"%5D')) {
+		$verkocht		= true;
+	} else {
+		$verkocht		= false;
+	}
+	
+	# Aantal filters in de URL hebben 'geen' waarde en mogen er dus uit
+	$cleanZoekString = str_replace('/verkocht/', '/', $zoekURL);
+	$cleanZoekString = str_replace('/sorteer-afmelddatum-af/', '/', $cleanZoekString);
+	$cleanZoekString = str_replace('/open-huis/', '/', $cleanZoekString);
+	#$search_result = getString('', '&search_result', $cleanZoekString);
+	#$cleanZoekString = $search_result[0];
+		
+	$dummy = getString('koop/?', '&search_result', $cleanZoekString, 0);
+	$cleanZoekString = $dummy[0];
+	
+	#echo "cleanZoekString : ". $cleanZoekString ."<br>\n";
+	#echo "<b>$zoekURL | $cleanZoekString</b><br>";
+	
+	# Door hem op te knippen zien wij welke filters er actief zijn
+	$filtersZoekenTemp = explode('&', $cleanZoekString);
+	$filtersZoeken = array();
+	foreach($filtersZoekenTemp as $key => $value) {
+		#echo '|'.$value."|<br>\n";
+		
+		$temp = explode(',', $value);
+		if(count($temp) > 1) {
+			$filtersZoeken = array_merge($filtersZoeken, $temp);
+		} else {
+			$filtersZoeken[] = $value;
+		}
+	}
+	
+	#echo 'Zoeken<br>';
+	#var_dump($filtersZoekenTemp);
+	#var_dump($filtersZoeken);
+	
+	# Doorloop alle opdrachten op zoek naar een match met de filters
+	foreach($opdrachten as $opdracht) {		
+		$score = 0;
+		$opdrachtData			= getOpdrachtData($opdracht);		
+		#$filtersOpdrachtTemp	= explode('&', getSearchString($opdrachtData['url']));
+		$dummy = getString('koop/?', '', $opdrachtData['url'], 0);
+		
+		$filtersOpdrachtTemp	= explode('&', $dummy[0]);
+		
+		#echo '<i>'. getSearchString($opdrachtData['url']) .'</i><br>';
+				
+		$filtersOpdracht = array();
+		foreach($filtersOpdrachtTemp as $key => $value) {
+			$temp = explode(',', $value);
+			if(count($temp) > 1) {
+				$filtersOpdracht = array_merge($filtersOpdracht, $temp);
+			} else {
+				$filtersOpdracht[] = $value;
+			}			
+		}
+				
+		#echo "Opdracht $opdracht<br>\n";
+		#var_dump($filtersOpdrachtTemp);
+		#var_dump($filtersOpdracht);
+	
+		
+		# Wij gaan gevonden filters verwijderen dus maken even een kopie van het orgineel
+		$kopieFiltersZoeken = $filtersZoeken;
+		
+		# Wij lopen 2x de filters door
+		# 1x kijken wij welke filters uit de HTML-pagina voorkomen in de zoekopdracht
+		# 1x kijken wij welke filters uit de zoekopdracht voorkomen in de HTML-pagin
+		# Die combi die op beide het beste scoort is met redelijke zekerheid de zoekopdracht
+		foreach($filtersOpdracht as $key => $value) {
+			if(in_array($value, $kopieFiltersZoeken)) {
+				$index = array_search ($value, $kopieFiltersZoeken);
+				unset($kopieFiltersZoeken[$index]);
+			}				
+		}
+		
+		foreach($filtersZoeken as $key => $value) {
+			if(in_array($value, $filtersOpdracht)) {
+				$index = array_search ($value, $filtersOpdracht);
+				unset($filtersOpdracht[$index]);
+			}
+		}
+				
+		$score_tot[$opdracht] = count($kopieFiltersZoeken)+count($filtersOpdracht);
+		
+		#echo $opdracht .' -> '.count($kopieFiltersZoeken).'+'.count($filtersOpdracht) .'<br>';		
+	}
+					
+	# Als de laagste totale score 0 of 1 is, is het aannemelijk dat we een match hebben
+	if(min($score_tot) < 2) {
+		return array_search (min($score_tot), $score_tot);
+	} else {
+		return 0;		
+	}	
+}
+
+function guessFundaIDFromHTML($zoekURL) {
+	if(strpos($zoekURL, '/verkocht/') OR strpos($zoekURL, '/verhuurd/')) {
+		$verkocht		= true;
+	} else {
+		$verkocht		= false;
+	}
+	
+	$mappen = explode("/", $zoekURL);
+	
+	#var_dump($mappen);
+					 
+	if($verkocht) {		
+		$fundaID	= $mappen[8];
+	} else {
+		$fundaID	= $mappen[7];
+	}
+					
+	if(is_numeric($fundaID) AND count($mappen) > 4) {
+		return $fundaID;
+	}	else {
+		return 0;
+	}
+}
+
+
+
 
 ?>

@@ -1,23 +1,32 @@
 <?php
 include_once(__DIR__.'/../include/config.php');
-
 include_once('../include/HTML_TopBottom.php');
+$db = connect_db();
+
 setlocale(LC_ALL, 'nl_NL');
 $minUserLevel = 2;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
-connect_db();
+
 $data = array();
 
 if(isset($_REQUEST['id'])) {
 	$id = $_REQUEST['id'];
+	$data = getFundaData($id);
 				
 	if(isset($_POST['save'])) {
 		$begin_tijd = mktime(0, 0, 1, $_POST['bMaand'], $_POST['bDag'], $_POST['bJaar']);
 		$eind_tijd = mktime(23, 59, 59, $_POST['eMaand'], $_POST['eDag'], $_POST['eJaar']);
+				
+		//below is not for safety, just to catch ' and similar characters in input (e.g. street names)
+		foreach($_POST as $k => $v) $_POST[$k] = mysqli_real_escape_string($db,$v);
 		
 		$sql  = "UPDATE $TableHuizen SET ";
-		$sql .= "$HuizenAdres = '". urlencode($_POST['adres']) ."', ";
+		//$sql .= "$HuizenAdres = '". urlencode($_POST['adres']) ."', ";
+		$sql .= "$HuizenStraat = '". $_POST['straat'] ."', ";
+		$sql .= "$HuizenNummer = '". $_POST['nummer'] ."', ";
+		$sql .= "$HuizenLetter = '". $_POST['letter'] ."', ";
+		$sql .= "$HuizenToevoeging = '". $_POST['toevoeging'] ."', ";		
 		$sql .= "$HuizenPC_c = '". $_POST['PC_cijfers'] ."', ";
 		$sql .= "$HuizenPC_l =  '". $_POST['PC_letters'] ."', "; 
 		$sql .= "$HuizenPlaats = '". $_POST['plaats'] ."', ";
@@ -25,35 +34,41 @@ if(isset($_REQUEST['id'])) {
 		$sql .= "$HuizenLon = '". $_POST['longitude'] ."', ";
 		$sql .= "$HuizenVerkocht = '". $_POST['verkocht'] ."', ";
 		$sql .= "$HuizenOffline = '". $_POST['offline'] ."', ";
+		$sql .= "$HuizenOpenHuis = '". $_POST['openhuis'] ."', ";
+		$sql .= "$HuizenDetails = '". $_POST['details'] ."', ";
+		if(isset($_POST['afgemeld']) AND $_POST['afgemeld'] == 1) {
+			$afmeld_tijd = mktime(12, 12, 12, $_POST['aMaand'], $_POST['aDag'], $_POST['aJaar']);
+			$sql .= "$HuizenAfmeld = $afmeld_tijd ,";
+		}		
 		$sql .= "$HuizenStart = $begin_tijd, ";
 		$sql .= "$HuizenEind = $eind_tijd WHERE $HuizenID = $id";
 		
-		if(!mysql_query($sql)) {
+		
+		
+		if(!mysqli_query($db, $sql)) {
 			$HTML[] = $sql;
 		} else {
-			$HTML[] = $_POST['adres'] ." is opgeslagen";
+			$HTML[] = $_POST['straat'] .' '. $_POST['nummer'] ." is opgeslagen";
 		}
 	} else {		
-		$data = getFundaData($id);
-		
-		$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
-		$HTML[] = "<input type='hidden' name='id' value='$id'>";
-		$HTML[] = "<table>";	
+		$HTML[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
+		$HTML[] = "<input type='hidden' name='id' value='". $data['id'] ."'>";
+		$HTML[] = "<table border=0 width='100%'>";	
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Adres</td>";
-		$HTML[] = "	<td><input type='text' name='adres' value='". $data['adres'] ."' size='35'></td>";
+		$HTML[] = "	<td>". $data['adres'] ."<br><input type='text' name='straat' value=\"". $data['straat'] ."\" size='15'> <input type='text' name='nummer' value='". $data['nummer'] ."' size='1'> <input type='text' name='letter' value='". $data['letter'] ."' size='1'> <input type='text' name='toevoeging' value='". $data['toevoeging'] ."' size='1'><div class='float_rechts'><a href='http://funda.nl/". $data['id'] ."' target='_blank'>funda.nl</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td></td>";
-		$HTML[] = "	<td><input type='text' name='PC_cijfers' value='". $data['PC_c'] ."' size='4'> <input type='text' name='PC_letters' value='". $data['PC_l'] ."' size='2'><div class='float_rechts'><a href='http://funda.nl/$id' target='_blank'>funda.nl</a></div></td>";
+		$HTML[] = "	<td><input type='text' name='PC_cijfers' value='". $data['PC_c'] ."' size='4'> <input type='text' name='PC_letters' value='". $data['PC_l'] ."' size='2'><div class='float_rechts'><a href='addPostcode.php?fundaID=$id' target='_blank'>vernieuw postcode</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Plaats</td>";
-		$HTML[] = "	<td><input type='text' name='plaats' value='". $data['plaats'] ."'></td>";
+		$HTML[] = "	<td><input type='text' name='plaats' value='". $data['plaats'] ."'><div class='float_rechts'><a href='https://drimble.nl/adres/". strtolower($data['plaats']) ."/".$data['PC_c'].$data['PC_l']."/". convert2FundaStyle(formatStreetAndNumber($id)) .".html' target='_blank'>drimble</a></div></td>";
 		$HTML[] = "</tr>";	
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Coordinaten</td>";
-		$HTML[] = "	<td><input type='text' name='latitude' value='". $data['lat'] ."' size='7'>,<input type='text' name='longitude' value='". $data['long'] ."' size=7'><div class='float_rechts'><a href='../extern/redirect.php?id=$id' target='_blank'>Google Maps</a></div></td>";
+		$HTML[] = "	<td><input type='text' name='latitude' value='". $data['lat'] ."' size='7'>,<input type='text' name='longitude' value='". $data['long'] ."' size=7'><div class='float_rechts'><a href='../extern/redirect.php?id=$id' target='_blank'>Google Maps</a> | <a href='renewCoord.php?fundaID=$id' target='_blank'>vernieuw</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Makelaar</td>";
@@ -65,32 +80,56 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Begin</td>";
-		$HTML[] = "	<td><select name='bDag'>\n";
-		for($d=1 ; $d<=31 ; $d++)	{	$HTML[] = "<option value='$d'". ($d == date("d", $data['start']) ? ' selected' : '') .">$d</option>\n";	}
-		$HTML[] = "	</select><select name='bMaand'>\n";
-		for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $data['start']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
-		$HTML[] = "	</select><select name='bJaar'>\n";
-		for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['start']) ? ' selected' : '') .">$j</option>\n";	}
-		$HTML[] = "	</select></td>\n";
+		$HTML[] = "	<td><select name='bDag'>";
+		for($d=1 ; $d<=31 ; $d++)	{	$HTML[] = "<option value='$d'". ($d == date("d", $data['start']) ? ' selected' : '') .">$d</option>";	}
+		$HTML[] = "	</select><select name='bMaand'>";
+		for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $data['start']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>";	}
+		$HTML[] = "	</select><select name='bJaar'>";
+		for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['start']) ? ' selected' : '') .">$j</option>";	}
+		$HTML[] = "	</select></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";	
 		$HTML[] = "	<td>Eind</td>";
-		$HTML[] = "	<td><select name='eDag'>\n";
-		for($d=1 ; $d<=31 ; $d++)	{	$HTML[] = "<option value='$d'". ($d == date("d", $data['eind']) ? ' selected' : '') .">$d</option>\n";	}
-		$HTML[] = "	</select><select name='eMaand'>\n";
-		for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $data['eind']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
-		$HTML[] = "	</select><select name='eJaar'>\n";
-		for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['eind']) ? ' selected' : '') .">$j</option>\n";	}
-		$HTML[] = "	</select></td>\n";
+		$HTML[] = "	<td><select name='eDag'>";
+		for($d=1 ; $d<=31 ; $d++)	{	$HTML[] = "<option value='$d'". ($d == date("d", $data['eind']) ? ' selected' : '') .">$d</option>";	}
+		$HTML[] = "	</select><select name='eMaand'>";
+		for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $data['eind']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>";	}
+		$HTML[] = "	</select><select name='eJaar'>";
+		for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['eind']) ? ' selected' : '') .">$j</option>";	}
+		$HTML[] = "	</select></td>";
 		$HTML[] = "</tr>";
+		
+		if($data['afmeld'] > 10) {		
+			$HTML[] = "<input type='hidden' name='afgemeld' value='1'>";
+			$HTML[] = "<tr>";	
+			$HTML[] = "	<td>Afgemeld</td>";
+			$HTML[] = "	<td><select name='aDag'>";
+			for($d=1 ; $d<=31 ; $d++)	{	$HTML[] = "<option value='$d'". ($d == date("d", $data['afmeld']) ? ' selected' : '') .">$d</option>";	}
+			$HTML[] = "	</select><select name='aMaand'>";
+			for($m=1 ; $m<=12 ; $m++)	{	$HTML[] = "<option value='$m'". ($m == date("m", $data['afmeld']) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>";	}
+			$HTML[] = "	</select><select name='aJaar'>";
+			for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$HTML[] = "<option value='$j'". ($j == date("Y", $data['afmeld']) ? ' selected' : '') .">$j</option>";	}
+			$HTML[] = "	</select></td>";
+			$HTML[] = "</tr>";
+		}	else {
+			$HTML[] = "<input type='hidden' name='afgemeld' value='0'>";
+		}
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Offline</td>";
 		$HTML[] = "	<td><input type='radio' name='offline' value='0'". ($data['offline'] == '0' ? ' checked' : '') .">Nee&nbsp;<input type='radio' name='offline' value='1'". ($data['offline'] == '1' ? ' checked' : '') .">Ja</td>";
 		$HTML[] = "</tr>";		
 		$HTML[] = "<tr>";
-		$HTML[] = "	<td>Verkocht</td>";
-		$HTML[] = "	<td><input type='radio' name='verkocht' value='0'". ($data['verkocht'] == '0' ? ' checked' : '') .">Nee&nbsp;<input type='radio' name='verkocht' value='1'". ($data['verkocht'] == '1' ? ' checked' : '') .">Ja&nbsp;<input type='radio' name='verkocht' value='2'". ($data['verkocht'] == '2' ? ' checked' : '') .">Onder voorbehoud</td>";
+		$HTML[] = "	<td>Open huis</td>";
+		$HTML[] = "	<td><input type='radio' name='openhuis' value='0'". ($data['openhuis'] == '0' ? ' checked' : '') .">Nee&nbsp;<input type='radio' name='openhuis' value='1'". ($data['openhuis'] == '1' ? ' checked' : '') .">Ja</td>";
+		$HTML[] = "</tr>";		
+		$HTML[] = "<tr>";
+		$HTML[] = "	<td>Details</td>";
+		$HTML[] = "	<td><input type='radio' name='details' value='0'". ($data['details'] == '0' ? ' checked' : '') .">Nee&nbsp;<input type='radio' name='details' value='1'". ($data['details'] == '1' ? ' checked' : '') .">Ja</td>";
 		$HTML[] = "</tr>";
+		$HTML[] = "<tr>";
+		$HTML[] = "	<td>Verkocht</td>";
+		$HTML[] = "	<td><input type='radio' name='verkocht' value='0'". ($data['verkocht'] == '0' ? ' checked' : '') .">Nee<br><input type='radio' name='verkocht' value='3'". ($data['verkocht'] == '3' ? ' checked' : '') .">Onder optie<br><input type='radio' name='verkocht' value='2'". ($data['verkocht'] == '2' ? ' checked' : '') .">Onder voorbehoud<br><input type='radio' name='verkocht' value='1'". ($data['verkocht'] == '1' ? ' checked' : '') .">Ja</td>";
+		$HTML[] = "</tr>";		
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td colspan='2'>&nbsp;</td>";
 		$HTML[] = "</tr>";
@@ -105,22 +144,28 @@ if(isset($_REQUEST['id'])) {
 		$Kenmerk[] = "Prijzen opslaan";
 		
 		$sql = "DELETE FROM $TablePrijzen WHERE $PrijzenID = $id";	
-		if(mysql_query($sql)) {
+		if(mysqli_query($db, $sql)) {
 			foreach($_POST['pDag'] as $key => $value) {				
 				if($_POST['pPrijs'][$key] != 'leeg') {
 					$tijd = mktime(0, 0, 0, $_POST['pMaand'][$key], $_POST['pDag'][$key], $_POST['pJaar'][$key]);
 					$prijs = $_POST['pPrijs'][$key];
 					updatePrice($id, $prijs, $tijd);
 				}
-			}
+			}   
 		}
 	} else {
 		# Prijshistorie
 		$Prijzen = getPriceHistory($id);
+		
+		if($data['PC_c'] != '') {
+			$provincie = findProv($data['PC_c']);
+		} else {
+			$provincie = findProv($data['plaats']);
+		}
 	
-		$PrijsHistory[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
+		$PrijsHistory[] = "<form method='post' action='". $_SERVER['PHP_SELF'] ."'>";
 		$PrijsHistory[] = "<input type='hidden' name='id' value='$id'>";
-		$PrijsHistory[] = "<table>";
+		$PrijsHistory[] = "<table border=0>";
 		$PrijsHistory[] = "<tr>";
 		$PrijsHistory[] = "	<td>Datum</td>";
 		$PrijsHistory[] = "	<td>&nbsp;</td>";
@@ -132,13 +177,13 @@ if(isset($_REQUEST['id'])) {
 		foreach($Prijzen as $key => $value)	{
 			if($key != 0) {
 				$PrijsHistory[] = "<tr>";
-				$PrijsHistory[] = "	<td><select name='pDag[]'>\n";
-				for($d=1 ; $d<=31 ; $d++)	{	$PrijsHistory[] = "<option value='$d'". ($d == date("d", $key) ? ' selected' : '') .">$d</option>\n";	}
-				$PrijsHistory[] = "	</select><select name='pMaand[]'>\n";
-				for($m=1 ; $m<=12 ; $m++)	{	$PrijsHistory[] = "<option value='$m'". ($m == date("m", $key) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>\n";	}
-				$PrijsHistory[] = "	</select><select name='pJaar[]'>\n";
-				for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$PrijsHistory[] = "<option value='$j'". ($j == date("Y", $key) ? ' selected' : '') .">$j</option>\n";	}
-				$PrijsHistory[] = "	</select></td>\n";
+				$PrijsHistory[] = "	<td><select name='pDag[]'>";
+				for($d=1 ; $d<=31 ; $d++)	{	$PrijsHistory[] = "<option value='$d'". ($d == date("d", $key) ? ' selected' : '') .">$d</option>";	}
+				$PrijsHistory[] = "	</select><select name='pMaand[]'>";
+				for($m=1 ; $m<=12 ; $m++)	{	$PrijsHistory[] = "<option value='$m'". ($m == date("m", $key) ? ' selected' : '') .">". strftime("%b", mktime(0,0,0,$m,1,2006)) ."</option>";	}
+				$PrijsHistory[] = "	</select><select name='pJaar[]'>";
+				for($j=1995 ; $j<=(date('Y')) ; $j++)	{	$PrijsHistory[] = "<option value='$j'". ($j == date("Y", $key) ? ' selected' : '') .">$j</option>";	}
+				$PrijsHistory[] = "	</select></td>";
 				$PrijsHistory[] = "<td> -> </td>";
 				$PrijsHistory[] = "<td><input type='text' size='5' name='pPrijs[]' value='$value'></td>";
 				$PrijsHistory[] = "<td>&nbsp;</td>";
@@ -148,12 +193,12 @@ if(isset($_REQUEST['id'])) {
 				$bMaand = date('m', $key);
 				$bJaar	= date('Y', $key);				
 				if($data['verkocht'] == '1' || $data['offline'] == '1') {
-					$nieuwePrijs	= corrigeerPrice($key, $value, $data['eind']);					
+					$nieuwePrijs	= corrigeerPrice($key, $value, $data['eind'], $provincie);					
 					$eDag		= date('d', $data['eind']);
 					$eMaand	= date('m', $data['eind']);
 					$eJaar	= date('Y', $data['eind']);
 				} else {
-					$nieuwePrijs	= corrigeerPrice($key, $value);
+					$nieuwePrijs	= corrigeerPrice($key, $value, '', $provincie);
 					$eDag		= date('d');
 					$eMaand	= date('m');
 					$eJaar	= date('Y');
@@ -163,33 +208,64 @@ if(isset($_REQUEST['id'])) {
 				$percentage		= number_format ((100*($nieuwePrijs-$value)/$value), 1);				
 				if($percentage > 0)	$percentage = '+'.$percentage;
 				
-				$PrijsHistory[] = "<td><a href='determineCorrectPrice.php?prijs=$prijs&bDag=$bDag&bMaand=$bMaand&bJaar=$bJaar&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar' target='_blank'>". ($data['verkocht'] == '1' || $data['offline'] == '1' ? '<i>' : '') . formatPrice($nieuwePrijs) . ($data['verkocht'] == '1' || $data['offline'] == '1' ? '</i>' : '') . "</a> ($percentage %)</td>";
+				$PrijsHistory[] = "<td><a href='determineCorrectPrice.php?prijs=$prijs&bDag=$bDag&bMaand=$bMaand&bJaar=$bJaar&eDag=$eDag&eMaand=$eMaand&eJaar=$eJaar&regio=$provincie' target='_blank'>". ($data['verkocht'] == '1' || $data['offline'] == '1' ? '<i>' : '') . formatPrice($nieuwePrijs) . ($data['verkocht'] == '1' || $data['offline'] == '1' ? '</i>' : '') . "</a> ($percentage %)</td>";
 				$PrijsHistory[] = "</tr>";
 			}
 		}
 		
 		$PrijsHistory[] = "<tr>";
-		$PrijsHistory[] = "	<td colspan='2'>&nbsp;</td>";
+		$PrijsHistory[] = "	<td colspan='5'>&nbsp;</td>";
 		$PrijsHistory[] = "</tr>";	
 		$PrijsHistory[] = "<tr>";
-		$PrijsHistory[] = "	<td colspan='2'><input type='submit' value='Prijs Opslaan' name='save_prijs'></td>";
+		$PrijsHistory[] = "	<td colspan='5'><input type='submit' value='Prijs Opslaan' name='save_prijs'></td>";
 		$PrijsHistory[] = "</tr>";		
 		$PrijsHistory[] = "</table>";
 		$PrijsHistory[] = "</form>";
 	}
 	
+	# WOZ
+	$WOZ = getWOZHistory($id);
+	$WOZHistory = array();
+	
+	if(count($WOZ) > 0) {
+		$WOZHistory[] = "<table border=0>";
+		$WOZHistory[] = "<tr>";
+		$WOZHistory[] = "	<td>Jaar</td>";
+		$WOZHistory[] = "	<td>&nbsp;</td>";
+		$WOZHistory[] = "	<td>WOZ-waarde</td>";
+		$WOZHistory[] = "</tr>";
+		
+		foreach($WOZ as $jaar => $bedrag) {
+			$WOZHistory[] = "<tr>";
+			$WOZHistory[] = "	<td>$jaar</td>";
+			$WOZHistory[] = "	<td>&nbsp;</td>";
+			$WOZHistory[] = "	<td>". formatPrice($bedrag) ."</td>";
+			$WOZHistory[] = "</tr>";			
+		}
+		
+		$WOZHistory[] = "<tr>";
+		$WOZHistory[] = "	<td colspan='2'>&nbsp;</td>";
+		$WOZHistory[] = "	<td><a href='WOZ.php?id=$id' target='WOZ'>ververs</a></td>";
+		$WOZHistory[] = "</tr>";
+		$WOZHistory[] = "</table>";				
+	}
+		
+	//$shortcut[] = "zet <a href='changeState.php?state=offline&id=$id'>offline</a>";
+	//$shortcut[] = "zet <a href='changeState.php?state=verkocht&id=$id'>verkocht</a>";
+	
 	# Zoekresultaten
 	$sql		= "SELECT $ResultaatZoekID FROM $TableResultaat WHERE $ResultaatID like $id";
-	$result	= mysql_query($sql);
-	if($row	=	mysql_fetch_array($result)) {
+	$result	= mysqli_query($db, $sql);
+	if($row	=	mysqli_fetch_array($result)) {
 		$Resultaten[] = "Gevonden met :\n";
 		$Resultaten[] = "<ul>\n";
 	
 		do {
 			$opdrachtData = getOpdrachtData($row[$ResultaatZoekID]);
 			$Resultaten[] = '<li>'. $opdrachtData['naam'] ."</li>\n";
-		} while($row =	mysql_fetch_array($result));
+		} while($row =	mysqli_fetch_array($result));
 		$Resultaten[] = "</ul>\n";
+		$Resultaten[] = "<a href='overviewOpdrachtenHuis.php?id=$id'>wijzigen</a>\n";
 	}
 	
 	# Kenmerken
@@ -216,7 +292,11 @@ if(isset($_REQUEST['id'])) {
 	}
 	
 	# Foto's
-	$fotos = explode('|', $KenmerkData['foto']);
+	if(isset($KenmerkData['foto'])) {
+		$fotos = explode('|', $KenmerkData['foto']);
+	} else {
+		$fotos = array();
+	}
 	
 	foreach($fotos as $key => $value)	{
 		if($data['offline'] == 1) {
@@ -236,13 +316,13 @@ if(isset($_REQUEST['id'])) {
 	
 	if(is_numeric($soldBefore)) {
 		$extraData = getFundaData($soldBefore);
-		$extraString = "<a href='http://funda.nl/$soldBefore'>Al eens verkocht op ". date("d-m-Y", $extraData['eind']) ."</a>";
+		$extraString = "<a href='?id=$soldBefore'>Al eens verkocht op ". date("d-m-Y", $extraData['eind']) ."</a>";
 	} elseif(is_numeric($alreadyOnline)) {
 		$extraData = getFundaData($alreadyOnline);
-		$extraString = "<a href='http://funda.nl/$alreadyOnline'>Ook online bij ". $extraData['makelaar'] ."</a>";
+		$extraString = "<a href='?id=$alreadyOnline'>Ook online bij ". $extraData['makelaar'] ."</a>";
 	} elseif(is_numeric($onlineBefore)) {
 		$extraData = getFundaData($onlineBefore);
-		$extraString = implode(" & ", getTimeBetween($extraData['eind'], $data['start'])) ." offline geweest";
+		$extraString = "<a href='?id=$onlineBefore'>".implode(" & ", getTimeBetween($extraData['eind'], $data['start'])) ." offline geweest</a>";
 	}
 	
 	# Open huis
@@ -257,8 +337,11 @@ echo $HTMLHeader;
 echo "<tr>\n";
 echo "<td width='50%' valign='top' align='center'>\n";
 echo showBlock(implode("\n", $HTML));
-echo "<p>";
-echo showBlock(implode("\n", $Kenmerken));
+
+if(count($KenmerkData) > 0) {
+	echo "<p>";
+	echo showBlock(implode("\n", $Kenmerken));
+}
 echo "</td>";
 echo "<td width='50%' valign='top' align='center'>\n";
 echo showBlock(implode("\n", $Thumb));
@@ -269,19 +352,28 @@ if(count($Resultaten) > 0) {
 	echo "<p>";
 }
 
-if($OpenHuis != '') {
+if(isset($OpenHuis) AND $OpenHuis != '') {
 	echo showBlock($OpenHuis);
 	echo "<p>";
 }
 
-if($extraString != '') {
+if(isset($extraString) AND $extraString != '') {
 	echo showBlock($extraString);
 	echo "<p>";
 }
 
 echo showBlock(implode("\n", $PrijsHistory));
-echo "<p>";
-echo showBlock(implode("\n", $Foto));
+
+if(count($WOZHistory) > 1) {
+	echo "<p>";
+	echo showBlock(implode("\n", $WOZHistory));
+}
+
+
+if(isset($KenmerkData['foto']) AND $KenmerkData['foto'] != '') {
+	echo "<p>";
+	echo showBlock(implode("\n", $Foto));
+}
 echo "</td>";
 echo "</tr>\n";
 echo $HTMLFooter;

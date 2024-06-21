@@ -17,8 +17,10 @@ $cfgUserLevels = array(
 	3 => 'Administrator'	
 );
 
-$randomCheck = true;			# Random checken, ja (true) of nee (false). Funda blockt robots, random kan handig zijn.
-$randomFactor = 0.5;			# Getal tussen 0 en 1, waarbij 0 is nooit checken en 1 altijd. 
+#$randomCheck = true;			# Random checken, ja (true) of nee (false). Funda blockt robots, random kan handig zijn.
+#$randomFactor = 0.5;			# Getal tussen 0 en 1, waarbij 0 is nooit checken en 1 altijd. 
+
+$offlineDir = 'offline/';
 
 # Deze zaken zijn standaard aangevinkt bij een export naar EXCEL
 $cfgCSVExport[] = 'Inhoud';
