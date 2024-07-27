@@ -288,8 +288,14 @@ foreach($files as $file) {
 	# 
 	# De routine als het een detailspagina is
 	#
-		} elseif($detail) {
-		$allData = extractFundaDataFromPage($contents);
+	} elseif($detail) {
+		# Nieuwe pagina verwijst naar ander favicon -> daarop selecteren
+		if(strpos($contents, 'https://www.funda.nl/detail/public/favicon.svg')) {
+			$allData = extractFundaDataFromPageNewStyle($contents);
+		} else {
+			$allData = extractFundaDataFromPage($contents);
+		}
+				
 		$data = $allData[0];
 		$extraData = $allData[1];
 		
@@ -342,8 +348,6 @@ foreach($files as $file) {
 					} else {
 						updateAvailability($fundaID);
 					}
-					addUpdateStreetDb($data['straat'], $data['plaats']);
-					addUpdateWijkDb($data['wijk'], $data['plaats']);
 		
 				# Als hij wel verkocht is moeten we de administratie daarvan even bijwerken
 				} else {

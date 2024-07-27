@@ -449,6 +449,9 @@ function extractFundaData($HuisText, $verkocht = false) {
 }
 
 function extractFundaDataFromPage($offlineHTML) {	
+	# Nieuwe pagina verwijst naar ander favicon ->
+	# https://www.funda.nl/detail/public/favicon.svg
+	
 	$HTML = getString('<body>', '<h2 class="related-objects__title">', $offlineHTML, 0);
 	$contents = $HTML[0];
 	
@@ -606,6 +609,63 @@ function extractFundaDataFromPage($offlineHTML) {
 	}	else {
 		$KenmerkData['foto']		= '';
 	}
+	
+	return array($data, $KenmerkData);
+}
+
+function extractFundaDataFromPageNewStyle($offlineHTML) {
+	
+	$JSON_string_1 = getString('<script type="application/ld+json">', '</script>', $offlineHTML, 0);
+	$JSON_string_2 = getString('<script type="application/ld+json">', '</script>', $JSON_string_1[1], 0);
+	
+		
+	$JSON_1 = json_decode($JSON_string_1[0], JSON_OBJECT_AS_ARRAY);
+	$JSON_2 = json_decode($JSON_string_2[0], JSON_OBJECT_AS_ARRAY);
+	
+	#var_dump($JSON_1);
+	#var_dump($JSON_2);	
+	
+	$onderdelen	= splitStreetAndNumberFromAdress($JSON_1["name"]);
+	$PC 				=	getString($JSON_1["name"].' ', ' '.$JSON_1["address"]["addressLocality"], $JSON_1["description"], 0);	
+	$postcode 	= explode(' ', $PC[0]);	
+		
+	$data['id']				= guessFundaIDFromHTML($JSON_1["url"]);
+	$data['wijk']			= trim($JSON_2["itemListElement"][2]["item"]["name"]);
+	$data['adres']		= trim($JSON_1["name"]);
+	$data['straat']			= $onderdelen['straat'];
+	$data['nummer']			= $onderdelen['nummer'];
+	$data['letter']			= $onderdelen['letter'];
+	$data['toevoeging']	= $onderdelen['toevoeging'];
+	$data['PC_c']			= trim($postcode[0]);
+	$data['PC_l']			= trim($postcode[1]);	
+	$data['plaats']		= trim($JSON_1["address"]["addressLocality"]);
+	$data['thumb'] = preg_replace ('/_(\d+).jpg/', '_360x240.jpg', $JSON_1["image"]);
+	#$data['makelaar']	= trim($makelaar[0]);	
+	$data['prijs']		= $JSON_1["offers"]["price"];
+	#$data['verkocht']	= $verkocht;
+	#$data['openhuis']	= $openhuis;
+	#$data['oh-tijden']
+	#$data['afmeld']
+	
+	if(strpos($offlineHTML, 'Aangeboden sinds","')) {
+		$start				 = getString('Aangeboden sinds","','"', $offlineHTML, 0);
+		$data['start']		= guessDate($start[0], true);	
+	}
+	
+	
+	$omschrijving = getString('after:from-white after:to-transparent">', '</div>', $offlineHTML, 0);
+	
+	$picture		= array();
+	foreach($JSON_1["photo"] as $key => $value) {
+		$picture[] = preg_replace ('/_(\d+).jpg/', '_360x240.jpg', $value["contentUrl"]);
+	}
+	
+	#$KenmerkData['Aangeboden sinds']
+	#$KenmerkData['Verkoopdatum']
+	$KenmerkData['descr']	= trim($omschrijving[0]);
+	#$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
+	#$KenmerkData['Aangeboden sinds']
+	$KenmerkData['foto']		= implode('|', $picture);
 	
 	return array($data, $KenmerkData);
 }
