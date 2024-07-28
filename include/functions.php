@@ -628,7 +628,10 @@ function extractFundaDataFromPageNewStyle($offlineHTML) {
 	$onderdelen	= splitStreetAndNumberFromAdress($JSON_1["name"]);
 	$PC 				=	getString($JSON_1["name"].' ', ' '.$JSON_1["address"]["addressLocality"], $JSON_1["description"], 0);	
 	$postcode 	= explode(' ', $PC[0]);	
-		
+	
+	$mklr_temp	=	getString('mr-1" href="https://www.funda.nl/makelaars/', '</a>', $offlineHTML, 0);
+	$makelaar		=	getString('">', '', $mklr_temp[0], 0);
+				
 	$data['id']				= guessFundaIDFromHTML($JSON_1["url"]);
 	$data['wijk']			= trim($JSON_2["itemListElement"][2]["item"]["name"]);
 	$data['adres']		= trim($JSON_1["name"]);
@@ -639,13 +642,38 @@ function extractFundaDataFromPageNewStyle($offlineHTML) {
 	$data['PC_c']			= trim($postcode[0]);
 	$data['PC_l']			= trim($postcode[1]);	
 	$data['plaats']		= trim($JSON_1["address"]["addressLocality"]);
-	$data['thumb'] = preg_replace ('/_(\d+).jpg/', '_360x240.jpg', $JSON_1["image"]);
-	#$data['makelaar']	= trim($makelaar[0]);	
+	$data['thumb'] = 	preg_replace ('/(\d+)x(\d+)/', '360x240', $JSON_1["image"]);	
+	$data['makelaar']	= trim($makelaar[0]);	
 	$data['prijs']		= $JSON_1["offers"]["price"];
 	#$data['verkocht']	= $verkocht;
 	#$data['openhuis']	= $openhuis;
 	#$data['oh-tijden']
 	#$data['afmeld']
+	
+	# Kenmerken
+	$content_kenmerk	= getString('Kenmerken</h2>', '</section>', $offlineHTML, 0);
+	$kenmerken				= explode('<dt class=', $content_kenmerk[0]);
+	array_shift($kenmerken);
+			
+	foreach($kenmerken as $kenmerk) {		
+		$Record = getString('>', '</dt>', $kenmerk, 0);
+		$Waarde = getString('<span class="mr-2">', '</span>', $kenmerk, 0);
+									
+		if(strpos($Waarde[0], '[34%] md:pr-2">')) {
+			$Waarde = getString('<dd>', '</dd>', $kenmerk, 0);
+		}
+
+		# Energie-label
+		if(strpos($Waarde[0], 'border-y-transparent">')) {
+			$Waarde = getString('border-y-transparent">', '</span>', $kenmerk, 0);
+		}
+
+		# Tussenkopjes weglaten		
+		if(!strpos($Record[0], '<!--') AND !strpos($Waarde[0], '<!--')) {
+			$key = trim($Record[0]);
+			$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
+		}		
+	}
 	
 	if(strpos($offlineHTML, 'Aangeboden sinds","')) {
 		$start				 = getString('Aangeboden sinds","','"', $offlineHTML, 0);
@@ -662,8 +690,7 @@ function extractFundaDataFromPageNewStyle($offlineHTML) {
 	
 	#$KenmerkData['Aangeboden sinds']
 	#$KenmerkData['Verkoopdatum']
-	$KenmerkData['descr']	= trim($omschrijving[0]);
-	#$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
+	$KenmerkData['descr']	= nl2br(trim($omschrijving[0]));	
 	#$KenmerkData['Aangeboden sinds']
 	$KenmerkData['foto']		= implode('|', $picture);
 	
