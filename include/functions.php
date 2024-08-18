@@ -366,7 +366,7 @@ function getHuizen($opdracht, $excludeVerkocht = false, $excludeOffline = false)
 #		array met de gegevens van het huis
 function extractFundaData($HuisText, $verkocht = false) {		
 	
-	if($verkocht) {		
+	if($verkocht) {
 		$data['verkocht']			= 1;
 	} else {
 		$data['verkocht']			= 0;
@@ -396,15 +396,22 @@ function extractFundaData($HuisText, $verkocht = false) {
 	}
 		
 	$foto		= getString('calc(100vw - 2rem)" srcset="', ' ', $HuisText, 0);
-	$adres	= getString('sm:mt-0">', '</h', $HuisURL[1], 0);
+	#$adres	= getString('sm:mt-0">', '</h', $HuisURL[1], 0);
+	$adres	= getString('class="font-semibold">', '</h', $HuisURL[1], 0);
 	$PC			= getString('mb-2">', '</div', $adres[1], 0);
-	$prijs	= getString('class="font-semibold">', '</p>', $PC[1], 0);
-		
-	if(strpos($HuisText, '<div class="my-2 ml-auto">')) {
-		$R_naam	= getString('<button class="flex">', '<div class="my-2 ml-auto">', $HuisText, 0);
+	#$prijs	= getString('class="font-semibold line-through">', '</p>', $PC[1], 0);	
+	
+	if($verkocht) {
+		$prijs	= getString('<p data-test-id="price-sale" class="font-semibold line-through">', '</p>', $PC[1], 0);
 	} else {
-		$R_naam	= getString('<button class="flex">', '<div class="ml-auto"', $HuisText, 0);
+		$prijs	= getString('<p data-test-id="price-sale" class="font-semibold">', '</p>', $PC[1], 0);
 	}
+	
+	if(strpos($HuisText, 'truncate leading-10 md:ml-0">')) {		
+		$R_naam	= getString('truncate leading-10 md:ml-0">', '</a>', $HuisText, 0);		
+	} else {
+		$R_naam	= getString('e" data-v-835de952>', '</a>', $HuisText, 0);
+	} 
 		
 	# Nu al het knippen geweest is kan de geknipte data "geprocesed" worden		
 	if(strpos($HuisText, 'Verkocht onder voorbehoud')) {

@@ -10,14 +10,12 @@ $db = connect_db();
 # Iedereen kan deze pagina dus in principe openen.
 
 # http://stackoverflow.com/questions/9049460/cron-jobs-and-random-times-within-given-hours/16289693
-# Om te zorgen dat de pagina op wisselende tijden wordt geopend heb ik de volgende cronjob opgenomen :
+# Om te zorgen dat de pagina op wisselende tijden wordt geopend kan je de volgende cronjob opnemen :
 #		sleep $[RANDOM\%3660] ; wget -q -O /dev/null http://example.com/funda/check.php
-
-# Om bij te houden welke pagina van welke opdracht geopend moet worden, kijk ik in de database
-# Aan het eind van dit script, schijf ik namelijk weg welke pagina volgende keer geopend moet worden.
 
 # Alles initialiseren
 set_time_limit (90);
+$ErrorMessage = array();
 $NewHouses = $NewAddress = array();
 $String = $block = $AdressenArray = array();
 
@@ -29,6 +27,8 @@ $debug = 0;
 
 $storeFile = false;
 
+# Om bij te houden welke pagina van welke opdracht geopend moet worden, kijk ik in de database
+# Aan het eind van dit script, schijf ik namelijk weg welke pagina volgende keer geopend moet worden.
 $nextData = getPageToLoadNext();
 $OpdrachtID		= $nextData['opdracht'];
 $page					= $nextData['page'];
@@ -37,7 +37,6 @@ $PageURL			= $nextData['url_open'];
 $verkocht			= $nextData['verkocht'];
 
 $OpdrachtData			= getOpdrachtData($OpdrachtID);
-#$OpdrachtMembers	= getMembers4Opdracht($OpdrachtID, 'mail');	
 $PushMembers			= getMembers4Opdracht($OpdrachtID, 'push');
 
 if($verkocht) {
@@ -247,7 +246,7 @@ foreach($Huizen as $HuisText) {
 }
 
 $String = array('');
-$String[] = "<a href='$PageURL'>Pagina $page</a> verwerkt en ". count($AdressenArray) ." huizen gevonden :<br>";
+$String[] = "<a href='$PageURL'>Pagina $page</a> voor ". $OpdrachtData['naam'] ." verwerkt en ". count($AdressenArray) ." huizen gevonden :<br>";
 $String[] = '<ol>';
 foreach($AdressenArray as $key => $value) {
 	$String[] = "<li>$value</li>";
@@ -263,251 +262,6 @@ if($verkocht) {
 }
 
 setPageToLoadNext($OpdrachtID, $page, $verkocht, $nextPage);
-
-/*
-# Niet de laatste pagina en minder dan 15 huizen => niet goed
-if(count($AdressenArray) < 15 AND $nextPage) {			
-	# funda.nl laat soms wel de optie zien om naar de volgende pagina te gaan tewijl die er eigenlijk niet is
-	# de volgende pagina is namelijk leeg. Mochten er dus te weinig huizen op een pagina staan,
-	# dan check ik eerst even of er op de volgende pagina wel huizen staan.
-	$PageURL = $OpdrachtURL.'p'.($p+1).'/';
-	$contents	= file_get_contents_retry($PageURL, 5);
-	
-	if(!is_numeric(strpos($contents, "<h3>Geen koopwoningen gevonden die voldoen aan uw zoekopdracht</h3>"))) {
-		$ErrorMessage[] = $OpdrachtData['naam'] ."; Script vond maar ". count($AdressenArray) .' huizen op pagina '. $p;
-		toLog('error', $OpdrachtID, '', "script vond maar ". count($AdressenArray) ." huizen; pag. $p");
-		$push = array(); $push['title'] = "Te weinig huizen gevonden voor '". $OpdrachtData['naam'] ."'"; $push['message'] = "Het aantal gevonden huizen op pagina $p klopt niet : ". $NrHuizen[0]; $push['url'] = $OpdrachtURL; $push['urlTitle'] = $OpdrachtData['naam']; $push['priority']	= $cfgPushErrorPriority;
-		send2Pushover($push, array(1));
-	}
-}
-*/
-
-
-/*
-# Als er een nieuw huis, een huis in prijs gedaald, open huis of een huis verkocht is moet er een mail verstuurd worden.
-if((count($NewHouses) > 0 OR count($UpdatedPrice) > 0 OR count($OnderVoorbehoud) > 0 OR count($VerkochtHuis) > 0 OR count($OpenHuis) > 0 OR count($Beschikbaar) > 0) AND (count($OpdrachtMembers) > 0)) {
-	$FooterText  = "Google Maps (";
-	$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_mail.php?regio=$OpdrachtID") ."'>vandaag</a>, ";
-	$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML.php?selectie=Z$OpdrachtID&datum=1") ."'>wijk</a>, ";
-	$FooterText .= "<a href='http://maps.google.nl/maps?q=". urlencode($ScriptURL."extern/showKML_prijs.php?selectie=Z$OpdrachtID&datum=1") ."'>prijs</a>) | ";
-	$FooterText .= "<a href='". $ScriptURL ."admin/edit_opdrachten.php?id=$OpdrachtID'>Zoekopdracht</a> | ";
-	$FooterText .= "<a href='". $ScriptURL ."admin/edit_opdrachten.php?action=remove&opdracht=$OpdrachtID'>uitschrijven</a> | ";
-	$FooterText .= "<a href='$OpdrachtURL'>funda.nl</a>";
-	$FooterText .= "<div class='float_rechts'>(c) 2009-". date("Y") ." Matthijs Draijer</div>";			
-	include('include/HTML_TopBottom.php');
-			
-	if(count($NewHouses) > 0) {
-		$omslag			= round(count($NewHouses)/2);
-		$KolomEen		= array_slice ($NewHouses, 0, $omslag);
-		$KolomTwee	= array_slice ($NewHouses, $omslag, $omslag);
-		
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "<td width='50%' valign='top' align='center'>\n";
-		$HTMLMail .= implode("\n<p>\n", $KolomEen);
-		$HTMLMail .= "</td><td width='50%' valign='top' align='center'>\n";
-		if(count($KolomTwee) > 0) {
-			$HTMLMail .= implode("\n<p>\n", $KolomTwee);	
-		} else {
-			$HTMLMail .= "&nbsp;";	
-		}
-		$HTMLMail .= "</td>\n";
-		$HTMLMail .= "</tr>\n";
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
-		$HTMLMail .= "</tr>\n";
-		
-		if(count($NewHouses) == 1) {
-			$Subject[] = array_shift($NewAddress) .' is nieuw';
-		} else {
-			$Subject[] = count($NewHouses) ." nieuwe huizen";
-		}
-	}
-	
-	if(count($UpdatedPrice) > 0) {
-		$omslag			= round(count($UpdatedPrice)/2);
-		$KolomEen		= array_slice ($UpdatedPrice, 0, $omslag);
-		$KolomTwee	= array_slice ($UpdatedPrice, $omslag, $omslag);
-		
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "	<td colspan='2'><h2>In prijs gedaald</h2></td>\n";
-		$HTMLMail .= "</tr>\n";			
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "<td width='50%' valign='top' align='center'>\n";
-		$HTMLMail .= implode("\n<p>\n", $KolomEen);
-		$HTMLMail .= "</td><td width='50%' valign='top' align='center'>\n";
-		if(count($KolomTwee) > 0) {
-			$HTMLMail .= implode("\n<p>\n", $KolomTwee);	
-		} else {
-			$HTMLMail .= "&nbsp;";	
-		}
-		$HTMLMail .= "</td>\n";
-		$HTMLMail .= "</tr>\n";
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
-		$HTMLMail .= "</tr>\n";			
-		
-		if(count($UpdatedPrice) == 1) {
-			$Subject[] = array_shift($UpdatedAddress) ." is in prijs gedaald";
-		} else {
-			$Subject[] = count($UpdatedPrice) ." in prijs gedaalde huizen";
-		}
-	}
-	
-	if(count($OnderVoorbehoud) > 0) {
-		$omslag			= round(count($OnderVoorbehoud)/2);
-		$KolomEen		= array_slice ($OnderVoorbehoud, 0, $omslag);
-		$KolomTwee	= array_slice ($OnderVoorbehoud, $omslag, $omslag);
-		
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "	<td colspan='2'><h2>Onder voorbehoud verkocht</h2></td>\n";
-		$HTMLMail .= "</tr>\n";			
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "<td width='50%' valign='top' align='center'>\n";
-		$HTMLMail .= implode("\n<p>\n", $KolomEen);
-		$HTMLMail .= "</td><td width='50%' valign='top' align='center'>\n";
-		if(count($KolomTwee) > 0) {
-			$HTMLMail .= implode("\n<p>\n", $KolomTwee);	
-		} else {
-			$HTMLMail .= "&nbsp;";	
-		}
-		$HTMLMail .= "</td>\n";
-		$HTMLMail .= "</tr>\n";
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
-		$HTMLMail .= "</tr>\n";
-					
-		if(count($OnderVoorbehoud) == 1) {
-			$Subject[] = array_shift($BijnaVerkochtAddress) ." is onder voorbehoud verkocht";
-		} else {
-			$Subject[] = count($OnderVoorbehoud) ." onder voorbehoud verkochte huizen";
-		}
-	}
-	
-	if(count($Beschikbaar) > 0) {
-		$omslag			= round(count($Beschikbaar)/2);
-		$KolomEen		= array_slice ($Beschikbaar, 0, $omslag);
-		$KolomTwee	= array_slice ($Beschikbaar, $omslag, $omslag);
-		
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "	<td colspan='2'><h2>Weer beschikbaar</h2></td>\n";
-		$HTMLMail .= "</tr>\n";			
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "<td width='50%' valign='top' align='center'>\n";
-		$HTMLMail .= implode("\n<p>\n", $KolomEen);
-		$HTMLMail .= "</td><td width='50%' valign='top' align='center'>\n";
-		if(count($KolomTwee) > 0) {
-			$HTMLMail .= implode("\n<p>\n", $KolomTwee);	
-		} else {
-			$HTMLMail .= "&nbsp;";	
-		}
-		$HTMLMail .= "</td>\n";
-		$HTMLMail .= "</tr>\n";
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
-		$HTMLMail .= "</tr>\n";
-					
-		if(count($Beschikbaar) == 1) {
-			$Subject[] = array_shift($beschikbaarAddress) ." is weer beschikbaar";
-		} else {
-			$Subject[] = count($Beschikbaar) ." weer beschikbare huizen";
-		}
-	}
-			
-	if(count($VerkochtHuis) > 0) {
-		$omslag			= round(count($VerkochtHuis)/2);
-		$KolomEen		= array_slice ($VerkochtHuis, 0, $omslag);
-		$KolomTwee	= array_slice ($VerkochtHuis, $omslag, $omslag);
-		
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "	<td colspan='2'><h2>Verkocht</h2></td>\n";
-		$HTMLMail .= "</tr>\n";			
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "<td width='50%' valign='top' align='center'>\n";
-		$HTMLMail .= implode("\n<p>\n", $KolomEen);
-		$HTMLMail .= "</td><td width='50%' valign='top' align='center'>\n";
-		if(count($KolomTwee) > 0) {
-			$HTMLMail .= implode("\n<p>\n", $KolomTwee);	
-		} else {
-			$HTMLMail .= "&nbsp;";	
-		}
-		$HTMLMail .= "</td>\n";
-		$HTMLMail .= "</tr>\n";
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
-		$HTMLMail .= "</tr>\n";
-		
-		if(count($VerkochtHuis) == 1) {
-			$Subject[] = array_shift($VerkochtAddress) ." is verkocht";
-		} else {
-			$Subject[] = count($VerkochtHuis) ." verkochte huizen";
-		}
-	}
-			
-	if(count($OpenHuis) > 0) {
-		$omslag			= round(count($OpenHuis)/2);
-		$KolomEen		= array_slice ($OpenHuis, 0, $omslag);
-		$KolomTwee	= array_slice ($OpenHuis, $omslag, $omslag);
-		
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "	<td colspan='2'><h2>Open huis</h2></td>\n";
-		$HTMLMail .= "</tr>\n";			
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "<td width='50%' valign='top' align='center'>\n";
-		$HTMLMail .= implode("\n<p>\n", $KolomEen);
-		$HTMLMail .= "</td><td width='50%' valign='top' align='center'>\n";
-		if(count($KolomTwee) > 0) {
-			$HTMLMail .= implode("\n<p>\n", $KolomTwee);	
-		} else {
-			$HTMLMail .= "&nbsp;";	
-		}
-		$HTMLMail .= "</td>\n";
-		$HTMLMail .= "</tr>\n";
-		$HTMLMail .= "<tr>\n";
-		$HTMLMail .= "	<td colspan='2' align='center'>&nbsp;</td>\n";
-		$HTMLMail .= "</tr>\n";
-		
-		if(count($OpenHuis) == 1) {
-			$Subject[] = array_shift($OpenAddress) ." heeft open huis";
-		} else {
-			$Subject[] = count($OpenHuis) ." open huizen";
-		}
-	}
-	
-	$FinalHTMLMail = $HTMLHeader.$HTMLMail.$HTMLPreFooter.$HTMLFooter;
-			
-	$html = new html2text($FinalHTMLMail);
-	$html->set_base_url($ScriptURL);
-	$PlainText = $html->get_text();
-	
-	# Aan alle geintereseerde een mail versturen
-	foreach($OpdrachtMembers as $memberID) {
-		$MemberData = getMemberDetails($memberID);
-					
-		$mail = new PHPMailer;
-		$mail->AddAddress($MemberData['mail'], $MemberData['naam']);
-		$mail->From     = $ScriptMailAdress;
-		$mail->FromName = $ScriptTitle;
-		$mail->Subject	= $SubjectPrefix.implode2(', ', ' en ',  $Subject) ." voor '". $OpdrachtData['naam'] ."'";
-		$mail->IsHTML(true);
-		$mail->Body			= $FinalHTMLMail;
-		$mail->AltBody	= $PlainText;
-		
-		if(!$mail->Send()) {
-			echo "Versturen van mail naar ". $MemberData['mail'] ." is mislukt<br>";
-			$ErrorMessage[] = "Het versturen van een mail voor ". $OpdrachtData['naam'] ." naar ". $MemberData['mail'] ." is mislukt";
-			toLog('error', $OpdrachtID, '', "Kon geen mail versturen naar ". $MemberData['mail']);
-			
-			# Als mail versturen niet lukt dan schrijven we de inhoud weg als HTML_pagina incl. datum
-			$bestandsnaam = $OpdrachtData['naam'] .' ('. date("Ymd_Hi") .')';
-			$fp = fopen($bestandsnaam.'.htm', 'w');
-			fwrite($fp, $FinalHTMLMail);
-			fclose($fp);				
-		} else {
-			toLog('info', $OpdrachtID, '', "Mail verstuurd naar ". $MemberData['mail']);
-		}
-	}		
-}
-*/
 
 # Laat de resultaten vam de check netjes op het scherm zien.
 $tweeKolom = false;
