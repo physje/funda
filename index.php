@@ -20,26 +20,26 @@ $UserData = getMemberDetails($_SESSION['UserID']);
 $links['TimeLine.php']							= 'Tijdslijn';
 $links['PrijsDaling.php']						= 'Prijs-afname';
 $links['gallery.php']								= 'Fotoalbum';
-$links['admin/edit_lijsten.php']		= 'Lijsten';
-$links['admin/edit_opdrachten.php']	= 'Zoekopdrachten';	
+#$links['admin/edit_lijsten.php']		= 'Lijsten';
+#$links['admin/edit_opdrachten.php']	= 'Zoekopdrachten';	
 
 if($_SESSION['level'] > 2) {
 	$links['admin/log.php']						= 'Log-files';
 }
 
-$links['extern/poi.xml.php']				= 'POI-Edit XML-file';
-$links['extern/showKML.php']				= 'Google Maps (wijk)';
-$links['extern/showKML_prijs.php']	= 'Google Maps (prijs)';
+#$links['extern/poi.xml.php']				= 'POI-Edit XML-file';
+#$links['extern/showKML.php']				= 'Google Maps (wijk)';
+#$links['extern/showKML_prijs.php']	= 'Google Maps (prijs)';
 
 
 # ADMIN
-$admin['admin/combineSelections.php']		= 'Maak combinaties van lijsten & opdrachten';
-$admin['admin/search4Coord.php']				= 'Selecteer huizen obv coordinaten';
-$admin['admin/compareKenmerken.php']		= 'Exporteer kenmerken in CSV-formaat';
-$admin['admin/downloadDailyExport.php']	= 'Download XLS-file';
+#$admin['admin/combineSelections.php']		= 'Maak combinaties van lijsten & opdrachten';
+#$admin['admin/search4Coord.php']				= 'Selecteer huizen obv coordinaten';
+#$admin['admin/compareKenmerken.php']		= 'Exporteer kenmerken in CSV-formaat';
+#$admin['admin/downloadDailyExport.php']	= 'Download XLS-file';
 
 if($_SESSION['level'] > 1) {
-	$admin['admin/dailyExport.php']				= 'Genereer excel-bestand';
+	#$admin['admin/dailyExport.php']				= 'Genereer excel-bestand';
 	$admin['admin/HouseDetails.php']			= 'Bekijk details van een huis';
 	$admin['teKoopVerkocht.php']				= 'Overzicht van nieuwe/verkochte huizen per periode';
 	$admin['admin/determineCorrectPrice.php']		= 'Bepaal gecorrigeerde prijs op specifieke datum';
@@ -49,20 +49,21 @@ if($_SESSION['level'] > 1) {
 
 # ONDERHOUD
 if($_SESSION['level'] > 2) {
-	$onderhoud['check.php']											= 'Check funda';	
-	$onderhoud['admin/getVerkochteHuizen.php']	= 'Werk verkochte huizen bij';
-	$onderhoud['admin/checkOudeHuizen.php']			= 'Zoek naar gegevens van vermiste huizen';
+	$onderhoud['check.php']											= 'Check funda';
+	$onderhoud['check_offline.php']											= 'Laad offline HTML-pagina in';	
+	#$onderhoud['admin/getVerkochteHuizen.php']	= 'Werk verkochte huizen bij';
+	#$onderhoud['admin/checkOudeHuizen.php']			= 'Zoek naar gegevens van vermiste huizen';
 	$onderhoud['onderhoud/makeGeneralLists.php']						= 'Maak algemene lijsten aan';
 	$onderhoud['admin/readPBK.php']							= 'Lees de prijs-index van het Kadaster in';
-	$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met openhuizen';
-	$onderhoud['admin/cleanPrice.php']					= 'Prijzen opschonen';
-	$onderhoud['admin/cleanKenmerk.php']				= 'Kenmerken opschonen';
-	$onderhoud['admin/cleanOpenhuis.php']				= 'Open huizen opschonen';
-	$onderhoud['admin/checkTables.php']					= 'Check de verschillende databases';
-	$onderhoud['admin/search4Offline.php']			= 'Zet pagina\'s offline';
-	$onderhoud['admin/combine_batch.php']				= 'Voeg hits automatisch samen';
-	$onderhoud['admin/combine_manual.php']			= 'Voeg hits handmatig samen';
-	$onderhoud['admin/cleanUp.php']							= 'Verwijder oude log-items';	
+	#$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met openhuizen';
+	#$onderhoud['admin/cleanPrice.php']					= 'Prijzen opschonen';
+	#$onderhoud['admin/cleanKenmerk.php']				= 'Kenmerken opschonen';
+	#$onderhoud['admin/cleanOpenhuis.php']				= 'Open huizen opschonen';
+	#$onderhoud['admin/checkTables.php']					= 'Check de verschillende databases';
+	#$onderhoud['admin/search4Offline.php']			= 'Zet pagina\'s offline';
+	#$onderhoud['admin/combine_batch.php']				= 'Voeg hits automatisch samen';
+	#$onderhoud['admin/combine_manual.php']			= 'Voeg hits handmatig samen';
+	#$onderhoud['admin/cleanUp.php']							= 'Verwijder oude log-items';	
 	
 	foreach($onderhoud as $url => $titel) {
 		$blockOnderhoud .= "<a href='$url' target='_blank'>$titel</a><br>\n";
