@@ -57,6 +57,7 @@ foreach($files as $file) {
 	$pageURL		= str_replace('/koop?', '/koop/?', $appHeaderLink[0]);
 	$pageURL		= str_replace('/huur?', '/huur/?', $appHeaderLink[0]);
 	
+	/*
 	if(strpos($contents, '/koop/?')) {
 		$pageURL		= getString('/koop/?', '', $pageURL, 0);	
 		$zoekURL		= 'https://www.funda.nl/zoeken/koop/?'.$pageURL[0];
@@ -65,8 +66,10 @@ foreach($files as $file) {
 		$zoekURL		= 'https://www.funda.nl/zoeken/huur/?'.$pageURL[0];		
 	} else {
 		$zoekURL		= $pageURL;
-	}
-					
+	}*/
+	
+	$zoekURL		= $pageURL;
+						
 	$OpdrachtID	= guessOpdrachtIDFromHTML($zoekURL);
 	$fundaID		= guessFundaIDFromHTML($zoekURL);
 
@@ -293,14 +296,12 @@ foreach($files as $file) {
 		if(strpos($contents, 'https://www.funda.nl/detail/public/favicon.svg')) {
 			$allData = extractFundaDataFromPageNewStyle($contents);
 		} else {
-			$allData = extractFundaDataFromPage($contents);
+			$allData = extractFundaDataFromPageOldStyle($contents);
 		}
 				
 		$data = $allData[0];
 		$extraData = $allData[1];
-		
-		#var_dump($extraData);
-		
+				
 		if($fundaID != $data['id']) {
 			$String[] = "Klopt dit wel ?";
 			$success = false;
@@ -345,7 +346,7 @@ foreach($files as $file) {
 				
 				# Als hij nog niet verkocht is moeten wij dat aangeven
 				if($data['verkocht'] != 1) {
-					if($oldData['start'] > $data['start']) {
+					if(isset($data['start']) AND $oldData['start'] > $data['start']) {
 						updateAvailability($fundaID, $data['start']);
 					} else {
 						updateAvailability($fundaID);
@@ -381,7 +382,7 @@ foreach($files as $file) {
 	
 	# Alleen als de import succesvol is verlopen mag de pagina verwijderd worden
 	if($success) {
-		unlink($bestand);
+		#unlink($bestand);
 	}
 	
 	$block[] = implode("\n", $String);

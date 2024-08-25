@@ -501,172 +501,107 @@ function extractFundaData($HuisText, $verkocht = false) {
 	return $data;
 }
 
-function extractFundaDataFromPage($offlineHTML) {	
+
+
+
+function extractFundaDataFromPageNewStyle($offlineHTML) {	
 	# Nieuwe pagina verwijst naar ander favicon ->
 	# https://www.funda.nl/detail/public/favicon.svg
-	
-	$HTML = getString('<body>', '<h2 class="related-objects__title">', $offlineHTML, 0);
-	$contents = $HTML[0];
-	
-	# Als er een class item-sold is, is hij onder voorbehoud verkocht => $verkocht = 2
-	# Als er een class item-sold-label-large is, is hij verkocht => $verkocht = 1
-	# Als geen van beide het geval is, is hij nog beschikbaar => $verkocht = 0
-	if(strpos($contents, '<li class="label-transactie-voorbehoud">')) {
-		$verkocht		= 2;
-	}elseif(strpos($contents, '<li class="label-transactie-definitief fd-p-horizontal-xs fd-border-radius fd-m-right-2xs">')) {
-		$verkocht		= 1;
-	} else {
-		$verkocht		= 0;
-	}
-	
-	# Als er een class object-promolabel__open-huis-dates is heeft openhuis => $openhuis = 1
-	# Als geen van beide het geval is, is hij nog beschikbaar => $openhuis = 0
-	if(strpos($contents, 'class="object-promolabel__open-huis')) {
-		$openhuis		= 1;
-	} else {
-		$openhuis		= 0;
-	}
 		
-	# Navigatie-gedeelte
-	$navigatie	= getString('<ol class="breadcrumb-list fd-flex fd-align-items-center fd-p-vertical-2xs fd-container-full fd-container fd-m-auto">', '</ol>', $contents, 0);
-	$stappen		= explode('<span class="fd-text--ellipsis fd-text--nowrap fd-overflow-hidden">', $navigatie[0]);
-	$wijk				= getString('', '</span>', $stappen[3], 0);	
-	//$id					= getString('tinyId=', '&amp;', $contents, 0);
-	$id					= getString('"tinyid":"', '"', $offlineHTML, 0);
-
-	$adres	= getString('aria-current="page">', '</span>', $contents, 0);
-	$adresClean = str_replace('<span class="item-sold-label-large" title="Verkocht">VERKOCHT</span>', '', $adres[0]);
+	$JSON_string_1	= getString('<script type="application/ld+json">', '</script>', $offlineHTML, 0);
+	$JSON_string_2	= getString('<script type="application/ld+json">', '</script>', $JSON_string_1[1], 0);
+	$mklr_temp			=	getString('mr-1" href="https://www.funda.nl/makelaars/', '</a>', $offlineHTML, 0);
+	$makelaar				=	getString('">', '', $mklr_temp[0], 0);
+	$omschrijving		= getString('after:from-white after:to-transparent">', '</div>', $offlineHTML, 0);
+	
+	$PC							=	getString('<span class="text-neutral-40">', '</span>', $offlineHTML, 0);
+	$ID							=	getString('?id=', '"', $offlineHTML, 0);
 		
-	if($verkocht == 1) {
-		$prijs			= getString('<strong class="object-header__price--historic">', '</strong>', $contents, 0);
-	} else {
-		$prijs			= getString('<strong class="object-header__price">', '</strong>', $contents, 0);
-	}
+	$JSON_1 = json_decode($JSON_string_1[0], JSON_OBJECT_AS_ARRAY);
+	$JSON_2 = json_decode($JSON_string_2[0], JSON_OBJECT_AS_ARRAY);
 	
-	$makelHTML	= getString('<h3 class="object-contact-aanbieder-name">', '</h3>', $contents, 0);
-	$PC					= getString('<span class="object-header__subtitle fd-color-neutral-40">', '<a class="', $contents, 0);
-	$makelaar		= getString('">', '</a>', $makelHTML[0], 0);
-	$foto				=	getString('<meta itemprop="image" content="', '"', $offlineHTML, 0);
-	$start			= getString("aangebodensinds=", "&", $offlineHTML, 0);
-	
-	if(strpos($PC[0], '</span')) {
-		$PC					= getString('<span class="object-header__subtitle fd-color-neutral-40">', '</span', $contents, 0);
-	}
-	
+	$onderdelen	= splitStreetAndNumberFromAdress($JSON_1["address"]["streetAddress"]);
 	$postcode		= explode(" ", trim($PC[0]));
-	$onderdelen		= splitStreetAndNumberFromAdress($adresClean);
 	
-	$data['id']				= trim($id[0]);
-	$data['wijk']			= trim($wijk[0]);	
-	$data['adres']		= trim($adresClean);
+	$data['id']					= trim($ID[0]);
+	$data['url']				= trim($JSON_1["url"]);
+	$data['wijk']				= trim($JSON_2["itemListElement"][2]["item"]["name"]);
+	$data['adres']			= trim($JSON_1["address"]["streetAddress"]);
 	$data['straat']			= $onderdelen['straat'];
 	$data['nummer']			= $onderdelen['nummer'];
 	$data['letter']			= $onderdelen['letter'];
 	$data['toevoeging']	= $onderdelen['toevoeging'];
-	$data['PC_c']			= trim($postcode[0]);
-	$data['PC_l']			= trim($postcode[1]);	
-	$data['plaats']		= implode(' ', array_slice($postcode, 2));	
-	$data['thumb'] = preg_replace ('/_(\d+).jpg/', '_360x240.jpg', $foto[0]);
-	$data['makelaar']	= trim($makelaar[0]);
-	$data['start']		= guessDate($start[0], true);
-	$data['prijs']		= cleanPrice($prijs[0]);
-	$data['verkocht']	= $verkocht;
-	$data['openhuis']	= $openhuis;
+	$data['PC_c']				= trim($postcode[0]);
+	$data['PC_l']				= trim($postcode[1]);	
+	$data['plaats']			= trim($JSON_1["address"]["addressLocality"]);
+	$data['thumb']			= trim(preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $JSON_1["image"]));	
+	$data['makelaar']		= trim($makelaar[0]);	
+	$data['prijs']			= $JSON_1["offers"]["price"];
+		
+	#if($JSON_advert["status"] == 'verkocht' OR $JSON_advert["status"] == 'verhuurd') {
+	#	$data['verkocht']	= 1;
+	#} else {
+		$data['verkocht']	= 0;
+	#}
+
+	#if($JSON_advert["openhuis"] == 'true') {
+	#	$data['openhuis']	= 1;
+	#} else {
+		$data['openhuis']	= 0;
+	#}
 	
-	
-	if($verkocht == 1) {
-		$oldData = getFundaData($data['id']);
-		$AangebodenHTML	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
-		
-		if(strpos($AangebodenHTML[0], '<span class="fd-m-right-xs">')) {
-			$Aangeboden			= getString('<span class="fd-m-right-xs">', '</span>', $AangebodenHTML[0], 0);
-		} else {
-			$Aangeboden	= getString('<dt>Aangeboden sinds</dt>','</dd>', $contents, 0);
-		}				
-		
-		$KenmerkData['Aangeboden sinds'] = substr(trim($Aangeboden[0]), 4);
-		
-		# Verkocht
-		if(strpos($contents, '<dt>Verkoopdatum</dt>')) {
-			$Verkoopdatum	= getString('<dt>Verkoopdatum</dt>','</dd>', $contents, 0);		
-			$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
-		}
-		
-		if(strpos($contents, '<dt>Verhuurdatum</dt>')) {
-			$Verkoopdatum	= getString('<dt>Verhuurdatum</dt>','</dd>', $contents, 0);		
-			$KenmerkData['Verkoopdatum'] = substr(trim($Verkoopdatum[0]), 4);
-		}
-				
-		if(!isset($oldData['afmeld']) OR $oldData['afmeld'] == 0) {
-			if(isset($oldData['eind'])) {
-				$data['afmeld'] = $oldData['eind'];
-			} else {
-				$data['afmeld'] = 0;
-			}
-		}
-	}
-	
-	if($openhuis == 1) {
-		$data['oh-tijden'] = extractOpenHuisData($contents);
-	}	else {
-		$data['oh-tijden'] = 0;
-	}
+	#$data['oh-tijden']
 	
 	# Omschrijving		
-	$descrHTML		= getString('<div class="object-description-body"', '</div>', $contents, 0);
-	$omschrijving = getString('>', '</div>', $descrHTML[0], 0);
-	
 	$KenmerkData['descr']	= trim($omschrijving[0]);
 	
 	# Kenmerken
-	$content_kenmerk	= getString('<h2 class="object-kenmerken-title">Kenmerken</h2>', '</section>', $contents, 0);
-	$kenmerken				= explode('<dt>', $content_kenmerk[0]);
-	array_shift($kenmerken);
-	
-	foreach($kenmerken as $kenmerk) {
-		$Record = getString('', '</dt>', $kenmerk, 0);
-		//$Waarde = getString('<dd class="fd-flex--bp-m fd-flex-wrap fd-align-items-center">', '</dd>', $kenmerk, 0);
-		$Waarde = getString('<span class="fd-m-right-xs">', '</span>', $kenmerk, 0);
-		
-		if(strpos($Waarde[0], '<span class="">') OR strpos($Waarde[0], '<span class>')) {
-			$Waarde = getString('<dd class="fd-flex--bp-m fd-flex-wrap fd-align-items-center">', '</dd>', $kenmerk, 0);
-		}
-				
-		$key = trim($Record[0]);
-		$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
-	}
-	
-	# Foto	
-	$content_fotos	= getString('<ol class="grid list-none ', '</section>', $offlineHTML, 0);
-		
-	if($content_fotos[0] != "") {
-		$picture		= array();		
-		#$cleanFotoContent 	= str_replace('<div class="object-media-foto ">', '<div class="object-media-foto">', $content_fotos[0]);
-		$cleanFotoContent 	= $content_fotos[0];
-		$carousel		= explode('<li class=', $cleanFotoContent);
-		array_shift($carousel);
-		
-		foreach($carousel as $key => $value) {
-			if(strpos($value, 'data-lazy-srcset=')) {
-				$thumb = getString('data-lazy-srcset="', ' ', $value, 0);
-				#$picture[] = preg_replace ('/_(\d+).jpg/', '_180x120.jpg', $thumb[0]);
-				$picture[] = preg_replace ('/_(\d+).jpg/', '_360x240.jpg', $thumb[0]);
-			} elseif(!strpos($value, 'data:')) {
-				$thumb = getString('src="', '"', $value, 0);
-				#$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_180x120.jpg', $thumb[0]);
-				$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $thumb[0]);
+	$content_kenmerk	= getString('Kenmerken</h2>', '</section>', $offlineHTML, 0);
+	$kenmerken				= explode('</dd>', $content_kenmerk[0]);
+	array_pop($kenmerken);
+			
+	foreach($kenmerken as $kenmerk) {		
+		if(strlen($kenmerk) > 10) {			
+			$Record = getString('md:pb-2 md:pr-2">', '</dt>', $kenmerk, 0);
+			$Waarde = getString('<span class="mr-2">', '</span>', $kenmerk, 0);
+			
+			if(strpos($kenmerk, '<dd class="border-neutral-20 col-span-1 border-b pb-2 pl-4 text-neutral-50 md:pl-0 md:pt-2">')) {
+				$Waarde = getString('<dd class="border-neutral-20 col-span-1 border-b pb-2 pl-4 text-neutral-50 md:pl-0 md:pt-2">', '', $kenmerk, 0);
 			}
+			
+			# Tussenkopjes weglaten		
+			if(!strpos($Waarde[0], '<h3 class="mt-4 font-bold">')) {
+				$key = trim($Record[0]);
+				$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
+			}			
 		}
-		
-		$KenmerkData['foto']		= implode('|', $picture);
-	}	else {
-		$KenmerkData['foto']		= '';
 	}
+		
+	if(strpos($offlineHTML, '<dt>Aangeboden sinds</dt>')) {		
+		$temp_as = getString('<dt>Aangeboden sinds</dt>', '</dd>', $offlineHTML, 0);
+		$aangebodenSinds = getString('<dd>', '', $temp_as[0], 0);
+		
+		$KenmerkData['Aangeboden sinds'] = $aangebodenSinds[0];
+	}
+
+	if(strpos($offlineHTML, '<dt>Verkoopdatum</dt>')) {		
+		$temp_verkoop = getString('<dt>Verkoopdatum</dt>', '</dd>', $offlineHTML, 0);
+		$verkoop = getString('<dd>', '', $temp_verkoop[0], 0);
+				
+		$KenmerkData['Verkoopdatum'] = $verkoop[0];
+	}
+		
+	# Fotos
+	foreach($JSON_1["photo"] as $value) {		
+		$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $value['contentUrl']);
+	}
+			
+	$KenmerkData['foto']		= implode('|', $picture);
 	
-	return array($data, $KenmerkData);
+	return array($data, $KenmerkData);	
 }
 
-function extractFundaDataFromPageNewStyle($offlineHTML) {
+function extractFundaDataFromPageOldStyle($offlineHTML) {
 	$JSON_string_1 = getString('<script type="application/ld+json">', '</script>', $offlineHTML, 0);
 	$JSON_string_2 = getString('<script type="application/ld+json" data-tracking-properties>', '</script>', $offlineHTML, 0);
 	$JSON_string_3 = getString('<script type="application/ld+json" data-advertisement-targeting>', '</script>', $offlineHTML, 0);
@@ -959,7 +894,7 @@ function updateVerkochtDataFromPage($generalData, $data) {
 		$tijdstip = $Verkoopdatum;
 		$prijs[$tijdstip]	= $LaatsteVraagprijs;
 		$naam[$tijdstip]	= 'Laatste vraagprijs';				
-	}			
+	}
 			
 	# Sommige huizen verdwijnen van de radar, als ze nog wel online zijn het prijsverloop monitoren.
 	if($Vraagprijs > 0) {
@@ -2405,9 +2340,7 @@ function guessFundaIDFromHTML($zoekURL) {
 	}
 	
 	$mappen = explode("/", $zoekURL);
-	
-	#var_dump($mappen);
-					 
+							 
 	if($verkocht) {		
 		$fundaID	= $mappen[8];
 	} else {
