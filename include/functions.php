@@ -27,10 +27,34 @@ function showBlock($String, $mobile = false) {
 	return $Text;
 }
 
+# Toon een string en kort hem indien nodig in
+#
+#	INPUT
+#		$string		De te tonen string
+#		$length		De maximale lengte van de uiteindelijke string
+#
+# OUTPUT
+#		De al dan niet ingekorte string
+function makeTextBlock($string, $length, $reverse = false) {
+	if(strlen($string) > $length) {
+		if($reverse) {
+			$titel = "...".substr($string, -$length+3);
+		} else {
+			$titel = substr($string, 0, $length-5) . ".....";
+		}
+	} else {
+		$titel = $string;
+	}
+	
+	return $titel;
+}
+
 
 function toLog($type, $opdracht, $huis, $message) {
-	global $db, $TableLog, $LogTime, $LogType, $LogOpdracht, $LogHuis, $LogMessage;
+	global $TableLog, $LogTime, $LogType, $LogOpdracht, $LogHuis, $LogMessage;
 	 	
+	$db = connect_db();
+	
 	$tijd = time();	
 	$sql = "INSERT INTO $TableLog ($LogTime, $LogType, $LogOpdracht, $LogHuis, $LogMessage) VALUES ($tijd, '$type', '$opdracht', '$huis', '". addslashes($message) ."')";
 	if(!mysqli_query($db, $sql)) {
@@ -207,6 +231,28 @@ function convert2FundaStyle($string) {
 	return strtolower($string);
 }
 
+function convertToReadable($string) {
+	$string = str_replace('&nbsp;m&sup2;', '', $string);
+	$string = str_replace('&nbsp;m&sup3;', '', $string);
+	$string = html_entity_decode($string);
+	
+	return $string;
+}
+
+function changeThumbLocation($string) {
+	$string = str_replace('valentinamedia', 'valentina_media', $string);
+	$string = str_replace('images.funda.nl/valentina', 'cloud.funda.nl/valentina', $string);
+	$string = str_replace('http://', 'https://', $string);
+	return $string;
+}
+
+function getDoorlooptijd($id) {	
+	$data = getFundaData($id);
+	
+	$output = getTimeBetween($data['start'], $data['eind']);
+			
+	return implode(" & ", $output);
+}
 
 function getTimeBetween($start, $einde) {
 	$dagE		= date("d", $einde);
@@ -311,11 +357,11 @@ function getOpdrachtData($id) {
 	global $db, $TableZoeken, $ZoekenKey, $ZoekenUser, $ZoekenNaam, $ZoekenURL;
 	$data = array();
 	
-	if($id != '') {
+	if($id != '' AND $id != 0) {
 		$sql		= "SELECT * FROM $TableZoeken WHERE $ZoekenKey = $id";
 		$result	= mysqli_query($db, $sql);
 		$row		= mysqli_fetch_array($result);
-			
+					
 #		$data['active']	= $row[$ZoekenActive];
 		$data['user']		= $row[$ZoekenUser];
 		$data['naam']		= urldecode($row[$ZoekenNaam]);
@@ -621,84 +667,170 @@ function extractFundaDataFromPage($offlineHTML) {
 }
 
 function extractFundaDataFromPageNewStyle($offlineHTML) {
-	
 	$JSON_string_1 = getString('<script type="application/ld+json">', '</script>', $offlineHTML, 0);
-	$JSON_string_2 = getString('<script type="application/ld+json">', '</script>', $JSON_string_1[1], 0);
+	$JSON_string_2 = getString('<script type="application/ld+json" data-tracking-properties>', '</script>', $offlineHTML, 0);
+	$JSON_string_3 = getString('<script type="application/ld+json" data-advertisement-targeting>', '</script>', $offlineHTML, 0);
 	
+	$url					= getString('<meta itemprop="url" content="','">', $offlineHTML, 0);
+	$thumb				= getString('<meta itemprop="image" content="', '">', $offlineHTML, 0);	
+	$omschrijving	= getString('<div class="object-description-body" data-object-description-strip-markup data-object-description-body>', '</div>', $offlineHTML, 0);
 		
-	$JSON_1 = json_decode($JSON_string_1[0], JSON_OBJECT_AS_ARRAY);
-	$JSON_2 = json_decode($JSON_string_2[0], JSON_OBJECT_AS_ARRAY);
-	
-	#var_dump($JSON_1);
-	#var_dump($JSON_2);	
-	
-	$onderdelen	= splitStreetAndNumberFromAdress($JSON_1["name"]);
-	$PC 				=	getString($JSON_1["name"].' ', ' '.$JSON_1["address"]["addressLocality"], $JSON_1["description"], 0);	
-	$postcode 	= explode(' ', $PC[0]);	
-	
-	$mklr_temp	=	getString('mr-1" href="https://www.funda.nl/makelaars/', '</a>', $offlineHTML, 0);
+	$mklr_temp	=	getString('link" href="https://www.funda.nl/makelaar/', '</a>', $offlineHTML, 0);
 	$makelaar		=	getString('">', '', $mklr_temp[0], 0);
-				
-	$data['id']				= guessFundaIDFromHTML($JSON_1["url"]);
-	$data['wijk']			= trim($JSON_2["itemListElement"][2]["item"]["name"]);
-	$data['adres']		= trim($JSON_1["name"]);
+		
+	$JSON_main = json_decode($JSON_string_1[0], JSON_OBJECT_AS_ARRAY);
+	$JSON_track = json_decode($JSON_string_2[0], JSON_OBJECT_AS_ARRAY);
+	$JSON_advert = json_decode($JSON_string_3[0], JSON_OBJECT_AS_ARRAY);
+		
+	#var_dump($JSON_main);
+	#var_dump($JSON_track);
+	#var_dump($JSON_advert);	
+	
+	$onderdelen	= splitStreetAndNumberFromAdress($JSON_main["itemListElement"][3]["item"]["name"]);
+					
+	$data['id']				= $JSON_advert["tinyid"];
+	$data['url']			= trim($url[0]);
+	$data['wijk']			= trim($JSON_main["itemListElement"][2]["item"]["name"]);
+	$data['adres']		= trim($JSON_main["itemListElement"][3]["item"]["name"]);
 	$data['straat']			= $onderdelen['straat'];
 	$data['nummer']			= $onderdelen['nummer'];
 	$data['letter']			= $onderdelen['letter'];
 	$data['toevoeging']	= $onderdelen['toevoeging'];
-	$data['PC_c']			= trim($postcode[0]);
-	$data['PC_l']			= trim($postcode[1]);	
-	$data['plaats']		= trim($JSON_1["address"]["addressLocality"]);
-	$data['thumb'] = 	preg_replace ('/(\d+)x(\d+)/', '360x240', $JSON_1["image"]);	
+	$data['PC_c']			= substr($JSON_track["listing_postal_code"], 0, 4);
+	$data['PC_l']			= substr($JSON_track["listing_postal_code"], 4, 2);
+	$data['plaats']		= trim($JSON_track["listing_place"]);
+	$data['thumb'] = 	trim($thumb[0]);	
 	$data['makelaar']	= trim($makelaar[0]);	
-	$data['prijs']		= $JSON_1["offers"]["price"];
-	#$data['verkocht']	= $verkocht;
-	#$data['openhuis']	= $openhuis;
+	
+	if(isset($JSON_advert["vraagprijs"])) {
+		$data['prijs']		= $JSON_advert["vraagprijs"];
+	} elseif(isset($JSON_advert["huurprijs"])) {
+		$data['prijs']		= $JSON_advert["huurprijs"];
+	}
+	
+	if($JSON_advert["status"] == 'verkocht' OR $JSON_advert["status"] == 'verhuurd') {
+		$data['verkocht']	= 1;
+	} else {
+		$data['verkocht']	= 0;
+	}
+
+	if($JSON_advert["openhuis"] == 'true') {
+		$data['openhuis']	= 1;
+	} else {
+		$data['openhuis']	= 0;
+	}
+	
 	#$data['oh-tijden']
 	#$data['afmeld']
+		
+	$skipKeyArray = array(
+		'taal',
+		'loggedin',
+		'postcode',
+		'plaats',
+		'provincie',
+		'huisnummer',
+		'huisnummertoevoeging',
+		'environment',
+		'service',
+		'status',
+		'openhuis',
+		'gemeente',
+		'tinyid',
+		'hoofdaanbieder'	
+	);
 	
+	foreach($JSON_advert as $key => $value) {
+		if(substr($key, 0, 3) != 'cat' AND !in_array($key, $skipKeyArray)) {
+			$KenmerkData[$key] = trim(strip_tags($value));
+		}
+	}
+	
+	# Omschrijving		
+	$KenmerkData['descr']	= trim($omschrijving[0]);
+		
 	# Kenmerken
 	$content_kenmerk	= getString('Kenmerken</h2>', '</section>', $offlineHTML, 0);
-	$kenmerken				= explode('<dt class=', $content_kenmerk[0]);
-	array_shift($kenmerken);
-			
+	$kenmerken				= explode('</dd>', $content_kenmerk[0]);
+		
 	foreach($kenmerken as $kenmerk) {		
-		$Record = getString('>', '</dt>', $kenmerk, 0);
-		$Waarde = getString('<span class="mr-2">', '</span>', $kenmerk, 0);
-									
-		if(strpos($Waarde[0], '[34%] md:pr-2">')) {
-			$Waarde = getString('<dd>', '</dd>', $kenmerk, 0);
+		if(strlen($kenmerk) > 10 AND !strpos($kenmerk, 'Bekijk alle kenmerken')) {
+			$Record = getString('<dt>', '</dt>', $kenmerk, 0);
+			$Waarde = getString('<span class>', '</span>', $kenmerk, 0);
+			
+			if(strpos($kenmerk, '<span class="fd-m-right-xs">')) {
+				$Waarde = getString('<span class="fd-m-right-xs">', '</span>', $kenmerk, 0);
+			}
+			
+			# Laatste huurprijs
+			if(strpos($kenmerk, '<dd class="fd-flex--bp-m fd-align-items-center">')) {
+				$Record = getString('<dt>', '<a href="', $kenmerk, 0);
+				$Waarde = getString('<dd class="fd-flex--bp-m fd-align-items-center">', '</span>', $kenmerk, 0);
+			}		
+			
+			# Waarborgsom
+			if(strpos($kenmerk, '<dd>')) {				
+				$Waarde = getString('<dd>', '', $kenmerk, 0);
+			}	
+			
+			
+			# Vraagprijs per m²
+			if(strpos($Waarde[0], '<dd data-vue-container class="object-kenmerken-list__asking-price fd-flex fd-align-items-center">')) {				
+				$Waarde = getString('<dd data-vue-container class="object-kenmerken-list__asking-price fd-flex fd-align-items-center">', '<div data-tooltip-ui', $Waarde[0], 0);
+			}			 
+			    	
+			# Energie-label
+			if(strpos($Waarde[0], 'span class="energielabel energielabel')) {
+				$temp = getString('<span class="energielabel energielabel', '', $kenmerk, 0);
+				$Waarde = getString('">', '<span', $temp[0], 0);
+			}    	
+			
+			# Tussenkopjes weglaten		
+			if(
+			!strpos($Record[0], '<div class="category-banner" data-test-category-banner>') AND
+			!strpos($Record[0], 'class="object-kenmerken-group-header object-kenmerken-group-header-half"') AND
+			!strpos($Waarde[0], '<div class="category-banner" data-test-category-banner>') AND
+			!strpos($Waarde[0], 'class="object-kenmerken-group-header object-kenmerken-group-header-half"')			
+			) {
+				$key = trim($Record[0]);
+				$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
+			}			
 		}
+	}
+		
+	if(strpos($offlineHTML, '<dt>Aangeboden sinds</dt>')) {		
+		$temp_as = getString('<dt>Aangeboden sinds</dt>', '</dd>', $offlineHTML, 0);
+		$aangebodenSinds = getString('<dd>', '', $temp_as[0], 0);
+		
+		$KenmerkData['Aangeboden sinds'] = $aangebodenSinds[0];
+	}
+	
+	if(strpos($offlineHTML, '<dt>Verhuurdatum</dt>')) {		
+		$temp_verhuur = getString('<dt>Verhuurdatum</dt>', '</dd>', $offlineHTML, 0);
+		$verhuur = getString('<dd>', '', $temp_verhuur[0], 0);
+				
+		$KenmerkData['Verkoopdatum'] = $verhuur[0];
+	}
 
-		# Energie-label
-		if(strpos($Waarde[0], 'border-y-transparent">')) {
-			$Waarde = getString('border-y-transparent">', '</span>', $kenmerk, 0);
-		}
+	if(strpos($offlineHTML, '<dt>Verkoopdatum</dt>')) {		
+		$temp_verkoop = getString('<dt>Verkoopdatum</dt>', '</dd>', $offlineHTML, 0);
+		$verkoop = getString('<dd>', '', $temp_verkoop[0], 0);
+				
+		$KenmerkData['Verkoopdatum'] = $verkoop[0];
+	}
+	
+	# Fotos
+	$picture	= array();	
+	$content_foto	= getString('<!--photos before ad-->', '</section>', $offlineHTML, 0);
+	$photos		= explode('<img data-media-viewer-overview-image class="media-viewer-overview__section-image"', $content_foto[0]);
+	array_shift($photos);
+	$picture	= array();
 
-		# Tussenkopjes weglaten		
-		if(!strpos($Record[0], '<!--') AND !strpos($Waarde[0], '<!--')) {
-			$key = trim($Record[0]);
-			$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
-		}		
+	foreach($photos as $value) {
+		$foto		=	getString('data-lazy="', '"', $value, 0);		
+		$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $foto[0]);
 	}
-	
-	if(strpos($offlineHTML, 'Aangeboden sinds","')) {
-		$start				 = getString('Aangeboden sinds","','"', $offlineHTML, 0);
-		$data['start']		= guessDate($start[0], true);	
-	}
-	
-	
-	$omschrijving = getString('after:from-white after:to-transparent">', '</div>', $offlineHTML, 0);
-	
-	$picture		= array();
-	foreach($JSON_1["photo"] as $key => $value) {
-		$picture[] = preg_replace ('/_(\d+).jpg/', '_360x240.jpg', $value["contentUrl"]);
-	}
-	
-	#$KenmerkData['Aangeboden sinds']
-	#$KenmerkData['Verkoopdatum']
-	$KenmerkData['descr']	= nl2br(trim($omschrijving[0]));	
-	#$KenmerkData['Aangeboden sinds']
+			
 	$KenmerkData['foto']		= implode('|', $picture);
 	
 	return array($data, $KenmerkData);
@@ -715,7 +847,15 @@ function updateVerkochtDataFromPage($generalData, $data) {
 	
 	$fundaID = $generalData['id'];
 	$FundaData = getFundaData($fundaID);
-			
+	
+	# $generalData['afmeld'] <- unix time
+	# $data['Aanmelddatum'] <- string
+	# $data['Verkoopdatum'] <- string
+	# $data['Laatste vraagprijs'] <- met euro&
+	# $data['Aangeboden sinds'] <- string
+	# $data['Oorspronkelijke vraagprijs'] <- met euro&
+	# $data['Vraagprijs'] <- met euro&
+				
 	if(isset($generalData['afmeld']) AND $generalData['afmeld'] != "") {
 		$sql_update = "UPDATE $TableHuizen SET $HuizenAfmeld = ". $generalData['afmeld'] ." WHERE $HuizenID like $fundaID";
 		//echo $sql_update ."<br>\n";
@@ -739,9 +879,11 @@ function updateVerkochtDataFromPage($generalData, $data) {
 			$Verkoopdatum = mktime(23, 59, 59, $verkoopDatum[1], $verkoopDatum[0], $verkoopDatum[2]);
 		}			
 
-		if(isset($data['Laatste vraagprijs']) AND $data['Laatste vraagprijs'] != '') {
+		if(isset($data['Laatste vraagprijs']) AND $data['Laatste vraagprijs'] != '' AND !isset($data['vraagprijs'])) {
 			$prijzen		= explode(" ", $data['Laatste vraagprijs']);				
 			$LaatsteVraagprijs	= str_ireplace('.', '' , substr($prijzen[0], 5));
+		} elseif(isset($data['vraagprijs']) AND $data['vraagprijs'] != '') {
+			$LaatsteVraagprijs	= $data['vraagprijs'];
 		}
 									
 		# Huizen die nog niet verkocht zijn
@@ -785,8 +927,7 @@ function updateVerkochtDataFromPage($generalData, $data) {
 		if(isset($data['Vraagprijs']) AND $data['Vraagprijs'] != '') {
 			$prijzen						= explode(" ", $data['Vraagprijs']);				
 			$Vraagprijs	= str_ireplace('.', '' , substr($prijzen[0], 5));
-		}
-			
+		}			
 	}
 	
 	# Van de 3 bekende data de laagste opzoeken
@@ -836,11 +977,19 @@ function updateVerkochtDataFromPage($generalData, $data) {
 			toLog('error', '0', $fundaID, "Error met toevoegen $value als ". $naam[$key]);
 		}
 	}
-			
+				
 	# Als er een verkoopdatum bekend is => die datum als eindtijd invoeren
-	if($Verkoopdatum > 10) {
-		$sql_update = "UPDATE $TableHuizen SET $HuizenStart = $startDatum, $HuizenEind = $Verkoopdatum, $HuizenVerkocht = '1' WHERE $HuizenID like $fundaID";
+	if($Verkoopdatum > 10) {				
+		$set[] = "$HuizenStart = $startDatum";
+		$set[] = "$HuizenEind = $Verkoopdatum";
+		$set[] = "$HuizenVerkocht = '1'";
 		
+		# Als er nog geen afmelddatum bekend is, maar wel een verkoopdatum
+		# De laatste bekende online datum verplaatsen naar afmelddatum
+		if($FundaData['afmeld'] < 10)	$set[] = "$HuizenAfmeld = ". $FundaData['eind'];
+		
+		$sql_update = "UPDATE $TableHuizen SET ". implode(', ', $set) ." WHERE $HuizenID like $fundaID";
+				
 		if(mysqli_query($db, $sql_update)) {
 			$HTML[] = " -> begin- en eindtijd aangepast (verkocht)";
 			toLog('info', '0', $fundaID, "Huis is verkocht");
@@ -1219,6 +1368,16 @@ function formatPrice($input, $euro = true) {
 	}
 }
 
+function formatPercentage($input) {
+	if(is_int($input)) {
+		$dec = 0;
+	} else {
+		$dec = 1;
+	}
+	return number_format($input, $dec, ',','') .'%';
+}
+
+
 function getFullPriceHistory($input) {
 	$afname = $percentage = $overall_afname = $overall_percentage = array();
 	$prizeArray = getPriceHistory($input);
@@ -1234,21 +1393,31 @@ function getFullPriceHistory($input) {
 		toLog('error', '0', $input, 'Onjuiste prijs-historie');
 	}
 	
-	foreach($prijzenRev as $key => $prijs) {	
-		$afname[$key]			= 100*($vorige - $prijs)/$vorige;
-		$percentage[$key]	= 100*$prijs/$vorige;
+	foreach($prijzenRev as $key => $prijs) {
+		if($vorige != 0) {
+			$afname[$key]			= 100*($vorige - $prijs)/$vorige;
+			$percentage[$key]	= 100*$prijs/$vorige;
+		} else {
+			$afname[$key] = $percentage[$key]	= 0;
+		}
+		
 		$vorige				= $prijs;
 		
-		$overall_afname[$key]			= 100*($OriginelePrijs[0] - $prijs)/$OriginelePrijs[0];
-		$overall_percentage[$key]	= 100*$prijs/$OriginelePrijs[0];
+		if($OriginelePrijs[0] != 0) {
+			$overall_afname[$key]			= 100*($OriginelePrijs[0] - $prijs)/$OriginelePrijs[0];
+			$overall_percentage[$key]	= 100*$prijs/$OriginelePrijs[0];
+		} else {
+			$overall_afname[$key] = $overall_percentage[$key]	= 0;
+		}
 	}
 	
 	$output[0] = $prijzenRev;
 	$output[1] = $percentage;
 	$output[2] = $afname;
 	$output[3] = $overall_percentage;
-	$output[4] = $overall_afname;
-	$output[5] = 100*$HuidigePrijs[0]/$OriginelePrijs[0];
+	$output[4] = $overall_afname;	
+	$output[5] = 0;
+	if($OriginelePrijs[0] != 0)	$output[5] = 100*$HuidigePrijs[0]/$OriginelePrijs[0];
 		
 	return $output;
 }
@@ -1375,7 +1544,11 @@ function getNextOpenhuis($id) {
 	$result = mysqli_query($db, $sql);
 	$row		= mysqli_fetch_array($result);
 	
-	return array($row[$CalendarStart], $row[$CalendarEnd]);
+	if(isset($row[$CalendarStart]) AND isset($row[$CalendarEnd])) {
+		return array($row[$CalendarStart], $row[$CalendarEnd]);
+	} else {
+		return array(0, 0);
+	}
 }
 
 function deleteOpenhuis($fundaID, $begin) {
@@ -1471,13 +1644,16 @@ function addHouse($data, $id) {
 function updateHouse($data, $kenmerken, $erase = false) {
 	global $db, $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenVerkocht, $HuizenOpenHuis;
 	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
-			
-	$onderdelen = splitStreetAndNumberFromAdress($data['adres']);
 	
-	$data['straat']			= $onderdelen['straat'];
-	$data['nummer']			= $onderdelen['nummer'];
-	$data['letter']			= $onderdelen['letter'];
-	$data['toevoeging']	= $onderdelen['toevoeging'];
+	# Als adres nog niet is opgeknipt, alsnog doen		
+	if($data['straat'] == '' OR $data['nummer'] == '') {
+		$onderdelen = splitStreetAndNumberFromAdress($data['adres']);
+	
+		$data['straat']			= $onderdelen['straat'];
+		$data['nummer']			= $onderdelen['nummer'];
+		$data['letter']			= $onderdelen['letter'];
+		$data['toevoeging']	= $onderdelen['toevoeging'];
+	}
 			
 	$velden = array(
 		'url'				=> $HuizenURL,    
@@ -2246,6 +2422,79 @@ function guessFundaIDFromHTML($zoekURL) {
 }
 
 
+function findProv($string) {
+	global $db, $GemeentesProvincie, $TableGemeentes, $GemeentesPC, $GemeentesPlaats;
+	
+	if(is_numeric($string)) {
+		$sql = "SELECT $GemeentesProvincie FROM $TableGemeentes WHERE $GemeentesPC like $string";
+	} else {
+		$sql = "SELECT $GemeentesProvincie FROM $TableGemeentes WHERE $GemeentesPlaats like '". trim($string) ."'";
+	}
+	
+	$result = mysqli_query($db, $sql);
+	$row		= mysqli_fetch_array($result);
+	
+	return str_replace(' ', '-', $row[$GemeentesProvincie]);	
+}
 
+function corrigeerPrice($t1, $p1, $t2 = '', $regio = 'Totaal') {
+	global $db, $TablePBK, $PBKStart, $PBKEind, $PBKWaarde, $PBKRegio;
+	
+	if($t2 == '') {
+		$t2 = time();
+	}
+	
+	$sql_max = "SELECT * FROM $TablePBK WHERE $PBKRegio like '$regio' ORDER BY $PBKStart DESC LIMIT 0,1";
+	$result_max = mysqli_query($db, $sql_max);
+	$row_max = mysqli_fetch_array($result_max);
+	
+	$sql_min = "SELECT * FROM $TablePBK WHERE $PBKRegio like '$regio' ORDER BY $PBKStart ASC LIMIT 0,1";
+	$result_min = mysqli_query($db, $sql_min);
+	$row_min = mysqli_fetch_array($result_min);
+	
+	#echo 'Gevraagde tijd [2]: '. date('d-m-Y', $t2) .'<br>';
+	$sql_2 = "SELECT * FROM $TablePBK WHERE $t2 BETWEEN $PBKStart AND $PBKEind AND $PBKRegio like '$regio'";
+	$result_2 = mysqli_query($db, $sql_2);
+	if(mysqli_num_rows($result_2) == 1) {
+		$row = mysqli_fetch_array($result_2);
+		$factor_2 = $row[$PBKWaarde];
+		#echo 'Gevonden tijd [2]: '. date('d-m-Y', $row[$PBKStart]) .' tot '.date('d-m-Y', $row[$PBKEind]).'<br>';
+	} else {
+	    if($t2 > $row_max[$PBKEind]) {
+	        $factor_2 = $row_max[$PBKWaarde];
+	        #echo 'Gevonden tijd [2]: '. date('d-m-Y', $row_max[$PBKStart]) .' tot '.date('d-m-Y', $row_max[$PBKEind]).'<br>';
+	    } elseif($t2 < $row_min[$PBKStart]) {
+	        $factor_2 = $row_min[$PBKWaarde];
+	        #echo 'Gevonden tijd [2]: '. date('d-m-Y', $row_min[$PBKStart]) .' tot '.date('d-m-Y', $row_min[$PBKEind]).'<br>';
+	    } else {
+	        $factor_2 = 100;
+	        #echo 'Geen tijd [2] gevonden<br>';
+	    }
+	}
+	
+	#echo 'Gevraagde tijd [1]: '. date('d-m-Y', $t1) .'<br>';
+	$sql_1 = "SELECT * FROM $TablePBK WHERE $t1 BETWEEN $PBKStart AND $PBKEind AND $PBKRegio like '$regio'";
+	$result_1 = mysqli_query($db, $sql_1);
+	if(mysqli_num_rows($result_1) == 1) {
+		$row = mysqli_fetch_array($result_1);
+		$factor_1 = $row[$PBKWaarde];
+		#echo 'Gevonden tijd [1]: '. date('d-m-Y', $row[$PBKStart]) .' tot '.date('d-m-Y', $row[$PBKEind]).'<br>';
+	} else {
+        if($t1 > $row_max[$PBKEind]) {
+	        $factor_1 = $row_max[$PBKWaarde];
+	        #echo 'Gevonden tijd [1]: '. date('d-m-Y', $row_max[$PBKStart]) .' tot '.date('d-m-Y', $row_max[$PBKEind]).'<br>';
+	    } elseif($t2 < $row_min[$PBKStart]) {
+	        $factor_1 = $row_min[$PBKWaarde];
+	        #echo 'Gevonden tijd [1]: '. date('d-m-Y', $row_min[$PBKStart]) .' tot '.date('d-m-Y', $row_min[$PBKEind]).'<br>';
+	    } else {
+	        $factor_1 = 100;
+	        #echo 'Geen tijd [1] gevonden<br>';
+	    }
+	}
+	
+	#echo 'factor 1 : '. $factor_1 .' | factor 2 : '. $factor_2;
+		
+	return (($factor_2/$factor_1)*$p1);
+}
 
 ?>

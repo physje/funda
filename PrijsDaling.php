@@ -37,7 +37,9 @@ if(isset($_POST['add'])) {
 	}
 
 	$knownHuizen = array();
-	if($_POST['addHouses'] == '1') {
+	$showListAdd = false;	
+	
+	if(isset($_POST['addHouses']) AND $_POST['addHouses'] == '1') {
 		$showListAdd = true;
 		$knownHuizen = getLijstHuizen($_POST['chosenList']);
 	}
@@ -103,7 +105,7 @@ if(isset($_POST['add'])) {
 		echo "<tr>\n";
 		echo "	<td width='25%'>";
 		if($showListAdd)	echo "	<input type='checkbox' name='huis[]' value='$huisID'". (in_array($huisID, $knownHuizen) ? ' checked' : '') .">";
-		echo "<a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=$huisID'><img src='http://www.nccfsokotoalumni.com/wp-content/themes/NCCF/images/tags.png' title='Toon opties voor $adres'></a>";
+		echo "<a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=$huisID'><img src='images/search_8332845.png' title='Toon opties voor $adres' height='16'></a>";
 		echo "<a id='$huisID'> <a href='http://funda.nl/". $huisID ."' target='_blank' class='$TextClass' title='Bezoek $adres op funda.nl'>$adres</a></td>\n";
 		echo "	<td colspan=2>\n";
 		echo "	<table width='100%' border=0><tr>\n";
@@ -117,7 +119,7 @@ if(isset($_POST['add'])) {
 		echo "		<td width='". $restBreedte ."%'>&nbsp;</td>\n";
 		echo "	</tr></table>\n";
 		echo "	</td>\n";
-		echo "	<td width='7%'><a href='TimeLine.php?selectie=". $_REQUEST['selectie'] ."#$huisID' title='Bekijk het tijdsverloop van $adres'>". getDoorloptijd($huisID) ."</a></td>\n";		
+		echo "	<td width='7%'><a href='TimeLine.php?selectie=". $_REQUEST['selectie'] ."#$huisID' title='Bekijk het tijdsverloop van $adres'>". getDoorlooptijd($huisID) ."</a></td>\n";		
 		echo "</tr>\n";
 	}
 	
@@ -151,7 +153,7 @@ if(isset($_POST['add'])) {
 } else {
 	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
 	$HTML[] = "<input type='hidden' name='addHouses' value='". (isset($_REQUEST['addHouses']) ? '1' : '0') ."'>";
-	$HTML[] = "<input type='hidden' name='chosenList' value='". $_REQUEST['chosenList'] ."'>";
+	if(isset($_REQUEST['chosenList']))	$HTML[] = "<input type='hidden' name='chosenList' value='". $_REQUEST['chosenList'] ."'>";
 	$HTML[] = "<table>";
 	$HTML[] = "<tr>";
 	$HTML[] = "	<td>Selectie</td>";	

@@ -15,7 +15,7 @@ echo "<tr>\n";
 echo "	<td colspan='4' align='center'><h1>Inlogscherm</h1></td>\n";
 echo "</tr>\n";
 echo "<tr>\n";
-echo "	<td colspan='4' align='center' class='error'>$phpSP_message</td>\n";
+echo "	<td colspan='4' align='center' class='error'>". (isset($phpSP_message) ? $phpSP_message : '' ) ."</td>\n";
 echo "</tr>\n";
 echo "<tr>\n";
 echo "	<td rowspan='3'>&nbsp;</td>\n";

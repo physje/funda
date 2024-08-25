@@ -123,7 +123,7 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "	<td><input type='radio' name='openhuis' value='0'". ($data['openhuis'] == '0' ? ' checked' : '') .">Nee&nbsp;<input type='radio' name='openhuis' value='1'". ($data['openhuis'] == '1' ? ' checked' : '') .">Ja</td>";
 		$HTML[] = "</tr>";		
 		$HTML[] = "<tr>";
-		$HTML[] = "	<td>Details</td>";
+		$HTML[] = "	<td>Details</td>";				
 		$HTML[] = "	<td><input type='radio' name='details' value='0'". ($data['details'] == '0' ? ' checked' : '') .">Nee&nbsp;<input type='radio' name='details' value='1'". ($data['details'] == '1' ? ' checked' : '') .">Ja</td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
@@ -364,7 +364,7 @@ if(isset($extraString) AND $extraString != '') {
 
 echo showBlock(implode("\n", $PrijsHistory));
 
-if(count($WOZHistory) > 1) {
+if(isset($WOZHistory) AND count($WOZHistory) > 1) {
 	echo "<p>";
 	echo showBlock(implode("\n", $WOZHistory));
 }

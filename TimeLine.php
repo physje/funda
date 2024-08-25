@@ -30,25 +30,28 @@ if(isset($_POST['add'])) {
 		$from					= "$TableListResult, $TableHuizen";
 		$where				= "$TableListResult.$ListResultHuis = $TableHuizen.$HuizenID AND $TableListResult.$ListResultList = $id";
 	}
+	
+	$showListAdd = false;	
 	$Huizen = null;
-	if($_POST['addHouses'] == '1') {
+	
+	if(isset($_POST['addHouses']) AND $_POST['addHouses'] == '1') {
 		$showListAdd = true;
 		$Huizen = getLijstHuizen($_POST['chosenList']);
 	}
 	
 	$sql		= "SELECT min($TableHuizen.$HuizenStart) FROM $from WHERE $where";
-	$result	= mysql_query($sql);
-	$row		= mysql_fetch_array($result);
+	$result	= mysqli_query($db, $sql);
+	$row		= mysqli_fetch_array($result);
 	$start_tijd = $row[0];
 	
 	$sql		= "SELECT max($TableHuizen.$HuizenEind) FROM $from WHERE $where";
-	$result	= mysql_query($sql);
-	$row		= mysql_fetch_array($result);
+	$result	= mysqli_query($db, $sql);
+	$row		= mysqli_fetch_array($result);
 	$eind_tijd = $row[0];
 	
 	$sql		= "SELECT $TableHuizen.$HuizenOffline, $TableHuizen.$HuizenVerkocht, $TableHuizen.$HuizenAfmeld, $TableHuizen.$HuizenStart, $TableHuizen.$HuizenEind, $TableHuizen.$HuizenAdres, $TableHuizen.$HuizenID, $TableHuizen.$HuizenURL, ($TableHuizen.$HuizenEind - $TableHuizen.$HuizenStart) as tijdsduur FROM $from WHERE $where ORDER BY $TableHuizen.$HuizenAdres";
-	$result	= mysql_query($sql);
-	$row		= mysql_fetch_array($result); 
+	$result	= mysqli_query($db, $sql);
+	$row		= mysqli_fetch_array($result); 
 		
 	$fullWidth = $eind_tijd - $start_tijd;
 	
@@ -103,15 +106,15 @@ if(isset($_POST['add'])) {
 		echo "	<table width='100%' border=0><tr>\n";
 		echo "		<td width='25%'>";
 		if($showListAdd)	echo "	<input type='checkbox' name='huis[]' value='". $row[$HuizenID] ."'". (in_array($row[$HuizenID], $Huizen) ? ' checked' : '') .">";
-		echo "<a id='". $row[$HuizenID] ."'><a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=". $row[$HuizenID] ."'><img src='http://www.nccfsokotoalumni.com/wp-content/themes/NCCF/images/tags.png' title='Toon opties voor $adres'></a> <a href='http://funda.nl/". $row[$HuizenID] ."' target='_blank' class='$class' title='Bezoek $adres op funda.nl'>$adres</a></td>\n";
+		echo "<a id='". $row[$HuizenID] ."'><a href='admin/HouseDetails.php?selectie=". $_REQUEST['selectie'] ."&id=". $row[$HuizenID] ."'><img src='images/search_8332845.png' title='Toon opties voor $adres' height='16'></a> <a href='http://funda.nl/". $row[$HuizenID] ."' target='_blank' class='$class' title='Bezoek $adres op funda.nl'>$adres</a></td>\n";
 		if($breedte_1 != 0) { echo "		<td width='". $breedte_1 ."%'>&nbsp;</td>\n"; }
-		echo "		<td width='". $breedte_2 ."%' bgcolor='#FF6D6D' title='". getDoorloptijd($row[$HuizenID]) ." in de verkoop. Van ". date("d-m-y", $row[$HuizenStart]) .' t/m '. date("d-m-y", $row[$HuizenEind]) ."'>&nbsp;</td>\n";
+		echo "		<td width='". $breedte_2 ."%' bgcolor='#FF6D6D' title='". getDoorlooptijd($row[$HuizenID]) ." in de verkoop. Van ". date("d-m-y", $row[$HuizenStart]) .' t/m '. date("d-m-y", $row[$HuizenEind]) ."'>&nbsp;</td>\n";
 		if($breedte_3 != 0) { echo "		<td width='". $breedte_3 ."%' bgcolor='#FFA0A0'>&nbsp;</td>\n"; }
 		if($breedte_4 != 0) { echo "		<td width='". $breedte_4 ."%'>&nbsp;</td>\n"; }
 		echo "		<td width='5%' align='right'><a href='PrijsDaling.php?selectie=". $_REQUEST['selectie'] ."#". $row[$HuizenID] ."' title='Bekijk de prijsdaling van $adres\nVraagprijs ". formatPrice(getOrginelePrijs($row[$HuizenID])) ." | Gecorrigeerde prijs ". formatPrice(corrigeerPrice($row[$HuizenStart], getOrginelePrijs($row[$HuizenID]))) ."'>". number_format($percentageAll, 0) ."%</a></td>\n";
 		echo "	</tr></table>\n";
 		echo "</td></tr>\n";
-	} while($row = mysql_fetch_array($result));
+	} while($row = mysqli_fetch_array($result));
 	
 	if($showListAdd) {
 		echo "<tr>\n";
@@ -127,7 +130,7 @@ if(isset($_POST['add'])) {
 } else {	
 	$HTML[] = "<form method='post' action='$_SERVER[PHP_SELF]'>";
 	$HTML[] = "<input type='hidden' name='addHouses' value='". (isset($_REQUEST['addHouses']) ? '1' : '0') ."'>";
-	$HTML[] = "<input type='hidden' name='chosenList' value='". $_REQUEST['chosenList'] ."'>";
+	if(isset($_REQUEST['chosenList']))	$HTML[] = "<input type='hidden' name='chosenList' value='". $_REQUEST['chosenList'] ."'>";
 	$HTML[] = "<table>";
 	$HTML[] = "<tr>";
 	$HTML[] = "	<td>Selectie</td>";	

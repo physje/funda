@@ -312,6 +312,8 @@ foreach($files as $file) {
 				#addHouse($data, $id)
 				if(saveHouse($data, $extraData)) {
 					$String[] = "<a href='". $ScriptURL ."admin/edit.php?id=$fundaID'>". formatStreetAndNumber($data['id']) ."</a> blijkt nog niet te bestaan, daarom toegevoegd<br>\n";
+					
+					updateHouse($data, $extraData);
 															
 					if($fundaID[0] == '8') {
 						$sql_slave	= "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '". urlencode($data['adres']) ."' AND  $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenDetails like '1' AND $HuizenID NOT LIKE ". $fundaID;
