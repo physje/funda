@@ -534,7 +534,7 @@ function extractFundaDataFromPageNewStyle($offlineHTML) {
 	$data['PC_c']				= trim($postcode[0]);
 	$data['PC_l']				= trim($postcode[1]);	
 	$data['plaats']			= trim($JSON_1["address"]["addressLocality"]);
-	$data['thumb']			= trim(preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $JSON_1["image"]));	
+	$data['thumb']			= trim(preg_replace ('/_(\d+).jpg/', '_360.jpg', preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $JSON_1["image"])));	
 	$data['makelaar']		= trim($makelaar[0]);	
 	$data['prijs']			= $JSON_1["offers"]["price"];
 		
@@ -593,7 +593,8 @@ function extractFundaDataFromPageNewStyle($offlineHTML) {
 		
 	# Fotos
 	foreach($JSON_1["photo"] as $value) {		
-		$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $value['contentUrl']);
+		#$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $value['contentUrl']);
+		$picture[] = trim(preg_replace ('/_(\d+).jpg/', '_360.jpg', preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $value['contentUrl'])));	
 	}
 			
 	$KenmerkData['foto']		= implode('|', $picture);
@@ -634,7 +635,8 @@ function extractFundaDataFromPageOldStyle($offlineHTML) {
 	$data['PC_c']			= substr($JSON_track["listing_postal_code"], 0, 4);
 	$data['PC_l']			= substr($JSON_track["listing_postal_code"], 4, 2);
 	$data['plaats']		= trim($JSON_track["listing_place"]);
-	$data['thumb'] = 	trim($thumb[0]);	
+	#$data['thumb'] = 	trim($thumb[0]);
+	$data['thumb'] 	= 	trim(preg_replace ('/_(\d+).jpg/', '_360.jpg', preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $thumb[0])));
 	$data['makelaar']	= trim($makelaar[0]);	
 	
 	if(isset($JSON_advert["vraagprijs"])) {
@@ -763,7 +765,8 @@ function extractFundaDataFromPageOldStyle($offlineHTML) {
 
 	foreach($photos as $value) {
 		$foto		=	getString('data-lazy="', '"', $value, 0);		
-		$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $foto[0]);
+		#$picture[] = preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $foto[0]);
+		$picture[] = trim(preg_replace ('/_(\d+).jpg/', '_360.jpg', preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $foto[0])));		
 	}
 			
 	$KenmerkData['foto']		= implode('|', $picture);
