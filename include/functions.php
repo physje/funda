@@ -2433,4 +2433,21 @@ function corrigeerPrice($t1, $p1, $t2 = '', $regio = 'Totaal') {
 	return (($factor_2/$factor_1)*$p1);
 }
 
+function combineMasterSlave($master, $slave) {
+	global $db, $TableHuizen, $HuizenID2, $HuizenID, $TableResultaat, $ResultaatID;
+	
+	$result = true;
+	
+	$sql_huis = "UPDATE $TableHuizen SET $HuizenID2 = $slave WHERE $HuizenID like $master";
+	if(!mysqli_query($db, $sql_huis))	$result = false;
+	
+	$sql_delete = "DELETE FROM $TableHuizen WHERE $HuizenID = $slave";
+	if(!mysqli_query($db, $sql_delete))	$result = false;
+	
+	$sql_result = "DELETE FROM $TableResultaat WHERE $ResultaatID = $slave";
+	if(!mysqli_query($db, $sql_result))	$result = false;
+	
+	return $result;
+}
+
 ?>

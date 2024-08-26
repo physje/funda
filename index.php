@@ -56,13 +56,14 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['onderhoud/makeGeneralLists.php']						= 'Maak algemene lijsten aan';
 	$onderhoud['admin/readPBK.php']							= 'Lees de prijs-index van het Kadaster in';
 	#$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met openhuizen';
-	#$onderhoud['admin/cleanPrice.php']					= 'Prijzen opschonen';
+	$onderhoud['admin/cleanPrice.php']					= 'Prijzen opschonen';
 	#$onderhoud['admin/cleanKenmerk.php']				= 'Kenmerken opschonen';
 	#$onderhoud['admin/cleanOpenhuis.php']				= 'Open huizen opschonen';
 	#$onderhoud['admin/checkTables.php']					= 'Check de verschillende databases';
 	#$onderhoud['admin/search4Offline.php']			= 'Zet pagina\'s offline';
 	#$onderhoud['admin/combine_batch.php']				= 'Voeg hits automatisch samen';
 	#$onderhoud['admin/combine_manual.php']			= 'Voeg hits handmatig samen';
+	$onderhoud['admin/combineSlaveMaster.php']			= 'Voeg master/slave toe';
 	#$onderhoud['admin/cleanUp.php']							= 'Verwijder oude log-items';	
 	
 	foreach($onderhoud as $url => $titel) {

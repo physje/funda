@@ -303,7 +303,7 @@ foreach($files as $file) {
 		$extraData = $allData[1];
 				
 		if($fundaID != $data['id']) {
-			$String[] = "Klopt dit wel ?";
+			$String[] = "Klopt dit wel ? fundaID is $fundaID ; data['id'] is ". $data['id'];
 			$success = false;
 		} else {						
 			# Als wij een huis niet kennen klopt er iets niet
