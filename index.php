@@ -50,6 +50,8 @@ if($_SESSION['level'] > 1) {
 # ONDERHOUD
 if($_SESSION['level'] > 2) {
 	$onderhoud['check.php']											= 'Check funda';
+	$onderhoud['admin/checkOudeHuizen.php']			= 'Zie welke huizen al even van de radar zijn';
+	$onderhoud['admin/details2Download.php']		= 'Overzicht van huizen waar de details van ontbreken';	
 	$onderhoud['check_offline.php']											= 'Laad offline HTML-pagina in';	
 	#$onderhoud['admin/getVerkochteHuizen.php']	= 'Werk verkochte huizen bij';
 	#$onderhoud['admin/checkOudeHuizen.php']			= 'Zoek naar gegevens van vermiste huizen';

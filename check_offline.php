@@ -239,19 +239,6 @@ foreach($files as $file) {
 				mysqli_query($db, $sql);
 				toLog('info', $OpdrachtID, $data['id'], 'Toch niet meer verkocht');
 			}
-					
-		#	# Huis kan openhuis hebben
-		#	if($data['openhuis'] == 1) {
-		#		if(!hasOpenHuis($data['id'])) {
-		#			toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd');
-		#			
-		#			# Aanvinken om in een later stadium de details (met daarin de openhuis data) op te vragen
-		#			mark4Details($data['id']);										
-		#		}
-		#	} else {
-		#		removeOpenHuis($data['id']);
-		#	}	
-				
 						
 			# Kijk of dit huis al vaker gevonden is voor deze opdracht
 			if(newHouse($data['id'], $OpdrachtID)) {				
@@ -360,8 +347,8 @@ foreach($files as $file) {
 				
 				# Hij heeft open huis, data invoegen in de database
 				if($data['openhuis'] == 1) {
-					$bestaandeTijden	= getNextOpenhuis($fundaID);
-					$tijden = $data['oh-tijden'];
+					$bestaandeTijden 	= getNextOpenhuis($fundaID);
+					$tijden						= $data['oh-tijden'];
 			
 					if($bestaandeTijden[0] != '' AND ($tijden[0] != $bestaandeTijden[0] OR $tijden[1] != $bestaandeTijden[1])) {
 						deleteOpenhuis($fundaID, $bestaandeTijden[0]);

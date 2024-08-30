@@ -164,8 +164,9 @@ function guessDate($string, $number = false) {
 	
 	$string = str_replace(' -', '-', $string);
 	$string = str_replace('- ', '-', $string);
-	
+		
 	$delen = explode('-', $string);
+		
 	if(count($delen) == 3) {
 		if($delen[2] == '') {
 			if(mktime(0,0,0,$delen[1],$delen[0],date('Y')) < time()){
@@ -507,6 +508,10 @@ function extractFundaData($HuisText, $verkocht = false) {
 function extractFundaDataFromPageNewStyle($offlineHTML) {	
 	# Nieuwe pagina verwijst naar ander favicon ->
 	# https://www.funda.nl/detail/public/favicon.svg
+	
+	$data = array();
+	
+	$data['openhuis']	= $data['verkocht']	= 0;
 		
 	$JSON_string_1	= getString('<script type="application/ld+json">', '</script>', $offlineHTML, 0);
 	$JSON_string_2	= getString('<script type="application/ld+json">', '</script>', $JSON_string_1[1], 0);
@@ -516,13 +521,19 @@ function extractFundaDataFromPageNewStyle($offlineHTML) {
 	
 	$PC							=	getString('<span class="text-neutral-40">', '</span>', $offlineHTML, 0);
 	$ID							=	getString('?id=', '"', $offlineHTML, 0);
-		
+
 	$JSON_1 = json_decode($JSON_string_1[0], JSON_OBJECT_AS_ARRAY);
 	$JSON_2 = json_decode($JSON_string_2[0], JSON_OBJECT_AS_ARRAY);
 	
 	$onderdelen	= splitStreetAndNumberFromAdress($JSON_1["address"]["streetAddress"]);
 	$postcode		= explode(" ", trim($PC[0]));
 	
+	# Klein deel van de pagina's heeft geen ?id
+	if(strlen($ID[0]) > 8)	$ID =	getString('tiny-id="', '">', $offlineHTML, 0);
+	
+	if(strpos($offlineHTML, '">Verkocht</div>') OR strpos($offlineHTML, '">Verhuurd</div>'))	$data['verkocht']	= 1;	
+	if(strpos($offlineHTML, '">Open Huis</p>'))	$data['openhuis']	= 1;
+		
 	$data['id']					= trim($ID[0]);
 	$data['url']				= trim($JSON_1["url"]);
 	$data['wijk']				= trim($JSON_2["itemListElement"][2]["item"]["name"]);
@@ -537,20 +548,8 @@ function extractFundaDataFromPageNewStyle($offlineHTML) {
 	$data['thumb']			= trim(preg_replace ('/_(\d+).jpg/', '_360.jpg', preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $JSON_1["image"])));	
 	$data['makelaar']		= trim($makelaar[0]);	
 	$data['prijs']			= $JSON_1["offers"]["price"];
-		
-	#if($JSON_advert["status"] == 'verkocht' OR $JSON_advert["status"] == 'verhuurd') {
-	#	$data['verkocht']	= 1;
-	#} else {
-		$data['verkocht']	= 0;
-	#}
-
-	#if($JSON_advert["openhuis"] == 'true') {
-	#	$data['openhuis']	= 1;
-	#} else {
-		$data['openhuis']	= 0;
-	#}
 	
-	#$data['oh-tijden']
+	if($data['openhuis'] == 1)	$data['oh-tijden'] = extractOpenHuisData($offlineHTML);
 	
 	# Omschrijving		
 	$KenmerkData['descr']	= trim($omschrijving[0]);
@@ -1442,6 +1441,27 @@ function getWOZHistory($id) {
 
 
 # Functies met betrekking tot open huis
+function extractOpenHuisData($contents) {
+	$propertie	= getString('<li class="truncate">', '</li>', $contents, 0);
+	$datum			= getString('', ' van ', $propertie[0], 0);
+	$tijden			= getString(' van ', '', $datum[1], 0);
+	
+	$temp				= explode('-', guessDate($datum[0]));
+	
+	$dag			= $temp[0];
+	$maand		= $temp[1];
+	$jaar			= $temp[2];	
+	$beginUur	= substr($tijden[0], 0, 2);
+	$beginMin	= substr($tijden[0], 3, 2);
+	$eindUur	= substr($tijden[0], 10, 2);
+	$eindMin	= substr($tijden[0], 13, 2);
+		
+	$start = mktime($beginUur, $beginMin, 0, $maand, $dag, $jaar);
+	$eind = mktime($eindUur, $eindMin, 0, $maand, $dag, $jaar);
+	
+	return array($start, $eind);
+}
+
 function hasOpenHuis($id) {
 	global $db, $TableHuizen, $HuizenOpenHuis, $HuizenID;
 	
@@ -2435,6 +2455,9 @@ function corrigeerPrice($t1, $p1, $t2 = '', $regio = 'Totaal') {
 
 function combineMasterSlave($master, $slave) {
 	global $db, $TableHuizen, $HuizenID2, $HuizenID, $TableResultaat, $ResultaatID;
+	
+	# Master = 8XXXXX
+	# Slave is andere nummer
 	
 	$result = true;
 	

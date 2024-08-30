@@ -59,7 +59,8 @@ if(isset($_POST['scherm']) AND $_POST['scherm'] == 2) {
 		$HTML[] = "	<td><select name='slave'>";
 		
 		do {
-			$sql_2		= "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '". $row[$HuizenAdres] ."' AND  $HuizenPlaats like '". $row[$HuizenPlaats] ."' AND $HuizenID NOT LIKE ". $row[$HuizenID];
+			#$sql_2		= "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '". $row[$HuizenAdres] ."' AND  $HuizenPlaats like '". $row[$HuizenPlaats] ."' AND $HuizenID NOT LIKE ". $row[$HuizenID];
+			$sql_2		= "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". $row[$HuizenStraat] ."' AND $HuizenNummer like ". $row[$HuizenNummer] ." AND  $HuizenPlaats like '". $row[$HuizenPlaats] ."' AND $HuizenID NOT LIKE ". $row[$HuizenID];
 			$result_2	= mysqli_query($db, $sql_2);
 			
 			#echo $sql_2 .'|'. mysqli_num_rows($result_2) .'<br>';
