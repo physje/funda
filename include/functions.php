@@ -458,19 +458,21 @@ function extractFundaData($HuisText, $verkocht = false) {
 		$R_naam	= getString('truncate leading-10 md:ml-0">', '</a>', $HuisText, 0);		
 	} else {
 		$R_naam	= getString('e" data-v-835de952>', '</a>', $HuisText, 0);
-	} 
+	}
+	
+	$voorbehoud = $optie = $openhuis = 0;
 		
 	# Nu al het knippen geweest is kan de geknipte data "geprocesed" worden		
 	if(strpos($HuisText, 'Verkocht onder voorbehoud')) {
 		$voorbehoud = 1;
-	} else {
-		$voorbehoud = 0;
 	}
-	
+
+	if(strpos($HuisText, 'Onder bod')) {
+		$optie = 1;
+	}
+		
 	if(strpos($HuisText, '<li class="label label-nvm-open-huizen-dag">') OR strpos($HuisText, '<li class="label label-open-huis">') OR strpos($HuisText, '<li class="mb-1 mr-1 rounded-sm px-1 py-0.5 text-xs font-semibold bg-[#ACC700] text-white">')) {
 		$openhuis = 1;
-	} else {
-		$openhuis = 0;
 	}
 	
 	$postcode = explode(' ', trim($PC[0]));
@@ -491,6 +493,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$data['makelaar']	= trim(strip_tags($R_naam[0]));
 	$data['prijs']		= cleanPrice($prijs[0]);
 	$data['vov']			= $voorbehoud;
+	$data['optie']			= $optie;
 	$data['openhuis']	= $openhuis;
 	
 	/*
@@ -1180,7 +1183,19 @@ function soldHouse($key) {
 function soldHouseTentative($key) {
 	global $db, $TableHuizen, $HuizenID, $HuizenID2, $HuizenVerkocht;	
 		
-	$sql		= "SELECT * FROM $TableHuizen WHERE ($HuizenID like '$key' OR $HuizenID2 like '$key') AND $HuizenVerkocht like '2'";			
+	$sql		= "SELECT * FROM $TableHuizen WHERE ($HuizenID like '$key' OR $HuizenID2 like '$key') AND $HuizenVerkocht like '2'";
+	$result	= mysqli_query($db, $sql);
+	if(mysqli_num_rows($result) == 1) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function soldHouseOption($key) {
+	global $db, $TableHuizen, $HuizenID, $HuizenID2, $HuizenVerkocht;	
+		
+	$sql		= "SELECT * FROM $TableHuizen WHERE ($HuizenID like '$key' OR $HuizenID2 like '$key') AND $HuizenVerkocht like '3'";
 	$result	= mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) == 1) {
 		return true;
@@ -2224,7 +2239,8 @@ function setPageToLoadNext($opdracht, $page, $verkocht, $nextPage) {
 }
 
 function getPageToLoadNext() {
-	global $db, $TablePage, $PageOpdracht, $PagePage, $PageSold, $PageTime;	
+	global $db, $TablePage, $PageOpdracht, $PagePage, $PageSold, $PageTime;
+	global $TableZoeken, $ZoekenKey, $ZoekenLastCheck;
 	
 	$sql		= "SELECT * FROM $TablePage";
 	$result	= mysqli_query($db, $sql);
@@ -2249,6 +2265,11 @@ function getPageToLoadNext() {
 	$url_open .= "&search_result=$page";
 	
 	$data['url_open'] 		= $url_open;
+	
+	if($page == 1 AND !$sold) {
+		$sql_update = "UPDATE $TableZoeken SET $ZoekenLastCheck = '". time() ."' WHERE $ZoekenKey = $OpdrachtID";
+		mysqli_query($db, $sql_update);
+	}
 	
 	return $data;
 }

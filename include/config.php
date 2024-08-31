@@ -172,6 +172,7 @@ $ZoekenActive				= "active";
 $ZoekenUser					= "user";
 $ZoekenNaam					= "naam";
 $ZoekenURL					= "url";
+$ZoekenLastCheck		= "last_check";
 
 $TableGemeentes			= "funda_gemeentes";
 $GemeentesPC				= "PC";

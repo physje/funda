@@ -172,12 +172,28 @@ foreach($Huizen as $HuisText) {
 				mysqli_query($db, $sql);
 				toLog('info', $OpdrachtID, $data['id'], 'Onder voorbehoud verkocht');
 			}			
+		
 		# Het geval dat onder voorbehoud wordt teruggedraaid
-		} elseif(soldHouseTentative($data['id']) AND $data['verkocht'] == 0) {
+		} elseif(soldHouseTentative($data['id']) AND $data['vov'] == 0) {
 			$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."' OR $HuizenID2 like '". $data['id'] ."'";
 			mysqli_query($db, $sql);
 			toLog('info', $OpdrachtID, $data['id'], 'Niet meer onder voorbehoud verkocht');
 		}
+		
+		# Huis kan onder bod of onder optie zijn
+		if($data['optie'] > 0) {			
+			if(!soldHouseOption($data['id'])) {
+				$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '3' WHERE $HuizenID like '". $data['id'] ."' OR $HuizenID2 like '". $data['id'] ."'";
+				mysqli_query($db, $sql);
+				toLog('info', $OpdrachtID, $data['id'], 'Onder bod');
+			}			
+		# Het geval dat onder voorbehoud wordt teruggedraaid
+		} elseif(soldHouseOption($data['id']) AND $data['optie'] == 0) {
+			$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."' OR $HuizenID2 like '". $data['id'] ."'";
+			mysqli_query($db, $sql);
+			toLog('info', $OpdrachtID, $data['id'], 'Niet meer onder bos');
+		}		
+		
 	}
 	
 	# Huis kan ook echt verkocht zijn
