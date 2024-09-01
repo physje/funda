@@ -7,24 +7,29 @@ $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 
+$sql		= "SELECT MIN($ZoekenLastCheck) as 'eind' FROM $TableZoeken WHERE $ZoekenActive like '1'";
+$result	= mysqli_query($db, $sql);
+$row		= mysqli_fetch_array($result);
+$einddag = $row['eind'];
+
 if(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'jaar') {
 	$startdag = mktime(0, 0, 0, date("n"), date("j"), date("Y")-1);
-	$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));
+	#$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));
 } elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'kwartaal') {
 	$startdag = mktime(0, 0, 0, date("n")-3, date("j"), date("Y"));
-	$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));
+	#$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));
 } elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'maand') {
 	$startdag = mktime(0, 0, 0, date("n")-1, date("j"), date("Y"));
-	$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));	
+	#$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));	
 } elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'week') {
 	$startdag = mktime(0, 0, 0, date("n"), date("j")-7, date("Y"));
-	$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));
+	#$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));
 } elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'dag') {
 	$startdag = mktime(0, 0, 0, date("n"), date("j")-1, date("Y"));
-	$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));	
+	#$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));	
 } else {	
 	$startdag	= mktime(0, 0, 0, 1, 1, date("Y"));	
-	$einddag	= mktime(0, 0, 0, date("n"), date("j")-1, date("Y"));	
+	#$einddag	= mktime(0, 0, 0, date("n"), date("j")-1, date("Y"));	
 }
 
 $bDag			= getParam('bDag', date("d", $startdag));
@@ -40,7 +45,8 @@ $eMin			= getParam('eMin', date("i", $einddag));
 
 $selectie	= getParam('selectie', '');
 
-$HTML = $Debug = array();
+$HTML = $Debug = $ids = array();
+$counter = 0;
 if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	$dateSelection = makeDateSelection($bUur,$bMin,$bDag,$bMaand,$bJaar , $eUur,$eMin,$eDag,$eMaand,$eJaar);
 		
@@ -61,7 +67,7 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	$HTML[] = "	<td>&nbsp;</td>";
 	$HTML[] = "	<td>". $dateSelection[1] ."</td>";
 	$HTML[] = "	<td>&nbsp;</td>";
-	$HTML[] = "	<td>". makeSelectionSelection(true, true) ."</td>";
+	$HTML[] = "	<td>". makeSelectionSelection(fals, true) ."</td>";
 	$HTML[] = "	<td>&nbsp;</td>";
 	$HTML[] = "</tr>";
 	$HTML[] = "	<td colspan=7><a href='". $_SERVER['PHP_SELF'] ."?tijd=dag'>dag</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=week'>week</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=maand'>maand</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=kwartaal'>kwartaal</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=jaar'>jaar</a></td>\n";
@@ -111,17 +117,27 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	$result	= mysqli_query($db, $sql);	
 	if($row = mysqli_fetch_array($result)) {
 		do {
+			$ids[] = $row[$HuizenID];
+			$counter++;
+			
 			$url = 'http://www.funda.nl/'.$row[$HuizenID];
 			
-			$HTML[] = '<b>'. urldecode($row[$HuizenAdres]) ."</b> (". urldecode($row[$HuizenPlaats]) .")<br>";
-			$HTML[] = "[van ". date("d-m-Y", $row[$HuizenStart]) ." tot ". date("d-m-Y", $row[$HuizenEind]) ."]<br>";
-			$HTML[] = "<a href='$url' target='funda_huis'>funda.nl</a> | <a href='edit.php?id=". $row[$HuizenID] ."' target='funda_detail'>details</a> | zet <a href='changeState.php?state=available&id=". $row[$HuizenID] ."' target='funda_state'>beschikbaar</a>, <a href='changeState.php?state=offline&id=". $row[$HuizenID] ."' target='funda_state'>offline</a>, <a href='changeState.php?state=optie&id=". $row[$HuizenID] ."' target='funda_state'>onder optie</a>, <a href='changeState.php?state=voorbehoud&id=". $row[$HuizenID] ."' target='funda_state'>onder voorbehoud</a>, <a href='changeState.php?state=verkocht&id=". $row[$HuizenID] ."' target='funda_state'>verkocht</a> | <a href='delete.php?id=". $row[$HuizenID] ."&zeker=ja' target='funda_detail'>verwijder</a><br>";
+			$HTML[] = '<b>'. urldecode($row[$HuizenAdres]) ."</b> (". urldecode($row[$HuizenPlaats]) .")<br>".NL;
+			$HTML[] = "[van ". date("d-m-Y", $row[$HuizenStart]) ." tot ". date("d-m-Y", $row[$HuizenEind]) ."]<br>".NL;
+			$HTML[] = "<a href='$url' target='funda_huis'>funda.nl</a> | <a href='edit.php?id=". $row[$HuizenID] ."' target='funda_detail'>details</a> | zet <a href='changeState.php?state=available&id=". $row[$HuizenID] ."' target='funda_state'>beschikbaar</a>, <a href='changeState.php?state=offline&id=". $row[$HuizenID] ."' target='funda_state'>offline</a>, <a href='changeState.php?state=optie&id=". $row[$HuizenID] ."' target='funda_state'>onder optie</a>, <a href='changeState.php?state=voorbehoud&id=". $row[$HuizenID] ."' target='funda_state'>onder voorbehoud</a>, <a href='changeState.php?state=verkocht&id=". $row[$HuizenID] ."' target='funda_state'>verkocht</a> | <a href='delete.php?id=". $row[$HuizenID] ."&zeker=ja' target='funda_detail'>verwijder</a><br>".NL;
 			
 			if($row[$HuizenOffline] != 0) {
 				$HTML[] = ' -> niet aan beginnen, is offline<br>';
 			}
-
+			
+			if($counter == 10) {
+				$HTML[] = "<a href='../onderhoud/openAll.php?ids=". implode('|', $ids) ."' target='_blank'>open al deze huizen</a>";
+				$HTML[] = "<hr>";
+				$counter = 0;
+				$ids = array();
+			}
 		} while($row = mysqli_fetch_array($result));
+		$HTML[] = "<a href='../onderhoud/openAll.php?ids=". implode('|', $ids) ."' target='_blank'>open al deze huizen</a>";			
 	}
 }
 

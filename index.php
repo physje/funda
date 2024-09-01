@@ -21,7 +21,7 @@ $links['TimeLine.php']							= 'Tijdslijn';
 $links['PrijsDaling.php']						= 'Prijs-afname';
 $links['gallery.php']								= 'Fotoalbum';
 #$links['admin/edit_lijsten.php']		= 'Lijsten';
-#$links['admin/edit_opdrachten.php']	= 'Zoekopdrachten';	
+$links['admin/edit_opdrachten.php']	= 'Zoekopdrachten';	
 
 if($_SESSION['level'] > 2) {
 	$links['admin/log.php']						= 'Log-files';
@@ -54,7 +54,6 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['admin/details2Download.php']		= 'Overzicht van huizen waar de details van ontbreken';	
 	$onderhoud['check_offline.php']											= 'Laad offline HTML-pagina in';	
 	#$onderhoud['admin/getVerkochteHuizen.php']	= 'Werk verkochte huizen bij';
-	#$onderhoud['admin/checkOudeHuizen.php']			= 'Zoek naar gegevens van vermiste huizen';
 	$onderhoud['onderhoud/makeGeneralLists.php']						= 'Maak algemene lijsten aan';
 	$onderhoud['admin/readPBK.php']							= 'Lees de prijs-index van het Kadaster in';
 	#$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met openhuizen';
@@ -90,7 +89,7 @@ if($_SESSION['level'] == 3) {
 	$blockAccount .= "<a href='admin/edit_account.php?all' target='_blank'>toon alle accounts</a><br>\n";
 }
 
-$Opdrachten = getZoekOpdrachten($_SESSION['account'], '');
+$Opdrachten = getZoekOpdrachten($_SESSION['account'], '1');
 foreach($Opdrachten as $OpdrachtID) {
 	$OpdrachtData = getOpdrachtData($OpdrachtID);
 	$blockOpdrachten .= "funda.nl : <a href='". $OpdrachtData['url'] ."' target='_blank'>". $OpdrachtData['naam'] ."</a><br>\n";

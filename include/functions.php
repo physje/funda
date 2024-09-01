@@ -355,7 +355,7 @@ function getZoekOpdrachten($user, $active = '') {
 # OUTPUT
 #		array met gegevens
 function getOpdrachtData($id) {
-	global $db, $TableZoeken, $ZoekenKey, $ZoekenUser, $ZoekenNaam, $ZoekenURL;
+	global $db, $TableZoeken, $ZoekenKey, $ZoekenActive, $ZoekenUser, $ZoekenNaam, $ZoekenURL, $ZoekenLastCheck;
 	$data = array();
 	
 	if($id != '' AND $id != 0) {
@@ -363,10 +363,11 @@ function getOpdrachtData($id) {
 		$result	= mysqli_query($db, $sql);
 		$row		= mysqli_fetch_array($result);
 					
-#		$data['active']	= $row[$ZoekenActive];
-		$data['user']		= $row[$ZoekenUser];
-		$data['naam']		= urldecode($row[$ZoekenNaam]);
-		$data['url']		= urldecode($row[$ZoekenURL]);
+		$data['active']			= $row[$ZoekenActive];
+		$data['user']				= $row[$ZoekenUser];
+		$data['naam']				= urldecode($row[$ZoekenNaam]);
+		$data['url']				= urldecode($row[$ZoekenURL]);
+		$data['last_check']	= $row[$ZoekenLastCheck];
 	}
 	
 	return $data;	
