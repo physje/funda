@@ -27,7 +27,7 @@ if(isset($_POST['push'])) {
 
 if(isset($_POST['doorgaan'])) {
 	if(isset($_REQUEST['id']) AND $_REQUEST['id'] != 0) {
-		$sql_opdracht = "UPDATE $TableZoeken SET $ZoekenUser = '". $_SESSION['account'] ."', $ZoekenNaam = '". urlencode($_POST['naam']) ."', $ZoekenURL = '". urlencode($_POST['url']) ."', $ZoekenActive = '". (isset($_POST['active']) ? '1' : '0') ."' WHERE $ZoekenKey = ". $_POST['id'];
+		$sql_opdracht = "UPDATE $TableZoeken SET $ZoekenUser = '". $_SESSION['account'] ."', $ZoekenNaam = '". urlencode($_POST['naam']) ."', $ZoekenURL = '". urlencode($_POST['url']) ."', $ZoekenType = '". $_POST['type'] ."' WHERE $ZoekenKey = ". $_POST['id'];
 	} else {
 		$sql_opdracht = "INSERT INTO $TableZoeken ($ZoekenUser, $ZoekenNaam, $ZoekenURL) VALUES ('". $_SESSION['account'] ."', '". urlencode($_POST['naam']) ."', '". urlencode($_POST['url']) ."')";
 	}
@@ -95,12 +95,16 @@ if(isset($_POST['doorgaan'])) {
 		$data = getOpdrachtData($id);
 		$Page .= "<input type='hidden' name='id' value='$id'>\n";
 	}
-		
+	
 	$Page .= "<table border=0>\n";
 	$Page .= "<tr>\n";
-	$Page .= "	<td>Actief</td>\n";
+	$Page .= "	<td>Type</td>\n";
 	$Page .= "	<td rowspan='4'>&nbsp;</td>\n";
-	$Page .= "	<td><input type='checkbox' name='active'". ($data['active'] == 1 ? ' checked' : '') ."></td>\n";
+	$Page .= "	<td><select name='type'>\n";
+	foreach($cfgTypeSearch as $key => $value) {
+		$Page .= "	<option value='$key'". ($key == $data['type'] ? ' selected' : '') .">$value</option>\n";
+	}
+	$Page .= "	</select></td>\n";
 	$Page .= "</tr>\n";
 	$Page .= "<tr>\n";
 	$Page .= "	<td>Naam</td>\n";
@@ -142,7 +146,7 @@ if(isset($_POST['doorgaan'])) {
 		$OpdrachtData = getOpdrachtData($OpdrachtID);
 		$POMembers = getMembers4Opdracht($OpdrachtID, 'push');
 						
-		if($OpdrachtData['active'] == 0) {
+		if($OpdrachtData['type'] == 0) {
 			$active = false;
 			$class = 'offline';
 		} else {

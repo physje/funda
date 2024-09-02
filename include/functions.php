@@ -319,20 +319,20 @@ function getTimeBetween($start, $einde) {
 #
 #	INPUT
 #		$user
-#		$active : 0 = niet actief, 1 = actief, '' = alle
+#		$type (zie $cfgTypeSearch, '' = all)
 #
 # OUTPUT
 #		array met ids van zoekopdracht
-function getZoekOpdrachten($user, $active = '') {
-	global $db, $TableZoeken, $ZoekenKey, $ZoekenActive, $ZoekenUser;
+function getZoekOpdrachten($user, $type = '') {
+	global $db, $TableZoeken, $ZoekenKey, $ZoekenType, $ZoekenUser;
 	$where = $Opdrachten = array();
 					
 	if($user != '') {		
 		$where[] = "$ZoekenUser = '$user'";
 	}
 	
-	if($active != '') {		
-		$where[] = "$ZoekenActive = '$active'";
+	if($type != '') {		
+		$where[] = "$ZoekenType = '$type'";
 	}
 	
 	$sql = "SELECT $ZoekenKey FROM $TableZoeken WHERE ". implode(" AND ", $where);
@@ -355,7 +355,7 @@ function getZoekOpdrachten($user, $active = '') {
 # OUTPUT
 #		array met gegevens
 function getOpdrachtData($id) {
-	global $db, $TableZoeken, $ZoekenKey, $ZoekenActive, $ZoekenUser, $ZoekenNaam, $ZoekenURL, $ZoekenLastCheck;
+	global $db, $TableZoeken, $ZoekenKey, $ZoekenType, $ZoekenUser, $ZoekenNaam, $ZoekenURL, $ZoekenLastCheck;
 	$data = array();
 	
 	if($id != '' AND $id != 0) {
@@ -363,7 +363,7 @@ function getOpdrachtData($id) {
 		$result	= mysqli_query($db, $sql);
 		$row		= mysqli_fetch_array($result);
 					
-		$data['active']			= $row[$ZoekenActive];
+		$data['type']			= $row[$ZoekenType];
 		$data['user']				= $row[$ZoekenUser];
 		$data['naam']				= urldecode($row[$ZoekenNaam]);
 		$data['url']				= urldecode($row[$ZoekenURL]);

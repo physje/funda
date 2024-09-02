@@ -131,12 +131,14 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 			}
 			
 			if($counter == 10) {
+				$HTML[] = "<br>".NL;
 				$HTML[] = "<a href='../onderhoud/openAll.php?ids=". implode('|', $ids) ."' target='_blank'>open al deze huizen</a>";
 				$HTML[] = "<hr>";
 				$counter = 0;
 				$ids = array();
 			}
 		} while($row = mysqli_fetch_array($result));
+		$HTML[] = "<br>".NL;
 		$HTML[] = "<a href='../onderhoud/openAll.php?ids=". implode('|', $ids) ."' target='_blank'>open al deze huizen</a>";			
 	}
 }

@@ -17,6 +17,13 @@ $cfgUserLevels = array(
 	3 => 'Administrator'	
 );
 
+$cfgTypeSearch = array(
+	0 => 'Inactief',
+	1 => 'Nieuw + Bestaand',
+	2 => 'Bestaand'	
+);
+
+
 #$randomCheck = true;			# Random checken, ja (true) of nee (false). Funda blockt robots, random kan handig zijn.
 #$randomFactor = 0.5;			# Getal tussen 0 en 1, waarbij 0 is nooit checken en 1 altijd. 
 
@@ -64,94 +71,94 @@ $strUserNotAllowed    	= "Deze gebruiker heeft geen toegang tot deze pagina";
 $strUserNotExist      	= "Onbekende inloggegevens";
 
 # Tabel- en veldnamen voor de verschillende tabellen in MySQL
-$TableAbo		= "funda_abonnement";
-$AboZoekID		= "zoek_id";
-$AboUserID		= "member_id";
-$AboType		= "soort";
+$TableAbo					= "funda_abonnement";
+$AboZoekID				= "zoek_id";
+$AboUserID				= "member_id";
+$AboType					= "soort";
 
-$TableHuizen		= "funda_huizen";
-$HuizenID 		= "funda_id";
-$HuizenID2		= "funda_id_tweede";
-$HuizenURL	 	= "url";
-$HuizenAdres 		= "adres";
+$TableHuizen			= "funda_huizen";
+$HuizenID 				= "funda_id";
+$HuizenID2				= "funda_id_tweede";
+$HuizenURL	 			= "url";
+$HuizenAdres 			= "adres";
 $HuizenStraat 		= "straat";
 $HuizenNummer 		= "nummer";
 $HuizenLetter 		= "letter";
 $HuizenToevoeging	= "toevoeg";
-$HuizenPC_c 		= "PC_cijfers";
-$HuizenPC_l		= "PC_letters";
-$HuizenPlaats		= "plaats";
-$HuizenWijk		= "wijk";
-$HuizenThumb		= "thumb";
+$HuizenPC_c 			= "PC_cijfers";
+$HuizenPC_l				= "PC_letters";
+$HuizenPlaats			= "plaats";
+$HuizenWijk				= "wijk";
+$HuizenThumb			= "thumb";
 $HuizenMakelaar		= "makelaar";
-$HuizenLat		= "latitude";
-$HuizenLon		= "longitude";
-$HuizenStart		= "start";
-$HuizenEind		= "eind";
-$HuizenAfmeld		= "afgemeld";
+$HuizenLat				= "latitude";
+$HuizenLon				= "longitude";
+$HuizenStart			= "start";
+$HuizenEind				= "eind";
+$HuizenAfmeld			= "afgemeld";
 $HuizenVerkocht		= "verkocht";
 $HuizenOffline		= "offline";
 $HuizenOpenHuis		= "open_huis";
 $HuizenDetails		= "details";
 
 $TableCalendar		= "funda_kalender";
-$CalendarHuis		= "huis";
+$CalendarHuis			= "huis";
 $CalendarStart		= "start";
-$CalendarEnd		= "einde";
+$CalendarEnd			= "einde";
 
 $TableKenmerken 	= "funda_kenmerken";
-$KenmerkenKey		= "id";
-$KenmerkenID		= "funda_id";
+$KenmerkenKey			= "id";
+$KenmerkenID			= "funda_id";
 $KenmerkenValue		= "omschrijving";
 $KenmerkenKenmerk	= "kenmerk";
 
-$TableList		= "funda_lists";
-$ListID			= "id";
-$ListUser		= "user";
-$ListActive 		= "active";
-$ListNaam		= "name";
+$TableList				= "funda_lists";
+$ListID						= "id";
+$ListUser					= "user";
+$ListActive 			= "active";
+$ListNaam					= "name";
 
 $TableListResult	= "funda_list_resultaat";
 $ListResultList		= "list";
 $ListResultHuis		= "huis";
 
-$TableLog		= "funda_log";
-$LogID			= "id";
-$LogTime		= "tijd";
-$LogType		= "type";
-$LogOpdracht		= "opdracht";
-$LogHuis		= "huis";
-$LogMessage		= "message";
+$TableLog					= "funda_log";
+$LogID						= "id";
+$LogTime					= "tijd";
+$LogType					= "type";
+$LogOpdracht			= "opdracht";
+$LogHuis					= "huis";
+$LogMessage				= "message";
 
-$TableUsers		= "funda_members";
-$UsersID		= "id";
-$UsersName		= "name";
+$TableUsers				= "funda_members";
+$UsersID					= "id";
+$UsersName				= "name";
 $UsersUsername		= "username";
 $UsersPassword		= "password";
-$UsersLevel		= "level";
-$UsersAdres		= "mail";
-$UsersPOKey		= "userkey";
-$UsersPOToken		= "api_token";
-$UsersAccount		= "account";
+$UsersLevel				= "level";
+$UsersAdres				= "mail";
+$UsersPOKey				= "userkey";
+$UsersPOToken			= "api_token";
+$UsersAccount			= "account";
 $UsersLastLogin		= "lastLogin";
 
-$TablePBK						= "funda_PBK";
-$PBKStart						= "start";
-$PBKEind						= "eind";
-$PBKRegio						= "regio";
-$PBKCategorie				= "categorie";
-$PBKWaarde					= "waarde";
-$PBKComment					= "comment";
+$TablePBK					= "funda_PBK";
+$PBKStart					= "start";
+$PBKEind					= "eind";
+$PBKRegio					= "regio";
+$PBKCategorie			= "categorie";
+$PBKWaarde				= "waarde";
+$PBKComment				= "comment";
 
-$TablePrijzen 			= "funda_prijzen";
-$PrijzenKey					= "id";
-$PrijzenID					= "funda_id";
-$PrijzenPrijs				= "prijs";
-$PrijzenTijd				= "tijd";
+$TablePrijzen 		= "funda_prijzen";
+$PrijzenKey				= "id";
+$PrijzenID				= "funda_id";
+$PrijzenPrijs			= "prijs";
+$PrijzenTijd			= "tijd";
 
-$TableIgnore				= "funda_ignore";
-$IgnoreKey					= "id";
-$IgnoreID						= "funda_id";
+$TableIgnore			= "funda_ignore";
+$IgnoreKey				= "id";
+$IgnoreID					= "funda_id";
 
 $TableResultaat 		= "funda_resultaat";
 $ResultaatZoekID		= "zoek_id";
@@ -172,6 +179,7 @@ $ZoekenActive				= "active";
 $ZoekenUser					= "user";
 $ZoekenNaam					= "naam";
 $ZoekenURL					= "url";
+$ZoekenType					= "type";
 $ZoekenLastCheck		= "last_check";
 
 $TableGemeentes			= "funda_gemeentes";
