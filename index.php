@@ -89,7 +89,7 @@ if($_SESSION['level'] == 3) {
 	$blockAccount .= "<a href='admin/edit_account.php?all' target='_blank'>toon alle accounts</a><br>\n";
 }
 
-$Opdrachten = getZoekOpdrachten($_SESSION['account'], '1');
+$Opdrachten = getZoekOpdrachten($_SESSION['account'], array(1, 2));
 foreach($Opdrachten as $OpdrachtID) {
 	$OpdrachtData = getOpdrachtData($OpdrachtID);
 	$blockOpdrachten .= "funda.nl : <a href='". $OpdrachtData['url'] ."' target='_blank'>". $OpdrachtData['naam'] ."</a><br>\n";

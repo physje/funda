@@ -10,7 +10,7 @@ include($cfgProgDir. "secure.php");
 if(isset($_REQUEST['all'])) {
 	$sql = "SELECT * FROM $TableHuizen WHERE ($HuizenDetails = '1' OR $HuizenDetails = '2') AND $HuizenOffline = '0' ORDER BY $HuizenEind ASC LIMIT 0, 60";
 } else {	
-	$opdrachten = getZoekOpdrachten($_SESSION['account'], '');	
+	$opdrachten = getZoekOpdrachten($_SESSION['account']);	
 	foreach($opdrachten as $OpdrachtID) {
 		$members = getMembers4Opdracht($OpdrachtID, 'push');
 		if(count($members) > 0) {

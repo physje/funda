@@ -14,7 +14,7 @@ echo "	<td>\n";
 $Page = '';
 
 # Overzicht opvragen van alle zoekopdrachten
-$Opdrachten = getZoekOpdrachten($_SESSION['account'], '');
+$Opdrachten = getZoekOpdrachten($_SESSION['account']);
 
 # Abbonementen aanpassen
 if(isset($_POST['push'])) {
@@ -149,9 +149,12 @@ if(isset($_POST['doorgaan'])) {
 		if($OpdrachtData['type'] == 0) {
 			$active = false;
 			$class = 'offline';
-		} else {
+		} elseif($OpdrachtData['type'] == 1) {
 			$active = true;
 			$class = 'online';
+		} else {
+			$active = true;
+			$class = 'onlineVerkocht';
 		}
 		
 		$Page .= "<tr>".NL;

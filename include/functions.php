@@ -323,16 +323,19 @@ function getTimeBetween($start, $einde) {
 #
 # OUTPUT
 #		array met ids van zoekopdracht
-function getZoekOpdrachten($user, $type = '') {
+function getZoekOpdrachten($user, $type = array()) {
 	global $db, $TableZoeken, $ZoekenKey, $ZoekenType, $ZoekenUser;
-	$where = $Opdrachten = array();
+	$where = $or = $Opdrachten = array();
 					
 	if($user != '') {		
 		$where[] = "$ZoekenUser = '$user'";
 	}
 	
-	if($type != '') {		
-		$where[] = "$ZoekenType = '$type'";
+	if(count($type) > 0) {
+		foreach($type as $key) {
+			$or[] = "$ZoekenType = '$key'";
+		}
+		$where[] = '('. implode(" OR ", $or) .')';
 	}
 	
 	$sql = "SELECT $ZoekenKey FROM $TableZoeken WHERE ". implode(" AND ", $where);
@@ -1893,7 +1896,7 @@ function makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $
 function makeSelectionSelection($disableList, $blankOption, $preSelect = 0) {
 	# Vraag alle actieve opdrachten en lijsten op en zet die in een pull-down menu
 	# De value is Z... voor een zoekopdracht en L... voor een lijst		
-	$Opdrachten = getZoekOpdrachten($_SESSION['account'], '', true);
+	$Opdrachten = getZoekOpdrachten($_SESSION['account']);
 	$Lijsten		= getLijsten($_SESSION['UserID'], 1);
 	$Lijsten_2	= getLijsten($_SESSION['account'], 1);
 	
@@ -2208,7 +2211,7 @@ function setPageToLoadNext($opdracht, $page, $verkocht, $nextPage) {
 	# Niks van dat alles
 	#	-> pagina 1 van de volgende opdracht openen
 	} else {
-		$allOpdrachten = getZoekOpdrachten('', '1');
+		$allOpdrachten = getZoekOpdrachten('', array(1, 2));
 		$key = array_search($opdracht, $allOpdrachten);
 		
 		# Als $key al de laatste index van de array is
@@ -2276,7 +2279,7 @@ function getPageToLoadNext() {
 }
 
 function guessOpdrachtIDFromHTML($zoekURL) {
-	$opdrachten = getZoekOpdrachten($_SESSION['account'], '', false);
+	$opdrachten = getZoekOpdrachten($_SESSION['account']);
 		
 	# Als in de zoekURL de tekst /verkocht/ voorkomt gaat het over een huis wat verkocht is
 	# De variabele $verkocht is dan waar

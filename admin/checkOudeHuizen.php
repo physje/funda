@@ -7,29 +7,23 @@ $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 
-$sql		= "SELECT MIN($ZoekenLastCheck) as 'eind' FROM $TableZoeken WHERE $ZoekenActive like '1'";
+$sql		= "SELECT MIN($ZoekenLastCheck) as 'eind' FROM $TableZoeken WHERE $ZoekenType NOT like '0'";
 $result	= mysqli_query($db, $sql);
 $row		= mysqli_fetch_array($result);
 $einddag = $row['eind'];
 
 if(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'jaar') {
 	$startdag = mktime(0, 0, 0, date("n"), date("j"), date("Y")-1);
-	#$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));
 } elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'kwartaal') {
 	$startdag = mktime(0, 0, 0, date("n")-3, date("j"), date("Y"));
-	#$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));
 } elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'maand') {
 	$startdag = mktime(0, 0, 0, date("n")-1, date("j"), date("Y"));
-	#$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));	
 } elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'week') {
 	$startdag = mktime(0, 0, 0, date("n"), date("j")-7, date("Y"));
-	#$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));
 } elseif(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'dag') {
 	$startdag = mktime(0, 0, 0, date("n"), date("j")-1, date("Y"));
-	#$einddag	= mktime(0, 0, 0, date("n"), date("j"), date("Y"));	
 } else {	
 	$startdag	= mktime(0, 0, 0, 1, 1, date("Y"));	
-	#$einddag	= mktime(0, 0, 0, date("n"), date("j")-1, date("Y"));	
 }
 
 $bDag			= getParam('bDag', date("d", $startdag));
@@ -67,7 +61,7 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	$HTML[] = "	<td>&nbsp;</td>";
 	$HTML[] = "	<td>". $dateSelection[1] ."</td>";
 	$HTML[] = "	<td>&nbsp;</td>";
-	$HTML[] = "	<td>". makeSelectionSelection(fals, true) ."</td>";
+	$HTML[] = "	<td>". makeSelectionSelection(false, true) ."</td>";
 	$HTML[] = "	<td>&nbsp;</td>";
 	$HTML[] = "</tr>";
 	$HTML[] = "	<td colspan=7><a href='". $_SERVER['PHP_SELF'] ."?tijd=dag'>dag</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=week'>week</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=maand'>maand</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=kwartaal'>kwartaal</a> | <a href='". $_SERVER['PHP_SELF'] ."?tijd=jaar'>jaar</a></td>\n";
