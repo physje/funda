@@ -454,9 +454,12 @@ function extractFundaData($HuisText, $verkocht = false) {
 	
 	if($verkocht) {
 		$prijs	= getString('<p data-test-id="price-sale" class="font-semibold line-through">', '</p>', $PC[1], 0);
+	} elseif(strpos($PC[1], 'price-rent')) {
+		$prijs	= getString('<p data-test-id="price-rent" class="font-semibold">', '</p>', $PC[1], 0);
 	} else {
 		$prijs	= getString('<p data-test-id="price-sale" class="font-semibold">', '</p>', $PC[1], 0);
 	}
+	
 	
 	if(strpos($HuisText, 'truncate leading-10 md:ml-0">')) {		
 		$R_naam	= getString('truncate leading-10 md:ml-0">', '</a>', $HuisText, 0);		
@@ -981,8 +984,26 @@ function splitStreetAndNumberFromAdress($adres) {
 	# Nummer : 40
 	# Letter : F
 	# Toevoeging : 206
+	#
+	# En het adres 'Nijenhuislaan 189-B' moet worden opgesplitst in
+	# Straat : Nijenhuislaan
+	# Nummer : 189
+	# Letter : B
+	# Toevoeging :
 	
-	$delen = explode(' ', trim($adres));
+	$delen = array();
+	$pre_delen = explode(' ', trim($adres));
+	
+	foreach($pre_delen as $deel) {
+		# Vanwege die - in sommige nummers even deze trick
+		if(strpos($deel, '-')) {
+			$dash_delen = explode('-', trim($deel));			
+			$delen = array_merge($delen, $dash_delen);
+		} else {
+			$delen[] = $deel;
+		}
+	}
+		
 	$i_max = count($delen);
 	
 	while($nogStraat) {
@@ -1001,22 +1022,22 @@ function splitStreetAndNumberFromAdress($adres) {
 	$nummer = $delen[$i];
 	
 	if($i < ($i_max-1)) {
-	   if(($i_max-$i) == 2) {
-	       $temp = $delen[($i+1)];
-	       
-	       if(is_numeric($temp[0])) {
-	           $toevoeging = $temp;
-	           $letter = '';
-	       } else {
-	           $letter = $temp[0];
-	           $toevoeging = substr($temp, 1);
-	       }
-	   } elseif(($i_max-$i) == 3) {
-	       $letter = $delen[($i+1)];
-	       $toevoeging = $delen[($i+2)];
-	   }
+		if(($i_max-$i) == 2) {
+			$temp = $delen[($i+1)];
+			
+			if(is_numeric($temp[0])) {
+				$toevoeging = $temp;
+				$letter = '';
+			} else {
+				$letter = $temp[0];
+				$toevoeging = substr($temp, 1);
+			}
+		} elseif(($i_max-$i) == 3) {
+			$letter = $delen[($i+1)];
+			$toevoeging = $delen[($i+2)];
+		}
 	} else {
-	   $letter = $toevoeging = '';
+		$letter = $toevoeging = '';
 	}
 	
 	$output['straat'] = $straat;

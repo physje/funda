@@ -9,7 +9,7 @@ $db = connect_db();
 $searchTerm = $_GET['term']; 
  
 // Fetch matched data from the database 
-$query = $db->query("SELECT * FROM $TableHuizen WHERE $HuizenAdres LIKE '%".$searchTerm."%' ORDER BY $HuizenStraat, $HuizenNummer ASC"); 
+$query = $db->query("SELECT * FROM $TableHuizen WHERE $HuizenAdres LIKE '%".urlencode($searchTerm)."%' OR $HuizenID like '%".$searchTerm."%' OR $HuizenID2 like '%".$searchTerm."%' ORDER BY $HuizenStraat, $HuizenNummer ASC"); 
  
 // Generate array with skills data 
 $skillData = array(); 
