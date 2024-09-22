@@ -1,4 +1,5 @@
 <?php
+$autoCompleteNew = true;
 include_once(__DIR__.'/../include/config.php');
 include_once('../include/HTML_TopBottom.php');
 setlocale(LC_ALL, 'nl_NL');
@@ -43,8 +44,11 @@ if(isset($_REQUEST['selectie']) AND $_REQUEST['selectie'] != '') {
 	$selectie	= '';
 }
 
-if(isset($_REQUEST['huis']) AND $_REQUEST['huis'] != '') {
-	$huis = $_REQUEST['huis'];
+if(isset($_REQUEST['id'])) {
+	$huis = $_REQUEST['id'];
+} elseif(isset($_POST['search_house'])) {
+	$elementen = getString('[', ']', $_POST['adres_input'], 0);
+	$huis = $elementen[0];
 }
 
 if(isset($_REQUEST['debug']) AND $_REQUEST['debug'] != '') {
@@ -55,19 +59,25 @@ if(isset($_REQUEST['debug']) AND $_REQUEST['debug'] != '') {
 
 if(isset($_REQUEST['info']) AND $_REQUEST['info'] != '') {
 	$info = $_REQUEST['info'];	
-} elseif(!isset($_REQUEST['bDag'])) {
-	$info = 'ja';
+#} elseif(!isset($_REQUEST['bDag'])) {
+#	$info = 'ja';
 } else {
-	$info = 'nee';
+	#$info = 'nee';
+$info = 'ja';	
 }
 
 if(isset($_REQUEST['error']) AND $_REQUEST['error'] != '') {
 	$error = $_REQUEST['error'];	
-} elseif(!isset($_REQUEST['bDag'])) {
-	$error = 'ja';
+#} elseif(!isset($_REQUEST['bDag'])) {
+#	$error = 'ja';
 } else {
-	$error = 'nee';
+#	$error = 'nee';
+	$error = 'ja';	
 }
+
+#echo "Debug : $debug<br>\n";
+#echo "Info : $info<br>\n";
+#echo "Error : $error<br>\n";
 
 $begin	= mktime($bUur, $bMin, 0, $bMaand, $bDag, $bJaar);
 $eind		= mktime($eUur, $eMin, 59, $eMaand, $eDag, $eJaar);
@@ -84,46 +94,52 @@ if(isset($huis))				$sql .= " AND $LogHuis = '$huis'";
 
 $result	= mysqli_query($db, $sql);
 $aantal	= mysqli_num_rows($result);
-$row		= mysqli_fetch_array($result);
 $i = 0;
 $deel_1 = $deel_2 = '';
 
-do {
-	$i++;
-	$queryData = $title = array();
+if($row = mysqli_fetch_array($result)) {
+	do {
+		$i++;
+		$queryData = $title = array();
+			
+		if($row[$LogOpdracht] > 0) {
+			$opdrachtData = getOpdrachtData($row[$LogOpdracht]);
+			$queryData['selectie'] = 'Z'. $row[$LogOpdracht];
+			$title[] = $opdrachtData['naam'];
+		}
 		
-	if($row[$LogOpdracht] > 0) {
-		$opdrachtData = getOpdrachtData($row[$LogOpdracht]);
-		$queryData['selectie'] = 'Z'. $row[$LogOpdracht];
-		$title[] = $opdrachtData['naam'];
-	}
-	
-	if($row[$LogHuis] > 0) {
-		$fundaData = getFundaData($row[$LogHuis]);
-		$queryData['huis'] = $row[$LogHuis];
-		$title[] = $fundaData['adres'];
-	}
+		if($row[$LogHuis] > 0) {
+			$fundaData = getFundaData($row[$LogHuis]);
+			$queryData['huis'] = $row[$LogHuis];
+			$title[] = $fundaData['adres'];
+		}
+			
+		$queryData['bDag'] = $bDag;
+		$queryData['bMaand'] = $bMaand;
+		$queryData['bJaar'] = $bJaar;
+		$queryData['eDag'] = $eDag;
+		$queryData['eMaand'] = $eMaand;
+		$queryData['eJaar'] = $eJaar;
 		
-	$queryData['bDag'] = $bDag;
-	$queryData['bMaand'] = $bMaand;
-	$queryData['bJaar'] = $bJaar;
-	$queryData['eDag'] = $eDag;
-	$queryData['eMaand'] = $eMaand;
-	$queryData['eJaar'] = $eJaar;
-	
-	$rij = "<tr>";
-	$rij .= "	<td>". date("d-m H:i:s", $row[$LogTime]) ."</td>";
-	$rij .= "	<td>&nbsp;</td>\n";	
-	$rij .= "	<td><a href='log.php?". http_build_query($queryData) ."' title='". implode('; ', $title) ."'>". $row[$LogHuis] ."</a></td>";
-	$rij .= "	<td>&nbsp;</td>\n";
-	$rij .= "	<td>". $row[$LogMessage] ."</td>";
-	$rij .= "</tr>";
-	if($i > $aantal/2) {
-		$deel_2 .= $rij;
-	} else {
-		$deel_1 .= $rij;
-	}
-} while($row = mysqli_fetch_array($result));
+		$rij = "<tr>";
+		$rij .= "	<td>". date("d-m H:i:s", $row[$LogTime]) ."</td>";
+		$rij .= "	<td>&nbsp;</td>\n";	
+		$rij .= "	<td><a href='log.php?". http_build_query($queryData) ."' title='". implode('; ', $title) ."'>". $row[$LogHuis] ."</a></td>";
+		$rij .= "	<td>&nbsp;</td>\n";
+		$rij .= "	<td>". $row[$LogMessage] ."</td>";
+		$rij .= "</tr>";
+		if($i > $aantal/2) {
+			$deel_2 .= $rij;
+		} else {
+			$deel_1 .= $rij;
+		}
+	} while($row = mysqli_fetch_array($result));
+} else {
+	$deel_2 = "<tr>";
+	$deel_2 .= "	<td colspan='5'>Geen resultaten</td>\n";		
+	$deel_2 .= "</tr>";	
+}
+
 
 $dateSelection = makeDateSelection($bUur, $bMin, $bDag, $bMaand, $bJaar, $eUur, $eMin, $eDag, $eMaand, $eJaar);
 
@@ -148,18 +164,21 @@ $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "	<td>". $dateSelection[1] ."</td>";
 $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "	<td>". makeSelectionSelection(true, true, $selectie) ."</td>";
+
 if(isset($opdracht)) {
-	$Huizen			= getHuizen($opdracht);
+#	$Huizen			= getHuizen($opdracht, false, true);
 
 	$zoekScherm[] = "	<td>&nbsp;</td>";
-	$zoekScherm[] = "	<td><select name='huis'>";
-	$zoekScherm[] = "	<option value=''>Alle</option>";
-	foreach($Huizen as $huisID) {
-		$HuisData = getFundaData($huisID);
-		$zoekScherm[] = "	<option value='$huisID'". ($huis == $huisID ? ' selected' : '') .">". $HuisData['adres'] ."</option>";
-	}
-	
-	$zoekScherm[] = "	</select></td>";
+	#$zoekScherm[] = "	<td><select name='huis'>";
+	#$zoekScherm[] = "	<option value=''>Alle</option>";
+	#foreach($Huizen as $huisID) {
+	#	if($huisID > 0) {
+	#		$HuisData = getFundaData($huisID);
+	#		$zoekScherm[] = "	<option value='$huisID'". ($huis == $huisID ? ' selected' : '') .">". $HuisData['adres'] ."</option>";
+	#	}
+	#}
+	#$zoekScherm[] = "	</select></td>";
+	$zoekScherm[] = "	<td><input type='text' id='adres_input' name='adres_input' placeholder='Zoek huis...'></td>";
 }
 $zoekScherm[] = "	<td>&nbsp;</td>";
 $zoekScherm[] = "</tr>";

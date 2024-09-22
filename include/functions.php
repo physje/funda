@@ -454,10 +454,10 @@ function extractFundaData($HuisText, $verkocht = false) {
 	
 	if($verkocht) {
 		$prijs	= getString('<p data-test-id="price-sale" class="font-semibold line-through">', '</p>', $PC[1], 0);
-	} elseif(strpos($PC[1], 'price-rent')) {
-		$prijs	= getString('<p data-test-id="price-rent" class="font-semibold">', '</p>', $PC[1], 0);
-	} else {
+	} elseif(strpos($PC[1], 'price-sale')) {
 		$prijs	= getString('<p data-test-id="price-sale" class="font-semibold">', '</p>', $PC[1], 0);
+	} else {
+		$prijs	= getString('<p data-test-id="price-rent" class="font-semibold">', '</p>', $PC[1], 0);		
 	}
 	
 	
@@ -2223,8 +2223,8 @@ function setPageToLoadNext($opdracht, $page, $verkocht, $nextPage) {
 	#	-> volgende pagina van verkochte woningen openen
 	# Om niet elke keer alle pagina's in te laden
 	# doen we alleen de eerste 4 pagina's van verkochten 
-	} elseif($nextPage AND $verkocht AND $page < 4) {
-		
+	#} elseif($nextPage AND $verkocht AND $page < 4) {
+	} elseif($nextPage AND $verkocht) {		
 		$newOpdracht = $opdracht;
 		$newPage = $page+1;
 		$verkocht = true;				
