@@ -578,6 +578,10 @@ function extractFundaDataFromPageNewStyle($offlineHTML) {
 				$Waarde = getString('<dd class="border-neutral-20 col-span-1 border-b pb-2 pl-4 text-neutral-50 md:pl-0 md:pt-2">', '', $kenmerk, 0);
 			}
 			
+			if(strpos($kenmerk, '<dd class="col-span-1 border-b border-neutral-20 pb-2 pl-4 text-neutral-50 md:pl-0 md:pt-2">')) {
+				$Waarde = getString('<dd class="col-span-1 border-b border-neutral-20 pb-2 pl-4 text-neutral-50 md:pl-0 md:pt-2">', '', $kenmerk, 0);
+			}
+			
 			# Tussenkopjes weglaten		
 			if(!strpos($Waarde[0], '<h3 class="mt-4 font-bold">')) {
 				$key = trim($Record[0]);
@@ -586,16 +590,16 @@ function extractFundaDataFromPageNewStyle($offlineHTML) {
 		}
 	}
 		
-	if(strpos($offlineHTML, '<dt>Aangeboden sinds</dt>')) {		
-		$temp_as = getString('<dt>Aangeboden sinds</dt>', '</dd>', $offlineHTML, 0);
-		$aangebodenSinds = getString('<dd>', '', $temp_as[0], 0);
+	if(strpos($offlineHTML, '>Aangeboden sinds</dt>')) {		
+		$temp_as = getString('>Aangeboden sinds</dt>', '</dd>', $offlineHTML, 0);
+		$aangebodenSinds = getString('>', '', $temp_as[0], 0);
 		
 		$KenmerkData['Aangeboden sinds'] = $aangebodenSinds[0];
 	}
 
-	if(strpos($offlineHTML, '<dt>Verkoopdatum</dt>')) {		
-		$temp_verkoop = getString('<dt>Verkoopdatum</dt>', '</dd>', $offlineHTML, 0);
-		$verkoop = getString('<dd>', '', $temp_verkoop[0], 0);
+	if(strpos($offlineHTML, '>Verkoopdatum</dt>')) {		
+		$temp_verkoop = getString('>Verkoopdatum</dt>', '</dd>', $offlineHTML, 0);
+		$verkoop = getString('>', '', $temp_verkoop[0], 0);
 				
 		$KenmerkData['Verkoopdatum'] = $verkoop[0];
 	}

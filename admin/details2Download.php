@@ -8,7 +8,11 @@ $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 
 if(isset($_REQUEST['all'])) {
-	$sql = "SELECT * FROM $TableHuizen WHERE ($HuizenDetails = '1' OR $HuizenDetails = '2') AND $HuizenOffline = '0' ORDER BY $HuizenEind ASC LIMIT 0, 60";
+	$sql = "SELECT * FROM $TableHuizen WHERE ($HuizenDetails = '1' OR $HuizenDetails = '2') AND $HuizenOffline = '0' ORDER BY $HuizenEind ASC";
+	$result	= mysqli_query($db, $sql);	
+	$total = mysqli_num_rows($result);
+	
+	$sql .= " LIMIT 0, 60";
 } else {	
 	$opdrachten = getZoekOpdrachten($_SESSION['account']);	
 	foreach($opdrachten as $OpdrachtID) {
@@ -29,8 +33,8 @@ if($row = mysqli_fetch_array($result)) {
 	$rij=0;
 	do {
 		# Om in een lange lijst toch nog een beetje overzicht te hebben voeg ik
-		# om de 20 huizen een balk toe
-		# Bij mij is 20 ook het maximaal aantal huizen wat ik in 1x kan uploaden
+		# om de 10 huizen een balk toe
+		# Bij mij is 10 ook het maximaal aantal huizen wat ik in 1x kan uploaden
 		if($rij == 10) {
 			$HTML[] = "<tr>";
 		  $HTML[] = "	<td colspan='5'><a href='../onderhoud/openAll.php?ids=". implode('|', $ids) ."' target='_blank'>open al deze huizen</a></td>";
@@ -62,12 +66,23 @@ if($row = mysqli_fetch_array($result)) {
 	$HTML[] = '</table>';
 	$HTML[] = '</ol>';
 } 
-$HTML[] = "<a href='". $_SERVER['PHP_SELF'] ."?all'>Geef overzicht van alle huizen</a>";
+
+if(!isset($_REQUEST['all'])) {
+	$HTML[] = "<a href='". $_SERVER['PHP_SELF'] ."?all'>Geef overzicht van alle huizen</a>";
+} else {
+	$HTML[] = "<a href='". $_SERVER['PHP_SELF'] ."'>Geef overzicht van selectie van huizen</a>";
+}
 
 echo $HTMLHeader;
 echo "<tr>\n";
 echo "<td width='8%'>&nbsp;</td>\n";
 echo "<td width='84%' valign='top' align='center'>\n";
+
+if(isset($total) AND $total > 60) {
+	echo showBlock("Totaal aantal huizen");
+	echo "<p>&nbsp;</p>";
+}
+
 echo showBlock(implode("\n", $HTML));
 echo "</td>\n";
 echo "<td width='8%'>&nbsp;</td>\n";

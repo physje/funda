@@ -180,7 +180,7 @@ foreach($files as $file) {
 				
 				# Aanvinken om in een later stadium de details op te vragen
 				mark4Details($data['id']);
-			} else {
+			} elseif(!$verkocht) {
 				# Pagina is nog steeds beschikbaar
 				setOnline($data['id']);
 			}
