@@ -582,8 +582,19 @@ function extractFundaDataFromPageNewStyle($offlineHTML) {
 				$Waarde = getString('<dd class="col-span-1 border-b border-neutral-20 pb-2 pl-4 text-neutral-50 md:pl-0 md:pt-2">', '', $kenmerk, 0);
 			}
 			
+			if(strpos($kenmerk, '<dt class="pr-4 pt-2 text-neutral-50 md:border-b md:border-neutral-20 md:py-2">')) {
+				$Record = getString('<dt class="pr-4 pt-2 text-neutral-50 md:border-b md:border-neutral-20 md:py-2">', '</dt>', $kenmerk, 0);
+				$Waarde = getString('<dd class="flex border-b border-neutral-20 pb-2 md:py-2">', '', $kenmerk, 0);				
+			}
+			
+			if(strpos($kenmerk, '<dt class="pl-4 pr-4 pt-2 text-neutral-50 md:border-b md:border-neutral-20 md:py-2">')) {
+				$Record = getString('<dt class="pl-4 pr-4 pt-2 text-neutral-50 md:border-b md:border-neutral-20 md:py-2">', '</dt>', $kenmerk, 0);
+				$Waarde = getString('<dd class="max-md:pl-4 flex border-b border-neutral-20 pb-2 md:py-2"><!--[-->', '<!--]', $kenmerk, 0);
+			}
+						
+			
 			# Tussenkopjes weglaten		
-			if(!strpos($Waarde[0], '<h3 class="mt-4 font-bold">')) {
+			if(!strpos($Waarde[0], '<h3 class="mt-4 font-bold">') AND !strpos($Waarde[0], '<h3 class="mt-6 border-b border-neutral-20 pb-2 font-bold">')) {
 				$key = trim($Record[0]);
 				$KenmerkData[$key] = trim(strip_tags($Waarde[0]));
 			}			
