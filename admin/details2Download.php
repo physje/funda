@@ -79,7 +79,7 @@ echo "<td width='8%'>&nbsp;</td>\n";
 echo "<td width='84%' valign='top' align='center'>\n";
 
 if(isset($total) AND $total > 60) {
-	echo showBlock("Totaal aantal huizen");
+	echo showBlock("Totaal aantal huizen : ". $total);
 	echo "<p>&nbsp;</p>";
 }
 

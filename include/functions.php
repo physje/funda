@@ -2331,9 +2331,14 @@ function guessOpdrachtIDFromHTML($zoekURL) {
 	$cleanZoekString = str_replace('/open-huis/', '/', $cleanZoekString);
 	#$search_result = getString('', '&search_result', $cleanZoekString);
 	#$cleanZoekString = $search_result[0];
-		
-	$dummy = getString('koop/?', '&search_result', $cleanZoekString, 0);
-	$cleanZoekString = $dummy[0];
+	
+	if(strpos($cleanZoekString, '&search_result')) {	
+		$dummy = getString('koop/?', '&search_result', $cleanZoekString, 0);
+		$cleanZoekString = $dummy[0];
+	} else {
+		$dummy = getString('koop/?', '', $cleanZoekString, 0);
+		$cleanZoekString = $dummy[0];
+	}
 	
 	#echo "cleanZoekString : ". $cleanZoekString ."<br>\n";
 	#echo "<b>$zoekURL | $cleanZoekString</b><br>";
