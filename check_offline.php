@@ -108,6 +108,10 @@ foreach($files as $file) {
 	# De routine als het een overzichtspagina is
 	#
 	} elseif($overzicht) {
+		$houseURL = array();
+		$vorigePos = 0;
+		$offset = 75;
+		
 		$OpdrachtData			= getOpdrachtData($OpdrachtID);
 		$PushMembers			= getMembers4Opdracht($OpdrachtID, 'push');
 		
@@ -118,27 +122,47 @@ foreach($files as $file) {
 		} else {
 			toLog('info', $OpdrachtID, '0', 'Inladen pagina voor '. $OpdrachtData['naam']);
 		}
-			
-		# Code opknippen zodat er een array met HTML-code voor een huis ontstaat
-		# De eerste keer voor "normale" huizen
-		$tempHuizen			= explode('data-test-id="object-image-link"', $contents);
-								
-				
-		# Eerste element is rubbish
-		$Huizen			= array_slice($tempHuizen, 1);
 		
+		# in JSON-formaat staat een array met URLs van alle huizen op deze pagina
+		# Omdat we die gaan gebruiken om te knippen vragen we deze even op en maken er een array van
+		$JSONString  = getString('<script type="application/ld+json" data-hid="bf34b6d">', '</script>', $contents, 0);
+		$JSON = json_decode($JSONString[0], true);
+				
+		foreach($JSON['itemListElement'] as $element) {
+			$houseURL[] = $element["url"];
+		}								
+				
 		# $Huizen is nu een array met per huis de HTML-code
-		$NrPageHuizen		= count($Huizen);
+		$NrPageHuizen		= count($houseURL);
 		
 		if($debug > 0) {
 			$block[] = "Aantal huizen in <a href='$bestand'>$file</a> : ". $NrPageHuizen ."<br>\n";
 		}
-		
+				
 		# Doorloop nu alle gevonden huizen op de overzichtspagina
-		foreach($Huizen as $HuisText) {
-			# Extraheer hier adres, plaats, prijs, id etc. uit
+		# Zoek de de HTML-code tussen 2 opeenvolgende URL'en op
+		# En knip die met een offset (pos is eerder, neg is later)
+		for($i = 0 ; $i < $NrPageHuizen ; $i++) {
+			$beginString = $houseURL[$i];
+			$beginPos = strpos($JSONString[1], $beginString, $vorigePos)-$offset;
+			
+			if($i == ($NrPageHuizen-1)) {
+				$endPos = strlen($JSONString[1])-$offset;
+			} else {
+				$endString = $houseURL[($i+1)];
+				$endPos = strpos($JSONString[1], $endString, $vorigePos)-$offset;
+			}
+			
+			# Sla positie op als beginpunt voor volgende
+			$vorigePos = $endPos;
+			
+			# Knip de HTML-code voor het huis
+			$HuisText = substr($JSONString[1], $beginPos, ($endPos-$beginPos));
+		
+			# Extraheer de data
 			$data = extractFundaData($HuisText, $verkocht);
-									
+			
+			# Hou bij welke huizen gevonden zijn						
 			$AdressenArray[] = $data['adres'];
 							
 			if($debug == 2) {

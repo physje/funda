@@ -7,10 +7,12 @@ $minUserLevel = 3;
 $cfgProgDir = '../auth/';
 include($cfgProgDir. "secure.php");
 
-$sql		= "SELECT MIN($ZoekenLastCheck) as 'eind' FROM $TableZoeken WHERE $ZoekenType NOT like '0'";
-$result	= mysqli_query($db, $sql);
-$row		= mysqli_fetch_array($result);
-$einddag = $row['eind'];
+#$sql		= "SELECT MIN($ZoekenLastCheck) as 'eind' FROM $TableZoeken WHERE $ZoekenType NOT like '0'";
+#$result	= mysqli_query($db, $sql);
+#$row		= mysqli_fetch_array($result);
+#$einddag = $row['eind'];
+
+$einddag = mktime(0, 0, 0, date("n"), date("j"), date("Y"));
 
 if(isset($_REQUEST['tijd']) AND $_REQUEST['tijd'] == 'jaar') {
 	$startdag = mktime(0, 0, 0, date("n"), date("j"), date("Y")-1);
