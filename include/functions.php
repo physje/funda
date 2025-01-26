@@ -632,14 +632,11 @@ function extractFundaDataFromPageNewStyle($offlineHTML) {
 	$data['PC_c']				= trim($postcode[0]);
 	$data['PC_l']				= trim($postcode[1]);	
 	$data['plaats']			= trim($JSON_1["address"]["addressLocality"]);
-	$data['thumb']			= trim(preg_replace ('/_(\d+).jpg/', '_360.jpg', preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $JSON_1["image"])));	
 	$data['makelaar']		= trim($makelaar[0]);
 	
-	if(isset($JSON_1["offers"]["price"])) {
-		$data['prijs']			= $JSON_1["offers"]["price"];
-	}
-	
-	if($data['openhuis'] == 1)	$data['oh-tijden'] = extractOpenHuisData($offlineHTML);
+	if(isset($JSON_1["image"]))						$data['thumb'] = trim(preg_replace ('/_(\d+).jpg/', '_360.jpg', preg_replace ('/_(\d+)x(\d+).jpg/', '_360x240.jpg', $JSON_1["image"])));
+	if(isset($JSON_1["offers"]["price"]))	$data['prijs'] = $JSON_1["offers"]["price"];
+	if($data['openhuis'] == 1)						$data['oh-tijden'] = extractOpenHuisData($offlineHTML);
 	
 	# Omschrijving		
 	$KenmerkData['descr']	= trim($omschrijving[0]);
