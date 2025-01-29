@@ -56,7 +56,7 @@ $cfgPrefixExport[] = 'Latitude';
 $cfgPrefixExport[] = 'Longitude';
 
 # Default bestandsnaam voor de reguliere export naar EXCEL
-$cfgXLSFilename = '../extern/export_'. date('mdy') .'_'. md5(strftime ('%A %e %B %G')) .'.xls';
+$cfgXLSFilename = '../extern/export_'. date('mdy') .'_'. md5('%A %e %B %G') .'.xls';
 
 # Pas deze map aan naar de plek waar de bestanden uit de map 'MOVE_THIS_FOLDER' neergezet zijn
 $cfgGeneralIncludeDirectory = __DIR__ . '/../../general_include/';

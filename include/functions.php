@@ -379,20 +379,16 @@ function getOpdrachtData($id) {
 }
 
 function getHuizen($opdracht, $excludeVerkocht = false, $excludeOffline = false) {
-	global $db, $TableHuizen, $HuizenID, $HuizenAdres, $HuizenVerkocht, $HuizenOffline;
+	global $db, $TableHuizen, $HuizenID, $HuizenID2, $HuizenAdres, $HuizenVerkocht, $HuizenOffline;
 	global $TableResultaat, $ResultaatID, $ResultaatZoekID;
 	$output = array();
 		
-	$sql = "SELECT * FROM $TableHuizen, $TableResultaat WHERE $TableResultaat.$ResultaatID = $TableHuizen.$HuizenID AND $TableResultaat.$ResultaatZoekID like '$opdracht' ";
-	if($excludeVerkocht) {
-		$sql .= "AND $TableHuizen.$HuizenVerkocht NOT like '1' ";
-	}
-	if($excludeOffline) {
-		$sql .= "AND $TableHuizen.$HuizenOffline NOT like '1' ";
-	}
-	$sql .= "AND $TableHuizen.$HuizenID > 0 ORDER BY $TableHuizen.$HuizenAdres";
+	$sql = "SELECT $TableHuizen.$HuizenID FROM $TableHuizen, $TableResultaat WHERE ($TableHuizen.$HuizenID=$TableResultaat.$ResultaatID OR $TableHuizen.$HuizenID2=$TableResultaat.$ResultaatID) AND $TableResultaat.$ResultaatZoekID like '$opdracht' ";
+	if($excludeVerkocht)	$sql .= "AND $TableHuizen.$HuizenVerkocht NOT like '1' ";
+	if($excludeOffline)		$sql .= "AND $TableHuizen.$HuizenOffline NOT like '1' ";	
+	$sql .= "AND $TableHuizen.$HuizenID > 0 AND $TableResultaat.$ResultaatID > 0 GROUP BY $TableHuizen.$HuizenID ";
 	
-	#echo $sql;
+	#echo $sql ."<br>";
 	
 	$result	= mysqli_query($db, $sql);
 	$row		= mysqli_fetch_array($result);
@@ -596,7 +592,7 @@ function extractFundaDataFromPageNewStyle($offlineHTML) {
 	# Nieuwe pagina verwijst naar ander favicon ->
 	# https://www.funda.nl/detail/public/favicon.svg
 	
-	$data = array();
+	$data = $picture = array();
 	
 	$data['openhuis']	= $data['verkocht']	= $data['prijs'] = 0;
 		

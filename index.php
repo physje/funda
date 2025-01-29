@@ -54,6 +54,7 @@ if($_SESSION['level'] > 2) {
 	$onderhoud['admin/details2Download.php']		= 'Overzicht van huizen waar de details van ontbreken';	
 	$onderhoud['check_offline.php']											= 'Laad offline HTML-pagina in';	
 	#$onderhoud['admin/getVerkochteHuizen.php']	= 'Werk verkochte huizen bij';
+	$onderhoud['onderhoud/openZoekopdrachten.php?destroy']						= 'Open pagina\'s van zoekopdrachten';
 	$onderhoud['onderhoud/makeGeneralLists.php']						= 'Maak algemene lijsten aan';
 	$onderhoud['admin/readPBK.php']							= 'Lees de prijs-index van het Kadaster in';
 	#$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met openhuizen';

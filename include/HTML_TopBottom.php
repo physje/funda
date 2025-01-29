@@ -8,7 +8,7 @@ $HTMLHeader	.= "	<title>$ScriptTitle $Version</title>\n";
 $HTMLHeader	.= "	<link rel='stylesheet' type='text/css' href='". $ScriptURL ."extern/style.css'>\n";
 
 if(isset($userInteraction) AND !$userInteraction) {
-	$HTMLHeader	.= "	<meta http-equiv='refresh' content='2; url=$forwardURL' />\n";
+	$HTMLHeader	.= "	<meta http-equiv='refresh' content='2; url=".(isset($forwardURL) ? $forwardURL : '') ."' />\n";
 }
 
 if(isset($autoCompleteNew)) {
