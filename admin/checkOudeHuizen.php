@@ -109,17 +109,26 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 	
 	$Debug[] = $sql ."<br>\n";  
 	$Debug[] = mysqli_num_rows($result) ." resultaten<br>\n";  
+	
+	$states = array(
+		0 => 'beschikbaar',
+		1 => 'verkocht',
+		2 => 'onder voorbehoud',
+		3 => 'onder optie'
+	);
+		
 		
 	$result	= mysqli_query($db, $sql);	
 	if($row = mysqli_fetch_array($result)) {
 		do {
 			$ids[] = $row[$HuizenID];
+			$soldState = $row[$HuizenVerkocht];
 			$counter++;
 			
 			$url = 'http://www.funda.nl/'.$row[$HuizenID];
 			
 			$HTML[] = '<b>'. urldecode($row[$HuizenAdres]) ."</b> (". urldecode($row[$HuizenPlaats]) .")<br>".NL;
-			$HTML[] = "[van ". date("d-m-Y", $row[$HuizenStart]) ." tot ". date("d-m-Y", $row[$HuizenEind]) ."]<br>".NL;
+			$HTML[] = date("d-m-Y", $row[$HuizenStart]) ." tot ". date("d-m-Y", $row[$HuizenEind]) ." | ". $states[$soldState] ."<br>".NL;
 			$HTML[] = "<a href='$url' target='funda_huis'>funda.nl</a> | <a href='edit.php?id=". $row[$HuizenID] ."' target='funda_detail'>details</a> | zet <a href='changeState.php?state=available&id=". $row[$HuizenID] ."' target='funda_state'>beschikbaar</a>, <a href='changeState.php?state=offline&id=". $row[$HuizenID] ."' target='funda_state'>offline</a>, <a href='changeState.php?state=optie&id=". $row[$HuizenID] ."' target='funda_state'>onder optie</a>, <a href='changeState.php?state=voorbehoud&id=". $row[$HuizenID] ."' target='funda_state'>onder voorbehoud</a>, <a href='changeState.php?state=verkocht&id=". $row[$HuizenID] ."' target='funda_state'>verkocht</a> | <a href='delete.php?id=". $row[$HuizenID] ."&zeker=ja' target='funda_detail'>verwijder</a><br>".NL;
 			
 			if($row[$HuizenOffline] != 0) {
