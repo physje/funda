@@ -19,7 +19,7 @@ if ($handle = opendir($offlineDir)) {
 	closedir($handle);
 }
 
-$debug = 0;
+$debug = 2;
 
 if(count($files) > 10) {
 	$files			= array_slice($files, 0, 10);
@@ -109,12 +109,14 @@ foreach($files as $file) {
 	#
 	} elseif($overzicht) {
 		$houseURL = array();
+		$addNewHouses = false;
 		$vorigePos = 0;
 		$offset = 75;
 		
 		$OpdrachtData			= getOpdrachtData($OpdrachtID);
 		$PushMembers			= getMembers4Opdracht($OpdrachtID, 'push');
 		
+		if($OpdrachtData['type'] == 1)	$addNewHouses = true;
 		$OpdrachtURL	= $OpdrachtData['url'];
 		
 		if($verkocht) {
@@ -162,6 +164,9 @@ foreach($files as $file) {
 			# Extraheer de data
 			$data = extractFundaData($HuisText, $verkocht);
 			
+			$bekendHuis = false;
+			if(knownHouse($data['id']))	$bekendHuis = true;	
+			
 			# Hou bij welke huizen gevonden zijn						
 			$AdressenArray[] = $data['adres'];
 							
@@ -173,8 +178,9 @@ foreach($files as $file) {
 				$block[] = implode('<br>', $tempItems);
 			}
 						
+			
 			# Huis is nog niet bekend bij het script, dus moet worden toegevoegd
-			if(!knownHouse($data['id'])) {
+			if(!$bekendHuis AND $addNewHouses) {			
 				$extraData = array();
 				
 				# Gegevens over het huis opslaan
@@ -204,14 +210,17 @@ foreach($files as $file) {
 				
 				# Aanvinken om in een later stadium de details op te vragen
 				mark4Details($data['id']);
-			} elseif(!$verkocht) {
-				# Pagina is nog steeds beschikbaar
+			} elseif(!$bekendHuis AND !$addNewHouses) {
+				toLog('debug', $OpdrachtID, $data['id'], "Nieuw huis, maar toch niet toegevoegd");
+				$counterSkipped++;
+			} elseif($bekendHuis) {
+				# Mocht hij wel bekend zijn, dan zetten wij hem op online
+				# Dit voor het geval die om wat voor een reden dan ook een keer op offline is gezet
 				setOnline($data['id']);
 			}
-			
-			# Huis is al bekend bij het script
-			# We moeten dus aangeven dat hij nog steeds op de markt is
-			if(!$verkocht) {				
+						
+			# Huis is niet verkocht	
+			if(!$verkocht AND $bekendHuis) {
 				if(!updateAvailability($data['id'])) {
 					echo "<font color='red'>Updaten van <b>". formatStreetAndNumber($data['id']) ."</b> is mislukt</font> | $sql<br>\n";
 					$ErrorMessage[] = "Updaten van ". formatStreetAndNumber($data['id']) ." is mislukt";
@@ -248,7 +257,7 @@ foreach($files as $file) {
 			}
 			
 			# Huis kan ook echt verkocht zijn
-			if($data['verkocht'] == 1) {
+			if($data['verkocht'] == 1 AND $bekendHuis) {
 				if(!soldHouse($data['id'])) {
 					$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '1' WHERE $HuizenID like '". $data['id'] ."' OR $HuizenID2 like '". $data['id'] ."'";
 					mysqli_query($db, $sql);
@@ -258,14 +267,33 @@ foreach($files as $file) {
 					mark4Details($data['id']);
 				}
 			# Het geval dat verkocht wordt teruggedraaid (hypothetisch)
-			} elseif(soldHouse($data['id'])) {
+			} elseif(soldHouse($data['id']) AND $bekendHuis) {
 				$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '0' WHERE $HuizenID like '". $data['id'] ."' OR $HuizenID2 like '". $data['id'] ."'";
 				mysqli_query($db, $sql);
 				toLog('info', $OpdrachtID, $data['id'], 'Toch niet meer verkocht');
 			}
+			
+			# Huis kan openhuis hebben
+			if($data['openhuis'] == 1 AND $bekendHuis) {
+				if(!hasOpenHuis($data['id'])) {
+					setOpenHuis($data['id']);
+					toLog('info', $OpdrachtID, $data['id'], 'Open Huis aangekondigd');
+					
+					# Aanvinken om in een later stadium de details (met daarin de openhuis data) op te vragen
+					mark4Details($data['id']);
+					
+					# Een open huis kan alleen als het nog niet verkocht is -> pushover-bericht versturen			
+					if($debug == 0 AND !$verkocht) {
+						sendPushoverOpenHuis($data['id'], $OpdrachtID);
+						if($debug > 1)	$block[] = 'Pushover-bericht open huis';
+					}
+				}
+			} elseif($bekendHuis) {
+				removeOpenHuis($data['id']);
+			}	
 						
 			# Kijk of dit huis al vaker gevonden is voor deze opdracht
-			if(newHouse($data['id'], $OpdrachtID)) {				
+			if(newHouse($data['id'], $OpdrachtID) AND $bekendHuis) {				
 				if(!addHouse($data, $OpdrachtID)) {
 					$ErrorMessage[] = "Toevoegen van ". formatStreetAndNumber($data['id']) ." aan opdracht $OpdrachtID ging niet goed";
 					toLog('error', $OpdrachtID, $data['id'], 'Huis toekennen aan opdracht mislukt');
@@ -278,7 +306,7 @@ foreach($files as $file) {
 				if($debug == 0 AND !$verkocht) {
 					sendPushoverNewHouse($data['id'], $OpdrachtID);
 				}
-			} elseif(changedPrice($data['id'], $data['prijs'], $OpdrachtID)) {
+			} elseif(changedPrice($data['id'], $data['prijs'], $OpdrachtID) AND $bekendHuis) {
 				sendPushoverChangedPrice($data['id'], $OpdrachtID);
 			}
 			
@@ -303,12 +331,16 @@ foreach($files as $file) {
 	# De routine als het een detailspagina is
 	#
 	} elseif($detail) {
+		
+		/*
 		# Nieuwe pagina verwijst naar ander favicon -> daarop selecteren
 		if(strpos($contents, 'https://www.funda.nl/detail/public/favicon.svg')) {
 			$allData = extractFundaDataFromPageNewStyle($contents);
 		} else {
 			$allData = extractFundaDataFromPageOldStyle($contents);
 		}
+		*/
+		$allData = extractFundaDataFromPageNewStyle($contents);
 				
 		$data = $allData[0];
 		$extraData = $allData[1];
