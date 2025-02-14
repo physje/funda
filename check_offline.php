@@ -19,7 +19,7 @@ if ($handle = opendir($offlineDir)) {
 	closedir($handle);
 }
 
-$debug = 2;
+$debug = 0;
 
 if(count($files) > 10) {
 	$files			= array_slice($files, 0, 10);

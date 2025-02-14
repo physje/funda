@@ -402,7 +402,9 @@ function getHuizen($opdracht, $excludeVerkocht = false, $excludeOffline = false)
 
 
 function extractFundaData($HuisText, $verkocht = false) {	
-	if($verkocht) {
+	$voorbehoud = $optie = $openhuis = 0;
+	
+	if($verkocht) {		
 		$data['verkocht']			= 1;
 	} else {
 		$data['verkocht']			= 0;
@@ -430,7 +432,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 		$foto		= getString('data-sf-original-srcset="', ' ', $HuisText, 0);
 	}
 	
-	$adres	= getString('<span class="truncate">', '</span>', $HuisText, 0);
+	$adres	= getString('<span class="truncate">', '&nbsp;</span>', $HuisText, 0);
 	$PC			= getString('<div class="truncate text-neutral-80">', '</div>', $HuisText, 0);
 	$prijs	= getString('<div class="truncate">', '</div>', $HuisText, 0);
 	
@@ -439,9 +441,7 @@ function extractFundaData($HuisText, $verkocht = false) {
 	} else {
 		$R_naam	= getString('truncate"><span>', '</span>', $HuisText, 0);	
 	}
-	
-	$voorbehoud = $optie = $openhuis = 0;
-		
+			
 	$postcode = explode(' ', trim($PC[0]));
 	$onderdelen		= splitStreetAndNumberFromAdress($adres[0]);
 	
