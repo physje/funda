@@ -133,12 +133,12 @@ if(!$init) {
 		echo "<tr>\n";
 		echo "	<td><input type='checkbox' name='resale[$OpdrachtID]' value='1'". (in_array($OpdrachtID, $preChecked) ? ' checked' : '') .">". $OpdrachtData['naam'] ."</td>\n";
 		echo "	<td><select name='start[$OpdrachtID]'>\n";
-		for($p = 1 ; $p < ($endP+2) ; $p++) {
+		for($p = 1 ; $p < ($endP+5) ; $p++) {
 			echo "	<option value='$p'". ($p == $startP ? ' selected' : '') .">Pagina $p</option>\n";
 		}
 		echo "	</select></td>\n";
 		echo "	<td><select name='eind[$OpdrachtID]'>\n";
-		for($p = 1 ; $p < ($endP+2) ; $p++) {
+		for($p = 1 ; $p < ($endP+5) ; $p++) {
 			echo "	<option value='$p'". ($p == $endP ? ' selected' : '') .">Pagina $p</option>\n";
 		}
 		echo "	</select></td>\n";	
