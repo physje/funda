@@ -127,7 +127,7 @@ foreach($files as $file) {
 		
 		# in JSON-formaat staat een array met URLs van alle huizen op deze pagina
 		# Omdat we die gaan gebruiken om te knippen vragen we deze even op en maken er een array van
-		$JSONString  = getString('<script type="application/ld+json" data-hid="bf34b6d">', '</script>', $contents, 0);
+		$JSONString  = getString('<script type="application/ld+json" data-hid="result-list-metadata">', '</script>', $contents, 0);
 		$JSON = json_decode($JSONString[0], true);
 				
 		foreach($JSON['itemListElement'] as $element) {
