@@ -56,6 +56,9 @@ if(isset($_REQUEST['resetCounter'])) {
 
 setcookie('zoekopdrachten', json_encode($opdrachtenCookie));
 
+echo "<html>\n";
+echo "<head>\n";
+
 if(!$init) {
 	$opdracht = $aOpdracht[$key];
 	$einde = $opdrachtenCookie['eindP'][$opdracht];
@@ -96,7 +99,9 @@ if(!$init) {
 		}
 	}
 	
+	echo "<title>". ($counter < 10 ? "Pagina ". $pagina : "Actie"). "</title>\n";
 	echo "</head>\n";
+	echo "<body>\n";	
 	if($close) {
 		echo "<body onload=\"window.close();\">\n";
 	} elseif(strlen($OpdrachtData['url']) > 2) {	
@@ -108,12 +113,12 @@ if(!$init) {
 	echo "<a href='openZoekopdrachten.php?resetCounter'>Open de volgende opdrachten</a><br>\n";
 	#echo "<br>\n";
 	echo "<a href='openZoekopdrachten.php?destroy'>Begin overnieuw</a>\n";
-	echo "</body>\n";
-	echo "</html>\n";	
 } else {
 	$Opdrachten = getZoekOpdrachten('');
 	$preChecked = array(3, 14, 32, 33, 34, 35, 38, 41, 42);
-
+	
+	echo "<title>Zoekopdrachten</title>\n";
+	echo "</head>\n";
 	echo "<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";
 	echo "<table>\n";
 	echo "<tr>\n";
@@ -141,7 +146,7 @@ if(!$init) {
 		for($p = 1 ; $p < ($endP+5) ; $p++) {
 			echo "	<option value='$p'". ($p == $endP ? ' selected' : '') .">Pagina $p</option>\n";
 		}
-		echo "	</select></td>\n";	
+		echo "	</select> ($aantal)</td>\n";	
 		echo "</tr>\n";
 	}
 	echo "<tr>\n";
@@ -150,5 +155,8 @@ if(!$init) {
 	echo "</table>\n";
 	echo "</form>\n";
 }
+
+echo "</body>\n";
+echo "</html>\n";	
 
 ?>
