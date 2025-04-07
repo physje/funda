@@ -19,7 +19,7 @@ if ($handle = opendir($offlineDir)) {
 	closedir($handle);
 }
 
-$debug = 0;
+$debug = 3;
 
 if(count($files) > 10) {
 	$files			= array_slice($files, 0, 10);
@@ -32,7 +32,7 @@ include_once(__DIR__ .'/include/HTML_TopBottom.php');
 foreach($files as $file) {
 	# Alles initialiseren
 	set_time_limit (30);	
-	$String = $Huizen = $AdressenArray = array();
+	$String = $Huizen = $AdressenArray = $ids = array();
 	$OpdrachtID = 0;
 	$succes = $detail = $verkocht = $overzicht = false;
 	
@@ -169,6 +169,7 @@ foreach($files as $file) {
 			
 			# Hou bij welke huizen gevonden zijn						
 			$AdressenArray[] = $data['adres'];
+			$ids[] = $data['id'];
 							
 			if($debug == 2) {
 				$tempItems = array();
@@ -321,6 +322,10 @@ foreach($files as $file) {
 	  
 		if($debug == 1) {
 			$block[] = implode("<br>", $AdressenArray)."\n";
+		} elseif($debug == 3) {
+			$handle = fopen("ids_". $OpdrachtID .".txt", "a+");
+			fwrite($handle, implode("\n", $AdressenArray));
+			fclose($handle);
 		}
 		
 		$success = true;
