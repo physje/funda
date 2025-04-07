@@ -99,7 +99,7 @@ if(!$init) {
 		}
 	}
 	
-	echo "<title>". ($counter < 10 ? "Pagina ". $pagina : "Actie"). "</title>\n";
+	echo "<title>". ($counter < 10 ? $OpdrachtData['naam'] ." [$pagina]" : "Actie"). "</title>\n";
 	echo "</head>\n";
 	echo "<body>\n";	
 	if($close) {
@@ -146,7 +146,7 @@ if(!$init) {
 		for($p = 1 ; $p < ($endP+5) ; $p++) {
 			echo "	<option value='$p'". ($p == $endP ? ' selected' : '') .">Pagina $p</option>\n";
 		}
-		echo "	</select> ($aantal)</td>\n";	
+		echo "	</select></td>\n";	
 		echo "</tr>\n";
 	}
 	echo "<tr>\n";
