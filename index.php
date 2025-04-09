@@ -63,7 +63,7 @@ if($_SESSION['level'] > 2) {
 	#$onderhoud['admin/cleanOpenhuis.php']				= 'Open huizen opschonen';
 	#$onderhoud['admin/checkTables.php']					= 'Check de verschillende databases';
 	#$onderhoud['admin/search4Offline.php']			= 'Zet pagina\'s offline';
-	#$onderhoud['admin/combine_batch.php']				= 'Voeg hits automatisch samen';
+	$onderhoud['admin/combine_batch.php']				= 'Voeg hits automatisch samen';
 	#$onderhoud['admin/combine_manual.php']			= 'Voeg hits handmatig samen';
 	$onderhoud['admin/combineSlaveMaster.php']			= 'Voeg master/slave toe';
 	#$onderhoud['admin/cleanUp.php']							= 'Verwijder oude log-items';	
