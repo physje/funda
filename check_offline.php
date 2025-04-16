@@ -28,7 +28,7 @@ if(count($files) > 10) {
 
 # Even debug-data van vorige keer verwijderen
 if($debug == 3) {
-	if ($handle = opendir('')) {
+	if($handle = opendir('.')) {
 		while (false !== ($entry = readdir($handle))) {
 			if (substr($entry, 0, 4) == 'ids_' AND substr($entry, -4) == '.txt') {
 				$TXT_handle = fopen($entry, "w");
@@ -338,7 +338,7 @@ foreach($files as $file) {
 			$block[] = implode("<br>", $AdressenArray)."\n";
 		} elseif($debug == 3) {
 			$handle = fopen("ids_". $OpdrachtID .".txt", "a+");
-			fwrite($handle, implode("\n", $AdressenArray)."\n");
+			fwrite($handle, implode("\n", $ids)."\n");
 			fclose($handle);
 		}
 		

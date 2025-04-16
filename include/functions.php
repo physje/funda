@@ -434,7 +434,12 @@ function extractFundaData($HuisText, $verkocht = false) {
 	
 	$adres	= getString('<span class="truncate">', '&nbsp;</span>', $HuisText, 0);
 	$PC			= getString('<div class="truncate text-neutral-80">', '</div>', $HuisText, 0);
-	$prijs	= getString('<div class="truncate">', '</div>', $HuisText, 0);
+	
+	if(strpos($HuisText, '<div class="line-through truncate">')) {
+		$prijs	= getString('<div class="line-through truncate">', '</div>', $HuisText, 0);
+	} else {
+		$prijs	= getString('<div class="truncate">', '</div>', $HuisText, 0);
+	}
 	
 	if(strpos($HuisText, '-darken-2"><span>')) {
 		$R_naam	= getString('-darken-2"><span>', '</span>', $HuisText, 0);	
@@ -445,11 +450,11 @@ function extractFundaData($HuisText, $verkocht = false) {
 	$postcode = explode(' ', trim($PC[0]));
 	$onderdelen		= splitStreetAndNumberFromAdress($adres[0]);
 	
-	if(strpos($HuisText, '[-->Open huis<!--]')) {
+	if(strpos($HuisText, '>Open huis<')) {
 		$openhuis = 1;
 	}
 	
-	if(strpos($HuisText, '">Onder bod</span>') OR strpos($HuisText, '">Onder optie</span>')) {
+	if(strpos($HuisText, '">Onder bod</span>') OR strpos($HuisText, '">Onder optie</span>') OR strpos($HuisText, '>Onder bod<') OR strpos($HuisText, '>Onder optie<')) {
 		$optie = 1;
 	}
 	
