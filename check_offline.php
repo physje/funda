@@ -26,19 +26,19 @@ if(count($files) > 10) {
 	$userInteraction = false;
 }
 
-# Even debug-data van vorige keer verwijderen
-if($debug == 3) {
-	if($handle = opendir('.')) {
-		while (false !== ($entry = readdir($handle))) {
-			if (substr($entry, 0, 4) == 'ids_' AND substr($entry, -4) == '.txt') {
-				$TXT_handle = fopen($entry, "w");
-				fwrite($TXT_handle, date('m-d-Y H:i:s')."\n");
-				fclose($TXT_handle);
-			}
-		}	
-		closedir($handle);
-	}
-}
+### Even debug-data van vorige keer verwijderen
+##if($debug == 3) {
+##	if($handle = opendir('.')) {
+##		while (false !== ($entry = readdir($handle))) {
+##			if (substr($entry, 0, 4) == 'ids_' AND substr($entry, -4) == '.txt') {
+##				$TXT_handle = fopen($entry, "w");
+##				fwrite($TXT_handle, date('m-d-Y H:i:s')."\n");
+##				fclose($TXT_handle);
+##			}
+##		}	
+##		closedir($handle);
+##	}
+##}
 
 include_once(__DIR__ .'/include/HTML_TopBottom.php');
 

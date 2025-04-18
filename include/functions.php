@@ -410,12 +410,13 @@ function extractFundaData($HuisText, $verkocht = false) {
 		$data['verkocht']			= 0;
 	}
 	
-	$HuisURL	= getString('><a href="', '"', $HuisText, 0);
+	#$HuisURL	= getString('><a href="', '"', $HuisText, 0);
+	$HuisURL	= getString('', '"', $HuisText, 0);
 	$cleanURL = $HuisURL[0];
 	
 	$cleanURL	= str_replace('https://www.funda.nl/', '', $cleanURL);	
 	$mappen			= explode("/", $cleanURL);	
-	
+			
 	if(strpos($cleanURL, 'detail')) {		
 		$id			= $mappen[5];
 	} elseif(count($mappen) < 6) {		
@@ -427,9 +428,9 @@ function extractFundaData($HuisText, $verkocht = false) {
 	}
 	
 	if(strpos($HuisText, 'data-sf-original-src="')) {
-		$foto		= getString('data-sf-original-src="', '" data-sf-original-srcset', $HuisText, 0);
+		$foto		= getString('data-sf-original-src="', '?', $HuisText, 0);
 	} else {
-		$foto		= getString('data-sf-original-srcset="', ' ', $HuisText, 0);
+		$foto		= getString('data-sf-original-srcset="', '?', $HuisText, 0);
 	}
 	
 	$adres	= getString('<span class="truncate">', '&nbsp;</span>', $HuisText, 0);
