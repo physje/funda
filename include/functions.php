@@ -884,7 +884,7 @@ function updateVerkochtDataFromPage($generalData, $data) {
 	$Aanmelddatum = $Verkoopdatum = $LaatsteVraagprijs = $AangebodenSinds = $OorspronkelijkeVraagprijs = $Vraagprijs = 0;
 	$naam = '';
 	$offline = $changed_end = $changed_start = false;	
-	$prijs = $startdata = array();
+	$prijs = $startdata = $HTML = array();
 	
 	$fundaID = $generalData['id'];
 	$FundaData = getFundaData($fundaID);

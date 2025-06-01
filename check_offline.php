@@ -19,31 +19,18 @@ if ($handle = opendir($offlineDir)) {
 	closedir($handle);
 }
 
-$debug = 3;
+$debug = 0;
 
 if(count($files) > 10) {
 	$files			= array_slice($files, 0, 10);
 	$userInteraction = false;
 }
 
-### Even debug-data van vorige keer verwijderen
-##if($debug == 3) {
-##	if($handle = opendir('.')) {
-##		while (false !== ($entry = readdir($handle))) {
-##			if (substr($entry, 0, 4) == 'ids_' AND substr($entry, -4) == '.txt') {
-##				$TXT_handle = fopen($entry, "w");
-##				fwrite($TXT_handle, date('m-d-Y H:i:s')."\n");
-##				fclose($TXT_handle);
-##			}
-##		}	
-##		closedir($handle);
-##	}
-##}
 
 include_once(__DIR__ .'/include/HTML_TopBottom.php');
 
 # Doorloop alle offline-bestanden
-foreach($files as $file) {
+foreach($files as $file) {	
 	# Alles initialiseren
 	set_time_limit (30);	
 	$String = $Huizen = $AdressenArray = $ids = array();
@@ -103,7 +90,7 @@ foreach($files as $file) {
 		
 	# Als in de zoekURL de tekst "unavailable" voorkomt gaat het over een huis wat verkocht is
 	# De variabele $verkocht is dan waar
-	if(strpos($zoekURL, '&availability=%5B%22unavailable%22%5D')) {
+	if(strpos($zoekURL, 'unavailable')) {
 		$verkocht		= true;
 	} else {
 		$verkocht		= false;
@@ -124,8 +111,7 @@ foreach($files as $file) {
 	} elseif($overzicht) {
 		$houseURL = array();
 		$addNewHouses = false;
-		$vorigePos = 0;
-		$offset = 75;
+		$vorigePos = $offset = 0;
 		
 		$OpdrachtData			= getOpdrachtData($OpdrachtID);
 		$PushMembers			= getMembers4Opdracht($OpdrachtID, 'push');
