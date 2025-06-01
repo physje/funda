@@ -36,8 +36,10 @@ if(isset($_POST['openPages'])) {
 	$key = 0;
 	foreach($_POST['resale'] as $opdracht => $dummy) {
 		$opdrachtenCookie['aO'][$key] = $opdracht;
-		$opdrachtenCookie['startP'][$opdracht] = $_POST['start'][$opdracht];
-		$opdrachtenCookie['eindP'][$opdracht] = $_POST['eind'][$opdracht];				
+		$opdrachtenCookie['startPSale'][$opdracht] = $_POST['startSale'][$opdracht];
+		$opdrachtenCookie['eindPSale'][$opdracht] = $_POST['eindSale'][$opdracht];
+		$opdrachtenCookie['startPSold'][$opdracht] = $_POST['startSold'][$opdracht];
+		$opdrachtenCookie['eindPSold'][$opdracht] = $_POST['eindSold'][$opdracht];
 		$key++;
 	}
 }
@@ -53,7 +55,6 @@ if(isset($_REQUEST['resetCounter'])) {
 	$counter = 0;
 }
 
-
 setcookie('zoekopdrachten', json_encode($opdrachtenCookie));
 
 echo "<html>\n";
@@ -61,22 +62,35 @@ echo "<head>\n";
 
 if(!$init) {
 	$opdracht = $aOpdracht[$key];
-	$einde = $opdrachtenCookie['eindP'][$opdracht];
-				
+	
+	if($verkocht == 0) {
+		$einde = $opdrachtenCookie['eindPSale'][$opdracht];
+	} else {
+		$einde = $opdrachtenCookie['eindPSold'][$opdracht];
+	}
+					
 	if($pagina < $einde) {
 		$pagina++;
-	} else {
+	} elseif($verkocht == 1) {
 		$key++;
 		$opdracht	= $aOpdracht[$key];
-		$pagina		= $opdrachtenCookie['startP'][$opdracht];
+		$pagina		= $opdrachtenCookie['startPSale'][$opdracht];
 		$verkocht	= 0;		
-	}
+	} elseif($verkocht == 0) {
+		$pagina		= $opdrachtenCookie['startPSold'][$opdracht];
+		$verkocht	= 1;
+	}	
 	
 	# Als er geen opdrachten meer zijn kan de pagina gesloten worden
 	if(!isset($aOpdracht[$key]))	$close		= true;
 	
 	$OpdrachtData = getOpdrachtData($opdracht);
-	$URL = $OpdrachtData['url']."&search_result=$pagina";		
+	$URL = $OpdrachtData['url']."&search_result=$pagina";
+	
+	if($verkocht == 1) {		
+		$URL .= "&availability=%5B%22unavailable%22%5D";
+	}
+	
 	$counter++;
 	
 	#echo '$pagina '. $pagina ."<br>\n";
@@ -109,6 +123,7 @@ if(!$init) {
 	}
 	
 	echo "Pagina ". $pagina ." van ". $OpdrachtData['naam'] ."<br>\n";
+	#echo $URL ."<br>\n";
 	echo "<br>\n";
 	echo "<a href='openZoekopdrachten.php?resetCounter'>Open de volgende opdrachten</a><br>\n";
 	#echo "<br>\n";
@@ -120,11 +135,21 @@ if(!$init) {
 	echo "<title>Zoekopdrachten</title>\n";
 	echo "</head>\n";
 	echo "<form method='post' action='". $_SERVER['PHP_SELF']."'>\n";
-	echo "<table>\n";
+	echo "<table border=0>\n";
+	echo "<tr>\n";
+	echo "	<td>&nbsp;</td>\n";
+	echo "	<td colspan='2'><b>Te koop</b></td>\n";
+	echo "	<td>&nbsp;</td>\n";
+	echo "	<td colspan='2'><b>Verkocht</b></td>\n";
+	echo "</tr>\n";
+	
 	echo "<tr>\n";
 	echo "	<td>&nbsp;</td>\n";
 	echo "	<td>Eerste</td>\n";
 	echo "	<td>Laatste</td>\n";	
+	echo "	<td>&nbsp;</td>\n";
+	echo "	<td>Eerste</td>\n";
+	echo "	<td>Laatste</td>\n";
 	echo "</tr>\n";
 	
 	foreach($Opdrachten as $OpdrachtID) {
@@ -133,24 +158,40 @@ if(!$init) {
 		$aantal				= count($Huizen);
 		
 		$startP	= 0;
-		$endP = ceil($aantal/15);
+		$endPSale = ceil($aantal/15);
+		$endPSold = ceil($aantal/150);
 		
 		echo "<tr>\n";
 		echo "	<td><input type='checkbox' name='resale[$OpdrachtID]' value='1'". (in_array($OpdrachtID, $preChecked) ? ' checked' : '') .">". $OpdrachtData['naam'] ."</td>\n";
-		echo "	<td><select name='start[$OpdrachtID]'>\n";
-		for($p = 1 ; $p < ($endP+5) ; $p++) {
+		echo "	<td><select name='startSale[$OpdrachtID]'>\n";
+		for($p = 1 ; $p < ($endPSale+15) ; $p++) {
 			echo "	<option value='$p'". ($p == $startP ? ' selected' : '') .">Pagina $p</option>\n";
 		}
 		echo "	</select></td>\n";
-		echo "	<td><select name='eind[$OpdrachtID]'>\n";
-		for($p = 1 ; $p < ($endP+5) ; $p++) {
-			echo "	<option value='$p'". ($p == $endP ? ' selected' : '') .">Pagina $p</option>\n";
+		echo "	<td><select name='eindSale[$OpdrachtID]'>\n";
+		for($p = 1 ; $p < ($endPSale+15) ; $p++) {
+			echo "	<option value='$p'". ($p == $endPSale ? ' selected' : '') .">Pagina $p</option>\n";
 		}
 		echo "	</select></td>\n";	
+		echo "	<td>&nbsp;</td>\n";
+		
+		echo "	<td><select name='startSold[$OpdrachtID]'>\n";
+		for($p = 1 ; $p < ($endPSold+15) ; $p++) {
+			echo "	<option value='$p'". ($p == $startP ? ' selected' : '') .">Pagina $p</option>\n";
+		}
+		echo "	</select></td>\n";
+		echo "	<td><select name='eindSold[$OpdrachtID]'>\n";
+		for($p = 1 ; $p < ($endPSold+15) ; $p++) {
+			echo "	<option value='$p'". ($p == $endPSold ? ' selected' : '') .">Pagina $p</option>\n";
+		}
+		echo "	</select></td>\n";			
 		echo "</tr>\n";
 	}
 	echo "<tr>\n";
-	echo "	<td colspan=3><input type='submit' name='openPages' value='Start'></td>\n";
+	echo "	<td colspan=6>&nbsp;</td>\n";
+	echo "</tr>\n";
+	echo "<tr>\n";
+	echo "	<td colspan=6><input type='submit' name='openPages' value='Start'></td>\n";
 	echo "</tr>\n";
 	echo "</table>\n";
 	echo "</form>\n";
