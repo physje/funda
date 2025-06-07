@@ -606,10 +606,13 @@ function extractFundaDataFromPageNewStyle($offlineHTML) {
 	$JSON_string_2	= getString('<script type="application/ld+json">', '</script>', $JSON_string_1[1], 0);
 	$mklr_temp			=	getString('mr-1" href="https://www.funda.nl/makelaars/', '</a>', $offlineHTML, 0);
 	$makelaar				=	getString('">', '', $mklr_temp[0], 0);
-	$omschrijving		= getString('after:from-white after:to-transparent">', '</div>', $offlineHTML, 0);
+	#$omschrijving		= getString('after:from-white after:to-transparent">', '</div>', $offlineHTML, 0);
+	$omschrijving		= getString('after:from-white after:to-transparent" data-v-ad93a001>', '</div>', $offlineHTML, 0);
+	
 	
 	$PC							=	getString('<span class="text-neutral-40">', '</span>', $offlineHTML, 0);
-	$ID							=	getString('?id=', '"', $offlineHTML, 0);
+	#$ID							=	getString('?id=', '"', $offlineHTML, 0);
+	$ID							=	getString('tiny-id="', '"', $offlineHTML, 0);
 
 	$JSON_1 = json_decode($JSON_string_1[0], JSON_OBJECT_AS_ARRAY);
 	$JSON_2 = json_decode($JSON_string_2[0], JSON_OBJECT_AS_ARRAY);
@@ -650,13 +653,26 @@ function extractFundaDataFromPageNewStyle($offlineHTML) {
 			
 	foreach($kenmerken as $kenmerk) {		
 		if(strlen($kenmerk) > 10) {			
-			$Record = getString('md:pb-2 md:pr-2">', '</dt>', $kenmerk, 0);
+			#$Record = getString('md:pb-2 md:pr-2">', '</dt>', $kenmerk, 0);
+			$Record = getString('border-none">', '</dt>', $kenmerk, 0);			
 			$Waarde = getString('<span class="mr-2">', '</span>', $kenmerk, 0);
 			
 			if(strpos($kenmerk, '<dd class="border-neutral-20 col-span-1 border-b pb-2 pl-4 text-neutral-50 md:pl-0 md:pt-2">')) {
-				$Waarde = getString('<dd class="border-neutral-20 col-span-1 border-b pb-2 pl-4 text-neutral-50 md:pl-0 md:pt-2">', '', $kenmerk, 0);
+				$Waarde = getString('<dd class="border-neutral-20 col-span-1 border-b pb-2 pl-4 text-neutral-50 md:pl-0 md:pt-2">', '', $kenmerk, 0);				
 			}
 			
+			if(strpos($kenmerk, '<dd class="flex border-b border-neutral-20 text-neutral-80 pb-2 md:py-2 last:border-none">')) {
+				$Waarde = getString('last:border-none">', '', $kenmerk, 0);
+				
+				if(strpos($Waarde[0], '</div>')) {
+					$Waarde = getString('last:border-none">', '</div>', $kenmerk, 0);
+				}				
+			}
+			
+			if(strpos($kenmerk, '<dd class="max-md:pl-4 flex border-b border-neutral-20 text-neutral-80 pb-2 md:py-2 last:border-none">')) {
+				$Waarde = getString('last:border-none">', '', $kenmerk, 0);
+			}
+						
 			if(strpos($kenmerk, '<dd class="col-span-1 border-b border-neutral-20 pb-2 pl-4 text-neutral-50 md:pl-0 md:pt-2">')) {
 				$Waarde = getString('<dd class="col-span-1 border-b border-neutral-20 pb-2 pl-4 text-neutral-50 md:pl-0 md:pt-2">', '', $kenmerk, 0);
 			}
