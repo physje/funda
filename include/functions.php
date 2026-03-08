@@ -1460,7 +1460,7 @@ function updatePrice($id, $price, $tijd = 0) {
 		$tijd = time();
 	}
 		
-	$sql = "INSERT INTO $TablePrijzen ($PrijzenID, $PrijzenPrijs, $PrijzenTijd) VALUES ('$id', $price, ". $tijd .")";
+	$sql = "INSERT INTO $TablePrijzen ($PrijzenID, $PrijzenPrijs, $PrijzenTijd) VALUES ('$id', ".($price != '' ? $price : '0').", ". $tijd .")";
 		
 	if(!mysqli_query($db, $sql)) {
 		echo $sql;

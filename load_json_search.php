@@ -58,8 +58,8 @@ if(count($files) > 0) {
 	$block[] = "Aantal huizen voor <a href='$file'>". $OpdrachtData['naam'] ."</a> : ". $NrPageHuizen ."<br>\n";
 	
 	foreach($json as $jsonHouse) {
-		set_time_limit(5);
 		if($jsonHouse != '') {
+			set_time_limit(10);
 			$houseArray = json_decode($jsonHouse, true);
 			$houseData = $houseArray['data'];
 
@@ -74,7 +74,7 @@ if(count($files) > 0) {
 			$data['PC_l']			= substr($houseData['postcode'], 4, 2);
 			$data['wijk']			= $houseData['neighbourhood'];
 			$data['plaats']			= $houseData['city'];
-			$data['thumb']			= substr($houseData['photo_urls'][0], 0, -4).'_360x240.jpg';
+			$data['thumb']			= '';#substr($houseData['photo_urls'][0], 0, -4).'_360x240.jpg';
 			$data['makelaar']		= $houseData['broker_name'];
 			$data['prijs']			= $houseData['price'];
 			$data['verkocht']		= 0;
@@ -85,7 +85,7 @@ if(count($files) > 0) {
 			$data['begin']			= convertStr2Unix($houseData['publish_date']);
 
 			# Na een aantal keer kan deze uit (dan is alle data wel ververst obv de JSON)
-			migrateID($data['tiny_id'], $data['id']);
+			#migrateID($data['tiny_id'], $data['id']);
 
 			$bekendHuis = false;
 			if(knownHouse($data['id']))	$bekendHuis = true;	
@@ -126,7 +126,7 @@ if(count($files) > 0) {
 				setOnline($data['id']);
 
 				# Na een aantal keer kan deze uit (dan is alle data wel ververst obv de JSON)
-				updateHouse($data, array());
+				#updateHouse($data, array());
 			}
 
 			# Huis is niet verkocht	
@@ -180,10 +180,10 @@ if(count($files) > 0) {
 				$NewAddress[] = $data['adres'];
 					
 				if($debug == 0 AND !$verkocht) {
-					#sendPushoverNewHouse($data['id'], $OpdrachtID);
+					sendPushoverNewHouse($data['id'], $OpdrachtID);
 				}
 			} elseif(changedPrice($data['id'], $data['prijs'], $OpdrachtID) AND $bekendHuis) {
-				#sendPushoverChangedPrice($data['id'], $OpdrachtID);
+				sendPushoverChangedPrice($data['id'], $OpdrachtID);
 			}
 		}
 		$success = true;
