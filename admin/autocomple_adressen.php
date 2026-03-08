@@ -16,7 +16,7 @@ $skillData = array();
 if($query->num_rows > 0){ 
     while($row = $query->fetch_assoc()){ 
         $data['id'] = $row['funda_id']; 
-        $data['value'] = urldecode($row['adres']).', '.urldecode($row['plaats']).' ['. $row['funda_id'] .']';
+        $data['value'] = urldecode($row['adres']).', '.urldecode($row['plaats']).' ['. $row['listing_id'] .']';
         array_push($skillData, $data); 
     } 
 } 

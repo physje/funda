@@ -28,6 +28,8 @@ $cfgTypeSearch = array(
 #$randomFactor = 0.5;			# Getal tussen 0 en 1, waarbij 0 is nooit checken en 1 altijd. 
 
 $offlineDir = 'offline/';
+$jsonDirList = 'json/in/';
+$jsonDirSearch = 'json/search/';
 
 # Deze zaken zijn standaard aangevinkt bij een export naar EXCEL
 $cfgCSVExport[] = 'Inhoud';
@@ -77,6 +79,7 @@ $AboUserID				= "member_id";
 $AboType					= "soort";
 
 $TableHuizen			= "funda_huizen";
+$HuizenListing 				= "listing_id";
 $HuizenID 				= "funda_id";
 $HuizenID2				= "funda_id_tweede";
 $HuizenURL	 			= "url";

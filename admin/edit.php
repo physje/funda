@@ -56,7 +56,7 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "<table border=0 width='100%'>";	
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Adres</td>";
-		$HTML[] = "	<td>". $data['adres'] ."<br><input type='text' name='straat' value=\"". $data['straat'] ."\" size='15'> <input type='text' name='nummer' value='". $data['nummer'] ."' size='1'> <input type='text' name='letter' value='". $data['letter'] ."' size='1'> <input type='text' name='toevoeging' value='". $data['toevoeging'] ."' size='1'><div class='float_rechts'><a href='http://funda.nl/". $data['id'] ."' target='_blank'>funda.nl</a></div></td>";
+		$HTML[] = "	<td>". $data['adres'] ."<br><input type='text' name='straat' value=\"". $data['straat'] ."\" size='15'> <input type='text' name='nummer' value='". $data['nummer'] ."' size='1'> <input type='text' name='letter' value='". $data['letter'] ."' size='1'> <input type='text' name='toevoeging' value='". $data['toevoeging'] ."' size='1'><div class='float_rechts'><a href='http://funda.nl/". $data['tiny_id'] ."' target='_blank'>funda.nl</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td></td>";
@@ -347,10 +347,12 @@ echo "<td width='50%' valign='top' align='center'>\n";
 echo showBlock(implode("\n", $Thumb));
 echo "<p>";
 
+/*
 if(count($Resultaten) > 0) {
 	echo showBlock(implode("\n", $Resultaten));
 	echo "<p>";
 }
+	*/
 
 if(isset($OpenHuis) AND $OpenHuis != '') {
 	echo showBlock($OpenHuis);

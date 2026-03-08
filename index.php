@@ -49,12 +49,15 @@ if($_SESSION['level'] > 1) {
 
 # ONDERHOUD
 if($_SESSION['level'] > 2) {
-	$onderhoud['check.php']											= 'Check funda';
+	#$onderhoud['check.php']											= 'Check funda';
 	$onderhoud['admin/checkOudeHuizen.php']			= 'Zie welke huizen al even van de radar zijn';
-	$onderhoud['admin/details2Download.php']		= 'Overzicht van huizen waar de details van ontbreken';	
+	#$onderhoud['admin/details2Download.php']		= 'Overzicht van huizen waar de details van ontbreken';	
+	$onderhoud['load_json_search.php']		= 'Importeer JSON met resultaten van zoekopdracht';
+	$onderhoud['admin/JSON_download.php']		= 'Exporteer JSON van huizen waar de details van ontbreken';
+	$onderhoud['load_json_listings.php']		= 'Importeer JSON met details van huizen';
 	$onderhoud['check_offline.php']											= 'Laad offline HTML-pagina in';	
 	#$onderhoud['admin/getVerkochteHuizen.php']	= 'Werk verkochte huizen bij';
-	$onderhoud['onderhoud/openZoekopdrachten.php?destroy']						= 'Open pagina\'s van zoekopdrachten';
+	#$onderhoud['onderhoud/openZoekopdrachten.php?destroy']						= 'Open pagina\'s van zoekopdrachten';
 	$onderhoud['onderhoud/makeGeneralLists.php']						= 'Maak algemene lijsten aan';
 	$onderhoud['admin/readPBK.php']							= 'Lees de prijs-index van het Kadaster in';
 	#$onderhoud['admin/makeCalendar.php']				= 'Maak iCal-bestand met openhuizen';

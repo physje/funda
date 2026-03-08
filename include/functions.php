@@ -193,40 +193,40 @@ function convert2FundaStyle($string) {
 	$string = str_replace (')', '',$string);
 	$string = str_replace ('/', '-',$string);
 	$string = str_replace (' ', '-',$string);
-	$string = str_replace ('é', 'e',$string);
-	$string = str_replace ('ë', 'e',$string);
-	$string = str_replace ('ä', 'a',$string);
-	$string = str_replace ('ü', 'u',$string);
-	$string = str_replace ('ö', 'o',$string);	
-	$string = str_replace ('&#224;', 'a',$string);	# à
-	$string = str_replace ('&#225;', 'a',$string);	# á
-	$string = str_replace ('&#226;', 'a',$string);	# â
-	$string = str_replace ('&#227;', 'a',$string);	# ã
-	$string = str_replace ('&#228;', 'a',$string);	# ä
-	$string = str_replace ('&#229;', 'a',$string);	# å	
-	#$string = str_replace ('&#230;', '',$string);	# æ 
-	$string = str_replace ('&#231;', 'c',$string);	# ç
-	$string = str_replace ('&#232;', 'e',$string);	# è
-	$string = str_replace ('&#233;', 'e',$string);	# é
-	$string = str_replace ('&#234;', 'e',$string);	# ê
-	$string = str_replace ('&#235;', 'e',$string);	# ë
-	$string = str_replace ('&#236;', 'i',$string);	# ì
-	$string = str_replace ('&#237;', 'i',$string);	# í
-	$string = str_replace ('&#238;', 'i',$string);	# î
-	$string = str_replace ('&#239;', 'i',$string);	# ï
-	#$string = str_replace ('&#240;', '',$string);	# ð
-	#$string = str_replace ('&#241;', '',$string);	# ñ
-	$string = str_replace ('&#242;', 'o',$string);	# ò
-	$string = str_replace ('&#243;', 'o',$string);	# ó
-	$string = str_replace ('&#244;', 'o',$string);	# ô
-	$string = str_replace ('&#245;', 'o',$string);	# õ
-	$string = str_replace ('&#246;', 'o',$string);	# ö
-	#$string = str_replace ('&#247;', '',$string);	# ÷
-	$string = str_replace ('&#248;', 'o',$string);	# ø
-	$string = str_replace ('&#249;', 'u',$string);	# ù
-	$string = str_replace ('&#250;', 'u',$string);	# ú
-	$string = str_replace ('&#251;', 'u',$string);	# û	
-	$string = str_replace ('&#252;', 'u',$string);	# ü	
+	$string = str_replace ('ï¿½', 'e',$string);
+	$string = str_replace ('ï¿½', 'e',$string);
+	$string = str_replace ('ï¿½', 'a',$string);
+	$string = str_replace ('ï¿½', 'u',$string);
+	$string = str_replace ('ï¿½', 'o',$string);	
+	$string = str_replace ('&#224;', 'a',$string);	# ï¿½
+	$string = str_replace ('&#225;', 'a',$string);	# ï¿½
+	$string = str_replace ('&#226;', 'a',$string);	# ï¿½
+	$string = str_replace ('&#227;', 'a',$string);	# ï¿½
+	$string = str_replace ('&#228;', 'a',$string);	# ï¿½
+	$string = str_replace ('&#229;', 'a',$string);	# ï¿½	
+	#$string = str_replace ('&#230;', '',$string);	# ï¿½ 
+	$string = str_replace ('&#231;', 'c',$string);	# ï¿½
+	$string = str_replace ('&#232;', 'e',$string);	# ï¿½
+	$string = str_replace ('&#233;', 'e',$string);	# ï¿½
+	$string = str_replace ('&#234;', 'e',$string);	# ï¿½
+	$string = str_replace ('&#235;', 'e',$string);	# ï¿½
+	$string = str_replace ('&#236;', 'i',$string);	# ï¿½
+	$string = str_replace ('&#237;', 'i',$string);	# ï¿½
+	$string = str_replace ('&#238;', 'i',$string);	# ï¿½
+	$string = str_replace ('&#239;', 'i',$string);	# ï¿½
+	#$string = str_replace ('&#240;', '',$string);	# ï¿½
+	#$string = str_replace ('&#241;', '',$string);	# ï¿½
+	$string = str_replace ('&#242;', 'o',$string);	# ï¿½
+	$string = str_replace ('&#243;', 'o',$string);	# ï¿½
+	$string = str_replace ('&#244;', 'o',$string);	# ï¿½
+	$string = str_replace ('&#245;', 'o',$string);	# ï¿½
+	$string = str_replace ('&#246;', 'o',$string);	# ï¿½
+	#$string = str_replace ('&#247;', '',$string);	# ï¿½
+	$string = str_replace ('&#248;', 'o',$string);	# ï¿½
+	$string = str_replace ('&#249;', 'u',$string);	# ï¿½
+	$string = str_replace ('&#250;', 'u',$string);	# ï¿½
+	$string = str_replace ('&#251;', 'u',$string);	# ï¿½	
+	$string = str_replace ('&#252;', 'u',$string);	# ï¿½	
 	$string = str_replace ('&#39;', '',$string);
 				
 	return strtolower($string);
@@ -364,7 +364,7 @@ function getOpdrachtData($id) {
 	$data = array();
 	
 	if($id != '' AND $id != 0) {
-		$sql		= "SELECT * FROM $TableZoeken WHERE $ZoekenKey = $id";
+		$sql		= "SELECT * FROM $TableZoeken WHERE $ZoekenKey = $id";		
 		$result	= mysqli_query($db, $sql);
 		$row		= mysqli_fetch_array($result);
 					
@@ -830,7 +830,7 @@ function extractFundaDataFromPageOldStyle($offlineHTML) {
 			}	
 			
 			
-			# Vraagprijs per m²
+			# Vraagprijs per mï¿½
 			if(strpos($Waarde[0], '<dd data-vue-container class="object-kenmerken-list__asking-price fd-flex fd-align-items-center">')) {				
 				$Waarde = getString('<dd data-vue-container class="object-kenmerken-list__asking-price fd-flex fd-align-items-center">', '<div data-tooltip-ui', $Waarde[0], 0);
 			}			 
@@ -893,6 +893,43 @@ function extractFundaDataFromPageOldStyle($offlineHTML) {
 	return array($data, $KenmerkData);
 }
 
+
+function convertStr2Unix($dateString) {
+	$array = date_parse_from_format("Y-m-dTH:i:s", $dateString);
+	return mktime($array['hour'], $array['minute'], $array['second'], $array['month'], $array['day'], $array['year']);
+}
+
+
+
+function migrateID(int $old, int $new) {
+	global $db, $TableHuizen, $HuizenID, $HuizenListing;
+	global $TableCalendar, $CalendarHuis;
+	global $TableKenmerken, $KenmerkenID;
+	global $TableList, $ListID;
+	global $TableListResult, $ListResultHuis;
+	global $TableLog, $LogHuis;
+	global $TablePrijzen, $PrijzenID;
+	global $TableIgnore, $IgnoreID;
+	global $TableResultaat, $ResultaatID;
+	global $TableWOZ, $WOZFundaID;
+	
+	$sql[] = "UPDATE $TableHuizen SET $HuizenListing = '$new' WHERE $HuizenID like '$old'";
+	$sql[] = "UPDATE $TableCalendar SET $CalendarHuis = '$new' WHERE $CalendarHuis like '$old'";
+	$sql[] = "UPDATE $TableKenmerken SET $KenmerkenID = '$new' WHERE $KenmerkenID like '$old'";	
+	$sql[] = "UPDATE $TableList SET $ListID = '$new' WHERE $ListID like '$old'";
+	$sql[] = "UPDATE $TableListResult SET $ListResultHuis = '$new' WHERE $ListResultHuis like '$old'";
+	$sql[] = "UPDATE $TableLog SET $LogHuis = '$new' WHERE $LogHuis like '$old'";
+	$sql[] = "UPDATE $TablePrijzen SET $PrijzenID = '$new' WHERE $PrijzenID like '$old'";
+	$sql[] = "UPDATE $TableIgnore SET $IgnoreID = '$new' WHERE $IgnoreID like '$old'";
+	$sql[] = "UPDATE $TableResultaat SET $ResultaatID = '$new' WHERE $ResultaatID like '$old'";
+	$sql[] = "UPDATE $TableWOZ SET $WOZFundaID = '$new' WHERE $WOZFundaID like '$old'";
+
+	foreach($sql as $query) {
+		if(!mysqli_query($db, $query))	echo $query;
+	}
+
+}
+
 function updateVerkochtDataFromPage($generalData, $data) {
 	global $db, $TableHuizen, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenVerkocht, $HuizenOffline, $HuizenID;
 	
@@ -924,16 +961,22 @@ function updateVerkochtDataFromPage($generalData, $data) {
 	# Als de array 'data' groter is dan 3 is er data gevonden in de kenmerken-pagina
 	if(count($data) > 3) {
 		# Reeds verkochte huizen
-		if(isset($data['Aanmelddatum']) AND $data['Aanmelddatum'] != '') {
-			$guessStartDatum	= guessDate($data['Aanmelddatum']);
-			$startDatum	= explode("-", $guessStartDatum);
-			$Aanmelddatum = mktime(0, 0, 1, $startDatum[1], $startDatum[0], $startDatum[2]);
+		#if(isset($data['Aanmelddatum']) AND $data['Aanmelddatum'] != '') {
+		if(isset($data['Aanmelddatum']) AND $data['Aanmelddatum'] > 0) {
+			#$guessStartDatum	= guessDate($data['Aanmelddatum']);
+			#$startDatum	= explode("-", $guessStartDatum);
+			#$Aanmelddatum = mktime(0, 0, 1, $startDatum[1], $startDatum[0], $startDatum[2]);
+
+			$Aanmelddatum = $data['Aanmelddatum'];
 		}
 									
-		if(isset($data['Verkoopdatum']) AND $data['Verkoopdatum'] != '') {
-			$guessVerkoopDatum = guessDate($data['Verkoopdatum']);
-			$verkoopDatum	= explode("-", $guessVerkoopDatum);
-			$Verkoopdatum = mktime(23, 59, 59, $verkoopDatum[1], $verkoopDatum[0], $verkoopDatum[2]);
+		#if(isset($data['Verkoopdatum']) AND $data['Verkoopdatum'] != '') {
+		if(isset($data['Verkoopdatum']) AND $data['Verkoopdatum'] > 0) {
+			#$guessVerkoopDatum = guessDate($data['Verkoopdatum']);
+			#$verkoopDatum	= explode("-", $guessVerkoopDatum);
+			#$Verkoopdatum = mktime(23, 59, 59, $verkoopDatum[1], $verkoopDatum[0], $verkoopDatum[2]);
+
+			$Verkoopdatum = $data['Verkoopdatum'];
 		}			
 
 		if(isset($data['Laatste vraagprijs']) AND $data['Laatste vraagprijs'] != '' AND !isset($data['vraagprijs'])) {
@@ -944,7 +987,8 @@ function updateVerkochtDataFromPage($generalData, $data) {
 		}
 									
 		# Huizen die nog niet verkocht zijn
-		if(isset($data['Aangeboden sinds']) AND $data['Aangeboden sinds'] != '') {
+		if(isset($data['Aangeboden sinds']) AND $data['Aangeboden sinds'] > 0) {
+			/*
 			if($data['Aangeboden sinds'] == '5 maanden') {
 				$AangebodenSinds = mktime(date('H'), date('i'), date('s'), date('m')-5, date('d'), date('Y'));
 			} elseif($data['Aangeboden sinds'] == '4 maanden') {
@@ -974,6 +1018,9 @@ function updateVerkochtDataFromPage($generalData, $data) {
 				$AangebodenDatum	= explode("-", $guessDatum);
 				$AangebodenSinds = mktime(0, 0, 1, $AangebodenDatum[1], $AangebodenDatum[0], $AangebodenDatum[2]);
 			}
+			*/
+
+			$AangebodenSinds = $data['Aangeboden sinds'];
 		}
 					
 		if(isset($data['Oorspronkelijke vraagprijs']) AND $data['Oorspronkelijke vraagprijs'] != '') {
@@ -1160,12 +1207,18 @@ function splitStreetAndNumberFromAdress($adres) {
 
 function formatStreetAndNumber($id) {
 	$data = getFundaData($id);
+
+	$string = $data['straat'].' '.$data['nummer'];
 	
-	if($data['toevoeging'] == '') {
-		return $data['straat'].' '.$data['nummer'].strtoupper($data['letter']);
-	} else {
-		return $data['straat'].' '.$data['nummer'].strtoupper($data['letter']).' '.$data['toevoeging'];
+	if(isset($data['letter']) && $data['letter'] != '') {
+		$string .= strtoupper($data['letter']);
 	}
+	
+	if(isset($data['toevoeging']) && $data['toevoeging'] != '') {
+		$string .= ' '.$data['toevoeging'];
+	}
+
+	return $string;
 }
 
 
@@ -1243,11 +1296,11 @@ function addKnowCoordinates($coord, $huisID) {
 
 # Functies met betrekking tot het online/offline/beschikbaar zijn van huizen
 function updateAvailability($id, $begin = '') {
-	global $db, $TableHuizen, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenID, $HuizenID2;
+	global $db, $TableHuizen, $HuizenStart, $HuizenEind, $HuizenOffline, $HuizenListing, $HuizenID, $HuizenID2;
 	
 	$sql = "UPDATE $TableHuizen SET $HuizenEind = ". mktime(23, 59, 59) .", ";
 	if($begin != '')	$sql .= "$HuizenStart = $begin, ";
-	$sql .= "$HuizenOffline = '0' WHERE $HuizenID like '$id' OR $HuizenID2 like '$id'";
+	$sql .= "$HuizenOffline = '0' WHERE $HuizenID like '$id' OR $HuizenID2 like '$id' OR $HuizenListing like '$id'";
 		
 	if(!mysqli_query($db, $sql)) {
 		return false;
@@ -1258,9 +1311,9 @@ function updateAvailability($id, $begin = '') {
 }
 
 function setOnline($id) {
-	global $db, $TableHuizen, $HuizenOffline, $HuizenID, $HuizenID2;
+	global $db, $TableHuizen, $HuizenOffline, $HuizenListing, $HuizenID, $HuizenID2;
 				
-	$sql = "UPDATE $TableHuizen SET $HuizenOffline = '0' WHERE $HuizenID like '$id' OR $HuizenID2 like '$id'";
+	$sql = "UPDATE $TableHuizen SET $HuizenOffline = '0' WHERE $HuizenID like '$id' OR $HuizenID2 like '$id' OR $HuizenListing like '$id'";
 	
 	if(!mysqli_query($db, $sql)) {
 		return false;
@@ -1680,9 +1733,9 @@ function addOpenhuis($fundaID, $tijden) {
 
 # Functies met betrekking tot het opslaan en opvragen van huizen in de database
 function knownHouse($key) {
-	global $db, $TableHuizen, $HuizenID, $HuizenID2;	
+	global $db, $TableHuizen, $HuizenID, $HuizenID2, $HuizenListing;	
 		
-	$sql		= "SELECT * FROM $TableHuizen WHERE $HuizenID like '$key' OR $HuizenID2 like '$key'";
+	$sql		= "SELECT * FROM $TableHuizen WHERE $HuizenID like '$key' OR $HuizenID2 like '$key' OR $HuizenListing like '$key'";
 	$result	= mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) == 1) {
 		return true;
@@ -1692,7 +1745,7 @@ function knownHouse($key) {
 }
 
 function saveHouse($data, $moreData) {	
-	global $db, $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
+	global $db, $TableHuizen, $HuizenListing, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
 	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
 			
 	if(!isset($data['begin'])) {
@@ -1708,9 +1761,9 @@ function saveHouse($data, $moreData) {
 	}	
 	
 	$sql  = "INSERT INTO $TableHuizen ";
-	$sql .= "($HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind) ";
+	$sql .= "($HuizenListing, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind) ";
 	$sql .= "VALUES ";
-	$sql .= "('". $data['id'] ."', '". urlencode($data['url']) ."', '". urlencode($data['adres']) ."', '". urlencode($data['straat']) ."', '". $data['nummer'] ."', '". urlencode($data['letter']) ."', '". $data['toevoeging'] ."', '". $data['PC_c'] ."', '". $data['PC_l'] ."', '". urlencode($data['plaats']) ."', '". urlencode($data['wijk']) ."', '". urlencode($data['thumb']) ."', '". urlencode($data['makelaar']) ."', '$begin_tijd', '$eind_tijd')";
+	$sql .= "('". $data['id'] ."', '". $data['tiny_id'] ."', '". urlencode($data['url']) ."', '". urlencode($data['adres']) ."', '". urlencode($data['straat']) ."', '". $data['nummer'] ."', '". urlencode($data['letter']) ."', '". $data['toevoeging'] ."', '". $data['PC_c'] ."', '". $data['PC_l'] ."', '". urlencode($data['plaats']) ."', '". urlencode($data['wijk']) ."', '". urlencode($data['thumb']) ."', '". urlencode($data['makelaar']) ."', '$begin_tijd', '$eind_tijd')";
 				
 	if(!mysqli_query($db, $sql)) {		
 		return false;
@@ -1727,9 +1780,9 @@ function newHouse($key, $opdracht) {
 	if(mysqli_num_rows($result) == 0) {
 		return true;
 	} elseif(mysqli_num_rows($result) > 1) {
-		toLog('error', $opdacht, $key, 'Huis-opdracht-combinatie komt vaker voor');
+		toLog('error', $opdracht, $key, 'Huis-opdracht-combinatie komt vaker voor');
 		if(mysqli_query($db, "DELETE FROM $TableResultaat WHERE $ResultaatID like '$key' AND $ResultaatZoekID like '$opdracht' LIMIT 1")){
-			toLog('error', $opdacht, $key, 'Huis-opdracht-combinatie opgeschoond');
+			toLog('error', $opdracht, $key, 'Huis-opdracht-combinatie opgeschoond');
 		}
 		return false;
 	} else {
@@ -1750,7 +1803,7 @@ function addHouse($data, $id) {
 }
 
 function updateHouse($data, $kenmerken, $erase = false) {
-	global $db, $TableHuizen, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenVerkocht, $HuizenOpenHuis;
+	global $db, $TableHuizen, $HuizenListing, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenVerkocht, $HuizenOpenHuis;
 	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
 	
 	# Als adres nog niet is opgeknipt, alsnog doen		
@@ -1764,7 +1817,8 @@ function updateHouse($data, $kenmerken, $erase = false) {
 	}
 			
 	$velden = array(
-		'url'				=> $HuizenURL,    
+		'tiny_id'		=> $HuizenID,
+		'url'			=> $HuizenURL,    
 		'adres'			=> $HuizenAdres,		
 		'straat'		=> $HuizenStraat,
 		'nummer'		=> $HuizenNummer,
@@ -1785,7 +1839,7 @@ function updateHouse($data, $kenmerken, $erase = false) {
 			$sql[] = $velden[$key] ." = '". urlencode($value) ."'";
 		}
 	}
-	$query = "UPDATE $TableHuizen SET ". implode(', ', $sql) ." WHERE $HuizenID like '". $data['id'] ."'";
+	$query = "UPDATE $TableHuizen SET ". implode(', ', $sql) ." WHERE $HuizenListing like '". $data['id'] ."'";
 	
 	if(!mysqli_query($db, $query)) {
 		echo $query ."<br>\n";
@@ -1810,17 +1864,18 @@ function updateHouse($data, $kenmerken, $erase = false) {
 }
 
 function getFundaData($id) {
-	global $db, $TableHuizen, $HuizenID, $HuizenID2, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenOffline, $HuizenVerkocht, $HuizenOpenHuis, $HuizenDetails;
+	global $db, $TableHuizen, $HuizenListing, $HuizenID, $HuizenID2, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenOffline, $HuizenVerkocht, $HuizenOpenHuis, $HuizenDetails;
 	$data = array();
 	 
   if($id != 0) {
-  	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenID = $id OR $HuizenID2 = $id";
+  	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenID = $id OR $HuizenID2 = $id OR $HuizenListing = $id";
 		$result = mysqli_query($db, $sql);
 	
 		if(mysqli_num_rows($result) > 0) {
 			$row = mysqli_fetch_array($result);
 			
-			$data['id']			= urldecode($row[$HuizenID]);
+			$data['id']			= urldecode($row[$HuizenListing]);
+			$data['tiny_id']	= urldecode($row[$HuizenID]);
 			$data['id_2']			= urldecode($row[$HuizenID2]);
 			$data['url']			= urldecode($row[$HuizenURL]);
 			$data['adres']		= urldecode($row[$HuizenAdres]);			

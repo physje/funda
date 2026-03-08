@@ -1,4 +1,5 @@
 
 *.htm
 *.html
+json\*
 offline\*
