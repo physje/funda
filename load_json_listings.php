@@ -53,14 +53,30 @@ foreach($files as $file) {
 	$data['PC_c']		= substr($dataArray['postcode'], 0, 4);
 	$data['PC_l']		= substr($dataArray['postcode'], 4, 2);
 	$data['plaats']		= $dataArray['city'];
-	#$data['makelaar']	= $dataArray[''];
-	$data['verkocht']	= ($dataArray['status'] == 'sold' ? 1 : 0);
+	#$data['makelaar']	= $dataArray[''];	
 	$data['openhuis']	= ($dataArray['open_house'] == 'true' ? 1 : 0);
 	$data['prijs']		= $dataArray['price'];
 	$data['thumb']		= substr($dataArray['photo_urls'][0], 0, -4).'_360x240.jpg';
+	$data['start']		= convertStr2Unix($dataArray['publication_date']);
+	
+	switch ($dataArray['characteristics']['Status']) {
+		case "Beschikbaar":
+			$data['verkocht'] = 0;
+			break;	
+		case "Verkocht onder voorbehoud":
+			$data['verkocht'] = 2;
+			break;
+		case "Verkocht":
+			$data['verkocht'] = 1;
+			break;
+		default:
+			$data['verkocht'] = 3;
+			break;
+	}
+		
 
 	# Na een aantal keer kan deze uit (dan is alle data wel ververst obv de JSON)
-	migrateID($data['tiny_id'], $data['id']);
+	#migrateID($data['tiny_id'], $data['id']);
 
 	$extraData['Aangeboden sinds']	= convertStr2Unix($dataArray['publication_date']);
 	$extraData['descr']				= $dataArray['description'];

@@ -1666,9 +1666,9 @@ function extractOpenHuisData($contents) {
 }
 
 function hasOpenHuis($id) {
-	global $db, $TableHuizen, $HuizenOpenHuis, $HuizenID;
+	global $db, $TableHuizen, $HuizenOpenHuis, $HuizenListing;
 	
-	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenOpenHuis = '1' AND $HuizenID = '$id'";
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenOpenHuis = '1' AND $HuizenListing = '$id'";
 	$result	= mysqli_query($db, $sql);
 	
 	if(mysqli_num_rows($result) == 1) {
@@ -1679,17 +1679,17 @@ function hasOpenHuis($id) {
 }
 
 function setOpenHuis($id) {
-	global $db, $TableHuizen, $HuizenOpenHuis, $HuizenID;
+	global $db, $TableHuizen, $HuizenOpenHuis, $HuizenListing;
 	
-	$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '1' WHERE $HuizenID = '$id'";
+	$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '1' WHERE $HuizenListing = '$id'";
 		
 	return mysqli_query($db, $sql);	
 }
 
 function removeOpenHuis($id) {
-	global $db, $TableHuizen, $HuizenOpenHuis, $HuizenID, $TableResultaat, $ResultaatOpenHuis, $ResultaatID;
+	global $db, $TableHuizen, $HuizenOpenHuis, $HuizenListing, $TableResultaat, $ResultaatOpenHuis, $ResultaatID;
 	
-	$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '0' WHERE $HuizenID = '$id'";
+	$sql = "UPDATE $TableHuizen SET $HuizenOpenHuis = '0' WHERE $HuizenListing = '$id'";
 	mysqli_query($db, $sql);
 	
 	$sql = "UPDATE $TableResultaat SET $ResultaatOpenHuis = '0' WHERE $ResultaatID = '$id'";
@@ -1748,14 +1748,14 @@ function saveHouse($data, $moreData) {
 	global $db, $TableHuizen, $HuizenListing, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
 	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
 			
-	if(!isset($data['begin'])) {
-		$begin_tijd = mktime(0, 0, 1);
+	if(!isset($data['begin']) || $data['begin'] == '' || $data['begin'] == 0) {
+		$begin_tijd = time();
 	} else {
 		$begin_tijd = $data['begin'];
 	}
 	
-	if(!isset($data['eind'])) {
-		$eind_tijd = mktime(23, 59, 59);
+	if(!isset($data['eind']) || $data['eind'] == '' || $data['eind'] == 0) {
+		$eind_tijd = time();
 	} else {
 		$eind_tijd = $data['eind'];
 	}	
@@ -2013,16 +2013,16 @@ function saveUpdateMember($id, $name, $username, $wachtwoord, $mail, $po_key, $p
 
 # Functies met betrekking tot het wel of niet inladen van details
 function mark4Details($fundaID) {
-	global $db, $TableHuizen, $HuizenDetails, $HuizenID, $HuizenID2;
+	global $db, $TableHuizen, $HuizenDetails, $HuizenListing, $HuizenID, $HuizenID2;
 	
-	$sql 		= "UPDATE $TableHuizen SET $HuizenDetails = '1' WHERE $HuizenID = $fundaID OR $HuizenID2 = $fundaID";
+	$sql 		= "UPDATE $TableHuizen SET $HuizenDetails = '1' WHERE $HuizenID = $fundaID OR $HuizenID2 = $fundaID OR $HuizenListing = $fundaID";
 	return mysqli_query($db, $sql);	
 }
 
 function remove4Details($fundaID) {
-	global $db, $TableHuizen, $HuizenDetails, $HuizenID;
+	global $db, $TableHuizen, $HuizenDetails, $HuizenListing;
 	
-	$sql 		= "UPDATE $TableHuizen SET $HuizenDetails = '0' WHERE $HuizenID = $fundaID";	
+	$sql 		= "UPDATE $TableHuizen SET $HuizenDetails = '0' WHERE $HuizenListing = $fundaID";	
 	return mysqli_query($db, $sql);
 }
 
