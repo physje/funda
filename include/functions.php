@@ -956,6 +956,8 @@ function updateVerkochtData($fundaID, $begin, $eind) {
 		toLog('error', '0', $fundaID, "Error met verwerken verkocht huis");
 		$HTML[] = $sql_update;
 	}
+
+	return $HTML;
 }
 
 function updateVerkochtDataFromPage($generalData, $data) {
