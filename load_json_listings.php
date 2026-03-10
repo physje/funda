@@ -73,7 +73,6 @@ foreach($files as $file) {
 			$data['verkocht'] = 3;
 			break;
 	}
-		
 
 	# Na een aantal keer kan deze uit (dan is alle data wel ververst obv de JSON)
 	#migrateID($data['tiny_id'], $data['id']);

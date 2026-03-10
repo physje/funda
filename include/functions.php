@@ -933,6 +933,8 @@ function migrateID(int $old, int $new) {
 function updateVerkochtData($fundaID, $begin, $eind) {
 	global $db, $TableHuizen, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenVerkocht, $HuizenOffline, $HuizenListing;
 
+	$HTML = array();
+
 	$FundaData = getFundaData($fundaID);
 
 	$start = min($FundaData['start'], $begin);
