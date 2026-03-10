@@ -158,7 +158,7 @@ foreach($files as $file) {
 		# Als hij wel verkocht is moeten we de administratie daarvan even bijwerken
 		} else {
 			#$temp = updateVerkochtDataFromPage($data, $extraData);
-			$temp = updateVerkochtData($data['id'], $data['start'], $data['eind']);
+			$temp = updateVerkochtData($fundaID, $data['start'], $data['eind']);
 			$String[] = implode("<br>\n", $temp)."<br>\n";
 		}
 		

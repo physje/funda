@@ -935,6 +935,8 @@ function updateVerkochtData($fundaID, $begin, $eind) {
 
 	$FundaData = getFundaData($fundaID);
 
+	$start = min($FundaData['start'], $begin);
+
 	$set[] = "$HuizenStart = $start";
 	$set[] = "$HuizenEind = $eind";
 	$set[] = "$HuizenVerkocht = '1'";
@@ -948,7 +950,6 @@ function updateVerkochtData($fundaID, $begin, $eind) {
 	if(mysqli_query($db, $sql_update)) {
 		$HTML[] = " -> begin- en eindtijd aangepast (verkocht)";
 		toLog('info', '0', $fundaID, "Huis is verkocht");
-		$changed_end = $changed_start = true;
 	} else {
 		toLog('error', '0', $fundaID, "Error met verwerken verkocht huis");
 		$HTML[] = $sql_update;
