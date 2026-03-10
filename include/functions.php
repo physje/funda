@@ -930,6 +930,31 @@ function migrateID(int $old, int $new) {
 
 }
 
+function updateVerkochtData($fundaID, $begin, $eind) {
+	global $db, $TableHuizen, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenVerkocht, $HuizenOffline, $HuizenListing;
+
+	$FundaData = getFundaData($fundaID);
+
+	$set[] = "$HuizenStart = $start";
+	$set[] = "$HuizenEind = $eind";
+	$set[] = "$HuizenVerkocht = '1'";
+
+	# Als er nog geen afmelddatum bekend is, maar wel een verkoopdatum
+	# De laatste bekende online datum verplaatsen naar afmelddatum
+	if($FundaData['afmeld'] < 10)	$set[] = "$HuizenAfmeld = ". $FundaData['eind'];
+
+	$sql_update = "UPDATE $TableHuizen SET ". implode(', ', $set) ." WHERE $HuizenListing like $fundaID";
+				
+	if(mysqli_query($db, $sql_update)) {
+		$HTML[] = " -> begin- en eindtijd aangepast (verkocht)";
+		toLog('info', '0', $fundaID, "Huis is verkocht");
+		$changed_end = $changed_start = true;
+	} else {
+		toLog('error', '0', $fundaID, "Error met verwerken verkocht huis");
+		$HTML[] = $sql_update;
+	}
+}
+
 function updateVerkochtDataFromPage($generalData, $data) {
 	global $db, $TableHuizen, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenVerkocht, $HuizenOffline, $HuizenID;
 	
