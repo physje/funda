@@ -95,6 +95,7 @@ foreach($files as $file) {
 	foreach($priceArray as $history) {
 		if($history['badge_text'] == 'Verkocht') {
 			$extraData['Verkoopdatum'] = convertStr2Unix($history['timestamp']);
+			$data['eind'] = $extraData['Verkoopdatum'];
 		}
 
 		if($history['badge_text'] == 'Vraagprijs') {
@@ -156,7 +157,8 @@ foreach($files as $file) {
 
 		# Als hij wel verkocht is moeten we de administratie daarvan even bijwerken
 		} else {
-			$temp = updateVerkochtDataFromPage($data, $extraData);
+			#$temp = updateVerkochtDataFromPage($data, $extraData);
+			$temp = updateVerkochtData($data['id'], $data['start'], $data['eind']);
 			$String[] = implode("<br>\n", $temp)."<br>\n";
 		}
 		
