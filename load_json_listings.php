@@ -142,7 +142,7 @@ foreach($files as $file) {
 		
 		$oldData = getFundaData($fundaID);
 		
-		updateHouse($data, $extraData);
+		updateHouse($data, $extraData, true);
 		//addCoordinates($data['adres'], $data['PC_c'], $data['plaats'], $fundaID);
 		addKnowCoordinates($dataArray["coordinates"], $fundaID);
 		#updatePrice($fundaID, $data['prijs'], time());
