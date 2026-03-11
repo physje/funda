@@ -58,6 +58,7 @@ foreach($files as $file) {
 	$data['prijs']		= $dataArray['price'];
 	$data['thumb']		= substr($dataArray['photo_urls'][0], 0, -4).'_360x240.jpg';
 	$data['start']		= convertStr2Unix($dataArray['publication_date']);
+	$data['eind']		= convertStr2Unix($dataArray['publication_date']);
 	
 	switch ($dataArray['characteristics']['Status']) {
 		case "Beschikbaar":
@@ -175,7 +176,7 @@ foreach($files as $file) {
 				toLog('info', $OpdrachtID, $data['id'], 'Open Huis toegevoegd voor '. formatStreetAndNumber($fundaID));
 			}
 		}
-						
+		
 		toLog('info', '0', $fundaID, 'Offline pagina van '. formatStreetAndNumber($fundaID) .' ingeladen');
 		remove4Details($fundaID);				
 		$success = true;
