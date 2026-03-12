@@ -7,7 +7,7 @@ $minUserLevel = 3;
 $cfgProgDir = 'auth/';
 include($cfgProgDir. "secure.php");
 
-$String = $block = array();
+$String = $files = $block = array();
 $success = false;
 	
 if ($handle = opendir($jsonDirList)) {

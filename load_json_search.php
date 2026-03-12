@@ -32,22 +32,25 @@ include_once(__DIR__ .'/include/HTML_TopBottom.php');
 # Doorloop alle offline-bestanden
 if(count($files) > 0) {
 	$file		= current($files);
-	$OpdrachtID = substr($file, 7, -5);
+	$OpdrachtID = substr($file, 5, -5);
 	
 	$AdressenArray = $String = array();
-	$addNewHouses = $verkocht = false;
-	$vorigePos = $offset = 0;
-		
+	$addNewHouses = false;
+
 	$OpdrachtData			= getOpdrachtData($OpdrachtID);
 	$PushMembers			= getMembers4Opdracht($OpdrachtID, 'push');
+
+	if(strpos($file, 'sold')) {
+		toLog('info', $OpdrachtID, '0', 'Inladen verkochte huizen voor '. $OpdrachtData['naam']);	
+		$verkocht = true;
+		$data['verkocht'] = 1;
+	} else {
+		toLog('info', $OpdrachtID, '0', 'Inladen huizen voor '. $OpdrachtData['naam']);	
+		$verkocht = false;
+	}
+		
 		
 	if($OpdrachtData['type'] == 1)	$addNewHouses = true;
-			
-	if($verkocht) {
-		toLog('info', $OpdrachtID, '0', 'Inladen verkochte huizen voor '. $OpdrachtData['naam']);
-	} else {
-		toLog('info', $OpdrachtID, '0', 'Inladen huizen voor '. $OpdrachtData['naam']);
-	}
 
 	$jsonHouses = file_get_contents($jsonDirSearch.$file);
 	$json = explode("\n", $jsonHouses);
