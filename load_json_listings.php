@@ -40,8 +40,10 @@ foreach($files as $file) {
 		foreach($offlineIDS as $ID) {
 			if(setOffline($ID)) {
 				$String[] = 'Huis '. $ID .' offline gezet<br>';
+				toLog('debug', '', $ID, 'Offline gezet');
 			} else {
 				$String[] = 'Kon huis '. $ID .' niet offline zetten<br>';
+				toLog('error', '', $ID, 'Kon niet offline zetten');
 			}
 		}
 		$success = true;
