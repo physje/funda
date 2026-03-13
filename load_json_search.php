@@ -88,7 +88,7 @@ if(count($files) > 0) {
 			$data['begin']			= convertStr2Unix($houseData['publish_date']);
 
 			# Na een aantal keer kan deze uit (dan is alle data wel ververst obv de JSON)
-			#migrateID($data['tiny_id'], $data['id']);
+			migrateID($data['tiny_id'], $data['id']);
 
 			$bekendHuis = false;
 			if(knownHouse($data['id']))	$bekendHuis = true;	
@@ -129,7 +129,7 @@ if(count($files) > 0) {
 				setOnline($data['id']);
 
 				# Na een aantal keer kan deze uit (dan is alle data wel ververst obv de JSON)
-				#updateHouse($data, array());
+				updateHouse($data, array());
 			}
 
 			# Huis is niet verkocht	
@@ -200,6 +200,8 @@ if(count($files) > 0) {
 		$handle = fopen("ids_". $OpdrachtID .".txt", "a+");
 		fwrite($handle, implode("\n", $ids)."\n");
 		fclose($handle);
+	} else {
+		$block[] = implode("<br>", $String)."\n";
 	}
 
 	# Alleen als de import succesvol is verlopen mag de pagina verwijderd worden

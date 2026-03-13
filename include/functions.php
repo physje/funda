@@ -930,8 +930,20 @@ function migrateID(int $old, int $new) {
 
 }
 
-function updateVerkochtData($fundaID, $begin, $eind) {
-	global $db, $TableHuizen, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenVerkocht, $HuizenOffline, $HuizenListing;
+/**
+ * Update de start- en einddatum in de database op basis van de gegevens uit de JSON-file
+ * 
+ * Als de startdatum die wordt meegegeven later is dan in de database staat, wordt deze niet geupdate
+ * Dit om de database niet te vervuilen als huizen offline gaan en daarna weer online gaan
+ * 
+ * @param int $fundaID GlobalID van funda
+ * @param int $begin UNIX-time van de startdatum
+ * @param int $eind UNIX-time van de einddatum
+ * 
+ * @return array Array met HTML-code
+ */
+function updateVerkochtData(int $fundaID, int $begin, int $eind) {
+	global $db, $TableHuizen, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenVerkocht, $HuizenListing;
 
 	$HTML = array();
 
@@ -960,7 +972,14 @@ function updateVerkochtData($fundaID, $begin, $eind) {
 	return $HTML;
 }
 
-function updateVerkochtDataFromPage($generalData, $data) {
+/**
+ * @param array $generalData
+ * @param array $data
+ * @deprecated
+ * 
+ * @return [type]
+ */
+function updateVerkochtDataFromPage(array $generalData, array $data) {
 	global $db, $TableHuizen, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenVerkocht, $HuizenOffline, $HuizenID;
 	
 	# Alles weer opnieuw initialiseren.
@@ -1263,6 +1282,16 @@ function formatStreetAndNumber($id) {
 #
 # OUTPUT
 #		boolean of het wel of niet gelukt is
+
+/**
+ * @param mixed $straat
+ * @param mixed $postcode
+ * @param mixed $plaats
+ * @param mixed $huisID
+ * @deprecated
+ * 
+ * @return [type]
+ */
 function addCoordinates($straat, $postcode, $plaats, $huisID) {
 	$elementen		= explode(' ', urldecode($straat));
 	
@@ -1351,6 +1380,21 @@ function setOnline($id) {
 		return true;
 	}
 }
+
+
+function setOffline($id) {
+	global $db, $TableHuizen, $HuizenOffline, $HuizenListing, $HuizenID, $HuizenID2;
+				
+	$sql = "UPDATE $TableHuizen SET $HuizenOffline = '1' WHERE $HuizenID like '$id' OR $HuizenID2 like '$id' OR $HuizenListing like '$id'";
+	
+	if(!mysqli_query($db, $sql)) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+
 
 function alreadyOnline($id) {
 	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPlaats, $HuizenID, $HuizenOffline, $HuizenVerkocht;
@@ -1595,6 +1639,13 @@ function getFullPriceHistory($input) {
 
 
 # Functies WOZ-waarde
+
+/**
+ * @param mixed $fundaID
+ * @deprecated
+ * 
+ * @return [type]
+ */
 function extractWOZwaarde($fundaID) {
 	$data = getFundaData($fundaID);
 	
@@ -1776,8 +1827,7 @@ function knownHouse($key) {
 
 function saveHouse($data, $moreData) {	
 	global $db, $TableHuizen, $HuizenListing, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind;
-	global $TableKenmerken, $KenmerkenID, $KenmerkenKenmerk, $KenmerkenValue;
-			
+				
 	if(!isset($data['begin']) || $data['begin'] == '' || $data['begin'] == 0) {
 		$begin_tijd = time();
 	} else {
@@ -1895,10 +1945,10 @@ function updateHouse($data, $kenmerken, $erase = false) {
 
 function getFundaData($id) {
 	global $db, $TableHuizen, $HuizenListing, $HuizenID, $HuizenID2, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenLat, $HuizenLon, $HuizenStart, $HuizenEind, $HuizenAfmeld, $HuizenOffline, $HuizenVerkocht, $HuizenOpenHuis, $HuizenDetails;
+	
 	$data = array();
-	 
-  if($id != 0) {
-  	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenID = $id OR $HuizenID2 = $id OR $HuizenListing = $id";
+	if($id != 0) {
+		$sql = "SELECT * FROM $TableHuizen WHERE $HuizenID = $id OR $HuizenID2 = $id OR $HuizenListing = $id";
 		$result = mysqli_query($db, $sql);
 	
 		if(mysqli_num_rows($result) > 0) {
@@ -1941,9 +1991,9 @@ function getFundaData($id) {
 function getFundaKenmerken($id) {
 	global $db, $TableKenmerken, $KenmerkenID, $KenmerkenValue, $KenmerkenKenmerk;
 	$data = array();
-	  
-  if($id != 0) {
-  	$sql = "SELECT * FROM $TableKenmerken WHERE $KenmerkenID = $id";
+
+	if($id != 0) {
+  		$sql = "SELECT * FROM $TableKenmerken WHERE $KenmerkenID = $id";
 		$result = mysqli_query($db, $sql);
 	
 		if($row = mysqli_fetch_array($result)) {
@@ -1964,8 +2014,9 @@ function getFundaKenmerken($id) {
 
 
 # Functies met betrekking tot het in- en uitschrijven van members
-function getMembers4Opdracht($OpdrachtID, $type) {
+function getMembers4Opdracht(int $OpdrachtID, $type) {
 	global $db, $TableAbo, $AboZoekID, $AboUserID, $AboType;
+	
 	$Members = array();
 	
 	$sql = "SELECT * FROM $TableAbo WHERE $AboZoekID like '$OpdrachtID' AND $AboType like '$type'";
@@ -1980,7 +2031,7 @@ function getMembers4Opdracht($OpdrachtID, $type) {
 	return $Members;
 }
 
-function addMember2Opdracht($opdracht, $user, $type) {
+function addMember2Opdracht(int $opdracht, int $user, $type) {
 	global $db, $TableAbo, $AboZoekID, $AboUserID, $AboType;
 	
 	$sql = "INSERT INTO $TableAbo ($AboZoekID, $AboUserID, $AboType) VALUES ($opdracht, $user, '$type')";
@@ -1994,7 +2045,7 @@ function removeMember4Opdracht($opdracht, $user, $type) {
 	return mysqli_query($db, $sql);
 }
 
-function getMemberDetails($id) {
+function getMemberDetails(int $id) {
 	global $db, $TableUsers, $UsersID, $UsersName, $UsersUsername, $UsersPassword, $UsersLevel, $UsersAdres, $UsersAccount, $UsersLastLogin, $UsersPOKey, $UsersPOToken;
 	
 	$sql		= "SELECT * FROM $TableUsers WHERE $UsersID like '$id'";
@@ -2050,9 +2101,9 @@ function mark4Details($fundaID) {
 }
 
 function remove4Details($fundaID) {
-	global $db, $TableHuizen, $HuizenDetails, $HuizenListing;
+	global $db, $TableHuizen, $HuizenDetails, $HuizenListing, $HuizenID, $HuizenID2;
 	
-	$sql 		= "UPDATE $TableHuizen SET $HuizenDetails = '0' WHERE $HuizenListing = $fundaID";	
+	$sql 		= "UPDATE $TableHuizen SET $HuizenDetails = '0' WHERE $HuizenID = $fundaID OR $HuizenID2 = $fundaID OR $HuizenListing = $fundaID";
 	return mysqli_query($db, $sql);
 }
 
@@ -2328,7 +2379,7 @@ function sendPushoverNewHouse($fundaID, $OpdrachtID) {
 			$push['message'] .= "\n\n".implode(" & ", getTimeBetween($extraData['eind'], $data['start'])) ." offline geweest ($onlineBefore)";
 		}
 				
-		$push['url']			= 'http://funda.nl/'. $fundaID;
+		$push['url']			= 'http://funda.nl/'. $data['tiny_id'];
 		$push['urlTitle']	= $data['adres'];
 		$push['priority']	= 0;
 		
@@ -2357,7 +2408,7 @@ function sendPushoverChangedPrice($fundaID, $OpdrachtID) {
 		    $push['message']	.= ", oorspronkelijke vraagprijs was ". formatPrice(reset($prijzen_array));
 		}
 		
-		$push['url']			= 'http://funda.nl/'. $fundaID;
+		$push['url']			= 'http://funda.nl/'. $fundaData['tiny_id'];
 		$push['urlTitle']	= $fundaData['adres'];
 		$push['priority']	= 0;
 		

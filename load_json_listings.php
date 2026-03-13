@@ -33,153 +33,167 @@ foreach($files as $file) {
 	$String = array();
 	$fileID = substr($file, 0, -5);
 
-	$json = file_get_contents($jsonDirList.$file);	
-	$listingArray = json_decode($json, true);	
+	if($fileID == 'offline') {
+		$json = file_get_contents($jsonDirList.$file);	
+		$offlineIDS = json_decode($json, true);
+		
+		foreach($offlineIDS as $ID) {
+			if(setOffline($ID)) {
+				$String[] = 'Huis '. $ID .' offline gezet<br>';
+			} else {
+				$String[] = 'Kon huis '. $ID .' niet offline zetten<br>';
+			}
+		}
+		$success = true;
+	} else {
+		$json = file_get_contents($jsonDirList.$file);	
+		$listingArray = json_decode($json, true);	
 
-	$json = file_get_contents($jsonDirList.$fileID.'_prices.json');
-	$priceArray = json_decode($json, true);
+		$json = file_get_contents($jsonDirList.$fileID.'_prices.json');
+		$priceArray = json_decode($json, true);
 
-	$dataArray = $listingArray['data'];
+		$dataArray = $listingArray['data'];
 
-	$data['id']			= $fundaID = $dataArray['global_id'];
-	$data['tiny_id']	= $dataArray['tiny_id'];
-	$data['url']		= $dataArray['url'];
-	$data['wijk']		= $dataArray['neighbourhood'];
-	$data['adres']		= $dataArray['title'];
-	$data['straat']		= '';#$dataArray[''];
-	$data['nummer']		= $dataArray['house_number'];
-	$data['letter']		= $dataArray['house_number_ext'];
-	#$data['toevoeging']	= $dataArray[''];
-	$data['PC_c']		= substr($dataArray['postcode'], 0, 4);
-	$data['PC_l']		= substr($dataArray['postcode'], 4, 2);
-	$data['plaats']		= $dataArray['city'];
-	#$data['makelaar']	= $dataArray[''];	
-	$data['openhuis']	= ($dataArray['open_house'] == 'true' ? 1 : 0);
-	$data['prijs']		= $dataArray['price'];
-	$data['thumb']		= substr($dataArray['photo_urls'][0], 0, -4).'_360x240.jpg';
-	$data['start']		= convertStr2Unix($dataArray['publication_date']);
-	$data['eind']		= convertStr2Unix($dataArray['publication_date']);
-	
-	switch ($dataArray['characteristics']['Status']) {
-		case "Beschikbaar":
-			$data['verkocht'] = 0;
-			break;	
-		case "Verkocht onder voorbehoud":
-			$data['verkocht'] = 2;
-			break;
-		case "Verkocht":
-			$data['verkocht'] = 1;
-			break;
-		default:
-			$data['verkocht'] = 3;
-			break;
-	}
-
-	# Na een aantal keer kan deze uit (dan is alle data wel ververst obv de JSON)
-	#migrateID($data['tiny_id'], $data['id']);
-
-	$extraData['Aangeboden sinds']	= convertStr2Unix($dataArray['publication_date']);
-	$extraData['descr']				= $dataArray['description'];
-
-	$foto = array();
-	foreach($dataArray['photo_urls'] as $f) {
-		$foto[] = substr($f, 0, -4).'_360x240.jpg';
-	}
-	
-	$extraData['foto']				= implode('|', $foto);
-
-	foreach($dataArray['characteristics'] as $key => $value) {
-		$extraData[$key] = trim(strip_tags($value));	
-	}
-
-	foreach($priceArray as $history) {
-		if($history['badge_text'] == 'Verkocht') {
-			$extraData['Verkoopdatum'] = convertStr2Unix($history['timestamp']);
-			$data['eind'] = $extraData['Verkoopdatum'];
+		$data['id']			= $fundaID = $dataArray['global_id'];
+		$data['tiny_id']	= $dataArray['tiny_id'];
+		$data['url']		= $dataArray['url'];
+		$data['wijk']		= $dataArray['neighbourhood'];
+		$data['adres']		= $dataArray['title'];
+		$data['straat']		= '';#$dataArray[''];
+		$data['nummer']		= $dataArray['house_number'];
+		$data['letter']		= $dataArray['house_number_ext'];
+		#$data['toevoeging']	= $dataArray[''];
+		$data['PC_c']		= substr($dataArray['postcode'], 0, 4);
+		$data['PC_l']		= substr($dataArray['postcode'], 4, 2);
+		$data['plaats']		= $dataArray['city'];
+		#$data['makelaar']	= $dataArray[''];	
+		$data['openhuis']	= ($dataArray['open_house'] == 'true' ? 1 : 0);
+		$data['prijs']		= $dataArray['price'];
+		$data['thumb']		= substr($dataArray['photo_urls'][0], 0, -4).'_360x240.jpg';
+		$data['start']		= convertStr2Unix($dataArray['publication_date']);
+		$data['eind']		= convertStr2Unix($dataArray['publication_date']);
+		
+		switch ($dataArray['characteristics']['Status']) {
+			case "Beschikbaar":
+				$data['verkocht'] = 0;
+				break;	
+			case "Verkocht onder voorbehoud":
+				$data['verkocht'] = 2;
+				break;
+			case "Verkocht":
+				$data['verkocht'] = 1;
+				break;
+			default:
+				$data['verkocht'] = 3;
+				break;
 		}
 
-		if($history['badge_text'] == 'Vraagprijs') {
-			$extraData['Aangeboden sinds'] = convertStr2Unix($history['timestamp']);
+		# Na een aantal keer kan deze uit (dan is alle data wel ververst obv de JSON)
+		#migrateID($data['tiny_id'], $data['id']);
+
+		$extraData['Aangeboden sinds']	= convertStr2Unix($dataArray['publication_date']);
+		$extraData['descr']				= $dataArray['description'];
+
+		$foto = array();
+		foreach($dataArray['photo_urls'] as $f) {
+			$foto[] = substr($f, 0, -4).'_360x240.jpg';
+		}
+		
+		$extraData['foto']				= implode('|', $foto);
+
+		foreach($dataArray['characteristics'] as $key => $value) {
+			$extraData[$key] = trim(strip_tags($value));	
 		}
 
-		if($history['source'] == 'Funda') {
-			updatePrice($fundaID, $history['price'], convertStr2Unix($history['timestamp']));
-		}
-	}
+		foreach($priceArray as $history) {
+			if($history['badge_text'] == 'Verkocht') {
+				$extraData['Verkoopdatum'] = convertStr2Unix($history['timestamp']);
+				$data['eind'] = $extraData['Verkoopdatum'];
+			}
 
-	# Als wij een huis niet kennen klopt er iets niet
-	if(!knownHouse($fundaID)) {
-		toLog('error', '0', $fundaID, 'Huis niet bekend');				
-											
-		#addHouse($data, $id)
-		if(saveHouse($data, $extraData)) {
-			$String[] = "<a href='". $ScriptURL ."admin/edit.php?id=". $fundaID ."'>". formatStreetAndNumber($data['id']) ."</a> blijkt nog niet te bestaan, daarom toegevoegd<br>\n";
-			
-			updateHouse($data, $extraData);			
-			addKnowCoordinates($dataArray["coordinates"], $fundaID);
-													
-			if($fundaID[0] == '8') {
-				$sql_slave	= "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '". urlencode($data['adres']) ."' AND  $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenDetails like '1' AND $HuizenID NOT LIKE ". $fundaID;
-				$result_slave	= mysqli_query($db, $sql_slave);										
+			if($history['badge_text'] == 'Vraagprijs') {
+				$extraData['Aangeboden sinds'] = convertStr2Unix($history['timestamp']);
+			}
+
+			if($history['source'] == 'Funda') {
+				updatePrice($fundaID, $history['price'], convertStr2Unix($history['timestamp']));
+			}
+		}
+
+		# Als wij een huis niet kennen klopt er iets niet
+		if(!knownHouse($fundaID)) {
+			toLog('error', '0', $fundaID, 'Huis niet bekend');				
+												
+			#addHouse($data, $id)
+			if(saveHouse($data, $extraData)) {
+				$String[] = "<a href='". $ScriptURL ."admin/edit.php?id=". $fundaID ."'>". formatStreetAndNumber($data['id']) ."</a> blijkt nog niet te bestaan, daarom toegevoegd<br>\n";
 				
-				if(mysqli_num_rows($result_slave) == 1) {
-					$row_slave = mysqli_fetch_array($result_slave);
+				updateHouse($data, $extraData);			
+				addKnowCoordinates($dataArray["coordinates"], $fundaID);
+														
+				if($fundaID[0] == '8') {
+					$sql_slave	= "SELECT * FROM $TableHuizen WHERE $HuizenAdres like '". urlencode($data['adres']) ."' AND  $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenDetails like '1' AND $HuizenID NOT LIKE ". $fundaID;
+					$result_slave	= mysqli_query($db, $sql_slave);										
 					
-					if(combineMasterSlave($fundaID, $row_slave[$HuizenID])) {
-						#$String[] = "-> ". $sql_huis;
-						$String[] = "-> lijkt master te zijn van <a href='http://www.funda.nl/".$row_slave[$HuizenID] ."'>". $row_slave[$HuizenID] ."</a>";
+					if(mysqli_num_rows($result_slave) == 1) {
+						$row_slave = mysqli_fetch_array($result_slave);
+						
+						if(combineMasterSlave($fundaID, $row_slave[$HuizenID])) {
+							#$String[] = "-> ". $sql_huis;
+							$String[] = "-> lijkt master te zijn van <a href='http://www.funda.nl/".$row_slave[$HuizenID] ."'>". $row_slave[$HuizenID] ."</a>";
+						}
 					}
 				}
-			}
-		} else {
-			$String[] = "<a href='". $ScriptURL ."admin/edit.php?id=$fundaID'>". formatStreetAndNumber($data['id']) ."</a> bleek nog niet te bestaan, maar kon niet toegevoegd worden<br>\n";					
-		}
-		$success = false;
-			
-	# Meestal zal het huis wel bekend zijn
-	} else {
-		$String[] = "Details van <a href='". $ScriptURL ."admin/edit.php?id=". $fundaID ."'>". formatStreetAndNumber($data['id']) ."</a> ingelezen<br>\n";
-		
-		$oldData = getFundaData($fundaID);
-		
-		updateHouse($data, $extraData, true);
-		//addCoordinates($data['adres'], $data['PC_c'], $data['plaats'], $fundaID);
-		addKnowCoordinates($dataArray["coordinates"], $fundaID);
-		#updatePrice($fundaID, $data['prijs'], time());
-		
-		# Als hij nog niet verkocht is moeten wij dat aangeven
-		if($data['verkocht'] != 1) {
-			if(isset($data['start']) AND $oldData['start'] > $data['start']) {
-				updateAvailability($fundaID, $data['start']);
 			} else {
-				updateAvailability($fundaID);
+				$String[] = "<a href='". $ScriptURL ."admin/edit.php?id=$fundaID'>". formatStreetAndNumber($data['id']) ."</a> bleek nog niet te bestaan, maar kon niet toegevoegd worden<br>\n";					
 			}
-
-		# Als hij wel verkocht is moeten we de administratie daarvan even bijwerken
+			$success = false;
+				
+		# Meestal zal het huis wel bekend zijn
 		} else {
-			#$temp = updateVerkochtDataFromPage($data, $extraData);
-			$temp = updateVerkochtData($fundaID, $data['start'], $data['eind']);
-			$String[] = implode("<br>\n", $temp)."<br>\n";
-		}
-		
-		# Hij heeft open huis, data invoegen in de database
-		if($data['openhuis'] == 1) {
-			$bestaandeTijden 	= getNextOpenhuis($fundaID);
-			$tijden						= $data['oh-tijden'];
-	
-			if($bestaandeTijden[0] != '' AND ($tijden[0] != $bestaandeTijden[0] OR $tijden[1] != $bestaandeTijden[1])) {
-				deleteOpenhuis($fundaID, $bestaandeTijden[0]);
-				addOpenhuis($fundaID, $tijden);
-				toLog('info', $OpdrachtID, $data['id'], 'Open Huis gewijzigd voor '. formatStreetAndNumber($fundaID));
-			} elseif($bestaandeTijden[0] == '') {
-				addOpenhuis($fundaID, $tijden);
-				toLog('info', $OpdrachtID, $data['id'], 'Open Huis toegevoegd voor '. formatStreetAndNumber($fundaID));
+			$String[] = "Details van <a href='". $ScriptURL ."admin/edit.php?id=". $fundaID ."'>". formatStreetAndNumber($data['id']) ."</a> ingelezen<br>\n";
+			
+			$oldData = getFundaData($fundaID);
+			
+			updateHouse($data, $extraData, true);
+			//addCoordinates($data['adres'], $data['PC_c'], $data['plaats'], $fundaID);
+			addKnowCoordinates($dataArray["coordinates"], $fundaID);
+			#updatePrice($fundaID, $data['prijs'], time());
+			
+			# Als hij nog niet verkocht is moeten wij dat aangeven
+			if($data['verkocht'] != 1) {
+				if(isset($data['start']) AND $oldData['start'] > $data['start']) {
+					updateAvailability($fundaID, $data['start']);
+				} else {
+					updateAvailability($fundaID);
+				}
+
+			# Als hij wel verkocht is moeten we de administratie daarvan even bijwerken
+			} else {
+				#$temp = updateVerkochtDataFromPage($data, $extraData);
+				$temp = updateVerkochtData($fundaID, $data['start'], $data['eind']);
+				$String[] = implode("<br>\n", $temp)."<br>\n";
 			}
-		}
+			
+			# Hij heeft open huis, data invoegen in de database
+			if($data['openhuis'] == 1) {
+				$bestaandeTijden 	= getNextOpenhuis($fundaID);
+				$tijden						= $data['oh-tijden'];
 		
-		toLog('info', '0', $fundaID, 'Offline pagina van '. formatStreetAndNumber($fundaID) .' ingeladen');
-		remove4Details($fundaID);				
-		$success = true;
+				if($bestaandeTijden[0] != '' AND ($tijden[0] != $bestaandeTijden[0] OR $tijden[1] != $bestaandeTijden[1])) {
+					deleteOpenhuis($fundaID, $bestaandeTijden[0]);
+					addOpenhuis($fundaID, $tijden);
+					toLog('info', $OpdrachtID, $data['id'], 'Open Huis gewijzigd voor '. formatStreetAndNumber($fundaID));
+				} elseif($bestaandeTijden[0] == '') {
+					addOpenhuis($fundaID, $tijden);
+					toLog('info', $OpdrachtID, $data['id'], 'Open Huis toegevoegd voor '. formatStreetAndNumber($fundaID));
+				}
+			}
+			
+			toLog('info', '0', $fundaID, 'Offline pagina van '. formatStreetAndNumber($fundaID) .' ingeladen');
+			remove4Details($fundaID);				
+			$success = true;
+		}
 	}
 	
 	# Alleen als de import succesvol is verlopen mag de pagina verwijderd worden
