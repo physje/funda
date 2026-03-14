@@ -169,7 +169,7 @@ if(count($files) > 0) {
 					toLog('info', $OpdrachtID, $data['id'], 'Niet meer onder voorbehoud verkocht');
 				}
 				*/
-			} elseif($verkocht AND $bekendHuis) {
+			} elseif($verkocht AND $bekendHuis AND !soldHouse($data['id'])) {
 				setSold($data['id']);
 				mark4Details($data['id']);
 			}
