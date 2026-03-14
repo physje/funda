@@ -91,7 +91,7 @@ foreach($files as $file) {
 		}
 
 		# Na een aantal keer kan deze uit (dan is alle data wel ververst obv de JSON)
-		#migrateID($data['tiny_id'], $data['id']);
+		migrateID($data['tiny_id'], $data['id']);
 
 		$extraData['Aangeboden sinds']	= convertStr2Unix($dataArray['publication_date']);
 		$extraData['descr']				= $dataArray['description'];

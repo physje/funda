@@ -1394,6 +1394,17 @@ function setOffline($id) {
 	}
 }
 
+function setSold($id) {
+	global $db, $TableHuizen, $HuizenVerkocht, $HuizenListing, $HuizenID, $HuizenID2;
+				
+	$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '1' WHERE $HuizenID like '$id' OR $HuizenID2 like '$id' OR $HuizenListing like '$id'";
+	
+	if(!mysqli_query($db, $sql)) {
+		return false;
+	} else {
+		return true;
+	}
+}
 
 
 function alreadyOnline($id) {

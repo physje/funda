@@ -39,8 +39,8 @@ if(count($files) > 0) {
 
 	$OpdrachtData			= getOpdrachtData($OpdrachtID);
 	$PushMembers			= getMembers4Opdracht($OpdrachtID, 'push');
-
-	if(strpos($file, 'sold')) {
+	
+	if(is_numeric(strpos($file, 'sold'))) {
 		toLog('info', $OpdrachtID, '0', 'Inladen verkochte huizen voor '. $OpdrachtData['naam']);	
 		$verkocht = true;
 		$data['verkocht'] = 1;
@@ -169,6 +169,9 @@ if(count($files) > 0) {
 					toLog('info', $OpdrachtID, $data['id'], 'Niet meer onder voorbehoud verkocht');
 				}
 				*/
+			} elseif($verkocht AND $bekendHuis) {
+				setSold($data['id']);
+				mark4Details($data['id']);
 			}
 
 			# Kijk of dit huis al vaker gevonden is voor deze opdracht
