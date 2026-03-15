@@ -25,7 +25,7 @@ if($row = mysqli_fetch_array($result)) {
 		$counter++;
 		$allCounter++;
 		if($counter > $batch || $allCounter > $total) {
-			$myfile = fopen($dir.'/'.$filename.'_'.$fileCounter.".json", "w");
+			$myfile = fopen($dir.'/'.$filename.'_'.substr('0'.$fileCounter, -2).".json", "w");
 			fwrite($myfile, json_encode($ids));
 			fclose($myfile);
 			
