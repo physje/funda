@@ -42,8 +42,7 @@ if(count($files) > 0) {
 	
 	if(is_numeric(strpos($file, 'sold'))) {
 		toLog('info', $OpdrachtID, '0', 'Inladen verkochte huizen voor '. $OpdrachtData['naam']);	
-		$verkocht = true;
-		$data['verkocht'] = 1;
+		$verkocht = true;		
 	} else {
 		toLog('info', $OpdrachtID, '0', 'Inladen huizen voor '. $OpdrachtData['naam']);	
 		$verkocht = false;
@@ -80,7 +79,7 @@ if(count($files) > 0) {
 			$data['thumb']			= '';#substr($houseData['photo_urls'][0], 0, -4).'_360x240.jpg';
 			$data['makelaar']		= $houseData['broker_name'];
 			$data['prijs']			= $houseData['price'];
-			$data['verkocht']		= 0;
+			$data['verkocht']		= ($verkocht ? 1 : 0);
 			#$data['vov']			= 0;#$houseData[''];
 			#$data['optie']			= 0;#$houseData[''];
 			#$data['openhuis']		= 0;#$houseData[''];
