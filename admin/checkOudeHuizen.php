@@ -125,7 +125,7 @@ if(!isset($_POST['submit']) AND !isset($_REQUEST['id'])) {
 			$soldState = $row[$HuizenVerkocht];
 			$counter++;
 			
-			$url = 'http://www.funda.nl/'.$row[$HuizenID];
+			$url = 'http://www.funda.nl/detail/'.$row[$HuizenID];
 			
 			$HTML[] = '<b>'. urldecode($row[$HuizenAdres]) ."</b> (". urldecode($row[$HuizenPlaats]) .")<br>".NL;
 			$HTML[] = date("d-m-Y", $row[$HuizenStart]) ." tot ". date("d-m-Y", $row[$HuizenEind]) ." | ". $states[$soldState] ."<br>".NL;

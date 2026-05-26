@@ -1394,6 +1394,13 @@ function setOffline($id) {
 	}
 }
 
+
+/**
+ * @param mixed $id
+ * @deprecated
+ * 
+ * @return [type]
+ */
 function setSold($id) {
 	global $db, $TableHuizen, $HuizenVerkocht, $HuizenListing, $HuizenID, $HuizenID2;
 				
@@ -1403,6 +1410,39 @@ function setSold($id) {
 		return false;
 	} else {
 		return true;
+	}
+}
+
+/**
+ * @param mixed $id ID van het huis
+ * @param mixed $state nieuwe status
+ * 
+ * @return bool Geslaagd of niet
+ */
+function changeSoldState($id, $state) {
+	global $db, $TableHuizen, $HuizenVerkocht, $HuizenListing, $HuizenID, $HuizenID2;
+				
+	$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = $state WHERE $HuizenID like '$id' OR $HuizenID2 like '$id' OR $HuizenListing like '$id'";
+	
+	if(!mysqli_query($db, $sql)) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+
+function getSoldState($key) {
+	global $db, $TableHuizen, $HuizenVerkocht, $HuizenListing, $HuizenID, $HuizenID2;
+
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenID like '$key' OR $HuizenID2 like '$key' OR $HuizenListing like '$key'";
+	$result	= mysqli_query($db, $sql);		
+	
+	if(mysqli_num_rows($result) == 0) {
+		return false;
+	} else {
+		$row = mysqli_fetch_array($result);
+		return $row[$HuizenVerkocht];
 	}
 }
 
@@ -1441,6 +1481,12 @@ function onlineBefore($id) {
 
 
 # Functies met betrekking tot het verkopen van huizen
+/**
+ * @param mixed $key
+ * @deprecated
+ * 
+ * @return [type]
+ */
 function soldHouse($key) {
 	global $db, $TableHuizen, $HuizenID, $HuizenID2, $HuizenVerkocht;	
 		
@@ -1453,6 +1499,12 @@ function soldHouse($key) {
 	}
 }
 
+/**
+ * @param mixed $key
+ * @deprecated
+ * 
+ * @return [type]
+ */
 function soldHouseTentative($key) {
 	global $db, $TableHuizen, $HuizenID, $HuizenID2, $HuizenVerkocht;	
 		
@@ -1465,6 +1517,12 @@ function soldHouseTentative($key) {
 	}
 }
 
+/**
+ * @param mixed $key
+ * @deprecated
+ * 
+ * @return [type]
+ */
 function soldHouseOption($key) {
 	global $db, $TableHuizen, $HuizenID, $HuizenID2, $HuizenVerkocht;	
 		
@@ -1855,6 +1913,30 @@ function saveHouse($data, $moreData) {
 	$sql .= "($HuizenListing, $HuizenID, $HuizenURL, $HuizenAdres, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPC_c, $HuizenPC_l, $HuizenPlaats, $HuizenWijk, $HuizenThumb, $HuizenMakelaar, $HuizenStart, $HuizenEind) ";
 	$sql .= "VALUES ";
 	$sql .= "('". $data['id'] ."', '". $data['tiny_id'] ."', '". urlencode($data['url']) ."', '". urlencode($data['adres']) ."', '". urlencode($data['straat']) ."', '". $data['nummer'] ."', '". urlencode($data['letter']) ."', '". $data['toevoeging'] ."', '". $data['PC_c'] ."', '". $data['PC_l'] ."', '". urlencode($data['plaats']) ."', '". urlencode($data['wijk']) ."', '". urlencode($data['thumb']) ."', '". urlencode($data['makelaar']) ."', '$begin_tijd', '$eind_tijd')";
+				
+	if(!mysqli_query($db, $sql)) {		
+		return false;
+	}
+		
+	return true;
+}
+
+			
+function storeHouse($data) {	
+	global $db, $TableHuizen, $HuizenListing, $HuizenID, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenPlaats, $HuizenMakelaar, $HuizenStart, $HuizenVerkocht, $HuizenEind;
+				
+	if(!isset($data['begin']) || $data['begin'] == '' || $data['begin'] == 0) {
+		$begin_tijd = time();
+	} else {
+		$begin_tijd = $data['begin'];
+	}
+	
+	$eind_tijd = time();
+	
+	$sql  = "INSERT INTO $TableHuizen ";
+	$sql .= "($HuizenListing, $HuizenID, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenPlaats, $HuizenMakelaar, $HuizenVerkocht, $HuizenStart, $HuizenEind) ";
+	$sql .= "VALUES ";
+	$sql .= "('". $data['id'] ."', '". $data['tiny_id'] ."', '". urlencode($data['straat']) ."', '". $data['nummer'] ."', '". urlencode($data['letter']) ."', '". urlencode($data['plaats']) ."', '". urlencode($data['makelaar']) ."', 0, '$begin_tijd', '$eind_tijd')";
 				
 	if(!mysqli_query($db, $sql)) {		
 		return false;

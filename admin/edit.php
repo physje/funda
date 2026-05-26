@@ -56,7 +56,7 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "<table border=0 width='100%'>";	
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Adres</td>";
-		$HTML[] = "	<td>". $data['adres'] ."<br><input type='text' name='straat' value=\"". $data['straat'] ."\" size='15'> <input type='text' name='nummer' value='". $data['nummer'] ."' size='1'> <input type='text' name='letter' value='". $data['letter'] ."' size='1'> <input type='text' name='toevoeging' value='". $data['toevoeging'] ."' size='1'><div class='float_rechts'><a href='http://funda.nl/". $data['tiny_id'] ."' target='_blank'>funda.nl</a></div></td>";
+		$HTML[] = "	<td>". $data['adres'] ."<br><input type='text' name='straat' value=\"". $data['straat'] ."\" size='15'> <input type='text' name='nummer' value='". $data['nummer'] ."' size='1'> <input type='text' name='letter' value='". $data['letter'] ."' size='1'> <input type='text' name='toevoeging' value='". $data['toevoeging'] ."' size='1'><div class='float_rechts'><a href='http://funda.nl/detail/". $data['tiny_id'] ."' target='_blank'>funda.nl</a></div></td>";
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td></td>";
@@ -128,7 +128,7 @@ if(isset($_REQUEST['id'])) {
 		$HTML[] = "</tr>";
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td>Verkocht</td>";
-		$HTML[] = "	<td><input type='radio' name='verkocht' value='0'". ($data['verkocht'] == '0' ? ' checked' : '') .">Nee<br><input type='radio' name='verkocht' value='3'". ($data['verkocht'] == '3' ? ' checked' : '') .">Onder optie<br><input type='radio' name='verkocht' value='2'". ($data['verkocht'] == '2' ? ' checked' : '') .">Onder voorbehoud<br><input type='radio' name='verkocht' value='1'". ($data['verkocht'] == '1' ? ' checked' : '') .">Ja</td>";
+		$HTML[] = "	<td><input type='radio' name='verkocht' value='0'". ($data['verkocht'] == '0' ? ' checked' : '') .">Nee<br><input type='radio' name='verkocht' value='4'". ($data['verkocht'] == '4' ? ' checked' : '') .">Onder bod<br><input type='radio' name='verkocht' value='3'". ($data['verkocht'] == '3' ? ' checked' : '') .">Onder optie<br><input type='radio' name='verkocht' value='2'". ($data['verkocht'] == '2' ? ' checked' : '') .">Onder voorbehoud<br><input type='radio' name='verkocht' value='1'". ($data['verkocht'] == '1' ? ' checked' : '') .">Ja</td>";
 		$HTML[] = "</tr>";		
 		$HTML[] = "<tr>";
 		$HTML[] = "	<td colspan='2'>&nbsp;</td>";
