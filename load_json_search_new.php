@@ -65,7 +65,8 @@ if(count($files) > 0) {
 			$data['id']				= $houseData['global_id'];
 			$data['straat']			= $houseData['street_name'];
 			$data['nummer']			= $houseData['house_number'];
-			$data['letter']			= $houseData['house_number_suffix'];			
+			$data['letter']			= $houseData['house_number_suffix'];
+			$data['plaats']			= $houseData['city'];		
 			$data['prijs']			= $houseData['price'];
 			$data['makelaar']		= $houseData['broker_name'];
 			$data['tiny_id']		= $houseData['tiny_id'];
@@ -210,7 +211,7 @@ if(count($files) > 0) {
 					toLog('debug', $OpdrachtID, $data['id'], 'Huis toegekend aan opdracht');
 				}
 			
-				$NewAddress[] = $data['adres'];
+				$NewAddress[] = $data['straat'].' '.$data['nummer'];
 					
 				if($debug == 0 AND !$verkocht) {
 					sendPushoverNewHouse($data['id'], $OpdrachtID);

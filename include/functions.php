@@ -2450,16 +2450,16 @@ function sendPushoverNewHouse($fundaID, $OpdrachtID) {
 		$alreadyOnline	= alreadyOnline($fundaID);
 		$onlineBefore		= onlineBefore($fundaID);
 		
-		$WOZwaardes			= extractWOZwaarde($fundaID);		
-		$WOZwaarde			= current($WOZwaardes);
+		#$WOZwaardes			= extractWOZwaarde($fundaID);		
+		#$WOZwaarde			= current($WOZwaardes);
 				
 		$push = array();
 		$push['title']		= "Nieuw huis voor '". $OpdrachtData['naam'] ."'";
 		$push['message']	= $data['straat'] .' '. $data['nummer'] .' in '. $data['plaats'] .' is te koop voor '. formatPrice($data['prijs']);
 		
-		if(is_numeric($WOZwaarde)) {
-			$push['message'] .= "\nLaatst bekende WOZ-waarde is ".formatPrice($WOZwaarde);
-		}
+		#if(is_numeric($WOZwaarde)) {
+		#	$push['message'] .= "\nLaatst bekende WOZ-waarde is ".formatPrice($WOZwaarde);
+		#}
 		
 		if(is_numeric($soldBefore)) {
 			$extraData = getFundaData($soldBefore);
@@ -2472,7 +2472,7 @@ function sendPushoverNewHouse($fundaID, $OpdrachtID) {
 			$push['message'] .= "\n\n".implode(" & ", getTimeBetween($extraData['eind'], $data['start'])) ." offline geweest ($onlineBefore)";
 		}
 				
-		$push['url']			= 'http://funda.nl/'. $data['tiny_id'];
+		$push['url']			= 'http://funda.nl/detail/'. $data['tiny_id'];
 		$push['urlTitle']	= $data['adres'];
 		$push['priority']	= 0;
 		

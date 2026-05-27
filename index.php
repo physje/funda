@@ -52,7 +52,7 @@ if($_SESSION['level'] > 2) {
 	#$onderhoud['check.php']											= 'Check funda';
 	$onderhoud['admin/checkOudeHuizen.php']			= 'Zie welke huizen al even van de radar zijn';
 	#$onderhoud['admin/details2Download.php']		= 'Overzicht van huizen waar de details van ontbreken';	
-	$onderhoud['load_json_search.php']		= 'Importeer JSON met resultaten van zoekopdracht';
+	$onderhoud['load_json_search_new.php']		= 'Importeer JSON met resultaten van zoekopdracht';
 	$onderhoud['admin/JSON_download.php']		= 'Exporteer JSON van huizen waar de details van ontbreken';
 	$onderhoud['load_json_listings.php']		= 'Importeer JSON met details van huizen';
 	$onderhoud['check_offline.php']											= 'Laad offline HTML-pagina in';	

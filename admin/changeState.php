@@ -19,6 +19,7 @@ if(!isset($_REQUEST['state']) OR !isset($_REQUEST['id'])) {
 		if($_REQUEST['state'] == 'verkocht')	$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '1' WHERE $HuizenID = ".$_REQUEST['id'];
 		if($_REQUEST['state'] == 'voorbehoud')	$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '2', $HuizenEind = '". time() ."' WHERE $HuizenID = ".$_REQUEST['id'];
 		if($_REQUEST['state'] == 'optie')			$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '3', $HuizenEind = '". time() ."' WHERE $HuizenID = ".$_REQUEST['id'];
+		if($_REQUEST['state'] == 'bod')			$sql = "UPDATE $TableHuizen SET $HuizenVerkocht = '4', $HuizenEind = '". time() ."' WHERE $HuizenID = ".$_REQUEST['id'];
 		if($_REQUEST['state'] == 'offline')		$sql = "UPDATE $TableHuizen SET $HuizenOffline = '1' WHERE $HuizenID = ".$_REQUEST['id'];
 		if($_REQUEST['state'] == 'ignore')		$sql = "INSERT INTO $TableIgnore ($IgnoreID) VALUES (". $_REQUEST['id'] .")";
 		if($_REQUEST['state'] == 'available')		$sql = "UPDATE $TableHuizen SET $HuizenEind = '". time() ."' WHERE $HuizenID = ".$_REQUEST['id'];
