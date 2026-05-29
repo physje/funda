@@ -2442,9 +2442,9 @@ function sendPushoverNewHouse($fundaID, $OpdrachtID) {
 				
 	# Pushover-bericht opstellen
 	if(count($PushMembers) > 0) {
-		$data						= getFundaData($fundaID);
+		$data			= getFundaData($fundaID);
 		$data['prijs']	= getHuidigePrijs($fundaID);
-		$OpdrachtData		= getOpdrachtData($OpdrachtID);
+		$OpdrachtData	= getOpdrachtData($OpdrachtID);
 	
 		$soldBefore			= soldBefore($fundaID);
 		$alreadyOnline	= alreadyOnline($fundaID);
@@ -2473,7 +2473,7 @@ function sendPushoverNewHouse($fundaID, $OpdrachtID) {
 		}
 				
 		$push['url']			= 'http://funda.nl/detail/'. $data['tiny_id'];
-		$push['urlTitle']	= $data['adres'];
+		$push['urlTitle']	= formatStreetAndNumber($fundaID);
 		$push['priority']	= 0;
 		
 		send2Pushover($push, $PushMembers);
@@ -2958,6 +2958,23 @@ function corrigeerPrice($t1, $p1, $t2 = '', $regio = 'Totaal') {
 		
 	return (($factor_2/$factor_1)*$p1);
 }
+
+
+
+function ignoreHouse4Combine($id) {
+	global $db, $TableIgnore, $IgnoreID;
+	
+	$sql = "SELECT * FROM $TableIgnore WHERE $IgnoreID like '$id'";
+	
+	$result = mysqli_query($db, $sql);
+	if(mysqli_num_rows($result) > 0) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+
 
 function combineMasterSlave($master, $slave) {
 	global $db, $TableHuizen, $HuizenID2, $HuizenID, $TableResultaat, $ResultaatID;
