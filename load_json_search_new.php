@@ -66,7 +66,7 @@ if(count($files) > 0) {
 			$data['straat']			= $houseData['street_name'];
 			$data['nummer']			= $houseData['house_number'];
 			$data['letter']			= $houseData['house_number_suffix'];
-			$data['plaats']			= $houseData['city'];		
+			$data['plaats']			= $houseData['plaats'];		
 			$data['prijs']			= $houseData['price'];
 			$data['makelaar']		= $houseData['broker_name'];
 			$data['tiny_id']		= $houseData['tiny_id'];

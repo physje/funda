@@ -1448,11 +1448,12 @@ function getSoldState($key) {
 
 
 function alreadyOnline($id) {
-	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPlaats, $HuizenID, $HuizenOffline, $HuizenVerkocht;
+	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPlaats, $HuizenID, $HuizenID2, $HuizenListing, $HuizenOffline, $HuizenVerkocht;
 		
 	$data = getFundaData($id);
 	
-	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer = ". $data['nummer'] ." AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging = '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenOffline like '0' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";		
+	//TODO: Check of alle 3 de ID's wel nodig zijn
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer = ". $data['nummer'] ." AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging = '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenOffline like '0' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id' AND $HuizenID2 not like '$id' AND $HuizenListing not like '$id'";
 	$result	= mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) == 0) {
 		return false;
@@ -1463,11 +1464,12 @@ function alreadyOnline($id) {
 }
 
 function onlineBefore($id) {
-	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPlaats, $HuizenID, $HuizenOffline, $HuizenVerkocht;
+	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPlaats, $HuizenID, $HuizenID2, $HuizenListing, $HuizenOffline, $HuizenVerkocht;
 	
 	$data = getFundaData($id);
-	
-	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer = ". $data['nummer'] ." AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging = '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenOffline like '1' AND $HuizenVerkocht like '0' AND $HuizenID not like '$id'";
+
+	//TODO: Check of alle 3 de ID's wel nodig zijn	
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer = ". $data['nummer'] ." AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging = '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenOffline like '1' AND $HuizenVerkocht like '0'  AND $HuizenID not like '$id' AND $HuizenID2 not like '$id' AND $HuizenListing not like '$id'";
 
 	$result	= mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) == 0) {
@@ -1536,11 +1538,12 @@ function soldHouseOption($key) {
 }
 
 function soldBefore($id) {
-	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPlaats, $HuizenID, $HuizenVerkocht;
+	global $db, $TableHuizen, $HuizenStraat, $HuizenNummer, $HuizenLetter, $HuizenToevoeging, $HuizenPlaats, $HuizenID, $HuizenID2, $HuizenListing, $HuizenVerkocht;
 	
 	$data = getFundaData($id);
-	
-	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer = ". $data['nummer'] ." AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging = '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenVerkocht like '1' AND $HuizenID not like '$id'";
+
+	//TODO: Check of alle 3 de ID's wel nodig zijn
+	$sql = "SELECT * FROM $TableHuizen WHERE $HuizenStraat like '". urlencode($data['straat']) ."' AND $HuizenNummer = ". $data['nummer'] ." AND $HuizenLetter like '". urlencode($data['letter']) ."' AND $HuizenToevoeging = '". $data['toevoeging'] ."' AND $HuizenPlaats like '". urlencode($data['plaats']) ."' AND $HuizenVerkocht like '1' AND $HuizenID not like '$id' AND $HuizenID2 not like '$id' AND $HuizenListing not like '$id'";
 		
 	$result	= mysqli_query($db, $sql);
 	if(mysqli_num_rows($result) == 0) {
@@ -2446,9 +2449,9 @@ function sendPushoverNewHouse($fundaID, $OpdrachtID) {
 		$data['prijs']	= getHuidigePrijs($fundaID);
 		$OpdrachtData	= getOpdrachtData($OpdrachtID);
 	
-		$soldBefore			= soldBefore($fundaID);
+		$soldBefore		= soldBefore($fundaID);
 		$alreadyOnline	= alreadyOnline($fundaID);
-		$onlineBefore		= onlineBefore($fundaID);
+		$onlineBefore	= onlineBefore($fundaID);
 		
 		#$WOZwaardes			= extractWOZwaarde($fundaID);		
 		#$WOZwaarde			= current($WOZwaardes);
