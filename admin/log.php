@@ -44,8 +44,8 @@ if(isset($_REQUEST['selectie']) AND $_REQUEST['selectie'] != '') {
 	$selectie	= '';
 }
 
-if(isset($_REQUEST['id'])) {
-	$huis = $_REQUEST['id'];
+if(isset($_REQUEST['huis'])) {
+	$huis = $_REQUEST['huis'];
 } elseif(isset($_POST['search_house'])) {
 	$elementen = getString('[', ']', $_POST['adres_input'], 0);
 	$huis = $elementen[0];
