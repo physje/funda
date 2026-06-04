@@ -56,8 +56,8 @@ if(count($files) > 0) {
 		if($jsonHouse != '') {
 			$newHouse	= false;
 			$verkocht	= false;
-			$vov		= false;
-			$bod		= false;
+			#$vov		= false;
+			#$bod		= false;
 
 			set_time_limit(10);
 			$houseData = json_decode($jsonHouse, true);
@@ -84,19 +84,23 @@ if(count($files) > 0) {
 					break;
 				case "Verkocht onder voorbehoud":
 					$data['verkocht'] = 2;
-					$vov = true;
+					#$vov = true;
 					break;
 				case "Onder optie":
 					$data['verkocht'] = 3;
-					$bod = true;
+					#$bod = true;
 					break;
 				case "Onder bod":
 					$data['verkocht'] = 4;
-					$bod = true;
+					#$bod = true;
 					break;
 				default:
 					$data['verkocht'] = 0;
 					break;
+			}
+
+			if(!is_numeric($data['prijs'])) {
+				$data['prijs'] = 0;
 			}
 
 			# Na een aantal keer kan deze uit (dan is alle data wel ververst obv de JSON)
